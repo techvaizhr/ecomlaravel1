@@ -247,18 +247,18 @@
         <!-- 1. LEFT ICON RAIL (Always visible on desktop & in collapsed mode) -->
         <div class="sidebar-icon-rail">
           <div class="icon-rail-nav">
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-main' ? 'active' : '' }}" data-section="section-main" title="Main Menu" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-main' ? 'active' : '' }}" data-section="section-main" title="Main Menu" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="grid"></i>
             </a>
 
             @canany(['user-list', 'role-list', 'permission-list', 'customer-list', 'vendor-list', 'reseller-list', 'delivery-boy-list', 'employee-list'])
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-people' ? 'active' : '' }}" data-section="section-people" title="People & Partners" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-people' ? 'active' : '' }}" data-section="section-people" title="People & Partners" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="users"></i>
             </a>
             @endcanany
 
             @canany(['order-list', 'order-edit', 'order-create', 'fraud-check'])
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-orders' ? 'active' : '' }}" data-section="section-orders" title="Sales & Orders" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-orders' ? 'active' : '' }}" data-section="section-orders" title="Sales & Orders" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="shopping-cart"></i>
               @if(isset($neworder) && $neworder > 0)
                 <span class="rail-badge">{{ $neworder }}</span>
@@ -267,31 +267,31 @@
             @endcanany
 
             @canany(['product-list', 'category-list', 'subcategory-list', 'childcategory-list', 'brand-list', 'color-list', 'size-list', 'purchase-list', 'supplier-list'])
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-catalog' ? 'active' : '' }}" data-section="section-catalog" title="Catalog & Inventory" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-catalog' ? 'active' : '' }}" data-section="section-catalog" title="Catalog & Inventory" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="package"></i>
             </a>
             @endcanany
 
             @canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit'])
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-finance' ? 'active' : '' }}" data-section="section-finance" title="Finance & Accounts" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-finance' ? 'active' : '' }}" data-section="section-finance" title="Finance & Accounts" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="dollar-sign"></i>
             </a>
             @endcanany
 
             @canany(['setting-list', 'social-list', 'contact-list', 'api-manage', 'email-setting-list', 'complaint-list', 'seo-manage', 'sitemap-manage', 'cache-clear', 'error-log-view'])
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-settings' ? 'active' : '' }}" data-section="section-settings" title="System & Settings" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-settings' ? 'active' : '' }}" data-section="section-settings" title="System & Settings" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="settings"></i>
             </a>
             @endcanany
 
             @canany(['pixel-manage', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-analytics' ? 'active' : '' }}" data-section="section-analytics" title="Analytics & Reports" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-analytics' ? 'active' : '' }}" data-section="section-analytics" title="Analytics & Reports" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="bar-chart-2"></i>
             </a>
             @endcanany
 
             @canany(['campaign-list', 'coupon-list', 'banner-list', 'popup-list', 'review-list', 'blog-list', 'sms-send'])
-            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-marketing' ? 'active' : '' }}" data-section="section-marketing" title="Marketing & Promotions" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-marketing' ? 'active' : '' }}" data-section="section-marketing" title="Marketing & Promotions" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="target"></i>
               @if($pending_reviews > 0)
                 <span class="rail-badge">{{ $pending_reviews }}</span>
@@ -301,7 +301,7 @@
           </div>
 
           <div class="icon-rail-footer">
-            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rail-logout-form').submit();" class="rail-item rail-logout-btn" title="Logout" data-bs-toggle="tooltip" data-bs-placement="right">
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rail-logout-form').submit();" class="rail-item rail-logout-btn" title="Logout" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="log-out"></i>
             </a>
             <form id="rail-logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -1312,10 +1312,39 @@
                     }
                 }
 
-                // Rail item click handler
+                // Rail item click & hover cleanup
                 railItems.forEach(function (item) {
+                    item.addEventListener('mouseleave', function () {
+                        this.blur();
+                        try {
+                            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                                var tip = bootstrap.Tooltip.getInstance(this);
+                                if (tip) tip.hide();
+                            }
+                            if (typeof jQuery !== 'undefined' && typeof jQuery(this).tooltip === 'function') {
+                                jQuery(this).tooltip('hide');
+                            }
+                        } catch (err) {}
+                    });
+
                     item.addEventListener('click', function (e) {
                         e.preventDefault();
+                        this.blur();
+                        
+                        try {
+                            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                                var tip = bootstrap.Tooltip.getInstance(this);
+                                if (tip) tip.hide();
+                            }
+                            if (typeof jQuery !== 'undefined' && typeof jQuery(this).tooltip === 'function') {
+                                jQuery(this).tooltip('hide');
+                            }
+                        } catch (err) {}
+
+                        document.querySelectorAll('.tooltip.show, .bs-tooltip-end, .bs-tooltip-right').forEach(function (t) {
+                            t.remove();
+                        });
+
                         var targetSection = this.getAttribute('data-section');
                         if (!targetSection) return;
 
