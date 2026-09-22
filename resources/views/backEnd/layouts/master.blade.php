@@ -21,6 +21,39 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
     <!-- custom css -->
     <link href="{{asset('public/backEnd/')}}/assets/css/custom.css" rel="stylesheet" type="text/css" />
+    @php
+        $brandPrimary = (isset($generalsetting) && !empty($generalsetting->primary_color)) ? $generalsetting->primary_color : '#10b981';
+        $brandSecondary = (isset($generalsetting) && !empty($generalsetting->secodery_color)) ? $generalsetting->secodery_color : '#3b82f6';
+    @endphp
+    <style>
+      :root {
+        --brand-primary: {{ $brandPrimary }};
+        --brand-secondary: {{ $brandSecondary }};
+        --rail-active-bg: {{ $brandPrimary }}22;
+        --rail-active-color: {{ $brandPrimary }};
+        --subpanel-active-bg: {{ $brandPrimary }};
+      }
+      .rail-item.active {
+        background: {{ $brandPrimary }}22 !important;
+        color: {{ $brandPrimary }} !important;
+        box-shadow: 0 0 15px {{ $brandPrimary }}44 !important;
+      }
+      .rail-item.active svg {
+        stroke: {{ $brandPrimary }} !important;
+      }
+      .subpanel-menu li.menuitem-active > a,
+      .subpanel-menu li a.active {
+        background: {{ $brandPrimary }}1f !important;
+        color: {{ $brandPrimary }} !important;
+      }
+      .subpanel-menu li.menuitem-active > a svg,
+      .subpanel-menu li a.active svg {
+        stroke: {{ $brandPrimary }} !important;
+      }
+      .subpanel-nested-menu li a.active {
+        color: {{ $brandPrimary }} !important;
+      }
+    </style>
     <!-- Head js -->
     @yield('css')
     <script src="{{asset('public/backEnd/')}}/assets/js/head.js"></script>

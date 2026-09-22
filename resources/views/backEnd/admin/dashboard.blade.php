@@ -1,222 +1,706 @@
 @extends('backEnd.layouts.master')
 @section('title','Dashboard')
 
+@php
+    $brandPrimary = (isset($generalsetting) && !empty($generalsetting->primary_color)) ? $generalsetting->primary_color : '#10b981';
+    $brandSecondary = (isset($generalsetting) && !empty($generalsetting->secodery_color)) ? $generalsetting->secodery_color : '#3b82f6';
+@endphp
+
 @section('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.44.0/dist/apexcharts.css">
 <style>
-.db-wrap { padding: 4px 0 32px; }
+:root {
+    --brand-primary: {{ $brandPrimary }};
+    --brand-secondary: {{ $brandSecondary }};
+    --brand-glow: {{ $brandPrimary }}26;
+    --brand-gradient: linear-gradient(135deg, {{ $brandPrimary }} 0%, {{ $brandSecondary }} 100%);
+    --card-radius: 14px;
+}
 
-/* ─── Page heading ─── */
-.db-heading { margin-bottom: 24px; }
-.db-heading h1 { font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 2px; letter-spacing: -.3px; }
-.db-heading p  { font-size: 13px; color: #9ca3af; margin: 0; }
+.db-wrap {
+    padding: 6px 0 36px;
+}
 
-/* Top row: SMS + BD Courier + Steadfast */
-.dash-top-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
+/* ─── Modern Welcome Banner ─── */
+.db-welcome-banner {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    padding: 20px 24px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 12px -3px rgba(0,0,0,0.04);
+}
+.db-welcome-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--brand-gradient);
+}
+.db-welcome-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.db-store-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.db-store-avatar img {
+    max-width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+}
+.db-welcome-text h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 3px;
+    letter-spacing: -.4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.db-welcome-text p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.db-welcome-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.live-status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px;
+    border-radius: 99px;
+    background: {{ $brandPrimary }}12;
+    color: var(--brand-primary);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid {{ $brandPrimary }}28;
+}
+.pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    box-shadow: 0 0 0 0 {{ $brandPrimary }}66;
+    animation: pulseRing 2s infinite;
+}
+@keyframes pulseRing {
+    0% { box-shadow: 0 0 0 0 {{ $brandPrimary }}66; }
+    70% { box-shadow: 0 0 0 7px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
 
-/* ─── Stat cards ─── */
-.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 20px; }
-@media(max-width:1100px){ .stat-grid { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:540px) { .stat-grid { grid-template-columns: 1fr 1fr; gap:12px; } }
+/* ─── Top 4 Stat Cards ─── */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+@media(max-width: 1100px){ .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 540px) { .stat-grid { grid-template-columns: 1fr; gap: 12px; } }
 
 .sc {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
     padding: 20px;
-    display: flex; align-items: flex-start; gap: 14px;
-    transition: box-shadow .2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.03);
 }
-.sc:hover { box-shadow: 0 4px 18px rgba(0,0,0,.07); }
+.sc:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -6px rgba(0,0,0,0.08);
+    border-color: {{ $brandPrimary }}40;
+}
+.sc::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: transparent;
+    transition: background 0.25s;
+}
+.sc:hover::before {
+    background: var(--brand-gradient);
+}
 .sc-ico {
-    width: 44px; height: 44px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; font-size: 18px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 20px;
+    transition: transform 0.25s;
 }
-.sc-label { font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: #9ca3af; }
-.sc-val   { font-size: 24px; font-weight: 700; color: #111827; line-height: 1.15; margin: 3px 0 1px; letter-spacing: -.5px; }
-.sc-note  { font-size: 12px; color: #9ca3af; }
+.sc:hover .sc-ico {
+    transform: scale(1.06);
+}
+.sc-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 2px;
+}
+.sc-val {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.15;
+    letter-spacing: -.6px;
+}
+.sc-note {
+    font-size: 12px;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
 
-/* ─── Section label ─── */
+/* ─── Section Header ─── */
 .section-label {
-    font-size: 11px; font-weight: 600; letter-spacing: 1px;
-    text-transform: uppercase; color: #6b7280;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #475569;
     margin: 24px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-label::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 14px;
+    background: var(--brand-primary);
+    border-radius: 4px;
 }
 
-/* ─── Today snapshot ─── */
-.snap-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
-@media(max-width:700px){ .snap-grid { grid-template-columns: 1fr; } }
+/* ─── Today's Snapshot ─── */
+.snap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+@media(max-width: 700px){ .snap-grid { grid-template-columns: 1fr; } }
 
 .sn {
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
-    padding: 16px 18px;
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    padding: 18px 20px;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.03);
 }
-.sn-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.sn-name { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .6px; }
-.sn-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-.sn-val  { font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -.4px; }
-.sn-sub  { font-size: 12px; color: #9ca3af; margin-top: 2px; }
-
-/* ─── Quick actions ─── */
-.qa-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
-@media(max-width:700px){ .qa-grid { grid-template-columns: repeat(2,1fr); } }
-
-.qa {
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 13px 10px; text-align: center; text-decoration: none;
-    color: #374151; font-size: 13px; font-weight: 500;
-    display: flex; flex-direction: column; align-items: center; gap: 5px;
-    transition: border-color .15s, background .15s;
+.sn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.06);
 }
-.qa:hover { border-color: #243b22; background: #f6fbf6; color: #243b22; text-decoration: none; }
-.qa svg { width: 18px; height: 18px; stroke: #6b7280; transition: stroke .15s; }
-.qa:hover svg { stroke: #243b22; }
-
-/* ─── Charts ─── */
-.chart-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 20px; }
-@media(max-width:900px){ .chart-row { grid-template-columns: 1fr; } }
-
-.chart-box {
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;
+.sn-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
 }
-.chart-box-title {
-    font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 4px;
+.sn-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .6px;
 }
-.chart-box-sub { font-size: 12px; color: #9ca3af; margin-bottom: 16px; }
-
-/* ─── Table cards ─── */
-.tbl-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
-.tbl-card-head {
-    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid #f3f4f6;
+.sn-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.tbl-card-head h4 { font-size: 14px; font-weight: 600; color: #111827; margin: 0; }
-.tbl-card-head a  { font-size: 12px; font-weight: 500; color: #243b22; text-decoration: none; }
-.tbl-card-head a:hover { text-decoration: underline; }
-.tbl-card-body { padding: 0; }
-
-table.clean th {
-    font-size: 11px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .5px; color: #9ca3af;
-    background: #fafafa; padding: 10px 18px;
-    border-bottom: 1px solid #f3f4f6; white-space: nowrap;
+.sn-val {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -.5px;
 }
-table.clean td {
-    padding: 11px 18px; font-size: 13px; color: #374151;
-    border-bottom: 1px solid #f9fafb; vertical-align: middle;
-}
-table.clean tbody tr:last-child td { border-bottom: none; }
-table.clean tbody tr:hover td { background: #fafafa; }
-
-/* Status badges */
-.sb {
-    display: inline-block; font-size: 11px; font-weight: 600;
-    padding: 3px 10px; border-radius: 20px; white-space: nowrap;
-}
-.sb-1 { background: #fef3c7; color: #92400e; }
-.sb-2 { background: #dbeafe; color: #1e40af; }
-.sb-3 { background: #ede9fe; color: #5b21b6; }
-.sb-4 { background: #ffedd5; color: #9a3412; }
-.sb-5 { background: #cffafe; color: #155e75; }
-.sb-6 { background: #dcfce7; color: #166534; }
-.sb-7 { background: #fee2e2; color: #991b1b; }
-
-/* Product thumbnail */
-.p-thumb {
-    width: 36px; height: 36px; border-radius: 8px;
-    object-fit: cover; border: 1px solid #f3f4f6; flex-shrink: 0;
-}
-.p-thumb-ph {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: #f3f4f6; display: inline-flex; align-items: center;
-    justify-content: center; color: #9ca3af; font-size: 15px; flex-shrink: 0;
+.sn-sub {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 3px;
+    font-weight: 500;
 }
 
-/* ─── Category list ─── */
-.cat-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 18px; border-bottom: 1px solid #f9fafb;
-    font-size: 13px; color: #374151;
+/* ─── Finance Strip ─── */
+.fin-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
 }
-.cat-item:last-child { border-bottom: none; }
-.cat-item-left { display: flex; align-items: center; gap: 10px; }
-.cat-dot { width: 7px; height: 7px; border-radius: 50%; background: #243b22; }
-.cat-pill {
-    background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;
-    font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px;
-}
-
-/* ─── Finance strip ─── */
-.fin-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
-@media(max-width:900px){ .fin-strip { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:540px) { .fin-strip { grid-template-columns: 1fr 1fr; } }
+@media(max-width: 900px){ .fin-strip { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 540px) { .fin-strip { grid-template-columns: 1fr; } }
 
 .fin-item {
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    padding: 16px 18px;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px -2px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
 }
-.fin-item-label { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: .6px; }
-.fin-item-val   { font-size: 18px; font-weight: 700; color: #111827; margin-top: 4px; letter-spacing: -.3px; }
+.fin-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -4px rgba(0,0,0,0.06);
+    border-color: {{ $brandPrimary }}30;
+}
+.fin-item-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+.fin-item-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 5px;
+    letter-spacing: -.4px;
+}
 
-/* ─── Two col layout ─── */
-.two-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 20px; }
-@media(max-width:900px){ .two-col { grid-template-columns: 1fr; } }
+/* ─── Quick Actions ─── */
+.qa-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+}
+@media(max-width: 700px){ .qa-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.qa {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    padding: 16px 12px;
+    text-align: center;
+    text-decoration: none !important;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px -2px rgba(0,0,0,0.02);
+}
+.qa-ico-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+.qa:hover {
+    border-color: var(--brand-primary);
+    background: {{ $brandPrimary }}08;
+    color: var(--brand-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -4px {{ $brandPrimary }}26;
+}
+.qa:hover .qa-ico-box {
+    background: var(--brand-primary);
+    color: #ffffff;
+}
+.qa svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+}
+
+/* ─── SMS & Courier Cards ─── */
+.dash-top-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+.courier-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.03);
+    transition: all 0.2s;
+}
+.courier-card:hover {
+    border-color: {{ $brandPrimary }}35;
+    box-shadow: 0 8px 20px -4px rgba(0,0,0,0.06);
+}
+.courier-card-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+.courier-ico {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.courier-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: #64748b;
+}
+.courier-main-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 3px;
+    line-height: 1.25;
+}
+.courier-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+    align-self: center;
+}
+.courier-btn:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    background: {{ $brandPrimary }}0d;
+}
+
+/* ─── Traffic Source ─── */
+.traffic-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    padding: 20px;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.03);
+}
+.traffic-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.traffic-item {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.2s;
+}
+.traffic-item:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ─── Charts Row ─── */
+.chart-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+@media(max-width: 900px){ .chart-row { grid-template-columns: 1fr; } }
+
+.chart-box {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    padding: 20px;
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.03);
+}
+.chart-box-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 3px;
+}
+.chart-box-sub {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+}
+
+/* ─── Table Cards ─── */
+.two-col {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+@media(max-width: 900px){ .two-col { grid-template-columns: 1fr; } }
+
+.tbl-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.03);
+}
+.tbl-card-head {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+}
+.tbl-card-head h4 {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+.tbl-card-head a {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--brand-primary);
+    text-decoration: none !important;
+}
+.tbl-card-head a:hover {
+    text-decoration: underline !important;
+}
+
+table.clean th {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: #64748b;
+    background: #f8fafc;
+    padding: 12px 18px;
+    border-bottom: 1px solid #eef2f6;
+    white-space: nowrap;
+}
+table.clean td {
+    padding: 12px 18px;
+    font-size: 13px;
+    color: #334155;
+    border-bottom: 1px solid #f8fafc;
+    vertical-align: middle;
+}
+table.clean tbody tr:last-child td { border-bottom: none; }
+table.clean tbody tr:hover td { background: #f8fafc; }
+
+/* Status Badges */
+.sb {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 11px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+.sb-1 { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.sb-2 { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.sb-3 { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+.sb-4 { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+.sb-5 { background: #cffafe; color: #155e75; border: 1px solid #a5f3fc; }
+.sb-6 { background: {{ $brandPrimary }}1a; color: var(--brand-primary); border: 1px solid {{ $brandPrimary }}33; }
+.sb-7 { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* Product Thumbnail */
+.p-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+.p-thumb-ph {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+/* Category List */
+.cat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 13px;
+    color: #334155;
+    transition: background 0.15s;
+}
+.cat-item:last-child { border-bottom: none; }
+.cat-item:hover { background: #f8fafc; }
+.cat-item-left { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.cat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+}
+.cat-pill {
+    background: {{ $brandPrimary }}14;
+    color: var(--brand-primary);
+    border: 1px solid {{ $brandPrimary }}2e;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 99px;
+}
 </style>
 @endsection
 
 @section('content')
 <div class="db-wrap">
 
-    {{-- Heading --}}
-    <div class="db-heading">
-        <h1>Dashboard</h1>
-        <p>{{ now()->format('l, F j, Y') }}</p>
+    {{-- Modern Welcome Greeting Banner --}}
+    <div class="db-welcome-banner">
+        <div class="db-welcome-left">
+            <div class="db-store-avatar">
+                <img src="{{ asset(isset($generalsetting->white_logo) && $generalsetting->white_logo ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png') }}" alt="Logo" />
+            </div>
+            <div class="db-welcome-text">
+                <h1>{{ isset($generalsetting->name) ? $generalsetting->name : 'eCommerce Admin' }}</h1>
+                <p>
+                    <i data-feather="calendar" style="width:14px;height:14px;"></i>
+                    {{ now()->format('l, F j, Y') }}
+                </p>
+            </div>
+        </div>
+        <div class="db-welcome-right">
+            <div class="live-status-chip">
+                <span class="pulse-dot"></span>
+                <span>Store Operational</span>
+            </div>
+        </div>
     </div>
 
     {{-- ── Stat Cards ── --}}
     <div class="stat-grid">
         <div class="sc">
-            <div class="sc-ico" style="background:#eff6ff;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <div class="sc-ico" style="background:#eff6ff;color:#3b82f6;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
             </div>
             <div>
                 <div class="sc-label">Total Orders</div>
                 <div class="sc-val">{{ number_format($total_order) }}</div>
-                <div class="sc-note">{{ $pending_orders }} pending</div>
+                <div class="sc-note">
+                    <span style="color:#f59e0b;font-weight:600;">{{ $pending_orders }}</span> pending
+                </div>
             </div>
         </div>
 
         <div class="sc">
-            <div class="sc-ico" style="background:#f0fdf4;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div class="sc-ico" style="background:{{ $brandPrimary }}1a;color:var(--brand-primary);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
             <div>
                 <div class="sc-label">Total Revenue</div>
                 <div class="sc-val">৳{{ number_format($total_revenue) }}</div>
-                <div class="sc-note">{{ $total_delivery }} delivered</div>
+                <div class="sc-note">
+                    <span style="color:var(--brand-primary);font-weight:600;">{{ $total_delivery }}</span> delivered
+                </div>
             </div>
         </div>
 
         <div class="sc">
-            <div class="sc-ico" style="background:#fffbeb;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <div class="sc-ico" style="background:#fffbeb;color:#f59e0b;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
             </div>
             <div>
                 <div class="sc-label">Pending Orders</div>
                 <div class="sc-val">{{ number_format($pending_orders) }}</div>
-                <div class="sc-note">Need attention</div>
+                <div class="sc-note" style="color:#d97706;">Action required</div>
             </div>
         </div>
 
         <div class="sc">
-            <div class="sc-ico" style="background:#fff1f2;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div class="sc-ico" style="background:#fff1f2;color:#f43f5e;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
             <div>
                 <div class="sc-label">Low Stock</div>
                 <div class="sc-val">{{ number_format($low_stock) }}</div>
-                <div class="sc-note">Below 10 units</div>
+                <div class="sc-note" style="color:#e11d48;">Below 10 units</div>
             </div>
         </div>
     </div>
@@ -227,8 +711,8 @@ table.clean tbody tr:hover td { background: #fafafa; }
         <div class="sn">
             <div class="sn-top">
                 <span class="sn-name">Orders</span>
-                <span class="sn-badge" style="background:#eff6ff;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <span class="sn-badge" style="background:#eff6ff;color:#3b82f6;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                 </span>
             </div>
             <div class="sn-val">{{ $today_order }}</div>
@@ -238,32 +722,32 @@ table.clean tbody tr:hover td { background: #fafafa; }
         <div class="sn">
             <div class="sn-top">
                 <span class="sn-name">Revenue</span>
-                <span class="sn-badge" style="background:#f0fdf4;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span class="sn-badge" style="background:{{ $brandPrimary }}1a;color:var(--brand-primary);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 </span>
             </div>
             <div class="sn-val">৳{{ number_format($today_revenue) }}</div>
-            <div class="sn-sub">Revenue today</div>
+            <div class="sn-sub">Revenue generated today</div>
         </div>
 
         <div class="sn">
             <div class="sn-top">
                 <span class="sn-name">Delivered</span>
-                <span class="sn-badge" style="background:#f0fdf4;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="sn-badge" style="background:{{ $brandPrimary }}1a;color:var(--brand-primary);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 </span>
             </div>
             <div class="sn-val">৳{{ number_format($today_delivered_revenue) }}</div>
-            <div class="sn-sub">Delivered revenue</div>
+            <div class="sn-sub">Delivered order revenue</div>
         </div>
     </div>
 
-    {{-- ── Finance Summary (Moved Above Quick Actions) ── --}}
+    {{-- ── Finance Summary ── --}}
     <div class="section-label">Finance Summary</div>
     <div class="fin-strip">
         <div class="fin-item">
             <div class="fin-item-label">Fund Balance</div>
-            <div class="fin-item-val">৳{{ number_format($fund_balance) }}</div>
+            <div class="fin-item-val" style="color:var(--brand-primary);">৳{{ number_format($fund_balance) }}</div>
         </div>
         <div class="fin-item">
             <div class="fin-item-label">Total Expenses</div>
@@ -284,122 +768,121 @@ table.clean tbody tr:hover td { background: #fafafa; }
     <div class="qa-grid">
         @can('product-create')
         <a href="{{ route('products.create') }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Product
+            <div class="qa-ico-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <span>Add Product</span>
         </a>
         @endcan
         @can('order-list')
         <a href="{{ route('admin.orders',['slug'=>'all']) }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
-            View Orders
+            <div class="qa-ico-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
+            </div>
+            <span>View Orders</span>
         </a>
         @endcan
         @can('category-list')
         <a href="{{ route('categories.index') }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            Categories
+            <div class="qa-ico-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <span>Categories</span>
         </a>
         @endcan
         @can('product-list')
         <a href="{{ route('inhouse.products.index') }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            Products
+            <div class="qa-ico-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </div>
+            <span>Products</span>
         </a>
         @endcan
     </div>
 
-    {{-- ── SMS + Courier Balance Grids (Moved Below Quick Actions) ── --}}
+    {{-- ── SMS + Courier Balance Grids ── --}}
     <div class="dash-top-row">
-        {{-- ── SMS Balance Strip ── --}}
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:38px;height:38px;border-radius:9px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.35 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 5.49 5.49l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 15.42z"/></svg>
+        {{-- ── BulkSMSBD Balance ── --}}
+        <div class="courier-card">
+            <div class="courier-card-left">
+                <div class="courier-ico" style="background:#eff6ff;color:#3b82f6;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.35 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 5.49 5.49l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 15.42z"/></svg>
                 </div>
                 <div>
-                    <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">BulkSMSBD Balance</span>
+                    <span class="courier-title">BulkSMSBD Balance</span>
                     <div style="display:flex;align-items:baseline;gap:8px;">
-                        <span id="sms-bal-val" style="font-size:20px;font-weight:700;color:#111827;letter-spacing:-.3px;">—</span>
-                        <span id="sms-bal-msg" style="font-size:12px;color:#9ca3af;">Click to check</span>
+                        <span id="sms-bal-val" class="courier-main-val">—</span>
+                        <span id="sms-bal-msg" style="font-size:12px;color:#94a3b8;">Click to check</span>
                     </div>
                 </div>
             </div>
-            <button onclick="fetchSmsBalance()" id="sms-bal-btn"
-                style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;"
-                onmouseover="this.style.borderColor='#243b22';this.style.color='#243b22';this.style.background='#f0f7f0'"
-                onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
+            <button onclick="fetchSmsBalance()" id="sms-bal-btn" class="courier-btn">
                 <svg id="sms-bal-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
                 Refresh
             </button>
         </div>
 
         {{-- ── BD Courier My Plan ── --}}
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-            <div style="display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;">
-                <div style="width:38px;height:38px;border-radius:9px;background:#f0f7f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#243b22" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <div class="courier-card">
+            <div class="courier-card-left">
+                <div class="courier-ico" style="background:{{ $brandPrimary }}14;color:var(--brand-primary);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                 </div>
                 <div style="min-width:0;">
-                    <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">BD Courier · My Plan</span>
-                    <div id="bd-plan-main" style="font-size:17px;font-weight:700;color:#111827;margin-top:2px;line-height:1.25;">—</div>
-                    <div id="bd-plan-detail" style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.45;white-space:pre-line;"></div>
+                    <span class="courier-title">BD Courier · My Plan</span>
+                    <div id="bd-plan-main" class="courier-main-val">—</div>
+                    <div id="bd-plan-detail" style="font-size:12px;color:#64748b;margin-top:5px;line-height:1.4;white-space:pre-line;"></div>
                     <span id="bd-plan-msg" style="font-size:11px;display:block;margin-top:4px;"></span>
                 </div>
             </div>
-            <button type="button" onclick="fetchBdCourierPlan()" id="bd-plan-btn"
-                style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;align-self:center;"
-                onmouseover="this.style.borderColor='#243b22';this.style.color='#243b22';this.style.background='#f0f7f0'"
-                onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
+            <button type="button" onclick="fetchBdCourierPlan()" id="bd-plan-btn" class="courier-btn">
                 <svg id="bd-plan-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
                 Refresh
             </button>
         </div>
 
-        {{-- ── Steadfast balance + ইন রিভিউ (নিকট অর্ডার API চেক) ── --}}
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-            <div style="display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;">
-                <div style="width:38px;height:38px;border-radius:9px;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        {{-- ── Steadfast Courier ── --}}
+        <div class="courier-card">
+            <div class="courier-card-left">
+                <div class="courier-ico" style="background:#faf5ff;color:#7c3aed;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </div>
                 <div style="min-width:0;">
-                    <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">Steadfast Courier</span>
-                    <div id="sf-main" style="font-size:17px;font-weight:700;color:#111827;margin-top:2px;line-height:1.25;">—</div>
-                    <div id="sf-detail" style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.45;white-space:pre-line;"></div>
+                    <span class="courier-title">Steadfast Courier</span>
+                    <div id="sf-main" class="courier-main-val">—</div>
+                    <div id="sf-detail" style="font-size:12px;color:#64748b;margin-top:5px;line-height:1.4;white-space:pre-line;"></div>
                     <span id="sf-msg" style="font-size:11px;display:block;margin-top:4px;"></span>
                 </div>
             </div>
-            <button type="button" onclick="fetchSteadfastWidget()" id="sf-btn"
-                style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;align-self:center;"
-                onmouseover="this.style.borderColor='#7c3aed';this.style.color='#7c3aed';this.style.background='#faf5ff'"
-                onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
+            <button type="button" onclick="fetchSteadfastWidget()" id="sf-btn" class="courier-btn">
                 <svg id="sf-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
                 Refresh
             </button>
         </div>
     </div>
 
-    {{-- ── Traffic Source Widget (Moved Below Quick Actions) ── --}}
-    <div style="background:#fff;border:1px solid #eaecf0;border-radius:12px;padding:18px 20px;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+    {{-- ── Traffic Source Widget ── --}}
+    <div class="traffic-card">
+        <div class="traffic-head">
             <div>
-                <h4 style="font-size:14px;font-weight:700;color:#1a1f2e;margin:0;">Traffic Source</h4>
-                <p style="font-size:11px;color:#9ca3af;margin:2px 0 0;">অর্ডার কোথা থেকে এসেছে &bull; মোট {{ $trafficTotal }} অর্ডার</p>
+                <h4 style="font-size:15px;font-weight:700;color:#0f172a;margin:0;">Traffic Channels</h4>
+                <p style="font-size:12px;color:#64748b;margin:2px 0 0;">অর্ডার চ্যানেল অ্যানালাইটিক্স &bull; মোট <strong>{{ $trafficTotal }}</strong> টি অর্ডার</p>
             </div>
-            <span style="font-size:11px;color:#6b7280;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:4px 10px;">Auto-tracked</span>
+            <span style="font-size:11.5px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:99px;padding:4px 12px;font-weight:600;">Auto-Tracked</span>
         </div>
 
         @if($trafficSources->isEmpty())
-        <div style="text-align:center;padding:24px;color:#9ca3af;font-size:13px;">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="display:block;margin:0 auto 8px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            নতুন অর্ডার আসলে এখানে দেখা যাবে
+        <div style="text-align:center;padding:28px;color:#94a3b8;font-size:13px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="display:block;margin:0 auto 8px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            নতুন অর্ডার আসলে স্বয়ংক্রিয়ভাবে ট্রাফিক সোর্স এখানে প্রদর্শিত হবে
         </div>
         @else
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;">
             @foreach($trafficSources as $src)
             @php $pct = $trafficTotal > 0 ? round(($src['count'] / $trafficTotal) * 100, 1) : 0; @endphp
-            <div style="background:#f9fafb;border:1px solid #eaecf0;border-radius:10px;padding:12px 14px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                    <div style="display:flex;align-items:center;gap:7px;">
+            <div class="traffic-item">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
                         @if($src['source'] === 'facebook')
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                         @elseif($src['source'] === 'google')
@@ -420,17 +903,17 @@ table.clean tbody tr:hover td { background: #fafafa; }
                             </div>
                         @else
                             <div style="width:18px;height:18px;border-radius:50%;background:#9ca3af;display:flex;align-items:center;justify-content:center;">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 014-10z"/></svg>
                             </div>
                         @endif
-                        <span style="font-size:12px;font-weight:600;color:#1a1f2e;">{{ $src['label'] }}</span>
+                        <span style="font-size:12.5px;font-weight:700;color:#0f172a;">{{ $src['label'] }}</span>
                     </div>
-                    <span style="font-size:13px;font-weight:700;color:#111827;">{{ number_format($src['count']) }}</span>
+                    <span style="font-size:13.5px;font-weight:800;color:#0f172a;">{{ number_format($src['count']) }}</span>
                 </div>
-                <div style="background:#e5e7eb;border-radius:4px;height:5px;overflow:hidden;">
-                    <div style="height:100%;width:{{ $pct }}%;background:{{ $src['color'] }};border-radius:4px;"></div>
+                <div style="background:#e2e8f0;border-radius:99px;height:6px;overflow:hidden;">
+                    <div style="height:100%;width:{{ $pct }}%;background:{{ $src['color'] }};border-radius:99px;transition:width 0.4s ease;"></div>
                 </div>
-                <span style="font-size:10px;color:#9ca3af;margin-top:4px;display:block;">{{ $pct }}%</span>
+                <span style="font-size:11px;color:#64748b;margin-top:5px;display:block;font-weight:600;">{{ $pct }}% of total</span>
             </div>
             @endforeach
         </div>
@@ -441,12 +924,12 @@ table.clean tbody tr:hover td { background: #fafafa; }
     <div class="chart-row">
         <div class="chart-box">
             <div class="chart-box-title">Order Trend</div>
-            <div class="chart-box-sub">Last 7 days</div>
+            <div class="chart-box-sub">Last 7 days analytics</div>
             <div id="trendChart"></div>
         </div>
         <div class="chart-box">
             <div class="chart-box-title">Order Status</div>
-            <div class="chart-box-sub">All time breakdown</div>
+            <div class="chart-box-sub">All-time status breakdown</div>
             <div id="statusChart"></div>
         </div>
     </div>
@@ -455,9 +938,9 @@ table.clean tbody tr:hover td { background: #fafafa; }
     <div class="two-col">
         <div class="tbl-card">
             <div class="tbl-card-head">
-                <h4>Products <span style="font-weight:400;color:#9ca3af;font-size:12px;">({{ $total_product }})</span></h4>
+                <h4>Products <span style="font-weight:500;color:#94a3b8;font-size:12px;">({{ $total_product }})</span></h4>
                 @can('product-list')
-                <a href="{{ route('inhouse.products.index') }}">View all</a>
+                <a href="{{ route('inhouse.products.index') }}">View all &rarr;</a>
                 @endcan
             </div>
             <div class="tbl-card-body">
@@ -480,19 +963,19 @@ table.clean tbody tr:hover td { background: #fafafa; }
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
                                     </div>
                                 @endif
-                                <span style="font-weight:500;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">{{ $prod->name }}</span>
+                                <span style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;color:#1e293b;">{{ $prod->name }}</span>
                             </div>
                         </td>
-                        <td style="color:#6b7280;">{{ $prod->category->name ?? '—' }}</td>
-                        <td style="font-weight:600;">৳{{ number_format($prod->new_price ?? $prod->old_price ?? 0) }}</td>
+                        <td style="color:#64748b;font-weight:500;">{{ $prod->category->name ?? '—' }}</td>
+                        <td style="font-weight:700;color:#0f172a;">৳{{ number_format($prod->new_price ?? $prod->old_price ?? 0) }}</td>
                         <td>
                             <span class="sb {{ ($prod->stock ?? 0) < 10 ? 'sb-7' : 'sb-6' }}">
-                                {{ $prod->stock ?? 0 }}
+                                {{ $prod->stock ?? 0 }} in stock
                             </span>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="4" class="text-center text-muted py-3">No products</td></tr>
+                    <tr><td colspan="4" class="text-center text-muted py-4">No products found</td></tr>
                     @endforelse
                     </tbody>
                 </table>
@@ -501,9 +984,9 @@ table.clean tbody tr:hover td { background: #fafafa; }
 
         <div class="tbl-card">
             <div class="tbl-card-head">
-                <h4>Product Categories</h4>
+                <h4>Top Categories</h4>
                 @can('category-list')
-                <a href="{{ route('categories.index') }}">View all</a>
+                <a href="{{ route('categories.index') }}">View all &rarr;</a>
                 @endcan
             </div>
             <div class="tbl-card-body">
@@ -513,7 +996,7 @@ table.clean tbody tr:hover td { background: #fafafa; }
                         <div class="cat-dot"></div>
                         <span>{{ $cat->name }}</span>
                     </div>
-                    <span class="cat-pill">{{ $cat->products_count }}</span>
+                    <span class="cat-pill">{{ $cat->products_count }} items</span>
                 </div>
                 @empty
                 <div class="text-center text-muted py-4">No categories</div>
@@ -527,7 +1010,7 @@ table.clean tbody tr:hover td { background: #fafafa; }
         <div class="tbl-card-head">
             <h4>Recent Orders</h4>
             @can('order-list')
-            <a href="{{ route('admin.orders',['slug'=>'all']) }}">View all</a>
+            <a href="{{ route('admin.orders',['slug'=>'all']) }}">View all orders &rarr;</a>
             @endcan
         </div>
         <div class="tbl-card-body">
@@ -542,9 +1025,9 @@ table.clean tbody tr:hover td { background: #fafafa; }
                 <tbody>
                 @forelse($latest_order as $order)
                 <tr>
-                    <td style="font-weight:500;">{{ $order->customer->name ?? 'Guest' }}</td>
-                    <td style="color:#9ca3af;">#{{ $order->invoice_id ?? '—' }}</td>
-                    <td style="font-weight:600;">৳{{ number_format($order->amount ?? 0) }}</td>
+                    <td style="font-weight:600;color:#0f172a;">{{ $order->customer->name ?? 'Guest Customer' }}</td>
+                    <td style="color:#64748b;font-weight:600;">#{{ $order->invoice_id ?? '—' }}</td>
+                    <td style="font-weight:700;color:#0f172a;">৳{{ number_format($order->amount ?? 0) }}</td>
                     <td>
                         @php $s = (int)($order->order_status ?? 0); @endphp
                         <span class="sb sb-{{ in_array($s,[1,2,3,4,5,6,7]) ? $s : 1 }}">
@@ -560,10 +1043,10 @@ table.clean tbody tr:hover td { background: #fafafa; }
                             @endswitch
                         </span>
                     </td>
-                    <td style="color:#9ca3af;white-space:nowrap;">{{ optional($order->created_at)->format('d M Y') }}</td>
+                    <td style="color:#64748b;white-space:nowrap;font-weight:500;">{{ optional($order->created_at)->format('d M Y, h:i A') }}</td>
                 </tr>
                 @empty
-                <tr><td colspan="5" class="text-center text-muted py-3">No orders yet</td></tr>
+                <tr><td colspan="5" class="text-center text-muted py-4">No recent orders yet</td></tr>
                 @endforelse
                 </tbody>
             </table>
@@ -578,10 +1061,10 @@ table.clean tbody tr:hover td { background: #fafafa; }
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.44.0"></script>
 <script>
-// ── 7-Day Trend ──
+// ── 7-Day Trend Chart with Dynamic Brand Color ──
 new ApexCharts(document.querySelector("#trendChart"), {
     chart: {
-        type: 'area', height: 200,
+        type: 'area', height: 210,
         toolbar: { show: false },
         fontFamily: 'Inter, sans-serif',
         sparkline: { enabled: false }
@@ -589,54 +1072,59 @@ new ApexCharts(document.querySelector("#trendChart"), {
     series: [{ name: 'Orders', data: @json($trend_data) }],
     xaxis: {
         categories: @json($trend_labels),
-        labels: { style: { fontSize: '11px', colors: '#9ca3af' } },
+        labels: { style: { fontSize: '11px', colors: '#64748b', fontWeight: 500 } },
         axisBorder: { show: false },
         axisTicks: { show: false }
     },
     yaxis: {
-        labels: { style: { fontSize: '11px', colors: '#9ca3af' } },
+        labels: { style: { fontSize: '11px', colors: '#64748b', fontWeight: 500 } },
         min: 0
     },
-    stroke: { curve: 'smooth', width: 2 },
+    stroke: { curve: 'smooth', width: 2.5 },
     fill: {
         type: 'gradient',
-        gradient: { shadeIntensity: 1, opacityFrom: 0.25, opacityTo: 0.02, stops: [0, 100] }
+        gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.35,
+            opacityTo: 0.02,
+            stops: [0, 100]
+        }
     },
-    colors: ['#243b22'],
+    colors: ['{{ $brandPrimary }}'],
     dataLabels: { enabled: false },
-    grid: { borderColor: '#f3f4f6', strokeDashArray: 3, padding: { top: 0, bottom: 0 } },
+    grid: { borderColor: '#f1f5f9', strokeDashArray: 4, padding: { top: 0, bottom: 0 } },
     tooltip: {
         style: { fontSize: '12px' },
         y: { formatter: v => v + ' orders' }
     },
 }).render();
 
-// ── Status Donut ──
+// ── Status Donut Chart with Dynamic Brand Palette ──
 new ApexCharts(document.querySelector("#statusChart"), {
     chart: {
-        type: 'donut', height: 220,
+        type: 'donut', height: 230,
         fontFamily: 'Inter, sans-serif'
     },
     labels: @json($statusLabels),
     series: @json($statusData),
-    colors: ['#f59e0b','#3b82f6','#8b5cf6','#f97316','#06b6d4','#22c55e','#ef4444'],
+    colors: ['#f59e0b', '{{ $brandSecondary }}', '#8b5cf6', '#f97316', '#06b6d4', '{{ $brandPrimary }}', '#ef4444'],
     legend: {
         position: 'bottom', fontSize: '12px',
         markers: { width: 8, height: 8, radius: 8 },
-        itemMargin: { horizontal: 6 }
+        itemMargin: { horizontal: 6, vertical: 3 }
     },
     dataLabels: { enabled: false },
     plotOptions: {
         pie: {
             donut: {
-                size: '68%',
+                size: '70%',
                 labels: {
                     show: true,
-                    name: { fontSize: '12px', color: '#9ca3af', offsetY: 4 },
-                    value: { fontSize: '20px', fontWeight: 700, color: '#111827', offsetY: -4 },
+                    name: { fontSize: '12px', color: '#64748b', offsetY: 4, fontWeight: 600 },
+                    value: { fontSize: '22px', fontWeight: 800, color: '#0f172a', offsetY: -4 },
                     total: {
                         show: true, label: 'Total',
-                        color: '#9ca3af', fontSize: '12px',
+                        color: '#64748b', fontSize: '12px', fontWeight: 600,
                         formatter: w => w.globals.seriesTotals.reduce((a,b) => a+b, 0)
                     }
                 }
@@ -669,11 +1157,10 @@ function fetchSmsBalance() {
         }
     })
     .then(function(r) {
-        // If response is a redirect or HTML (license/auth page), handle gracefully
         const ct = r.headers.get('content-type') || '';
         if (!ct.includes('application/json')) {
             return r.text().then(function(txt) {
-                throw new Error('Server returned non-JSON response (status ' + r.status + '). Possibly license or auth redirect.');
+                throw new Error('Server returned non-JSON response');
             });
         }
         return r.json();
@@ -688,12 +1175,12 @@ function fetchSmsBalance() {
             val.textContent = num
                 ? parseFloat(num[0]).toLocaleString('en-BD', { minimumFractionDigits: 2 }) + ' tk'
                 : raw;
-            val.style.color = '#111827';
+            val.style.color = '#0f172a';
             msg.textContent = 'Updated ' + new Date().toLocaleTimeString('en-BD');
-            msg.style.color = '#22c55e';
+            msg.style.color = '{{ $brandPrimary }}';
         } else {
             val.textContent = '—';
-            val.style.color = '#9ca3af';
+            val.style.color = '#94a3b8';
             msg.textContent = d.message || 'Could not fetch balance';
             msg.style.color = '#ef4444';
         }
@@ -701,23 +1188,16 @@ function fetchSmsBalance() {
     .catch(function(err) {
         if (btn) { btn.disabled = false; btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg> Retry'; }
         val.textContent = '—';
-        val.style.color = '#9ca3af';
-        // Show useful debug info
+        val.style.color = '#94a3b8';
         const errTxt = err && err.message ? err.message : 'Request failed';
-        if (errTxt.includes('non-JSON')) {
-            msg.textContent = 'Session expired — please reload page';
-        } else if (errTxt.includes('Failed to fetch')) {
-            msg.textContent = 'Cannot connect to server';
-        } else {
-            msg.textContent = errTxt.substring(0, 60);
-        }
+        msg.textContent = errTxt.substring(0, 50);
         msg.style.color = '#ef4444';
     });
 }
 
-// Auto-load after page is fully ready
+// Auto-load balances after page is ready
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(fetchSmsBalance, 500); // slight delay so page renders first
+    setTimeout(fetchSmsBalance, 500);
     setTimeout(fetchBdCourierPlan, 700);
     setTimeout(fetchSteadfastWidget, 900);
 });
@@ -759,12 +1239,12 @@ function fetchSteadfastWidget() {
         if (ico) ico.style.animation = '';
 
         if (!d.success) {
-            if (main) { main.textContent = '—'; main.style.color = '#9ca3af'; }
+            if (main) { main.textContent = '—'; main.style.color = '#94a3b8'; }
             if (msgEl){ msgEl.textContent = d.message || 'লোড করতে পারিনি'; msgEl.style.color = '#ef4444'; }
             return;
         }
 
-        if (main) main.style.color = '#111827';
+        if (main) main.style.color = '#0f172a';
         if (main) main.textContent = d.balance_display != null && d.balance_display !== '' ? d.balance_display : '৳—';
 
         var invLine = 'ইন রিভিউতে: ' + (d.in_review_count != null ? d.in_review_count : '—') + ' টি পার্সেল';
@@ -825,16 +1305,15 @@ function fetchBdCourierPlan() {
         if (ico) ico.style.animation = '';
 
         if (!d.success) {
-            if (main) { main.textContent = '—'; main.style.color = '#9ca3af'; }
+            if (main) { main.textContent = '—'; main.style.color = '#94a3b8'; }
             if (msg) { msg.textContent = d.message || 'লোড করতে পারিনি'; msg.style.color = '#ef4444'; }
             return;
         }
 
         var p = d.data || {};
-        if (main) main.style.color = '#111827';
+        if (main) main.style.color = '#0f172a';
 
         var apiLine = 'API কল (ব্যবহার): ' + (p.api_calls != null && p.api_calls !== '' ? p.api_calls : '—');
-        // API: data.next_due_date / expires_at — সার্ভার next_due_display আগে
         var nextDueRaw = p.next_due_display || p.next_due_date || p.expires_at || p.nextDueDate
             || (p.subscription && (p.subscription.next_due_date || p.subscription.nextDueDate))
             || (p.plan && (p.plan.next_due_date || p.plan.nextDueDate))
@@ -868,7 +1347,7 @@ function fetchBdCourierPlan() {
 </script>
 <style>
 @keyframes spin { to { transform: rotate(360deg); } }
-#sms-bal-ico, #bd-plan-ico { display:inline-block; }
+#sms-bal-ico, #bd-plan-ico, #sf-ico { display:inline-block; }
 </style>
 @include('backEnd.admin.partials.new_orders_popup_script')
 @endsection
