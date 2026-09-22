@@ -183,7 +183,7 @@
                                         </td>
 
                                         {{-- 6. Amount --}}
-                                        <td class="align-middle text-end text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">
+                                        <td class="align-middle text-end text-nowrap" style="width: 1%; padding-left: 6px; padding-right: 4px;">
                                             @php
                                                 $payment = \App\Models\Payment::where('order_id', $value->id)->first();
                                                 $paid = $payment ? floatval($payment->amount) : 0;
@@ -197,12 +197,12 @@
                                         </td>
 
                                         {{-- 6. Status --}}
-                                        <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">
+                                        <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">
                                             <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">{{ $value->status ? $value->status->name : '—' }}</span>
                                         </td>
 
                                         {{-- 7. Fraud Check (Tight & Compact) --}}
-                                        <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 6px; padding-right: 6px;">
+                                        <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 2px;">
                                             @if(is_null($value->fraud_rate))
                                                 <a href="javascript:void(0);" 
                                                    class="btn btn-xs fraud-check"
@@ -222,8 +222,8 @@
                                         </td>
 
                                         {{-- 8. 3-Dot Actions Menu --}}
-                                        <td class="align-middle text-end pe-2" style="width: 32px;">
-                                            <div class="dropdown">
+                                        <td class="align-middle text-end text-nowrap" style="width: 1%; padding-left: 2px; padding-right: 6px;">
+                                            <div class="dropdown d-inline-block">
                                                 <button class="btn btn-sm btn-light border p-0 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;" title="অ্যাকশন">
                                                     <i class="fas fa-ellipsis-v text-muted" style="font-size: 13px;"></i>
                                                 </button>
