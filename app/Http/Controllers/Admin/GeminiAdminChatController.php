@@ -39,7 +39,8 @@ class GeminiAdminChatController extends Controller
         try {
             $contents = $this->toGeminiContents(array_slice($history, -self::MAX_MESSAGES));
             $system   = $contextService->buildSystemInstruction($userMessage);
-            $reply    = $geminiAiService->chat($contents, $system);
+            $rawReply = $geminiAiService->chat($contents, $system);
+            $reply    = $contextService->sanitizeReply($rawReply);
 
             $history[] = [
                 'role' => 'model',

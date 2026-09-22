@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Schema;
 
 class GeminiAdminContextService
 {
-    protected const STATIC_CACHE_KEY = 'gemini_admin_static_context_v4';
+    protected const STATIC_CACHE_KEY = 'gemini_admin_static_context_v5';
 
     public function __construct(
         protected GeminiCodebaseContextService $codebaseContext
@@ -94,29 +94,54 @@ class GeminiAdminContextService
         return <<<INSTRUCTION
 {$static}
 
-## Live database summary (Evaluated directly at {$timestamp})
-- Total Products: {$productTotal} (Active & Approved: {$productActive}, Pending Approval: {$productPending}, Low Stock: {$productLowStock})
-- Total Orders: {$orderTotal} (Today New: {$orderToday}, Pending: {$orderPending}, Delivered: {$orderDelivered}, Cancelled: {$orderCancelled})
-- Total Customers: {$customerTotal} (Joined Today: {$customerToday})
-- Total Active Vendors: {$vendorTotal}
-- Delivered Revenue (All Time): {$revenueTotal} BDT | This Month: {$revenueThisMonth} BDT | Today Orders: {$revenueToday} BDT
+## Current Live Store Figures ({$timestamp}):
+- Total Products in Database: {$productTotal} (Active & Approved: {$productActive}, Pending Approval: {$productPending}, Low Stock: {$productLowStock})
+- Total Orders in Database: {$orderTotal} (Today New: {$orderToday}, Pending: {$orderPending}, Delivered: {$orderDelivered}, Cancelled: {$orderCancelled})
+- Total Customers: {$customerTotal} (Registered Today: {$customerToday})
+- Active Vendors: {$vendorTotal}
+- Total Delivered Revenue: {$revenueTotal} BDT (This Month: {$revenueThisMonth} BDT, Today: {$revenueToday} BDT)
 
-## Full Live Database Stats JSON
+## Complete Live Database Stats (JSON):
 {$statsJson}
 {$queryBlock}
 
-## STRICT INSTRUCTIONS FOR ANSWERING QUESTIONS (CRITICAL):
-1. **NEVER OUTPUT CODE PLACEHOLDERS OR BLADE TEMPLATE VARIABLES**:
-   - You MUST write the real evaluated numbers (e.g. "মোট পণ্য: {$productTotal} টি", "মোট অর্ডার: {$orderTotal} টি", "আজকের আয়: {$revenueToday} টাকা") directly.
-   - NEVER output Blade/PHP syntax like `{{ $products['total'] }}`, `{{ $orders['total'] }}`, `{{ $variable }}`, `{$variable}`, or `$products['total']`.
-   - Always evaluate and print the actual number directly from the summary/JSON above.
-2. **Real-Time Data Access**:
-   - You HAVE direct read-only access to the database via the live stats snapshot above. Answer directly with these facts.
-   - Reply in the same language the user asks (Bengali বাংলা or English).
-3. **Profit & Loss (লাভ-ক্ষতি)**:
-   - Use the "finance" object in the JSON above. State the exact net profit/loss amount in BDT.
-   - Point to the full report at Admin → Reports → Profit & Loss (`/admin/reports/profit-loss`).
+## Instructions:
+1. Always state real, plain numerical answers directly from the snapshot above (for example, if asked how many products exist, answer {$productTotal}).
+2. Always write in standard conversational language (Bengali or English as requested by user).
+3. For financial profit/loss queries, quote the exact figures from the finance section and refer the admin to Admin → Reports → Profit & Loss.
 INSTRUCTION;
+    }
+
+    /**
+     * Replaces any accidental template placeholder syntax with real live database numbers.
+     */
+    public function sanitizeReply(string $reply): string
+    {
+        $stats = $this->liveStats();
+
+        $replacements = [
+            '/{{\s*\$products\[[\'"]total[\'"]\]\s*}}/i' => (string) ($stats['products']['total'] ?? 0),
+            '/{{\s*\$products\[[\'"]active_approved[\'"]\]\s*}}/i' => (string) ($stats['products']['active_approved'] ?? 0),
+            '/{{\s*\$products\[[\'"]pending_approval[\'"]\]\s*}}/i' => (string) ($stats['products']['pending_approval'] ?? 0),
+            '/{{\s*\$products\[[\'"]low_stock_count[\'"]\]\s*}}/i' => (string) ($stats['products']['low_stock_count'] ?? 0),
+            '/{{\s*\$orders\[[\'"]total[\'"]\]\s*}}/i' => (string) ($stats['orders']['total'] ?? 0),
+            '/{{\s*\$orders\[[\'"]today[\'"]\]\s*}}/i' => (string) ($stats['orders']['today'] ?? 0),
+            '/{{\s*\$orders\[[\'"]pending[\'"]\]\s*}}/i' => (string) ($stats['orders']['pending'] ?? 0),
+            '/{{\s*\$orders\[[\'"]delivered_total[\'"]\]\s*}}/i' => (string) ($stats['orders']['delivered_total'] ?? 0),
+            '/{{\s*\$orders\[[\'"]cancelled_total[\'"]\]\s*}}/i' => (string) ($stats['orders']['cancelled_total'] ?? 0),
+            '/{{\s*\$customers\[[\'"]total[\'"]\]\s*}}/i' => (string) ($stats['customers']['total'] ?? 0),
+            '/{{\s*\$customers\[[\'"]today[\'"]\]\s*}}/i' => (string) ($stats['customers']['today'] ?? 0),
+            '/{{\s*\$vendors\[[\'"]active[\'"]\]\s*}}/i' => (string) ($stats['vendors']['active'] ?? 0),
+            '/{{\s*\$revenue\[[\'"]total_delivered_bdt[\'"]\]\s*}}/i' => (string) ($stats['revenue']['total_delivered_bdt'] ?? 0),
+            '/{{\s*\$revenue\[[\'"]today_all_orders_bdt[\'"]\]\s*}}/i' => (string) ($stats['revenue']['today_all_orders_bdt'] ?? 0),
+            '/{{\s*\$revenue\[[\'"]this_month_delivered_bdt[\'"]\]\s*}}/i' => (string) ($stats['revenue']['this_month_delivered_bdt'] ?? 0),
+        ];
+
+        foreach ($replacements as $pattern => $replacement) {
+            $reply = (string) preg_replace($pattern, $replacement, $reply);
+        }
+
+        return $reply;
     }
 
     public function refreshContext(): void
