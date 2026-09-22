@@ -15,8 +15,9 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // ✅ Filter out Vendor and Reseller users - only show Admin/Staff users
-        $data = User::whereNull('vendor_id') // Exclude vendor users
+        // ✅ Filter out Vendor and Reseller users - only show Admin/Staff users with eager loaded roles
+        $data = User::with('roles')
+            ->whereNull('vendor_id')
             ->where(function($query) {
                 $query->where('role', '!=', 'reseller')
                       ->orWhereNull('role');
@@ -32,7 +33,10 @@ class UserController extends Controller
     
     public function create()
     {
-        $roles = Role::select('name')->get();
+        $roles = Role::where('guard_name', 'admin')->get();
+        if ($roles->isEmpty()) {
+            $roles = Role::get();
+        }
         return view('backEnd.users.create',compact('roles'));
     }
     

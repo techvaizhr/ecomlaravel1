@@ -19,7 +19,7 @@ class RoleController extends Controller
     
     public function index(Request $request)
     {
-        $show_data = Role::orderBy('id','DESC')->get();
+        $show_data = Role::withCount(['permissions', 'users'])->orderBy('id','DESC')->get();
         return view('backEnd.roles.index',compact('show_data'));
     }
     

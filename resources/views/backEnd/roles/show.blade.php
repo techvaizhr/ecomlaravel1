@@ -1,126 +1,144 @@
 @extends('backEnd.layouts.master')
-@section('title','View Role')
+@section('title','View Role: ' . $role->name)
 
 @section('css')
 <style>
-    /* Premium Card Design */
-    .card {
-        border: none;
-        box-shadow: 0 0 20px rgba(18, 38, 63, 0.03);
-        border-radius: 12px;
-        background: #fff;
+    .role-profile-card {
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        border-radius: 14px;
+        padding: 24px;
+        color: #fff;
         margin-bottom: 24px;
+        box-shadow: 0 10px 25px rgba(30, 27, 75, 0.15);
     }
-    .card-header {
+    .card-modern {
+        border: none;
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
         background: #fff;
-        border-bottom: 1px solid #f1f5f7;
-        padding: 20px 25px;
+        overflow: hidden;
+    }
+    .module-card-show {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #ffffff;
+        overflow: hidden;
+        height: 100%;
+    }
+    .module-header-show {
+        background: #f8fafc;
+        padding: 10px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 700;
+        font-size: 13px;
+        color: #1e293b;
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: space-between;
     }
-    
-    /* Role Title Styling */
-    .role-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #2d3436;
-        margin-bottom: 5px;
-        text-transform: capitalize;
+    .module-body-show {
+        padding: 12px 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
     }
-    .role-label {
-        font-size: 13px;
-        color: #98a6ad;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+    .perm-badge-show {
+        font-size: 12px;
         font-weight: 600;
-        margin-bottom: 10px;
-        display: block;
-    }
-
-    /* Permission Badges */
-    .permission-badge {
-        font-size: 13px;
-        font-weight: 500;
-        padding: 8px 15px;
-        border-radius: 50rem;
-        background-color: rgba(114, 124, 245, 0.1);
-        color: #727cf5;
-        border: 1px solid rgba(114, 124, 245, 0.15);
-        display: inline-block;
-        margin: 4px;
-        transition: all 0.2s;
-    }
-    .permission-badge:hover {
-        background-color: #727cf5;
-        color: #fff;
-        transform: translateY(-2px);
-    }
-
-    /* Empty State */
-    .empty-permissions {
-        color: #fa5c7c;
-        background-color: rgba(250, 92, 124, 0.1);
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background-color: #eef2ff;
+        color: #4338ca;
+        border: 1px solid #c7d2fe;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-3">
     
-    <div class="row mb-3 mt-3">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Role Details</h4>
-                <p class="text-muted font-size-13 mb-0">View role information and permissions.</p>
-            </div>
-            <a href="{{ route('roles.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="mb-1 fw-bold text-dark"><i class="fe-eye me-2 text-primary"></i> Role Details</h4>
+            <p class="text-muted small mb-0">Overview of assigned module permissions for this role.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-primary rounded-pill px-3 shadow-sm fw-bold">
+                <i class="fe-edit-2 me-1"></i> Edit Role
+            </a>
+            <a href="{{ route('roles.index') }}" class="btn btn-light rounded-pill border shadow-sm px-3">
                 <i class="fe-arrow-left me-1"></i> Back to Roles
             </a>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body p-4">
-                    
-                    <div class="text-center mb-5">
-                        <div class="avatar-lg mx-auto mb-3">
-                            <span class="avatar-title bg-soft-primary text-primary font-size-24 rounded-circle">
-                                <i class="fe-shield"></i>
-                            </span>
-                        </div>
-                        <h2 class="role-title">{{ $role->name }}</h2>
-                        <span class="badge bg-dark rounded-pill px-3">ID: #{{ $role->id }}</span>
+    {{-- HERO CARD --}}
+    <div class="role-profile-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;">
+                    <i class="fe-shield text-white"></i>
+                </div>
+                <div>
+                    <h3 class="text-white mb-1 fw-bold">{{ $role->name }}</h3>
+                    <span class="badge bg-white text-dark rounded-pill px-3 py-1 font-size-12 fw-bold">Guard: {{ $role->guard_name ?? 'admin' }}</span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="px-3 py-2 rounded-3 text-center" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);">
+                    <h4 class="text-white mb-0 fw-bold">{{ count($rolePermissions) }}</h4>
+                    <small class="text-white-50">Active Permissions</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @php
+        $grouped = collect($rolePermissions)->groupBy(function($item) {
+            $parts = explode('-', $item->name);
+            if (count($parts) > 1) {
+                array_pop($parts);
+                return ucwords(str_replace('_', ' ', implode(' ', $parts)));
+            }
+            return 'General';
+        });
+    @endphp
+
+    @if($grouped->isNotEmpty())
+        <div class="row g-3">
+            @foreach($grouped as $moduleName => $perms)
+            <div class="col-lg-4 col-md-6">
+                <div class="module-card-show">
+                    <div class="module-header-show">
+                        <span><i class="fe-folder text-primary me-1"></i> {{ $moduleName }}</span>
+                        <span class="badge bg-secondary rounded-pill">{{ count($perms) }}</span>
                     </div>
-
-                    <hr class="my-4" style="border-color: #f1f5f7;">
-
-                    <div class="row justify-content-center">
-                        <div class="col-lg-10">
-                            <span class="role-label text-center">Assigned Permissions</span>
-                            
-                            <div class="text-center mt-3">
-                                @if(!empty($rolePermissions) && count($rolePermissions) > 0)
-                                    @foreach($rolePermissions as $v)
-                                        <span class="permission-badge">
-                                            <i class="fe-check-circle me-1"></i> {{ $v->name }}
-                                        </span>
-                                    @endforeach
-                                @else
-                                    <div class="empty-permissions">
-                                        <i class="fe-alert-circle me-1"></i> No permissions assigned to this role.
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
+                    <div class="module-body-show">
+                        @foreach($perms as $p)
+                        <span class="perm-badge-show">
+                            <i class="fe-check font-size-11 text-success"></i> {{ $p->name }}
+                        </span>
+                        @endforeach
                     </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    @else
+        <div class="card card-modern text-center p-5">
+            <i class="fe-alert-circle font-size-36 text-muted mb-2"></i>
+            <h5 class="text-dark">No Permissions Assigned</h5>
+            <p class="text-muted small mb-3">This role currently has no permissions assigned.</p>
+            <div>
+                <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="fe-plus me-1"></i> Assign Permissions Now
+                </a>
+            </div>
+        </div>
+    @endif
 
-                </div> </div> </div> </div>
 </div>
 @endsection

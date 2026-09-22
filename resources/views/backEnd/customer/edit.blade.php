@@ -5,231 +5,269 @@
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 
 <style>
-    /* Premium Card */
-    .card {
-        border: none;
-        box-shadow: 0 0 20px rgba(18, 38, 63, 0.03);
-        border-radius: 12px;
+    .customer-edit-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         overflow: hidden;
     }
-    .card-header {
-        background: #fff;
-        border-bottom: 1px solid #f1f5f7;
-        padding: 20px 25px;
+    .customer-edit-card .card-header-styled {
+        padding: 20px 24px;
+        background: #fafbfe;
+        border-bottom: 1px solid #eef2f7;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
     }
-    .card-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: #2d3436;
+    .customer-edit-card .card-header-styled .icon-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(14, 165, 233, 0.12);
+        color: #0ea5e9;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .customer-edit-card .card-header-styled h5 {
         margin: 0;
+        font-weight: 700;
+        font-size: 16px;
+        color: #0f172a;
     }
-    .header-icon {
-        width: 35px;
-        height: 35px;
-        background: rgba(114, 124, 245, 0.1);
-        color: #727cf5;
-        border-radius: 8px;
+    .form-label-styled {
+        font-weight: 600;
+        font-size: 13px;
+        color: #334155;
+        margin-bottom: 6px;
+        display: block;
+    }
+    .form-control-styled {
+        background-color: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        color: #0f172a;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+    .form-control-styled:focus {
+        background-color: #ffffff;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+        outline: none;
+    }
+    .avatar-preview-box {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto 15px auto;
+        border: 3px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        background: #f1f5f9;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        position: relative;
     }
-
-    /* Form Styles */
-    .form-label {
-        font-weight: 600;
-        font-size: 13px;
-        color: #636e72;
-        margin-bottom: 8px;
-    }
-    .form-control {
-        background-color: #fbfcff;
-        border: 1px solid #eef2f7;
-        padding: 12px 15px;
-        border-radius: 8px;
-        font-size: 14px;
-        color: #2d3436;
-        transition: all 0.3s;
-    }
-    .form-control:focus {
-        background-color: #fff;
-        border-color: #727cf5;
-        box-shadow: 0 0 0 4px rgba(114, 124, 245, 0.1);
-    }
-
-    /* Image Preview */
-    .image-preview-container {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 2px solid #eef2f7;
-        margin-top: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .image-preview-container img {
+    .avatar-preview-box img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-
-    /* Toggle Switch */
-    .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #eef2f7; transition: .4s; border-radius: 34px; border: 1px solid #dee2e6; }
-    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    input:checked + .slider { background-color: #0acf97; border-color: #0acf97; }
-    input:checked + .slider:before { transform: translateX(22px); }
-
-    /* Button Style */
-    .btn-submit {
-        background: linear-gradient(45deg, #0acf97, #06b6d4);
-        border: none;
-        color: white;
-        padding: 12px 25px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
-        transition: 0.3s;
-        border-radius: 50rem;
+    .switch-styled {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 26px;
     }
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
+    .switch-styled input { opacity: 0; width: 0; height: 0; }
+    .switch-styled .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #cbd5e1;
+        transition: .3s;
+        border-radius: 34px;
+    }
+    .switch-styled .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .switch-styled input:checked + .slider {
+        background-color: #10b981;
+    }
+    .switch-styled input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+    .btn-save-cust {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        color: #fff;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+        transition: all 0.2s ease;
+    }
+    .btn-save-cust:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
+        color: #fff;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-3">
     
-    <div class="row mb-3 mt-3">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Edit Customer</h4>
-                <p class="text-muted font-size-13 mb-0">Update customer information.</p>
+    <!-- Breadcrumb & Header -->
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-6">
+            <h4 class="page-title mb-1" style="font-weight: 700; color: #0f172a;">Edit Customer</h4>
+            <p class="text-muted mb-0 font-size-13">Modify customer contact details, login status and credentials.</p>
+        </div>
+        <div class="col-md-6 text-md-end mt-2 mt-md-0">
+            <div class="d-inline-flex gap-2">
+                <a href="{{ route('customers.profile', ['id' => $edit_data->id]) }}" class="btn btn-outline-info rounded-pill px-3 shadow-sm font-size-13">
+                    <i class="fe-eye me-1"></i> View Profile
+                </a>
+                <a href="{{ route('customers.index') }}" class="btn btn-light rounded-pill px-3 border shadow-sm font-size-13">
+                    <i class="fe-arrow-left me-1"></i> Back to List
+                </a>
             </div>
-            <a href="{{route('customers.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
-                <i class="fe-arrow-left me-1"></i> Back to List
-            </a>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-icon"><i class="fe-user-check"></i></div>
-                    <h5 class="card-title">Customer Details</h5>
+    <form action="{{route('customers.update')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
+        @csrf
+        <input type="hidden" value="{{$edit_data->id}}" name="hidden_id">
+        
+        <div class="row g-3">
+            <!-- Left: Main Customer Information -->
+            <div class="col-lg-8">
+                <div class="customer-edit-card mb-3">
+                    <div class="card-header-styled">
+                        <div class="icon-circle"><i class="fe-user-check"></i></div>
+                        <div>
+                            <h5>Customer Account Details</h5>
+                            <span class="text-muted font-size-12">Primary contact credentials and addresses</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-styled">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control-styled" name="name" value="{{ old('name', $edit_data->name) }}" required placeholder="e.g. John Doe">
+                                @error('name') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-styled">Phone Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control-styled" name="phone" value="{{ old('phone', $edit_data->phone) }}" required placeholder="e.g. 01700000000">
+                                @error('phone') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-styled">Email Address</label>
+                                <input type="email" class="form-control-styled" name="email" value="{{ old('email', $edit_data->email) }}" placeholder="e.g. customer@domain.com">
+                                @error('email') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-styled">Password <span class="text-muted fw-normal font-size-12">(Leave blank to keep current)</span></label>
+                                <input type="password" class="form-control-styled" name="password" placeholder="••••••••">
+                                @error('password') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label-styled">Full Delivery Address <span class="text-danger">*</span></label>
+                                <textarea class="form-control-styled" name="address" rows="3" required placeholder="House, Road, Area, Thana, District...">{{ old('address', $edit_data->address) }}</textarea>
+                                @error('address') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form action="{{route('customers.update')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
-                        @csrf
-                        <input type="hidden" value="{{$edit_data->id}}" name="hidden_id">
-                        
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-4">
-                                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="name" value="{{ $edit_data->name }}" required>
-                                            @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-4">
-                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="phone" value="{{ $edit_data->phone }}" required>
-                                            @error('phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-4">
-                                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control" name="email" value="{{ $edit_data->email }}" required>
-                                            @error('email') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-4">
-                                            <label class="form-label">Password <span class="text-muted font-weight-normal">(Leave blank to keep current)</span></label>
-                                            <input type="password" class="form-control" name="password" placeholder="********">
-                                            @error('password') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group mb-4">
-                                            <label class="form-label">Full Address <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="address" value="{{ $edit_data->address }}" required>
-                                            @error('address') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+            </div>
 
-                            <div class="col-md-4">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <label class="form-label mb-3">Profile Picture</label>
-                                        
-                                        <div class="mx-auto image-preview-container">
-                                            <img src="{{asset($edit_data->image)}}" alt="user-image" id="preview-image">
-                                        </div>
-                                        
-                                        <div class="mt-3">
-                                            <input type="file" class="form-control form-control-sm" name="image" id="upload-image">
-                                            <small class="text-muted d-block mt-2">Allowed: jpg, jpeg, png</small>
-                                        </div>
-                                        @error('image') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-
-                                        <hr class="my-4">
-
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-0 fw-bold">Active Status</h6>
-                                                <small class="text-muted">Enable account access</small>
-                                            </div>
-                                            <label class="switch">
-                                                <input type="checkbox" name="status" value="1" @if($edit_data->status==1) checked @endif>
-                                                <span class="slider round"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+            <!-- Right: Status, Avatar & Actions -->
+            <div class="col-lg-4">
+                <div class="customer-edit-card mb-3">
+                    <div class="card-header-styled">
+                        <div class="icon-circle"><i class="fe-image"></i></div>
+                        <div>
+                            <h5>Profile & Status</h5>
+                            <span class="text-muted font-size-12">Customer avatar & status</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <div class="avatar-preview-box">
+                            @if($edit_data->image)
+                                <img src="{{asset($edit_data->image)}}" alt="Avatar" id="cust-preview-image">
+                            @else
+                                <img src="{{asset('public/avatar-default.png')}}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($edit_data->name) }}&background=0ea5e9&color=fff&size=110'" alt="Avatar" id="cust-preview-image">
+                            @endif
                         </div>
 
-                        <div class="row mt-3">
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-submit">
-                                    <i class="fe-check-circle me-1"></i> Update Customer
-                                </button>
-                            </div>
+                        <div class="mb-3 text-start">
+                            <label class="form-label-styled text-center mb-2">Change Profile Photo</label>
+                            <input type="file" class="form-control-styled" name="image" id="cust-upload-image" accept="image/*">
+                            <span class="text-muted font-size-12 text-center d-block mt-1">Supported: JPG, JPEG, PNG, WEBP</span>
+                            @error('image') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
                         </div>
 
-                    </form>
-                </div> </div> </div> </div>
+                        <hr class="my-3" style="border-color: #e2e8f0;">
+
+                        <div class="d-flex justify-content-between align-items-center text-start">
+                            <div>
+                                <label class="form-label-styled mb-0">Active Status</label>
+                                <span class="text-muted font-size-12 d-block">Allow customer to login & place orders</span>
+                            </div>
+                            <label class="switch-styled">
+                                <input type="checkbox" name="status" value="1" @if($edit_data->status == 1 || $edit_data->status == 'active') checked @endif>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customer-edit-card p-3">
+                    <button type="submit" class="btn btn-save-cust w-100 d-flex align-items-center justify-content-center gap-2">
+                        <i class="fe-check-circle font-size-16"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 @endsection
 
 @section('script')
 <script src="{{asset('public/backEnd/')}}/assets/libs/parsleyjs/parsley.min.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/js/pages/form-validation.init.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/libs/select2/js/select2.min.js"></script>
-
 <script>
-    // Image Preview Script
-    document.getElementById('upload-image').addEventListener('change', function(event) {
-        var reader = new FileReader();
-        reader.onload = function(){
-            var output = document.getElementById('preview-image');
-            output.src = reader.result;
-        };
-        reader.readAsDataURL(event.target.files[0]);
+    document.getElementById('cust-upload-image')?.addEventListener('change', function(event) {
+        if(event.target.files && event.target.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e){
+                var output = document.getElementById('cust-preview-image');
+                output.src = e.target.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
     });
 </script>
 @endsection
