@@ -120,7 +120,7 @@
 </section>
 
 {{-- CATEGORY SLIDER SECTION --}}
-<section class="homeproduct">
+<section class="homeproduct home-category-section">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
@@ -334,7 +334,7 @@
 {{-- CATEGORY WISE HOME PRODUCTS --}}
 @if($homeproducts && $homeproducts->count() > 0)
     @foreach ($homeproducts as $homecat)
-        <section class="homeproduct">
+        <section class="homeproduct category-wise-product-section">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-12">

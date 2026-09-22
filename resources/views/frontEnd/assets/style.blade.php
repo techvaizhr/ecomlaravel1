@@ -4912,15 +4912,32 @@ li.all__category__list i {
    REDESIGN OVERRIDES — Section Titles, Product Pages, Sidebar, Details
 ================================================================ */
 
-/* ----- SECTION TITLE REDESIGN ----- */
-.homeproduct {
-    padding: 18px 0 10px;
-    background: #f7f9fc;
-    margin-bottom: 12px;
+/* ----- SECTION TITLE REDESIGN & SEPARATE CARD CONTAINERS ----- */
+body {
+    background-color: #f6f8fb !important;
+}
+
+.homeproduct:not(.main-details-page) {
+    padding: 10px 0;
+    background: transparent !important;
+    margin-bottom: 8px;
+}
+
+.homeproduct:not(.main-details-page) .container {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 18px 20px 20px;
+    box-shadow: 0 4px 20px -3px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15, 23, 42, 0.03);
+    border: 1px solid #eef2f6;
+    transition: box-shadow 0.25s ease;
+}
+
+.homeproduct:not(.main-details-page) .container:hover {
+    box-shadow: 0 6px 24px -4px rgba(15, 23, 42, 0.09), 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .sec_title {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 .section-title-header {
@@ -4928,7 +4945,7 @@ li.all__category__list i {
     align-items: center;
     justify-content: space-between;
     border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 12px;
+    padding-bottom: 10px;
     position: relative;
 }
 
@@ -4940,6 +4957,112 @@ li.all__category__list i {
     width: 60px;
     height: 2px;
     background: {{$generalsetting->primary_color}};
+}
+
+/* 🏷️ Home Categories Section — Tight Gap between Title and Items */
+.home-category-section .sec_title {
+    margin-bottom: 6px !important;
+}
+.home-category-section .section-title-header {
+    padding-bottom: 8px !important;
+}
+.home-category-section .category-slider,
+.category-slider {
+    margin-top: 10px !important;
+}
+
+.cat_item {
+    border: 1px solid #e2e8f0;
+    padding: 8px 6px;
+    border-radius: 12px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    height: auto;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    text-align: center;
+}
+.cat_item:hover {
+    border-color: {{$generalsetting->primary_color}};
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+}
+.cat_img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 72px;
+}
+.cat_img img {
+    max-height: 68px;
+    width: auto !important;
+    object-fit: contain;
+    margin: 0 auto;
+    transition: transform 0.25s ease;
+}
+.cat_item:hover .cat_img img {
+    transform: scale(1.06);
+}
+.cat_name {
+    text-align: center;
+    padding: 5px 2px 2px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 📦 Category-Wise Product Sections */
+.category-wise-product-section {
+    margin-bottom: 12px;
+}
+.category-wise-product-section .sec_title {
+    margin-bottom: 12px;
+}
+.category-wise-product-section .product_slider {
+    margin-top: 8px;
+}
+
+/* 📱 Mobile Responsive Tight Spacing & Shadow */
+@media (max-width: 767px) {
+    body {
+        background-color: #f3f5f8 !important;
+    }
+    .homeproduct:not(.main-details-page) {
+        padding: 5px 0;
+        margin-bottom: 6px;
+    }
+    .homeproduct:not(.main-details-page) .container {
+        padding: 12px 10px 14px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        border-color: #e2e8f0;
+    }
+    .home-category-section .sec_title {
+        margin-bottom: 4px !important;
+    }
+    .home-category-section .section-title-header {
+        padding-bottom: 6px !important;
+    }
+    .home-category-section .category-slider,
+    .category-slider {
+        margin-top: 6px !important;
+    }
+    .cat_item {
+        padding: 6px 3px;
+        border-radius: 10px;
+    }
+    .cat_img {
+        height: 54px;
+    }
+    .cat_img img {
+        max-height: 50px;
+    }
+    .cat_name {
+        font-size: 11.5px;
+        padding: 3px 0 0;
+    }
 }
 
 .section-title-header .timer_inner {
