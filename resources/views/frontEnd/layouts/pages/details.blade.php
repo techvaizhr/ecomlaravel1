@@ -6,6 +6,43 @@
     $metaDescription = $details->meta_description ?? Str::limit(strip_tags($details->description), 160);
     $metaKeywords = $details->meta_keywords ?? $details->name;
     $metaImage = $details->meta_image ? asset($details->meta_image) : asset(optional($details->image)->image);
+
+    $breadcrumbItems = [
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'হোম',
+            'item' => url('/'),
+        ]
+    ];
+    $pos = 2;
+    if (!empty($details->category)) {
+        $breadcrumbItems[] = [
+            '@type' => 'ListItem',
+            'position' => $pos++,
+            'name' => $details->category->name,
+            'item' => url('/category/' . $details->category->slug),
+        ];
+    }
+    if (!empty($details->subcategory)) {
+        $breadcrumbItems[] = [
+            '@type' => 'ListItem',
+            'position' => $pos++,
+            'name' => $details->subcategory->subcategoryName,
+            'item' => url('/category/' . $details->category->slug),
+        ];
+    }
+    $breadcrumbItems[] = [
+        '@type' => 'ListItem',
+        'position' => $pos,
+        'name' => $details->name,
+        'item' => route('product', $details->slug),
+    ];
+    $schemaJson = json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => $breadcrumbItems
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 @endphp
 
 <meta name="app-url" content="{{ route('product', $details->slug) }}" />
@@ -30,42 +67,8 @@
 <meta property="og:description" content="{{ $metaDescription }}" />
 <meta property="og:site_name" content="{{ $generalsetting->name ?? 'gomobd.com' }}" />
 
-{{-- 🧭 Google Schema.org BreadcrumbList for Rich SEO Results --}}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "হোম",
-      "item": "{{ url('/') }}"
-    }
-    @if ($details->category)
-    ,{
-      "@type": "ListItem",
-      "position": 2,
-      "name": "{{ $details->category->name }}",
-      "item": "{{ url('/category/' . $details->category->slug) }}"
-    }
-    @endif
-    @if ($details->subcategory)
-    ,{
-      "@type": "ListItem",
-      "position": 3,
-      "name": "{{ $details->subcategory->subcategoryName }}",
-      "item": "{{ url('/category/' . $details->category->slug) }}"
-    }
-    @endif
-    ,{
-      "@type": "ListItem",
-      "position": {{ $details->subcategory ? 4 : ($details->category ? 3 : 2) }},
-      "name": "{{ $details->name }}",
-      "item": "{{ route('product', $details->slug) }}"
-    }
-  ]
-}
+{!! $schemaJson !!}
 </script>
 @endpush
 
