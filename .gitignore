@@ -1,8 +1,3 @@
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
 /storage/logs/*.log
 /storage/framework/cache/data/*
 /storage/framework/sessions/*
@@ -10,18 +5,3 @@
 !/storage/framework/cache/data/.gitignore
 !/storage/framework/sessions/.gitignore
 !/storage/framework/views/.gitignore
-/vendor
-.env
-.env.backup
-.env.production
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
-npm-debug.log
-yarn-error.log
-error_log
-tmp_*.php
-/.fleet
-/.idea
-/.vscode
