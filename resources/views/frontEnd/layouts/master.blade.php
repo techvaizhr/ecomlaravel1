@@ -439,7 +439,7 @@
     transform: scale(1.02);
 }
 
-/* 🔍 Modern E-Commerce Search Box (Sleek Clean Style) */
+/* 🔍 Modern E-Commerce Search Box (Sleek Rounded Pill Style) */
 .main-search {
     flex: 1;
     max-width: 600px;
@@ -450,24 +450,24 @@
     display: flex;
     align-items: center;
     background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
+    border: 2px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    border-radius: 50px;
     height: 44px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.25s ease;
     overflow: hidden;
     padding: 0;
 }
 .main-search form.search-form-v2:focus-within {
     border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 3px {{ optional($generalsetting)->primary_color ?? '#667eea' }}22;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08), 0 0 0 3px {{ optional($generalsetting)->primary_color ?? '#667eea' }}25;
 }
 .search-input-group {
     flex: 1;
     display: flex;
     align-items: center;
     height: 100%;
-    padding: 0 14px;
+    padding: 0 16px;
 }
 .search-icon-left {
     color: #94a3b8;
@@ -494,7 +494,7 @@
 .search-submit-btn {
     flex-shrink: 0;
     height: 100% !important;
-    padding: 0 20px !important;
+    padding: 0 22px !important;
     background: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
     border: none !important;
     color: #ffffff !important;
@@ -505,7 +505,7 @@
     justify-content: center !important;
     gap: 6px !important;
     cursor: pointer;
-    border-radius: 0 !important;
+    border-radius: 0 50px 50px 0 !important;
     transition: all 0.2s ease;
     float: none !important;
 }
@@ -986,12 +986,195 @@ li.all__category__list:hover > a i {
     align-items: center;
     justify-content: center;
 }
-.mobile-search button svg,
-.mobile-search button i {
-    width: 15px;
-    height: 15px;
-    stroke: #ffffff;
-    color: #ffffff;
+/* 📱 MODERN & BEAUTIFUL MOBILE SIDE MENU (DRAWER) */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 300px;
+    max-width: 85vw;
+    height: 100vh;
+    background: #ffffff;
+    z-index: 999999;
+    box-shadow: 10px 0 45px rgba(15, 23, 42, 0.22);
+    display: flex;
+    flex-direction: column;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+.mobile-menu.active {
+    left: 0;
+}
+
+/* Header */
+.mobile-menu-logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+.mobile-menu-logo .logo-image img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+}
+.mobile-menu-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+.mobile-menu-close:hover,
+.mobile-menu-close:active {
+    background: #fee2e2;
+    color: #ef4444;
+    transform: rotate(90deg);
+}
+
+/* Category Navigation List */
+.first-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    margin: 0;
+    list-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+.first-nav .parent-category {
+    position: relative;
+    border-bottom: 1px solid #f8fafc;
+    transition: background 0.15s ease;
+}
+.first-nav .parent-category > a.menu-category-name {
+    display: flex;
+    align-items: center;
+    padding: 11px 18px;
+    padding-right: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.first-nav .parent-category > a.menu-category-name:hover,
+.first-nav .parent-category.active > a.menu-category-name {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+.side_cat_img {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    flex-shrink: 0;
+}
+.menu-category-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+}
+.menu-category-toggle:hover {
+    background: #f1f5f9;
+}
+.menu-category-toggle.active {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    transform: translateY(-50%) rotate(180deg);
+}
+.menu-category-toggle i {
+    font-size: 12px;
+    transition: transform 0.25s ease;
+}
+
+/* Subcategories (2nd level) */
+.second-nav {
+    background: #f8fafc;
+    padding: 4px 0 4px 14px;
+    margin: 0 14px 6px 14px;
+    border-left: 2.5px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }}50;
+    border-radius: 0 8px 8px 0;
+    list-style: none;
+}
+.parent-subcategory {
+    position: relative;
+}
+.parent-subcategory a.menu-subcategory-name {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    padding-right: 45px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #334155;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.parent-subcategory a.menu-subcategory-name:hover,
+.parent-subcategory.active a.menu-subcategory-name {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+.menu-subcategory-toggle {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.menu-subcategory-toggle.active {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    transform: translateY(-50%) rotate(180deg);
+}
+.menu-subcategory-toggle i {
+    font-size: 11px;
+}
+
+/* Child categories (3rd level) */
+.third-nav {
+    background: #f1f5f9;
+    padding: 4px 0 4px 10px;
+    margin: 0 0 4px 10px;
+    border-left: 1.5px solid #cbd5e1;
+    border-radius: 0 6px 6px 0;
+    list-style: none;
+}
+.childcategory a.menu-childcategory-name {
+    display: block;
+    padding: 6px 10px;
+    font-size: 12.5px;
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.childcategory a.menu-childcategory-name:hover {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
 }
 </style>
         <script>window.dataLayer = window.dataLayer || [];</script>
@@ -2173,6 +2356,100 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                     });
                 });
             });
+        </script>
+
+        {{-- ✍️ Dynamic Animated Typewriter Placeholder Effect --}}
+        <script>
+            (function () {
+                const searchWords = [
+                    "পছন্দের পণ্য খুঁজুন...",
+                    "স্মার্টফোন ও গ্যাজেট...",
+                    "টি-শার্ট ও ফ্যাশন আইটেম...",
+                    "ঘড়ি, চশমা ও জুয়েলারি...",
+                    "হোম ও কিচেন এক্সেসরিজ...",
+                    "সেরা অফার ও ডিসকাউন্ট..."
+                ];
+
+                let wordIdx = 0;
+                let charIdx = 0;
+                let isDeleting = false;
+                let isPaused = false;
+                const typingSpeed = 90;
+                const deletingSpeed = 45;
+                const pauseDelay = 1800;
+
+                function getSearchInputs() {
+                    return document.querySelectorAll(".search_keyword, .msearch_keyword");
+                }
+
+                function bindInputEvents() {
+                    const inputs = getSearchInputs();
+                    inputs.forEach(function (input) {
+                        input.addEventListener("focus", function () { isPaused = true; });
+                        input.addEventListener("blur", function () {
+                            if (!input.value.trim()) {
+                                isPaused = false;
+                            }
+                        });
+                        input.addEventListener("input", function () {
+                            if (input.value.trim()) isPaused = true;
+                        });
+                    });
+                }
+
+                function typeEffect() {
+                    const inputs = getSearchInputs();
+                    if (!inputs.length) {
+                        setTimeout(typeEffect, 1000);
+                        return;
+                    }
+
+                    if (isPaused) {
+                        setTimeout(typeEffect, 500);
+                        return;
+                    }
+
+                    const currentWord = searchWords[wordIdx];
+                    let displayText = "";
+
+                    if (isDeleting) {
+                        displayText = currentWord.substring(0, charIdx - 1);
+                        charIdx--;
+                    } else {
+                        displayText = currentWord.substring(0, charIdx + 1);
+                        charIdx++;
+                    }
+
+                    inputs.forEach(function (input) {
+                        if (document.activeElement !== input || !input.value) {
+                            input.setAttribute("placeholder", displayText || " ");
+                        }
+                    });
+
+                    let speed = isDeleting ? deletingSpeed : typingSpeed;
+
+                    if (!isDeleting && charIdx === currentWord.length) {
+                        speed = pauseDelay;
+                        isDeleting = true;
+                    } else if (isDeleting && charIdx === 0) {
+                        isDeleting = false;
+                        wordIdx = (wordIdx + 1) % searchWords.length;
+                        speed = 350;
+                    }
+
+                    setTimeout(typeEffect, speed);
+                }
+
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", function () {
+                        bindInputEvents();
+                        setTimeout(typeEffect, 600);
+                    });
+                } else {
+                    bindInputEvents();
+                    setTimeout(typeEffect, 600);
+                }
+            })();
         </script>
 
         <script>
