@@ -776,6 +776,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('roles/{id}/edit', [RoleController::class,'edit'])->name('roles.edit');
     Route::post('roles/update', [RoleController::class,'update'])->name('roles.update');
     Route::post('roles/destroy', [RoleController::class,'destroy'])->name('roles.destroy');
+    Route::post('roles/sync-permissions', [RoleController::class,'syncPermissions'])->name('roles.syncPermissions');
 
     // permissions
     Route::get('permissions/manage', [PermissionController::class,'index'])->name('permissions.index');

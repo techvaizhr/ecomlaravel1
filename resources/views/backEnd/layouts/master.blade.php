@@ -358,26 +358,23 @@
             <div class="section-pane {{ $activeSection === 'section-people' ? 'active' : '' }}" id="pane-section-people">
               <div class="pane-title">People & Partners</div>
               <ul class="subpanel-menu">
-                @canany(['user-list', 'role-list', 'permission-list', 'customer-list'])
-                <li class="{{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'menuitem-active' : '' }}">
-                  <a href="#sub-users" data-bs-toggle="collapse" class="{{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'active' : '' }}">
+                @canany(['user-list', 'role-list', 'customer-list'])
+                <li class="{{ (request()->routeIs('users.*', 'roles.*', 'customers.*') && !request()->routeIs('customers.ip_block*')) ? 'menuitem-active' : '' }}">
+                  <a href="#sub-users" data-bs-toggle="collapse" class="{{ (request()->routeIs('users.*', 'roles.*', 'customers.*') && !request()->routeIs('customers.ip_block*')) ? 'active' : '' }}">
                     <i data-feather="users"></i>
                     <span> Users & Customers </span>
                     <span class="menu-arrow"></span>
                   </a>
-                  <div class="collapse {{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'show' : '' }}" id="sub-users">
+                  <div class="collapse {{ (request()->routeIs('users.*', 'roles.*', 'customers.*') && !request()->routeIs('customers.ip_block*')) ? 'show' : '' }}" id="sub-users">
                     <ul class="subpanel-nested-menu">
                       @canany(['customer-list', 'customer-create', 'customer-edit'])
-                      <li><a href="{{ route('customers.index') }}"><i data-feather="user-check"></i> Customers</a></li>
+                      <li><a href="{{ route('customers.index') }}" class="{{ (request()->routeIs('customers.*') && !request()->routeIs('customers.ip_block*')) ? 'active' : '' }}"><i data-feather="user-check"></i> Customers</a></li>
                       @endcanany
                       @can('user-list')
-                      <li><a href="{{ route('users.index') }}"><i data-feather="user"></i> Users</a></li>
+                      <li><a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}"><i data-feather="user"></i> Users</a></li>
                       @endcan
                       @can('role-list')
-                      <li><a href="{{ route('roles.index') }}"><i data-feather="shield"></i> Roles</a></li>
-                      @endcan
-                      @can('permission-list')
-                      <li><a href="{{ route('permissions.index') }}"><i data-feather="key"></i> Permissions</a></li>
+                      <li><a href="{{ route('roles.index') }}" class="{{ request()->routeIs('roles.*') ? 'active' : '' }}"><i data-feather="shield"></i> Roles & Permissions</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -402,11 +399,11 @@
                   <div class="collapse {{ request()->routeIs('admin.vendors.*', 'admin.vendor.verification.*', 'admin.vendor.withdrawals.*') ? 'show' : '' }}" id="sub-vendors">
                     <ul class="subpanel-nested-menu">
                       @can('vendor-list')
-                      <li><a href="{{ route('admin.vendors.index') }}"><i data-feather="file-plus"></i> All Vendors</a></li>
+                      <li><a href="{{ route('admin.vendors.index') }}" class="{{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> All Vendors</a></li>
                       @endcan
                       @can('vendor-verification')
                       <li>
-                        <a href="{{ route('admin.vendor.verification.index') }}">
+                        <a href="{{ route('admin.vendor.verification.index') }}" class="{{ request()->routeIs('admin.vendor.verification.*') ? 'active' : '' }}">
                           <i data-feather="shield"></i> Verifications
                           @if($pendingVerificationCount > 0)
                             <span class="badge bg-danger rounded-pill float-end">{{ $pendingVerificationCount }}</span>
@@ -415,7 +412,7 @@
                       </li>
                       @endcan
                       @can('vendor-withdrawal')
-                      <li><a href="{{ route('admin.vendor.withdrawals.index') }}"><i data-feather="dollar-sign"></i> Withdrawals</a></li>
+                      <li><a href="{{ route('admin.vendor.withdrawals.index') }}" class="{{ request()->routeIs('admin.vendor.withdrawals.*') ? 'active' : '' }}"><i data-feather="dollar-sign"></i> Withdrawals</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -443,11 +440,11 @@
                   <div class="collapse {{ request()->routeIs('admin.resellers.*', 'admin.reseller.verification.*', 'admin.reseller.withdrawals.*', 'admin.reseller-deposits.*') ? 'show' : '' }}" id="sub-resellers">
                     <ul class="subpanel-nested-menu">
                       @can('reseller-list')
-                      <li><a href="{{ route('admin.resellers.index') }}"><i data-feather="file-plus"></i> All Resellers</a></li>
+                      <li><a href="{{ route('admin.resellers.index') }}" class="{{ request()->routeIs('admin.resellers.index') || (request()->routeIs('admin.resellers.*') && !request()->routeIs('admin.reseller.verification.*') && !request()->routeIs('admin.reseller.withdrawals.*') && !request()->routeIs('admin.reseller-deposits.*')) ? 'active' : '' }}"><i data-feather="file-plus"></i> All Resellers</a></li>
                       @endcan
                       @can('reseller-withdrawal')
                       <li>
-                        <a href="{{ route('admin.reseller-deposits.index') }}">
+                        <a href="{{ route('admin.reseller-deposits.index') }}" class="{{ request()->routeIs('admin.reseller-deposits.*') ? 'active' : '' }}">
                           <i data-feather="credit-card"></i> Reseller Deposits
                           @if($pendingDepositCount > 0)
                             <span class="badge bg-warning rounded-pill float-end">{{ $pendingDepositCount }}</span>
@@ -457,7 +454,7 @@
                       @endcan
                       @can('reseller-verification')
                       <li>
-                        <a href="{{ route('admin.reseller.verification.index') }}">
+                        <a href="{{ route('admin.reseller.verification.index') }}" class="{{ request()->routeIs('admin.reseller.verification.*') ? 'active' : '' }}">
                           <i data-feather="shield"></i> Verifications
                           @if($pendingResellerVerificationCount > 0)
                             <span class="badge bg-danger rounded-pill float-end">{{ $pendingResellerVerificationCount }}</span>
@@ -467,7 +464,7 @@
                       @endcan
                       @can('reseller-withdrawal')
                       <li>
-                        <a href="{{ route('admin.reseller.withdrawals.index') }}">
+                        <a href="{{ route('admin.reseller.withdrawals.index') }}" class="{{ request()->routeIs('admin.reseller.withdrawals.*') ? 'active' : '' }}">
                           <i data-feather="dollar-sign"></i> Withdrawals
                           @if($pendingResellerWithdrawalCount > 0)
                             <span class="badge bg-warning rounded-pill float-end">{{ $pendingResellerWithdrawalCount }}</span>
@@ -491,13 +488,13 @@
                   <div class="collapse {{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'show' : '' }}" id="sub-delivery">
                     <ul class="subpanel-nested-menu">
                       @can('delivery-boy-list')
-                      <li><a href="{{ route('admin.delivery-boys.index') }}"><i data-feather="users"></i> Delivery Persons</a></li>
+                      <li><a href="{{ route('admin.delivery-boys.index') }}" class="{{ request()->routeIs('admin.delivery-boys.index') || (request()->routeIs('admin.delivery-boys.*') && !request()->routeIs('admin.delivery-boys.withdrawals*')) ? 'active' : '' }}"><i data-feather="users"></i> Delivery Persons</a></li>
                       @endcan
                       @can('delivery-withdrawal-list')
-                      <li><a href="{{ route('admin.delivery-boys.withdrawals') }}"><i data-feather="dollar-sign"></i> Rider Withdrawals</a></li>
+                      <li><a href="{{ route('admin.delivery-boys.withdrawals') }}" class="{{ request()->routeIs('admin.delivery-boys.withdrawals*') ? 'active' : '' }}"><i data-feather="dollar-sign"></i> Rider Withdrawals</a></li>
                       @endcan
                       @can('delivery-location-list')
-                      <li><a href="{{ route('admin.delivery.divisions.index') }}"><i data-feather="map-pin"></i> Delivery Locations</a></li>
+                      <li><a href="{{ route('admin.delivery.divisions.index') }}" class="{{ request()->routeIs('admin.delivery.*') ? 'active' : '' }}"><i data-feather="map-pin"></i> Delivery Locations</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -514,22 +511,22 @@
                   <div class="collapse {{ request()->routeIs('admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*') ? 'show' : '' }}" id="sub-crm">
                     <ul class="subpanel-nested-menu">
                       @can('employee-list')
-                      <li><a href="{{ route('admin.employees.index') }}"><i data-feather="user"></i> Employees</a></li>
+                      <li><a href="{{ route('admin.employees.index') }}" class="{{ request()->routeIs('admin.employees.*') ? 'active' : '' }}"><i data-feather="user"></i> Employees</a></li>
                       @endcan
                       @can('attendance-list')
-                      <li><a href="{{ route('admin.attendances.index') }}"><i data-feather="check-circle"></i> Attendance</a></li>
+                      <li><a href="{{ route('admin.attendances.index') }}" class="{{ request()->routeIs('admin.attendances.*') ? 'active' : '' }}"><i data-feather="check-circle"></i> Attendance</a></li>
                       @endcan
                       @can('leave-list')
-                      <li><a href="{{ route('admin.leaves.index') }}"><i data-feather="calendar"></i> Leaves</a></li>
+                      <li><a href="{{ route('admin.leaves.index') }}" class="{{ request()->routeIs('admin.leaves.*') ? 'active' : '' }}"><i data-feather="calendar"></i> Leaves</a></li>
                       @endcan
                       @can('salary-list')
-                      <li><a href="{{ route('admin.salaries.index') }}"><i data-feather="dollar-sign"></i> Salaries</a></li>
+                      <li><a href="{{ route('admin.salaries.index') }}" class="{{ request()->routeIs('admin.salaries.*') ? 'active' : '' }}"><i data-feather="dollar-sign"></i> Salaries</a></li>
                       @endcan
                       @can('bonus-list')
-                      <li><a href="{{ route('admin.bonuses.index') }}"><i data-feather="gift"></i> Bonuses</a></li>
+                      <li><a href="{{ route('admin.bonuses.index') }}" class="{{ request()->routeIs('admin.bonuses.*') ? 'active' : '' }}"><i data-feather="gift"></i> Bonuses</a></li>
                       @endcan
                       @can('salary-payment-list')
-                      <li><a href="{{ route('admin.salary_payments.index') }}"><i data-feather="credit-card"></i> Salary Payments</a></li>
+                      <li><a href="{{ route('admin.salary_payments.index') }}" class="{{ request()->routeIs('admin.salary_payments.*') ? 'active' : '' }}"><i data-feather="credit-card"></i> Salary Payments</a></li>
                       @endcan
                     </ul>
                   </div>

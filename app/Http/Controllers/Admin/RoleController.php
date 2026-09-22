@@ -12,7 +12,7 @@ class RoleController extends Controller
     function __construct()
     {
          $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:role-create', ['only' => ['create','store']]);
+         $this->middleware('permission:role-create', ['only' => ['create','store','syncPermissions']]);
          $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:role-delete', ['only' => ['destroy']]);
     }
@@ -20,7 +20,112 @@ class RoleController extends Controller
     public function index(Request $request)
     {
         $show_data = Role::withCount(['permissions', 'users'])->orderBy('id','DESC')->get();
-        return view('backEnd.roles.index',compact('show_data'));
+        $totalPermissions = Permission::where('guard_name', 'admin')->count();
+        if ($totalPermissions === 0) {
+            $totalPermissions = Permission::count();
+        }
+        return view('backEnd.roles.index',compact('show_data', 'totalPermissions'));
+    }
+
+    /**
+     * Auto generate & synchronize all standard system permissions into the database
+     */
+    public function syncPermissions(Request $request)
+    {
+        // Clear cached permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $allPermissions = [
+            // Dashboard
+            'dashboard-view',
+
+            // Users
+            'user-list', 'user-create', 'user-edit', 'user-delete',
+
+            // Roles
+            'role-list', 'role-create', 'role-edit', 'role-delete',
+
+            // Customers
+            'customer-list', 'customer-create', 'customer-edit', 'customer-delete', 'customer-manage',
+
+            // Orders & Sales
+            'order-list', 'order-create', 'order-edit', 'order-delete', 'order-status', 'order-invoice', 'order-process', 'order-manage', 'fraud-check',
+
+            // Products & Catalog
+            'product-list', 'product-create', 'product-edit', 'product-delete', 'product-pending',
+            'category-list', 'category-create', 'category-edit', 'category-delete',
+            'subcategory-list', 'subcategory-create', 'subcategory-edit', 'subcategory-delete',
+            'childcategory-list', 'childcategory-create', 'childcategory-edit', 'childcategory-delete',
+            'brand-list', 'brand-create', 'brand-edit', 'brand-delete',
+            'color-list', 'color-create', 'color-edit', 'color-delete',
+            'size-list', 'size-create', 'size-edit', 'size-delete',
+
+            // Purchases & Suppliers
+            'purchase-list', 'purchase-create', 'purchase-edit', 'purchase-delete',
+            'supplier-list', 'supplier-create', 'supplier-edit', 'supplier-delete',
+
+            // Shipping & Delivery
+            'shipping-list', 'shipping-create', 'shipping-edit', 'shipping-delete',
+            'delivery-boy-list', 'delivery-withdrawal-list', 'delivery-location-list',
+
+            // Finance & Accounts
+            'fund-list', 'fund-create', 'fund-edit', 'fund-delete',
+            'expense-list', 'expense-create', 'expense-edit', 'expense-delete',
+            'expense-category-list', 'expense-category-create', 'expense-category-edit', 'expense-category-delete',
+
+            // Vendors
+            'vendor-list', 'vendor-create', 'vendor-edit', 'vendor-delete', 'vendor-verification', 'vendor-withdrawal',
+
+            // Resellers
+            'reseller-list', 'reseller-create', 'reseller-edit', 'reseller-delete', 'reseller-verification', 'reseller-withdrawal',
+
+            // HR / CRM
+            'employee-list', 'employee-create', 'employee-edit', 'employee-delete',
+            'attendance-list', 'leave-list', 'salary-list', 'bonus-list', 'salary-payment-list',
+
+            // Marketing & Promotions
+            'campaign-list', 'campaign-create', 'campaign-edit', 'campaign-delete',
+            'coupon-list', 'coupon-create', 'coupon-edit', 'coupon-delete',
+            'banner-list', 'banner-create', 'banner-edit', 'banner-delete',
+            'banner-category-list', 'banner-category-create', 'banner-category-edit', 'banner-category-delete',
+            'popup-list', 'review-list', 'blog-list', 'sms-send',
+
+            // Analytics & Reports
+            'pixel-manage', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report',
+
+            // Settings & System
+            'setting-list', 'setting-create', 'setting-edit', 'setting-delete',
+            'social-list', 'social-create', 'social-edit', 'social-delete',
+            'contact-list', 'contact-create', 'contact-edit', 'contact-delete',
+            'contact-message-list', 'contact-message-edit', 'contact-message-delete',
+            'page-list', 'page-create', 'page-edit', 'page-delete',
+            'payment-gateway', 'sms-gateway', 'courierapi', 'api-manage',
+            'email-setting-list', 'complaint-list', 'seo-manage', 'sitemap-manage', 'cache-clear', 'error-log-view'
+        ];
+
+        $createdCount = 0;
+        foreach ($allPermissions as $permName) {
+            $existing = Permission::where('name', $permName)->where('guard_name', 'admin')->first();
+            if (!$existing) {
+                Permission::create(['name' => $permName, 'guard_name' => 'admin']);
+                $createdCount++;
+            }
+        }
+
+        // Also ensure Super Admin / Admin role has all permissions
+        $adminRole = Role::where(function($q) {
+            $q->where('name', 'Super Admin')->orWhere('name', 'admin')->orWhere('name', 'Admin');
+        })->where('guard_name', 'admin')->first();
+
+        if ($adminRole) {
+            $allAdminPerms = Permission::where('guard_name', 'admin')->pluck('name')->toArray();
+            $adminRole->syncPermissions($allAdminPerms);
+        }
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        Toastr::success('Success', count($allPermissions) . ' System permissions synchronized successfully!' . ($createdCount > 0 ? " ($createdCount new added)" : ""));
+        return redirect()->back();
     }
     
     public function create()

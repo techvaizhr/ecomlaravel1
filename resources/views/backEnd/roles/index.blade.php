@@ -114,11 +114,21 @@
                     অ্যাডমিন প্যানেলের ভূমিকা (Roles) এবং স্টাফ মেম্বারদের জন্য অ্যাক্সেস কন্ট্রোল নিয়ন্ত্রণ করুন।
                 </p>
             </div>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center flex-wrap gap-2">
                 <div class="role-stat-box">
                     <h3>{{ $show_data->count() }}</h3>
                     <span>Total Roles</span>
                 </div>
+                <div class="role-stat-box">
+                    <h3>{{ $totalPermissions ?? 0 }}</h3>
+                    <span>Permissions</span>
+                </div>
+                <form action="{{ route('roles.syncPermissions') }}" method="POST" class="d-inline" onsubmit="return confirm('Do you want to scan and synchronize all standard system permissions? This will ensure fresh or missing permissions are populated.');">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-light rounded-pill px-3 shadow-sm fw-bold font-size-13" title="Sync default system permissions to database">
+                        <i class="fe-refresh-cw me-1"></i> Sync Permissions
+                    </button>
+                </form>
                 <a href="{{ route('roles.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
                     <i class="fe-plus me-1"></i> Create New Role
                 </a>
