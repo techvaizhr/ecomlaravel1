@@ -24,6 +24,10 @@ class Category extends Model
     public function subcategories() {
         return $this->hasMany(Subcategory::class, 'category_id')->where('status', 1);
     }
+
+    public function allSubcategories() {
+        return $this->hasMany(Subcategory::class, 'category_id');
+    }
     
     public function menusubcategories() {
         return $this->hasMany(Subcategory::class, 'category_id')->select('id','slug','subcategoryName','category_id')->where('status', 1);

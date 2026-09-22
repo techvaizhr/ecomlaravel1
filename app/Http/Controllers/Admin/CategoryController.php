@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Support\ImageOptimizer;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Subcategory;
+use App\Models\Childcategory;
 use Toastr;
 use File;
 use Str;
@@ -22,8 +24,26 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $data = Category::orderBy('id','DESC')->with('category')->get();
-        return view('backEnd.category.index',compact('data'));
+        $categories = Category::orderBy('id','DESC')->withCount(['allSubcategories as subcategories_count'])->get();
+        $subcategories = Subcategory::with('category')->withCount(['allChildcategories as childcategories_count'])->orderBy('id','DESC')->get();
+        $childcategories = Childcategory::with(['subcategory.category'])->orderBy('id','DESC')->get();
+
+        $allCategories = Category::where('status', 1)->orderBy('name','ASC')->get();
+        $allSubcategories = Subcategory::where('status', 1)->with('category')->orderBy('subcategoryName','ASC')->get();
+
+        $treeCategories = Category::with(['allSubcategories.allChildcategories'])->orderBy('name','ASC')->get();
+
+        $data = $categories; // backwards compatibility
+
+        return view('backEnd.category.index', compact(
+            'data',
+            'categories',
+            'subcategories',
+            'childcategories',
+            'allCategories',
+            'allSubcategories',
+            'treeCategories'
+        ));
     }
 
     public function create()
@@ -71,6 +91,9 @@ class CategoryController extends Controller
         Category::create($input);
 
         Toastr::success('Success','Data insert successfully');
+        if ($request->redirect_to) {
+            return redirect($request->redirect_to);
+        }
         return redirect()->route('categories.index');
     }
 
@@ -139,6 +162,9 @@ class CategoryController extends Controller
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');
+        if ($request->redirect_to) {
+            return redirect($request->redirect_to);
+        }
         return redirect()->route('categories.index');
     }
 

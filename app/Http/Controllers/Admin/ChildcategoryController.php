@@ -55,6 +55,9 @@ class ChildcategoryController extends Controller
         
         Childcategory::create($input);
         Toastr::success('Success','Data insert successfully');
+        if ($request->redirect_to) {
+            return redirect($request->redirect_to);
+        }
         return redirect()->route('childcategories.index');
     }
     
@@ -83,7 +86,6 @@ class ChildcategoryController extends Controller
         
         $input = $request->except('hidden_id');
         
-       
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->childcategoryName));
         $input['slug'] = str_replace('/', '', $input['slug']);
         $input['status'] = $request->status?1:0;
@@ -91,6 +93,9 @@ class ChildcategoryController extends Controller
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');
+        if ($request->redirect_to) {
+            return redirect($request->redirect_to);
+        }
         return redirect()->route('childcategories.index');
     }
  

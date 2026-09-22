@@ -59,6 +59,9 @@ class SubcategoryController extends Controller
         $input['image'] = $imageUrl;
         Subcategory::create($input);
         Toastr::success('Success','Data insert successfully');
+        if ($request->redirect_to) {
+            return redirect($request->redirect_to);
+        }
         return redirect()->route('subcategories.index');
     }
     
@@ -86,8 +89,6 @@ class SubcategoryController extends Controller
             $input['image'] = $update_data->image;
         }
 
-
-        
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->subcategoryName));
         $input['slug'] = str_replace('/', '', $input['slug']);
         $input['status'] = $request->status?1:0;
@@ -95,6 +96,9 @@ class SubcategoryController extends Controller
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');
+        if ($request->redirect_to) {
+            return redirect($request->redirect_to);
+        }
         return redirect()->route('subcategories.index');
     }
  
