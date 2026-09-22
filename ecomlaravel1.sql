@@ -3375,7 +3375,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (189, '2026_06_28_000002_create_sale_notification_tables', 117),
 (190, '2026_06_28_000003_create_gemini_ai_settings_table', 118),
 (191, '2026_06_28_000004_add_customer_chat_to_gemini_ai_settings', 119),
-(192, '2026_06_28_000005_add_homepage_section_toggles_to_general_settings', 119);
+(192, '2026_06_28_000005_add_homepage_section_toggles_to_general_settings', 119),
+(193, '2026_09_23_010000_ensure_product_images_path_length', 120);
 
 -- --------------------------------------------------------
 

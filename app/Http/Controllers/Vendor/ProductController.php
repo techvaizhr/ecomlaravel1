@@ -261,7 +261,7 @@ class ProductController extends Controller
         // PRODUCT IMAGES
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $img) {
-                $imagePath = ImageOptimizer::store($img, 'public/uploads/product/');
+                $imagePath = ImageOptimizer::storeProductImage($img);
 
                 Productimage::create([
                     'product_id' => $product->id,
@@ -290,7 +290,7 @@ class ProductController extends Controller
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
                 if (!isset($savedFiles[$imageRow])) {
-                    $savedFiles[$imageRow] = ImageOptimizer::store($file, 'public/uploads/product/');
+                    $savedFiles[$imageRow] = ImageOptimizer::storeProductImage($file);
                 }
                 Productimage::create([
                     'product_id' => $product->id,
@@ -537,7 +537,7 @@ class ProductController extends Controller
         // NEW IMAGES
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $img) {
-                $imagePath = ImageOptimizer::store($img, 'public/uploads/product/');
+                $imagePath = ImageOptimizer::storeProductImage($img);
 
                 Productimage::create([
                     'product_id' => $product->id,
@@ -561,7 +561,7 @@ class ProductController extends Controller
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
                 if (!isset($savedFiles[$imageRow])) {
-                    $savedFiles[$imageRow] = ImageOptimizer::store($file, 'public/uploads/product/');
+                    $savedFiles[$imageRow] = ImageOptimizer::storeProductImage($file);
                 }
                 Productimage::create([
                     'product_id' => $product->id,

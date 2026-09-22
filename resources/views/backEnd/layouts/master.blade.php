@@ -1063,7 +1063,7 @@
       $activeSection = 'section-people';
   } elseif (request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block', 'admin.refunds.*', 'manualFraud.page', 'admin.order.restriction.setting.*') || request()->is('admin/orders/*')) {
       $activeSection = 'section-orders';
-  } elseif (request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale', 'purchases.*', 'admin.suppliers.*')) {
+  } elseif (request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale', 'purchases.*', 'admin.suppliers.*', 'admin.media.*')) {
       $activeSection = 'section-catalog';
   } elseif (request()->routeIs('admin.fund.*', 'admin.expenses.*')) {
       $activeSection = 'section-finance';
@@ -1515,6 +1515,13 @@
                   </a>
                 </li>
                 @endcanany
+
+                <li class="{{ request()->routeIs('admin.media.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.media.index') }}" class="{{ request()->routeIs('admin.media.*') ? 'active' : '' }}">
+                    <i data-feather="image"></i>
+                    <span> Media Manager </span>
+                  </a>
+                </li>
               </ul>
             </div>
 

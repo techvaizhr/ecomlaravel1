@@ -59,6 +59,7 @@ use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\DigitalDownloadController;
 use App\Http\Controllers\Frontend\ComplaintController;
 use App\Http\Controllers\Admin\AdminComplaintController;
@@ -626,6 +627,14 @@ Route::get('/ajax-product-childcategory', [ProductController::class, 'getChildca
 // auth route
 // admin route group
 Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_mode'], 'prefix' => 'admin'], function () {
+    // 📸 Media Library / File Manager
+    Route::group(['as' => 'admin.media.', 'prefix' => 'media'], function () {
+        Route::get('/', [MediaController::class, 'index'])->name('index');
+        Route::post('/upload', [MediaController::class, 'upload'])->name('upload');
+        Route::post('/delete', [MediaController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-delete', [MediaController::class, 'bulkDestroy'])->name('bulkDestroy');
+    });
+
 	// 🟢 Coupon Management
 Route::get('coupon/manage', [CouponController::class, 'index'])->name('admin.coupons.index');
 Route::get('coupon/create', [CouponController::class, 'create'])->name('admin.coupons.create');

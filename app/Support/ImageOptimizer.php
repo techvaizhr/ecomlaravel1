@@ -112,6 +112,16 @@ class ImageOptimizer
     }
 
     /**
+     * Store and optimize Product Image into dynamic Year/Month subdirectory
+     * (e.g. public/uploads/product/2026/09/) for ultimate performance & filesystem scalability.
+     */
+    public static function storeProductImage(UploadedFile $file, ?string $basename = null): string
+    {
+        $dir = 'public/uploads/product/' . date('Y/m') . '/';
+        return self::store($file, $dir, $basename, 400, 1200, 1200);
+    }
+
+    /**
      * Save uploaded image as optimized WebP with security validation.
      */
     public static function store(

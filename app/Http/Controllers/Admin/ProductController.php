@@ -371,7 +371,7 @@ class ProductController extends Controller
             $imageColors = $request->image_color ?? [];
             $imageSizes  = $request->image_size ?? [];
             foreach ($request->file('image') as $idx => $img) {
-                $imagePath = ImageOptimizer::store($img, 'public/uploads/product/');
+                $imagePath = ImageOptimizer::storeProductImage($img);
 
                 $colorId = $imageColors[$idx] ?? null;
                 $sizeId  = $imageSizes[$idx] ?? null;
@@ -423,7 +423,7 @@ class ProductController extends Controller
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
                 if (!isset($savedFiles[$imageRow])) {
-                    $savedFiles[$imageRow] = ImageOptimizer::store($file, 'public/uploads/product/');
+                    $savedFiles[$imageRow] = ImageOptimizer::storeProductImage($file);
                 }
                 Productimage::create([
                     'product_id' => $product->id,
@@ -640,7 +640,7 @@ class ProductController extends Controller
             $imageColors = $request->image_color ?? [];
             $imageSizes  = $request->image_size ?? [];
             foreach ($request->file('image') as $idx => $img) {
-                $imagePath = ImageOptimizer::store($img, 'public/uploads/product/');
+                $imagePath = ImageOptimizer::storeProductImage($img);
 
                 $colorId = $imageColors[$idx] ?? null;
                 $sizeId  = $imageSizes[$idx] ?? null;
@@ -669,7 +669,7 @@ class ProductController extends Controller
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
                 if (!isset($savedFiles[$imageRow])) {
-                    $savedFiles[$imageRow] = ImageOptimizer::store($file, 'public/uploads/product/');
+                    $savedFiles[$imageRow] = ImageOptimizer::storeProductImage($file);
                 }
                 Productimage::create([
                     'product_id' => $product->id,
