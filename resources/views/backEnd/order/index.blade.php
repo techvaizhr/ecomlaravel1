@@ -42,13 +42,13 @@
                                                 $custName = $value->shipping ? $value->shipping->name : ($value->customer ? $value->customer->name : 'N/A');
                                                 $custPhone = $value->shipping ? $value->shipping->phone : ($value->customer ? $value->customer->phone : '');
                                                 $custAddr = $value->shipping ? $value->shipping->address : ($value->customer ? $value->customer->address : '');
-                                            @endphp
-                                            <div class="fw-bold text-dark" style="font-size: 13.5px;">{{ $custName }}</div>
-                                            @if($custPhone)
-                                                <div class="d-flex align-items-center gap-1 mt-1">
+                                             @endphp
+                                             <div class="fw-bold text-dark" style="font-size: 13.5px;">{{ $custName }}</div>
+                                             @if($custPhone)
+                                                <div class="d-flex align-items-center mt-1" style="gap: 4px;">
                                                     <span class="text-secondary fw-semibold" style="font-size: 12px;">{{ $custPhone }}</span>
-                                                    <a href="tel:{{ $custPhone }}" class="btn btn-xs btn-outline-primary p-0 d-inline-flex align-items-center justify-content-center rounded" style="width: 22px; height: 22px;" title="কল করুন">
-                                                        <i class="fas fa-phone-alt" style="font-size: 10px;"></i>
+                                                    <a href="tel:{{ $custPhone }}" class="btn btn-xs p-0 border-0 text-primary d-inline-flex align-items-center justify-content-center" style="width: 18px; height: 18px;" title="কল করুন">
+                                                        <i class="fas fa-phone-alt" style="font-size: 11px;"></i>
                                                     </a>
                                                     @php
                                                         $cleanPhone = preg_replace('/[^0-9]/', '', $custPhone);
@@ -58,23 +58,23 @@
                                                             $waPhone = $cleanPhone;
                                                         }
                                                     @endphp
-                                                    <a href="https://wa.me/{{ $waPhone }}" target="_blank" class="btn btn-xs btn-outline-success p-0 d-inline-flex align-items-center justify-content-center rounded" style="width: 22px; height: 22px;" title="হোয়াটসঅ্যাপ মেসেজ">
-                                                        <i class="fab fa-whatsapp" style="font-size: 11px;"></i>
+                                                    <a href="https://wa.me/{{ $waPhone }}" target="_blank" class="btn btn-xs p-0 border-0 text-success d-inline-flex align-items-center justify-content-center" style="width: 18px; height: 18px;" title="হোয়াটসঅ্যাপ মেসেজ">
+                                                        <i class="fab fa-whatsapp" style="font-size: 13px;"></i>
                                                     </a>
-                                                    <button type="button" class="btn btn-xs btn-outline-secondary p-0 d-inline-flex align-items-center justify-content-center rounded copy-phone-btn" data-phone="{{ $custPhone }}" style="width: 22px; height: 22px;" title="নাম্বার কপি করুন">
-                                                        <i class="far fa-copy" style="font-size: 10px;"></i>
+                                                    <button type="button" class="btn btn-xs p-0 border-0 text-secondary d-inline-flex align-items-center justify-content-center copy-phone-btn" data-phone="{{ $custPhone }}" style="width: 18px; height: 18px;" title="নাম্বার কপি করুন">
+                                                        <i class="far fa-copy" style="font-size: 11px;"></i>
                                                     </button>
                                                 </div>
-                                            @endif
-                                            @if(!empty($custAddr))
+                                             @endif
+                                             @if(!empty($custAddr))
                                                 <div class="text-muted mt-1" style="font-size: 11.5px; line-height: 1.35; max-width: 240px;">
                                                     <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 10px;"></i>{{ $custAddr }}
                                                 </div>
-                                            @endif
+                                             @endif
                                         </td>
 
-                                        {{-- 5. Traffic Source (Name only) --}}
-                                        <td class="align-middle">
+                                        {{-- 5. Traffic Source (Compact & Tight) --}}
+                                        <td class="align-middle text-center text-nowrap px-1" style="width: 75px;">
                                             @php
                                                 $tsKey = strtolower(trim((string) ($value->traffic_source ?? 'direct')));
                                                 $trafficOpts = isset($traffic_source_options) ? $traffic_source_options : [];
@@ -94,7 +94,7 @@
                                                     default => 'bg-secondary',
                                                 };
                                             @endphp
-                                            <span class="badge {{ $tsBadgeClass }} px-2 py-1" style="font-size: 11px; font-weight: 600;">{{ $tsLabel }}</span>
+                                            <span class="badge {{ $tsBadgeClass }}" style="font-size: 10.5px; font-weight: 600; padding: 2.5px 6px;">{{ $tsLabel }}</span>
                                         </td>
 
                                         {{-- 6. Amount --}}
