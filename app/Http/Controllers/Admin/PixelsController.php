@@ -9,10 +9,32 @@ use Illuminate\Support\Facades\Cache;
 use Toastr;
 class PixelsController extends Controller
 {
-     public function index(Request $request)
+    public function index(Request $request)
     {
-        $data =EcomPixel::orderBy('id','DESC')->get();
-        return view('backEnd.pixels.index',compact('data'));
+        $query = EcomPixel::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('code', 'like', '%' . trim($request->keyword) . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => EcomPixel::count(),
+            'active' => EcomPixel::where('status', 1)->count(),
+            'inactive' => EcomPixel::where('status', 0)->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $data = $query->orderBy('id', 'DESC')->paginate($per_page)->withQueryString();
+
+        return view('backEnd.pixels.index', compact('data', 'stats'));
     }
     public function create()
     {

@@ -757,6 +757,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
 
     Route::get('change-password', [DashboardController::class, 'changepassword'])->name('change_password');
     Route::post('new-password', [DashboardController::class, 'newpassword'])->name('new_password');
+    Route::post('toggle-dark-mode', [DashboardController::class, 'toggleDarkMode'])->name('admin.toggle_dark_mode');
 
     // users route 
     Route::get('users/manage', [UserController::class,'index'])->name('users.index');

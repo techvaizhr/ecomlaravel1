@@ -6082,6 +6082,7 @@ CREATE TABLE `users` (
   `remember_token` varchar(100) DEFAULT NULL,
   `image` varchar(255) DEFAULT 'public/uploads/default/user.png',
   `status` tinyint(4) DEFAULT 0,
+  `dark_mode` tinyint(1) NOT NULL DEFAULT 0,
   `role` enum('admin','vendor','reseller','customer') NOT NULL DEFAULT 'customer',
   `wallet_balance` decimal(14,2) NOT NULL DEFAULT 0.00,
   `verification_status` enum('pending','approved','rejected') DEFAULT 'pending',

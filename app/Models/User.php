@@ -21,6 +21,7 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
+        'dark_mode',
         'image',
         'vendor_id',
         'shop_name',

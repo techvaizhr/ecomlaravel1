@@ -1,122 +1,308 @@
 @extends('backEnd.layouts.master')
-@section('title','TikTok Pixel Management')
+@section('title', 'Manage TikTok Pixels')
 
 @section('css')
-<link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
-<link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet" type="text/css" />
-<link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 <style>
-    .card { border: none; box-shadow: 0 0 20px rgba(18,38,63,0.03); border-radius: 12px; overflow: hidden; }
-    .card-body { padding: 25px; }
-    .table thead th { background-color: #f9fbfd; font-weight: 600; text-transform: uppercase; font-size: 11px; color: #8391a2; letter-spacing: 0.5px; border-bottom: 1px solid #eef2f7; padding: 12px 15px; }
-    .table tbody td { vertical-align: middle; padding: 15px; border-bottom: 1px solid #f1f5f7; color: #313b5e; font-size: 14px; }
-    .pixel-code { font-family: 'Courier New', monospace; background: #f1f5f7; padding: 4px 8px; border-radius: 4px; color: #d63384; font-weight: 600; }
-    .badge-soft-success { background-color: rgba(10,207,151,0.18); color: #0acf97; }
-    .badge-soft-danger { background-color: rgba(250,92,124,0.18); color: #fa5c7c; }
-    .badge-pill { padding: 5px 10px; border-radius: 50rem; font-weight: 500; font-size: 11px; }
-    .action-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: #6c757d; transition: all 0.2s; border: 1px solid transparent; background: #f9fbfd; cursor: pointer; }
-    .action-btn:hover { background-color: #eef2f7; color: #343a40; }
-    .btn-status-active:hover { background-color: rgba(10,207,151,0.1); color: #0acf97; }
-    .btn-status-inactive:hover { background-color: rgba(255,188,0,0.1); color: #ffbc00; }
-    .btn-edit:hover { background-color: rgba(114,124,245,0.1); color: #727cf5; }
-    .btn-delete:hover { background-color: rgba(250,92,124,0.1); color: #fa5c7c; }
-    .tiktok-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #010101 0%, #1a1a2e 100%); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .stat-card-gradient {
+        border: none;
+        border-radius: 14px;
+        color: #fff;
+        padding: 1.25rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card-gradient:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    .stat-card-gradient .stat-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 2.5rem;
+        opacity: 0.22;
+    }
+    .card-modern {
+        border: none;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        background: #fff;
+    }
+    .table-modern th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.9rem 1rem;
+        border-bottom: 2px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    .table-modern td {
+        padding: 0.9rem 1rem;
+        vertical-align: middle;
+        font-size: 0.875rem;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .table-modern tr:hover td { background-color: #f8fafc; }
+    
+    .tiktok-badge {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 700;
+        color: #0f172a;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        padding: 6px 12px;
+        border-radius: 8px;
+        letter-spacing: 1px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .badge-soft {
+        padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 5px;
+    }
+    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-inactive { background: #fee2e2; color: #991b1b; }
+
+    .btn-action-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #64748b;
+        transition: all 0.2s;
+    }
+    .btn-action-icon:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+        transform: translateY(-1px);
+    }
 </style>
 @endsection
 
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-3 mt-3">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">
-                    <span class="tiktok-badge me-2">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.05a8.16 8.16 0 004.77 1.52V7.13a4.85 4.85 0 01-1-.44z"/></svg>
-                        TikTok
-                    </span>
-                    Pixel Management
-                </h4>
-                <p class="text-muted font-size-13 mb-0">Manage your TikTok tracking pixels.</p>
-            </div>
-            <a href="{{route('tiktok.pixels.create')}}" class="btn btn-dark rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add TikTok Pixel
+<div class="container-fluid py-3">
+
+    {{-- PAGE HEADER --}}
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+                <i data-feather="film" class="text-dark" style="width: 24px; height: 24px;"></i>
+                TikTok Pixels & Events
+            </h4>
+            <p class="text-muted small mb-0">Configure TikTok Pixel ID for tracking conversion events from TikTok ad campaigns.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('tiktok.pixels.create') }}" class="btn btn-dark px-3 py-2 rounded-3 shadow-sm d-flex align-items-center gap-2">
+                <i data-feather="plus-circle" style="width: 16px; height: 16px;"></i>
+                <span>Add TikTok Pixel</span>
             </a>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px;">SL</th>
-                                <th>TikTok Pixel ID</th>
-                                <th>Status</th>
-                                <th class="text-end" style="width: 150px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($data as $key => $value)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td><span class="pixel-code">{{ $value->code }}</span></td>
-                                <td>
-                                    @if($value->status == 1)
-                                        <span class="badge badge-pill badge-soft-success">Active</span>
-                                    @else
-                                        <span class="badge badge-pill badge-soft-danger">Inactive</span>
-                                    @endif
-                                </td>
-                                <td class="text-end">
-                                    <div class="d-inline-flex gap-2">
-                                        @if($value->status == 1)
-                                            <form method="post" action="{{route('tiktok.pixels.inactive')}}" class="d-inline">
-                                                @csrf
-                                                <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="action-btn btn-status-inactive" title="Deactivate">
-                                                    <i class="fe-thumbs-down"></i>
-                                                </button>
-                                            </form>
-                                        @else
-                                            <form method="post" action="{{route('tiktok.pixels.active')}}" class="d-inline">
-                                                @csrf
-                                                <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="action-btn btn-status-active" title="Activate">
-                                                    <i class="fe-thumbs-up"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <a href="{{route('tiktok.pixels.edit', $value->id)}}" class="action-btn btn-edit" title="Edit">
-                                            <i class="fe-edit"></i>
-                                        </a>
-                                        <form method="post" action="{{route('tiktok.pixels.destroy')}}" class="d-inline">
-                                            @csrf
-                                            <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="Delete">
-                                                <i class="fe-trash-2"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+    {{-- STATS CARDS --}}
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="stat-card-gradient" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                <div class="stat-icon"><i class="fab fa-tiktok"></i></div>
+                <div class="small text-white-50 text-uppercase fw-bold">Total TikTok Pixels</div>
+                <h3 class="fw-bold mb-0 text-white mt-1">{{ number_format($stats['total'] ?? 0) }}</h3>
             </div>
         </div>
+        <div class="col-6 col-md-4">
+            <div class="stat-card-gradient" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="small text-white-50 text-uppercase fw-bold">Active</div>
+                <h3 class="fw-bold mb-0 text-white mt-1">{{ number_format($stats['active'] ?? 0) }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="stat-card-gradient" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">
+                <div class="stat-icon"><i class="fas fa-pause-circle"></i></div>
+                <div class="small text-white-50 text-uppercase fw-bold">Inactive</div>
+                <h3 class="fw-bold mb-0 text-white mt-1">{{ number_format($stats['inactive'] ?? 0) }}</h3>
+            </div>
+        </div>
+    </div>
+
+    {{-- FILTER BAR --}}
+    <div class="card card-modern mb-4">
+        <div class="card-body p-3">
+            <form method="GET" action="{{ route('tiktok.pixels.index') }}" id="filterForm">
+                <div class="row g-2 align-items-center">
+                    {{-- Keyword Search --}}
+                    <div class="col-12 col-md-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0"><i data-feather="search" style="width: 14px;"></i></span>
+                            <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control border-start-0" placeholder="Search TikTok Pixel ID...">
+                        </div>
+                    </div>
+
+                    {{-- Status Filter --}}
+                    <div class="col-6 col-md-2">
+                        <select name="status" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()">
+                            <option value="">All Statuses</option>
+                            <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                    </div>
+
+                    {{-- Global Date Filter --}}
+                    <div class="col-12 col-md-3">
+                        @include('backEnd.layouts.partials.smart_date_filter')
+                    </div>
+
+                    {{-- Per Page & Submit --}}
+                    <div class="col-12 col-md-3 d-flex gap-2 justify-content-end align-items-center">
+                        <select name="per_page" class="form-select form-select-sm" style="width: 75px;" onchange="document.getElementById('filterForm').submit()" title="Records per page">
+                            <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
+                            <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm px-3">Filter</button>
+                        @if(request()->anyFilled(['keyword', 'status', 'start_date', 'end_date', 'date_preset']))
+                            <a href="{{ route('tiktok.pixels.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filters"><i data-feather="rotate-ccw" style="width: 14px;"></i></a>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- MAIN TABLE CARD --}}
+    <div class="card card-modern">
+        <div class="table-responsive">
+            <table class="table table-modern mb-0">
+                <thead>
+                    <tr>
+                        <th width="50">#</th>
+                        <th>TikTok Pixel ID</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th width="140" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($data as $key => $value)
+                        <tr>
+                            <td class="text-muted small">
+                                @if(method_exists($data, 'firstItem'))
+                                    {{ $data->firstItem() + $key }}
+                                @else
+                                    {{ $key + 1 }}
+                                @endif
+                            </td>
+                            
+                            {{-- Code --}}
+                            <td>
+                                <span class="tiktok-badge" onclick="copyTiktokCode('{{ $value->code }}')" title="Click to copy">
+                                    <i data-feather="film" style="width: 14px; height: 14px;"></i>
+                                    {{ $value->code }}
+                                    <i data-feather="copy" style="width: 12px; height: 12px;" class="text-muted ms-1"></i>
+                                </span>
+                            </td>
+
+                            {{-- Status --}}
+                            <td>
+                                @if($value->status == 1)
+                                    <span class="badge-soft badge-active"><i class="fas fa-check-circle"></i> Active</span>
+                                @else
+                                    <span class="badge-soft badge-inactive"><i class="fas fa-pause-circle"></i> Inactive</span>
+                                @endif
+                            </td>
+
+                            {{-- Created Date --}}
+                            <td class="text-muted small">
+                                {{ $value->created_at ? $value->created_at->format('d M, Y') : 'N/A' }}
+                            </td>
+
+                            {{-- Actions --}}
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    @if($value->status == 1)
+                                        <form action="{{ route('tiktok.pixels.inactive') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                            <button type="submit" class="btn-action-icon text-warning" title="Deactivate Pixel">
+                                                <i data-feather="pause-circle" style="width:14px; height:14px;"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('tiktok.pixels.active') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                            <button type="submit" class="btn-action-icon text-success" title="Activate Pixel">
+                                                <i data-feather="check-circle" style="width:14px; height:14px;"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    <a href="{{ route('tiktok.pixels.edit', $value->id) }}" class="btn-action-icon text-primary" title="Edit TikTok Pixel">
+                                        <i data-feather="edit-2" style="width:14px; height:14px;"></i>
+                                    </a>
+                                    
+                                    <form action="{{ route('tiktok.pixels.destroy') }}" method="POST" class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to delete this TikTok pixel?');">
+                                        @csrf
+                                        <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                        <button type="submit" class="btn-action-icon text-danger" title="Delete Pixel">
+                                            <i data-feather="trash-2" style="width:14px; height:14px;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i data-feather="film" style="width: 48px; height: 48px; opacity: 0.35;" class="mb-2"></i>
+                                    <p class="fw-bold mb-1">No TikTok Pixels Found</p>
+                                    <small class="text-muted">Add your TikTok Pixel ID to track customer conversions from TikTok ads.</small>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        
+        {{-- Pagination --}}
+        @if(method_exists($data, 'links') && $data->hasPages())
+        <div class="p-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="small text-muted">
+                Showing {{ $data->firstItem() }} to {{ $data->lastItem() }} of {{ $data->total() }} entries
+            </div>
+            <div>
+                {{ $data->links('pagination::bootstrap-4') }}
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection
 
-@section('script')
-<script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-<script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-<script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
-<script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-<script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js"></script>
-<script src="{{asset('/public/backEnd/')}}/assets/js/pages/datatables.init.js"></script>
-@endsection
+@push('scripts')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script>
+    function copyTiktokCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            toastr.success('TikTok Pixel ID "' + code + '" copied to clipboard!');
+        });
+    }
+</script>
+@endpush

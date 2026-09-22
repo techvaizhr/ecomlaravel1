@@ -22,8 +22,41 @@ class BannerController extends Controller
 
     public function index(Request $request)
     {
-        $data = Banner::orderBy('id','DESC')->with('category')->get();
-        return view('backEnd.banner.index',compact('data'));
+        $query = Banner::with('category');
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('keyword')) {
+            $query->where(function($q) use ($request) {
+                $q->where('link', 'like', '%' . trim($request->keyword) . '%')
+                  ->orWhereHas('category', function($sub) use ($request) {
+                      $sub->where('name', 'like', '%' . trim($request->keyword) . '%');
+                  });
+            });
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => Banner::count(),
+            'active' => Banner::where('status', 1)->count(),
+            'inactive' => Banner::where('status', 0)->count(),
+            'categories' => BannerCategory::count(),
+        ];
+
+        $categories = BannerCategory::orderBy('name', 'ASC')->select('id', 'name')->get();
+        $per_page = $request->get('per_page', 15);
+        $data = $query->orderBy('id', 'DESC')->paginate($per_page)->withQueryString();
+
+        return view('backEnd.banner.index', compact('data', 'stats', 'categories'));
     }
     public function create()
     {

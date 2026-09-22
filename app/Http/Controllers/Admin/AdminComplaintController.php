@@ -14,16 +14,41 @@ class AdminComplaintController extends Controller
      */
     public function index(Request $request)
     {
-        // ✅ Pagination (fast load)
-        $complaints = Complaint::latest()->paginate(10);
+        $query = Complaint::query();
 
-        // ✅ AJAX request হলে শুধু table অংশ return করবে
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('phone', 'like', "%{$keyword}%")
+                  ->orWhere('order_number', 'like', "%{$keyword}%")
+                  ->orWhere('message', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => Complaint::count(),
+            'pending' => Complaint::where('status', 'pending')->count(),
+            'processing' => Complaint::where('status', 'processing')->count(),
+            'resolved' => Complaint::where('status', 'resolved')->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $complaints = $query->latest()->paginate($per_page)->withQueryString();
+
         if ($request->ajax()) {
             return view('backEnd.complaints.partials.table', compact('complaints'))->render();
         }
 
-        // ✅ Normal page load
-        return view('backEnd.complaints.index', compact('complaints'));
+        return view('backEnd.complaints.index', compact('complaints', 'stats'));
     }
 
     /**

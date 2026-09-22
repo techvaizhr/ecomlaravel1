@@ -11,13 +11,32 @@ class NewsletterSubscriberController extends Controller
 {
     public function index(Request $request)
     {
-        $subscribers = NewsletterSubscriber::latest()->paginate(20);
+        $query = NewsletterSubscriber::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('email', 'like', '%' . trim($request->keyword) . '%');
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $today = date('Y-m-d');
+        $thisMonth = date('Y-m');
+        $stats = [
+            'total' => NewsletterSubscriber::count(),
+            'today' => NewsletterSubscriber::whereDate('created_at', $today)->count(),
+            'this_month' => NewsletterSubscriber::where('created_at', 'like', "{$thisMonth}%")->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $subscribers = $query->latest()->paginate($per_page)->withQueryString();
 
         if ($request->ajax()) {
             return view('backEnd.newsletterSubscriber.partials.table', compact('subscribers'))->render();
         }
 
-        return view('backEnd.newsletterSubscriber.index', compact('subscribers'));
+        return view('backEnd.newsletterSubscriber.index', compact('subscribers', 'stats'));
     }
 
     public function destroy(Request $request, $id)

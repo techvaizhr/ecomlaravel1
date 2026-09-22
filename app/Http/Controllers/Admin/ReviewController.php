@@ -20,8 +20,43 @@ class ReviewController extends Controller
 
     public function index(Request $request)
     {
-        $show_data = Review::orderBy('id','DESC')->get();
-        return view('backEnd.review.index',compact('show_data'));
+        $query = Review::with('product');
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('email', 'like', "%{$keyword}%")
+                  ->orWhere('review', 'like', "%{$keyword}%")
+                  ->orWhereHas('product', function($sub) use ($keyword) {
+                      $sub->where('name', 'like', "%{$keyword}%");
+                  });
+            });
+        }
+
+        if ($request->filled('ratting')) {
+            $query->where('ratting', $request->ratting);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => Review::count(),
+            'active' => Review::where('status', 'active')->count(),
+            'pending' => Review::where('status', 'pending')->count(),
+            'avg_rating' => round(Review::avg('ratting') ?: 5, 1),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $show_data = $query->orderBy('id', 'DESC')->paginate($per_page)->withQueryString();
+
+        return view('backEnd.review.index', compact('show_data', 'stats'));
     }
     public function create()
     {
@@ -78,9 +113,41 @@ class ReviewController extends Controller
         return redirect()->route('reviews.index');
     }
  
-    public function pending(){
-        $data = Review::where('status','pending')->get();
-        return view('backEnd.review.pending',compact('data'));
+    public function pending(Request $request)
+    {
+        $query = Review::with('product')->where('status', 'pending');
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('email', 'like', "%{$keyword}%")
+                  ->orWhere('review', 'like', "%{$keyword}%")
+                  ->orWhereHas('product', function($sub) use ($keyword) {
+                      $sub->where('name', 'like', "%{$keyword}%");
+                  });
+            });
+        }
+
+        if ($request->filled('ratting')) {
+            $query->where('ratting', $request->ratting);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => Review::count(),
+            'active' => Review::where('status', 'active')->count(),
+            'pending' => Review::where('status', 'pending')->count(),
+            'avg_rating' => round(Review::avg('ratting') ?: 5, 1),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $data = $query->orderBy('id', 'DESC')->paginate($per_page)->withQueryString();
+
+        return view('backEnd.review.pending', compact('data', 'stats'));
     }
     public function inactive(Request $request){
         $inactive = Review::find($request->hidden_id);

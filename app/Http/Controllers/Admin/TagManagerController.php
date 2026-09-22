@@ -12,8 +12,30 @@ class TagManagerController extends Controller
 {
     public function index(Request $request)
     {
-        $data = GoogleTagManager::orderBy('id','DESC')->get();
-        return view('backEnd.tagmanager.index',compact('data'));
+        $query = GoogleTagManager::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('code', 'like', '%' . trim($request->keyword) . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => GoogleTagManager::count(),
+            'active' => GoogleTagManager::where('status', 1)->count(),
+            'inactive' => GoogleTagManager::where('status', 0)->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $data = $query->orderBy('id', 'DESC')->paginate($per_page)->withQueryString();
+
+        return view('backEnd.tagmanager.index', compact('data', 'stats'));
     }
     
     public function create()

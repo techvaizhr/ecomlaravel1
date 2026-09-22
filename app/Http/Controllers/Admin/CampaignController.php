@@ -17,8 +17,35 @@ class CampaignController extends Controller
 {
     public function index(Request $request)
     {
-        $show_data = Campaign::orderBy('id','DESC')->get();
-        return view('backEnd.campaign.index',compact('show_data'));
+        $query = Campaign::query();
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('slug', 'like', "%{$keyword}%")
+                  ->orWhere('short_description', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => Campaign::count(),
+            'active' => Campaign::where('status', 1)->count(),
+            'inactive' => Campaign::where('status', 0)->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $show_data = $query->orderBy('id', 'DESC')->paginate($per_page)->withQueryString();
+
+        return view('backEnd.campaign.index', compact('show_data', 'stats'));
     }
     public function create()
     {

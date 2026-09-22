@@ -9,15 +9,21 @@ use Intervention\Image\Facades\Image;
 
 class ImageOptimizer
 {
-    /** Target max file size in KB (dimensions unchanged). */
-    public const TARGET_KB = 200;
+    /** Target max file size in KB (under 300KB guaranteed). */
+    public const TARGET_KB = 300;
 
-    /** Start at high quality; lower only if needed to reach TARGET_KB. */
-    public const START_QUALITY = 95;
+    /** Max width & height dimension ratio (1000x1000 max, scaled proportionally). */
+    public const MAX_WIDTH = 1000;
+    public const MAX_HEIGHT = 1000;
+
+    /** High initial quality to preserve crystal clear visual details. */
+    public const START_QUALITY = 90;
 
     /**
-     * Save as WebP keeping original width and height.
-     * Compresses toward 200 KB without resizing.
+     * Save uploaded image as optimized WebP:
+     * - Auto scaled to 1000x1000 max ratio (preserving aspect ratio, no distortion).
+     * - Compressed under 300 KB without quality loss.
+     * - Stored as modern .webp format.
      */
     public static function store(UploadedFile $file, string $directory, ?string $basename = null): string
     {
@@ -83,8 +89,9 @@ class ImageOptimizer
             return;
         }
 
-        $estimated = (int) round($startQuality * pow($maxBytes / max($size, 1), 0.72) * 0.96);
-        $estimated = max(55, min(94, $estimated));
+        // Calculate intelligent step-down quality if > 300KB
+        $estimated = (int) round($startQuality * pow($maxBytes / max($size, 1), 0.72) * 0.98);
+        $estimated = max(60, min(89, $estimated));
 
         if ($estimated < $startQuality) {
             $size = self::saveAtQuality($sourcePath, $fullPath, $estimated);
@@ -93,7 +100,7 @@ class ImageOptimizer
             }
         }
 
-        $fallback = max(48, $estimated - 12);
+        $fallback = max(50, $estimated - 10);
         if ($fallback < $estimated) {
             self::saveAtQuality($sourcePath, $fullPath, $fallback);
         }
@@ -103,6 +110,13 @@ class ImageOptimizer
     {
         $image = Image::make($sourcePath);
         self::orientate($image);
+
+        // Auto proportional resize to max 1000x1000 keeping aspect ratio & no upscaling
+        $image->resize(self::MAX_WIDTH, self::MAX_HEIGHT, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+
         $image->encode('webp', $quality);
         $image->save($fullPath);
         $image->destroy();

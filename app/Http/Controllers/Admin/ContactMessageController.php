@@ -27,19 +27,44 @@ class ContactMessageController extends Controller
         );
     }
 
-    /**
-     * 🔹 Contact Message List (Pagination)
-     */
     public function index(Request $request)
     {
-        $messages = ContactMessage::latest()->paginate(20);
+        $query = ContactMessage::query();
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('full_name', 'like', "%{$keyword}%")
+                  ->orWhere('email', 'like', "%{$keyword}%")
+                  ->orWhere('mobile', 'like', "%{$keyword}%")
+                  ->orWhere('subject', 'like', "%{$keyword}%")
+                  ->orWhere('details', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => ContactMessage::count(),
+            'unread' => ContactMessage::where('status', 0)->count(),
+            'read' => ContactMessage::where('status', 1)->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $messages = $query->latest()->paginate($per_page)->withQueryString();
 
         // AJAX pagination support
         if ($request->ajax()) {
             return view('backEnd.contactMessage.partials.table', compact('messages'))->render();
         }
 
-        return view('backEnd.contactMessage.index', compact('messages'));
+        return view('backEnd.contactMessage.index', compact('messages', 'stats'));
     }
 
     /**

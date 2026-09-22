@@ -11,10 +11,35 @@ use Toastr;
 
 class PopupController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $popups = Popup::latest()->get();
-        return view('backEnd.popup.index', compact('popups'));
+        $query = Popup::query();
+
+        if ($request->filled('keyword')) {
+            $query->where(function($q) use ($request) {
+                $q->where('title', 'like', '%' . trim($request->keyword) . '%')
+                  ->orWhere('description', 'like', '%' . trim($request->keyword) . '%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => Popup::count(),
+            'active' => Popup::where('status', 1)->count(),
+            'inactive' => Popup::where('status', 0)->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $popups = $query->latest()->paginate($per_page)->withQueryString();
+
+        return view('backEnd.popup.index', compact('popups', 'stats'));
     }
 
     public function store(Request $request)

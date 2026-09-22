@@ -24,6 +24,7 @@ use DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use App\Support\ImageOptimizer;
 
 class ProductController extends Controller
 {
@@ -220,11 +221,11 @@ class ProductController extends Controller
 
         // META IMAGE UPLOAD
         if ($request->hasFile('meta_image')) {
-            $metaImg  = $request->file('meta_image');
-            $metaName = time().'-meta-'.$metaImg->getClientOriginalName();
-            $metaPath = 'public/uploads/product/meta/';
-            $metaImg->move($metaPath, $metaName);
-            $input['meta_image'] = $metaPath.$metaName;
+            $input['meta_image'] = ImageOptimizer::store(
+                $request->file('meta_image'),
+                'public/uploads/product/meta/',
+                ImageOptimizer::basenameFromOriginal($request->file('meta_image'), 'meta')
+            );
         }
 
         // DIGITAL FILE UPLOAD
@@ -260,14 +261,11 @@ class ProductController extends Controller
         // PRODUCT IMAGES
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $img) {
-                $name = time().'-'.$img->getClientOriginalName();
-                $name = strtolower(preg_replace('/\s+/', '-', $name));
-                $path = 'public/uploads/product/';
-                $img->move($path, $name);
+                $imagePath = ImageOptimizer::store($img, 'public/uploads/product/');
 
                 Productimage::create([
                     'product_id' => $product->id,
-                    'image'      => $path.$name,
+                    'image'      => $imagePath,
                 ]);
             }
 
@@ -292,11 +290,7 @@ class ProductController extends Controller
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
                 if (!isset($savedFiles[$imageRow])) {
-                    $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
-                    $name = strtolower(preg_replace('/\s+/', '-', $name));
-                    $path = 'public/uploads/product/';
-                    $file->move($path, $name);
-                    $savedFiles[$imageRow] = $path.$name;
+                    $savedFiles[$imageRow] = ImageOptimizer::store($file, 'public/uploads/product/');
                 }
                 Productimage::create([
                     'product_id' => $product->id,
@@ -498,16 +492,13 @@ class ProductController extends Controller
         $input['meta_description'] = $request->meta_description ?? $request->description;
         $input['meta_keywords']    = $request->meta_keywords ?? '';
 
-        // META IMAGE UPDATE
+        // META IMAGE
         if ($request->hasFile('meta_image')) {
-            if ($product->meta_image && file_exists($product->meta_image)) {
-                @unlink($product->meta_image);
-            }
-            $metaImg  = $request->file('meta_image');
-            $metaName = time().'-meta-'.$metaImg->getClientOriginalName();
-            $metaPath = 'public/uploads/product/meta/';
-            $metaImg->move($metaPath, $metaName);
-            $input['meta_image'] = $metaPath.$metaName;
+            $input['meta_image'] = ImageOptimizer::store(
+                $request->file('meta_image'),
+                'public/uploads/product/meta/',
+                ImageOptimizer::basenameFromOriginal($request->file('meta_image'), 'meta')
+            );
         }
 
         // DIGITAL FILE UPDATE
@@ -546,14 +537,11 @@ class ProductController extends Controller
         // NEW IMAGES
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $img) {
-                $name = time().'-'.$img->getClientOriginalName();
-                $name = strtolower(preg_replace('/\s+/', '-', $name));
-                $path = 'public/uploads/product/';
-                $img->move($path, $name);
+                $imagePath = ImageOptimizer::store($img, 'public/uploads/product/');
 
                 Productimage::create([
                     'product_id' => $product->id,
-                    'image'      => $path.$name,
+                    'image'      => $imagePath,
                 ]);
             }
         }
@@ -573,11 +561,7 @@ class ProductController extends Controller
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
                 if (!isset($savedFiles[$imageRow])) {
-                    $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
-                    $name = strtolower(preg_replace('/\s+/', '-', $name));
-                    $path = 'public/uploads/product/';
-                    $file->move($path, $name);
-                    $savedFiles[$imageRow] = $path.$name;
+                    $savedFiles[$imageRow] = ImageOptimizer::store($file, 'public/uploads/product/');
                 }
                 Productimage::create([
                     'product_id' => $product->id,

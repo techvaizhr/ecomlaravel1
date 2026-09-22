@@ -316,4 +316,23 @@ class DashboardController extends Controller
         Toastr::error('Failed', 'Your password not match!');
         return back();
     }
+
+    public function toggleDarkMode(Request $request)
+    {
+        $user = Auth::guard('admin')->user() ?: Auth::user();
+        $isDark = $request->input('dark_mode', 0);
+
+        if ($user) {
+            $user->dark_mode = $isDark ? 1 : 0;
+            $user->save();
+        }
+
+        session(['admin_dark_mode' => $isDark ? 1 : 0]);
+
+        return response()->json([
+            'success'   => true,
+            'dark_mode' => (int)$isDark,
+            'message'   => $isDark ? 'Dark mode activated' : 'Light mode activated'
+        ]);
+    }
 }

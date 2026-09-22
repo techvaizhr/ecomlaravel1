@@ -62,6 +62,231 @@
         stroke: {{ $brandPrimary }} !important;
       }
     </style>
+    <script>
+      // Anti-flash Dark Mode Initialization
+      (function() {
+        var savedTheme = localStorage.getItem('admin_theme');
+        var dbDark = {{ (Auth::guard('admin')->user()->dark_mode ?? 0) ? '1' : '0' }};
+        if (savedTheme === 'dark' || (savedTheme === null && dbDark === 1)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.classList.add('dark-mode');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.classList.remove('dark-mode');
+        }
+      })();
+    </script>
+    <style>
+      /* ─── FULL ADVANCED DARK MODE THEME ─── */
+      [data-theme="dark"], body.dark-mode {
+        --bg-main: #0b1329;
+        --bg-card: #131d38;
+        --bg-card-header: #182343;
+        --border-color: #1e2d52;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        background-color: #0b1329 !important;
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .navbar-custom {
+        background-color: #131d38 !important;
+        border-bottom: 1px solid #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .left-side-menu,
+      [data-theme="dark"] .rail-sidebar,
+      [data-theme="dark"] .subpanel-sidebar {
+        background-color: #0f172a !important;
+        border-color: #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .subpanel-footer {
+        background-color: #0b1329 !important;
+        border-color: #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .footer-website-link {
+        color: #94a3b8 !important;
+      }
+
+      [data-theme="dark"] .subpanel-title,
+      [data-theme="dark"] .pane-title {
+        color: #cbd5e1 !important;
+        border-color: #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .subpanel-menu > li > a {
+        color: #94a3b8 !important;
+      }
+
+      [data-theme="dark"] .subpanel-nested-menu li a {
+        color: #94a3b8 !important;
+      }
+
+      [data-theme="dark"] .subpanel-nested-menu li a:hover,
+      [data-theme="dark"] .subpanel-nested-menu li a.active {
+        color: #60a5fa !important;
+      }
+
+      [data-theme="dark"] .card,
+      [data-theme="dark"] .card-modern,
+      [data-theme="dark"] .card-custom,
+      [data-theme="dark"] .pro-card,
+      [data-theme="dark"] .studio-card {
+        background-color: #131d38 !important;
+        border-color: #1e2d52 !important;
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .card-header,
+      [data-theme="dark"] .card-header-modern,
+      [data-theme="dark"] .modal-header,
+      [data-theme="dark"] .modal-footer {
+        background-color: #182343 !important;
+        border-color: #1e2d52 !important;
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .modal-content {
+        background-color: #131d38 !important;
+        border-color: #1e2d52 !important;
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .table-modern th,
+      [data-theme="dark"] .table thead th,
+      [data-theme="dark"] .table-pro thead th {
+        background-color: #182343 !important;
+        color: #cbd5e1 !important;
+        border-color: #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .table-modern td,
+      [data-theme="dark"] .table tbody td,
+      [data-theme="dark"] .table-pro tbody td {
+        color: #e2e8f0 !important;
+        border-color: #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .table-modern tr:hover td,
+      [data-theme="dark"] .table-hover tbody tr:hover td {
+        background-color: #1a274c !important;
+      }
+
+      [data-theme="dark"] .form-control,
+      [data-theme="dark"] .form-select,
+      [data-theme="dark"] .form-control-custom,
+      [data-theme="dark"] .form-select-custom,
+      [data-theme="dark"] .input-group-text {
+        background-color: #0f172a !important;
+        border-color: #1e2d52 !important;
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .form-control:focus,
+      [data-theme="dark"] .form-select:focus {
+        border-color: #3b82f6 !important;
+        background-color: #0f172a !important;
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .dropdown-menu {
+        background-color: #131d38 !important;
+        border-color: #1e2d52 !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+      }
+
+      [data-theme="dark"] .dropdown-item {
+        color: #cbd5e1 !important;
+      }
+
+      [data-theme="dark"] .dropdown-item:hover {
+        background-color: #1e2d52 !important;
+        color: #ffffff !important;
+      }
+
+      [data-theme="dark"] .btn-action-icon {
+        background-color: #182343 !important;
+        border-color: #1e2d52 !important;
+        color: #94a3b8 !important;
+      }
+
+      [data-theme="dark"] .btn-action-icon:hover {
+        background-color: #1e2d52 !important;
+        color: #ffffff !important;
+      }
+
+      [data-theme="dark"] .upload-box-dashed,
+      [data-theme="dark"] .upload-area {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+      }
+
+      [data-theme="dark"] .text-dark {
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .bg-light,
+      [data-theme="dark"] .bg-white {
+        background-color: #182343 !important;
+        color: #e2e8f0 !important;
+      }
+
+      [data-theme="dark"] .email-chip,
+      [data-theme="dark"] .tiktok-badge,
+      [data-theme="dark"] .pixel-badge,
+      [data-theme="dark"] .gtm-badge {
+        background-color: #0f172a !important;
+        border-color: #1e2d52 !important;
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .page-title,
+      [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6 {
+        color: #f1f5f9 !important;
+      }
+
+      [data-theme="dark"] .border-top,
+      [data-theme="dark"] .border-bottom,
+      [data-theme="dark"] .border {
+        border-color: #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .profile-dropdown-custom {
+        background-color: #131d38 !important;
+        border: 1px solid #1e2d52 !important;
+      }
+
+      [data-theme="dark"] .profile-item:hover {
+        background-color: #1e2d52 !important;
+      }
+
+      .profile-dropdown-custom .profile-item {
+        transition: all 0.2s ease;
+      }
+      .profile-dropdown-custom .profile-item:hover {
+        background-color: #f1f5f9;
+        transform: translateX(3px);
+      }
+      
+      .theme-btn-header {
+        border: none;
+        background: transparent;
+        font-size: 19px;
+        line-height: 70px;
+        padding: 0 12px;
+        color: rgba(255,255,255,0.75);
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .theme-btn-header:hover {
+        color: #ffffff;
+        transform: scale(1.1);
+      }
+    </style>
     <!-- Head js -->
     @yield('css')
     <script src="{{asset('public/backEnd/')}}/assets/js/head.js"></script>
@@ -87,9 +312,17 @@
             </li>
 
             <li class="dropdown d-none d-lg-inline-block">
-              <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen" href="#">
+              <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen" href="#" title="Fullscreen">
                 <i class="fe-maximize noti-icon"></i>
               </a>
+            </li>
+
+            {{-- 🌙 DARK / LIGHT MODE TOGGLE BUTTON --}}
+            <li class="d-inline-block">
+              <button type="button" class="theme-btn-header" id="header-theme-toggle" title="Toggle Dark / Light Mode">
+                <i class="fe-moon" id="header-theme-icon-moon"></i>
+                <i class="fe-sun text-warning d-none" id="header-theme-icon-sun"></i>
+              </button>
             </li>
 
             @if(isset($demoMode) && $demoMode)
@@ -141,40 +374,80 @@
               </div>
             </li>
 
+            {{-- 👤 REDESIGNED MODERN PROFILE DROPDOWN --}}
             <li class="dropdown notification-list topbar-dropdown">
-              <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                <img src="{{asset(Auth::guard('admin')->user()->image)}}" alt="user-image" class="rounded-circle" />
-                <span class="pro-user-name ms-1"> {{Auth::guard('admin')->user()->name}} <i class="mdi mdi-chevron-down"></i> </span>
+              <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light d-flex align-items-center" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                <div class="position-relative">
+                  <img src="{{asset(Auth::guard('admin')->user()->image ? Auth::guard('admin')->user()->image : 'public/backEnd/assets/images/users/user-1.jpg')}}" alt="user-image" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);" />
+                  <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle" style="width: 8px; height: 8px;" title="Online"></span>
+                </div>
+                <span class="pro-user-name ms-2 fw-semibold text-white d-none d-sm-inline-block">
+                  {{ Auth::guard('admin')->user()->name }} <i class="mdi mdi-chevron-down"></i>
+                </span>
               </a>
-              <div class="dropdown-menu dropdown-menu-end profile-dropdown">
-                <!-- item-->
-                <div class="dropdown-header noti-title">
-                  <h6 class="text-overflow m-0">Welcome !</h6>
+              <div class="dropdown-menu dropdown-menu-end profile-dropdown-custom p-0 shadow-lg border-0 rounded-4 overflow-hidden" style="width: 270px; z-index: 1055;">
+                {{-- Header Card --}}
+                <div class="p-3 text-white" style="background: linear-gradient(135deg, {{ $brandPrimary }} 0%, #0f172a 100%);">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="position-relative flex-shrink-0">
+                      <img src="{{asset(Auth::guard('admin')->user()->image ? Auth::guard('admin')->user()->image : 'public/backEnd/assets/images/users/user-1.jpg')}}" alt="user" class="rounded-circle border border-2 border-white shadow-sm" style="width: 46px; height: 46px; object-fit: cover;" />
+                      <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle" style="width: 10px; height: 10px;"></span>
+                    </div>
+                    <div class="overflow-hidden">
+                      <h6 class="mb-0 fw-bold text-white text-truncate">{{ Auth::guard('admin')->user()->name }}</h6>
+                      <small class="text-white-50 text-truncate d-block" style="font-size: 11px;">{{ Auth::guard('admin')->user()->email }}</small>
+                      <span class="badge bg-white text-dark mt-1 px-2 py-0.5" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        {{ Auth::guard('admin')->user()->role ?? 'Super Admin' }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- item-->
-                <a href="{{url('admin/dashboard')}}" class="dropdown-item notify-item">
-                  <i class="fe-user"></i>
-                  <span>Dashboard</span>
-                </a>
+                {{-- Action Menu --}}
+                <div class="p-2">
+                  <a href="{{ url('admin/dashboard') }}" class="dropdown-item profile-item d-flex align-items-center gap-2 py-2 px-3 rounded-3">
+                    <i data-feather="grid" style="width: 15px; height: 15px;" class="text-primary"></i>
+                    <span class="fw-semibold small">Dashboard</span>
+                  </a>
 
-                <!-- item-->
+                  <a href="{{ route('users.edit', Auth::guard('admin')->user()->id) }}" class="dropdown-item profile-item d-flex align-items-center gap-2 py-2 px-3 rounded-3">
+                    <i data-feather="user" style="width: 15px; height: 15px;" class="text-info"></i>
+                    <span class="fw-semibold small">Edit Profile</span>
+                  </a>
 
-                <div class="dropdown-divider"></div>
+                  <a href="{{ route('change_password') }}" class="dropdown-item profile-item d-flex align-items-center gap-2 py-2 px-3 rounded-3">
+                    <i data-feather="key" style="width: 15px; height: 15px;" class="text-warning"></i>
+                    <span class="fw-semibold small">Change Password</span>
+                  </a>
 
-                <!-- item-->
-                <a
-                  href="{{ route('logout') }}"
-                  onclick="event.preventDefault();
-                  document.getElementById('logout-form').submit();"
-                  class="dropdown-item notify-item"
-                >
-                  <i class="fe-log-out me-1"></i>
-                  <span>Logout</span>
-                </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                  @csrf
-                </form>
+                  <a href="{{ route('settings.index') }}" class="dropdown-item profile-item d-flex align-items-center gap-2 py-2 px-3 rounded-3">
+                    <i data-feather="settings" style="width: 15px; height: 15px;" class="text-secondary"></i>
+                    <span class="fw-semibold small">Site Settings</span>
+                  </a>
+
+                  <div class="dropdown-divider my-1"></div>
+
+                  {{-- Dark Mode Switch inside dropdown --}}
+                  <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                    <span class="small fw-semibold text-muted d-flex align-items-center gap-2">
+                      <i data-feather="moon" style="width: 14px; height: 14px;"></i> Dark Mode
+                    </span>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" id="profile-dark-mode-switch" style="cursor:pointer;">
+                    </div>
+                  </div>
+
+                  <div class="dropdown-divider my-1"></div>
+
+                  {{-- Logout --}}
+                  <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item profile-item text-danger d-flex align-items-center gap-2 py-2 px-3 rounded-3">
+                    <i data-feather="log-out" style="width: 15px; height: 15px;"></i>
+                    <span class="fw-bold small">Log Out</span>
+                  </a>
+                  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                  </form>
+                </div>
               </div>
             </li>
 
@@ -1726,6 +1999,70 @@
     @endauth
     <!-- flatpickr js -->
     <script src="{{asset('public/backEnd/assets/libs/flatpickr/flatpickr.min.js')}}"></script>
+
+    {{-- 🌙 Dark Mode Manager Script --}}
+    <script>
+      (function() {
+        var headerToggle = document.getElementById('header-theme-toggle');
+        var profileSwitch = document.getElementById('profile-dark-mode-switch');
+        var moonIcon = document.getElementById('header-theme-icon-moon');
+        var sunIcon = document.getElementById('header-theme-icon-sun');
+
+        function updateThemeUI(isDark) {
+          if (isDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.body.classList.add('dark-mode');
+            if (moonIcon) moonIcon.classList.add('d-none');
+            if (sunIcon) sunIcon.classList.remove('d-none');
+            if (profileSwitch) profileSwitch.checked = true;
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.body.classList.remove('dark-mode');
+            if (moonIcon) moonIcon.classList.remove('d-none');
+            if (sunIcon) sunIcon.classList.add('d-none');
+            if (profileSwitch) profileSwitch.checked = false;
+          }
+        }
+
+        // Initialize UI state on page load
+        var currentIsDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-mode');
+        updateThemeUI(currentIsDark);
+
+        function toggleTheme() {
+          var isDarkNow = document.documentElement.getAttribute('data-theme') === 'dark';
+          var newIsDark = !isDarkNow;
+          
+          updateThemeUI(newIsDark);
+          localStorage.setItem('admin_theme', newIsDark ? 'dark' : 'light');
+
+          // Persist in Backend Database
+          fetch("{{ route('admin.toggle_dark_mode') }}", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ dark_mode: newIsDark ? 1 : 0 })
+          }).catch(function(err) {
+            console.log('Theme sync error:', err);
+          });
+        }
+
+        if (headerToggle) {
+          headerToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleTheme();
+          });
+        }
+
+        if (profileSwitch) {
+          profileSwitch.addEventListener('change', function(e) {
+            toggleTheme();
+          });
+        }
+      })();
+    </script>
     @yield('script')
   </body>
 </html>

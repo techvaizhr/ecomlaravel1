@@ -10,10 +10,32 @@ use Toastr;
 
 class TiktokPixelsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = TiktokPixel::orderBy('id', 'DESC')->get();
-        return view('backEnd.tiktok_pixels.index', compact('data'));
+        $query = TiktokPixel::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('code', 'like', '%' . trim($request->keyword) . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        }
+
+        $stats = [
+            'total' => TiktokPixel::count(),
+            'active' => TiktokPixel::where('status', 1)->count(),
+            'inactive' => TiktokPixel::where('status', 0)->count(),
+        ];
+
+        $per_page = $request->get('per_page', 15);
+        $data = $query->orderBy('id', 'DESC')->paginate($per_page)->withQueryString();
+
+        return view('backEnd.tiktok_pixels.index', compact('data', 'stats'));
     }
 
     public function create()
