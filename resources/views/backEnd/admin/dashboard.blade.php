@@ -26,13 +26,13 @@
     background: #ffffff;
     border: 1px solid #eef2f6;
     border-radius: var(--card-radius);
-    padding: 20px 24px;
-    margin-bottom: 22px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 14px;
     position: relative;
     overflow: hidden;
     box-shadow: 0 2px 12px -3px rgba(0,0,0,0.04);
@@ -47,11 +47,11 @@
 .db-welcome-left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
 }
 .db-store-avatar {
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
     border-radius: 12px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
@@ -67,72 +67,69 @@
     object-fit: contain;
 }
 .db-welcome-text h1 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 3px;
     letter-spacing: -.4px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 .db-welcome-text p {
-    font-size: 13px;
+    font-size: 12.5px;
     color: #64748b;
     margin: 0;
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 }
-.db-welcome-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.live-status-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 13px;
-    border-radius: 99px;
-    background: {{ $brandPrimary }}12;
-    color: var(--brand-primary);
-    font-size: 12px;
-    font-weight: 600;
-    border: 1px solid {{ $brandPrimary }}28;
-}
-.pulse-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--brand-primary);
-    box-shadow: 0 0 0 0 {{ $brandPrimary }}66;
-    animation: pulseRing 2s infinite;
-}
-@keyframes pulseRing {
-    0% { box-shadow: 0 0 0 0 {{ $brandPrimary }}66; }
-    70% { box-shadow: 0 0 0 7px transparent; }
-    100% { box-shadow: 0 0 0 0 transparent; }
+@media (max-width: 640px) {
+    .db-welcome-banner {
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        gap: 10px;
+    }
+    .db-store-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+    .db-welcome-text h1 {
+        font-size: 15px;
+        margin-bottom: 2px;
+    }
+    .db-welcome-text p {
+        font-size: 11px;
+        gap: 5px;
+    }
 }
 
 /* ─── Top 4 Stat Cards ─── */
 .stat-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 22px;
+    gap: 14px;
+    margin-bottom: 20px;
 }
 @media(max-width: 1100px){ .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-@media(max-width: 540px) { .stat-grid { grid-template-columns: 1fr; gap: 12px; } }
+@media(max-width: 640px) {
+    .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+}
 
 .sc {
     background: #ffffff;
     border: 1px solid #eef2f6;
     border-radius: var(--card-radius);
-    padding: 20px;
+    padding: 18px;
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
     position: relative;
     overflow: hidden;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -155,14 +152,14 @@
     background: var(--brand-gradient);
 }
 .sc-ico {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 20px;
+    font-size: 18px;
     transition: transform 0.25s;
 }
 .sc:hover .sc-ico {
@@ -171,26 +168,52 @@
 .sc-label {
     font-size: 11.5px;
     font-weight: 700;
-    letter-spacing: .6px;
+    letter-spacing: .5px;
     text-transform: uppercase;
     color: #64748b;
     margin-bottom: 2px;
 }
 .sc-val {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     color: #0f172a;
     line-height: 1.15;
-    letter-spacing: -.6px;
+    letter-spacing: -.5px;
 }
 .sc-note {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 500;
     color: #94a3b8;
-    margin-top: 4px;
+    margin-top: 3px;
     display: inline-flex;
     align-items: center;
     gap: 4px;
+}
+@media(max-width: 640px) {
+    .sc {
+        padding: 12px;
+        gap: 10px;
+        border-radius: 12px;
+    }
+    .sc-ico {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+    .sc-ico svg {
+        width: 17px;
+        height: 17px;
+    }
+    .sc-label {
+        font-size: 9.5px;
+        letter-spacing: .3px;
+    }
+    .sc-val {
+        font-size: 16px;
+    }
+    .sc-note {
+        font-size: 10px;
+    }
 }
 
 /* ─── Section Header ─── */
@@ -200,7 +223,7 @@
     letter-spacing: .8px;
     text-transform: uppercase;
     color: #475569;
-    margin: 24px 0 12px;
+    margin: 22px 0 10px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -218,16 +241,25 @@
 .snap-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 22px;
+    gap: 14px;
+    margin-bottom: 20px;
 }
-@media(max-width: 700px){ .snap-grid { grid-template-columns: 1fr; } }
+@media(max-width: 700px){
+    .snap-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .sn:last-child {
+        grid-column: span 2;
+    }
+}
 
 .sn {
     background: #ffffff;
     border: 1px solid #eef2f6;
     border-radius: var(--card-radius);
-    padding: 18px 20px;
+    padding: 16px 18px;
     transition: all 0.25s ease;
     box-shadow: 0 2px 8px -2px rgba(0,0,0,0.03);
 }
@@ -239,34 +271,58 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .sn-name {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     color: #64748b;
     text-transform: uppercase;
-    letter-spacing: .6px;
+    letter-spacing: .5px;
 }
 .sn-badge {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .sn-val {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -.5px;
 }
 .sn-sub {
-    font-size: 12px;
+    font-size: 11.5px;
     color: #94a3b8;
     margin-top: 3px;
     font-weight: 500;
+}
+@media(max-width: 640px) {
+    .sn {
+        padding: 12px;
+        border-radius: 12px;
+    }
+    .sn-name {
+        font-size: 10px;
+    }
+    .sn-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+    }
+    .sn-badge svg {
+        width: 14px;
+        height: 14px;
+    }
+    .sn-val {
+        font-size: 16px;
+    }
+    .sn-sub {
+        font-size: 10px;
+    }
 }
 
 /* ─── Finance Strip ─── */
@@ -274,10 +330,16 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 @media(max-width: 900px){ .fin-strip { grid-template-columns: repeat(2, 1fr); } }
-@media(max-width: 540px) { .fin-strip { grid-template-columns: 1fr; } }
+@media(max-width: 640px) {
+    .fin-strip {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+}
 
 .fin-item {
     background: #ffffff;
@@ -302,11 +364,23 @@
     letter-spacing: .5px;
 }
 .fin-item-val {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 800;
     color: #0f172a;
-    margin-top: 5px;
+    margin-top: 4px;
     letter-spacing: -.4px;
+}
+@media(max-width: 640px) {
+    .fin-item {
+        padding: 12px;
+        border-radius: 12px;
+    }
+    .fin-item-label {
+        font-size: 10px;
+    }
+    .fin-item-val {
+        font-size: 15px;
+    }
 }
 
 /* ─── Quick Actions ─── */
@@ -314,9 +388,15 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
-@media(max-width: 700px){ .qa-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 700px){
+    .qa-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+}
 
 .qa {
     background: #ffffff;
@@ -336,8 +416,8 @@
     box-shadow: 0 2px 6px -2px rgba(0,0,0,0.02);
 }
 .qa-ico-box {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 10px;
     background: #f8fafc;
     display: flex;
@@ -362,13 +442,46 @@
     height: 18px;
     stroke: currentColor;
 }
+@media(max-width: 640px) {
+    .qa {
+        padding: 12px 10px;
+        font-size: 12px;
+        border-radius: 12px;
+    }
+    .qa-ico-box {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+    }
+}
 
 /* ─── SMS & Courier Cards ─── */
 .dash-top-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
+}
+@media(max-width: 640px) {
+    .dash-top-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .courier-card {
+        padding: 12px 14px;
+        border-radius: 12px;
+    }
+    .courier-ico {
+        width: 34px;
+        height: 34px;
+    }
+    .courier-title {
+        font-size: 10.5px;
+    }
+    .courier-main-val {
+        font-size: 16px;
+    }
 }
 .courier-card {
     background: #ffffff;
@@ -456,6 +569,11 @@
     gap: 8px;
     margin-bottom: 16px;
 }
+.traffic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+}
 .traffic-item {
     background: #f8fafc;
     border: 1px solid #f1f5f9;
@@ -467,6 +585,21 @@
     background: #ffffff;
     border-color: #cbd5e1;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+@media(max-width: 640px) {
+    .traffic-card {
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+    .traffic-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .traffic-item {
+        padding: 10px 12px;
+        border-radius: 10px;
+    }
 }
 
 /* ─── Charts Row ─── */
@@ -639,17 +772,13 @@ table.clean tbody tr:hover td { background: #f8fafc; }
                 <img src="{{ asset(isset($generalsetting->white_logo) && $generalsetting->white_logo ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png') }}" alt="Logo" />
             </div>
             <div class="db-welcome-text">
-                <h1>{{ isset($generalsetting->name) ? $generalsetting->name : 'eCommerce Admin' }}</h1>
+                <h1>Welcome back, {{ Auth::guard('admin')->user()->name ?? 'Admin' }}! 👋</h1>
                 <p>
-                    <i data-feather="calendar" style="width:14px;height:14px;"></i>
-                    {{ now()->format('l, F j, Y') }}
+                    <span>{{ isset($generalsetting->name) ? $generalsetting->name : 'eCommerce Store' }}</span>
+                    <span>&bull;</span>
+                    <i data-feather="calendar" style="width:13px;height:13px;"></i>
+                    <span>{{ now()->format('l, F j, Y') }}</span>
                 </p>
-            </div>
-        </div>
-        <div class="db-welcome-right">
-            <div class="live-status-chip">
-                <span class="pulse-dot"></span>
-                <span>Store Operational</span>
             </div>
         </div>
     </div>
@@ -877,7 +1006,7 @@ table.clean tbody tr:hover td { background: #f8fafc; }
             নতুন অর্ডার আসলে স্বয়ংক্রিয়ভাবে ট্রাফিক সোর্স এখানে প্রদর্শিত হবে
         </div>
         @else
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;">
+        <div class="traffic-grid">
             @foreach($trafficSources as $src)
             @php $pct = $trafficTotal > 0 ? round(($src['count'] / $trafficTotal) * 100, 1) : 0; @endphp
             <div class="traffic-item">

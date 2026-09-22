@@ -174,9 +174,14 @@ class AppServiceProvider extends ServiceProvider
                 view()->share('pendingorder', $pendingorder);
 
                 $orderstatus = Cache::remember('order_status_list', 1800, function () {
-                    return OrderStatus::get();
+                    return OrderStatus::withCount('orders')->get();
                 });
                 view()->share('orderstatus', $orderstatus);
+
+                $all_orders_count = Cache::remember('all_orders_count', 120, function () {
+                    return Order::count();
+                });
+                view()->share('all_orders_count', $all_orders_count);
             }
 
             $pixels = Cache::remember('pixels_list', 1800, function () {
