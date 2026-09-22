@@ -6421,7 +6421,8 @@ ALTER TABLE `coupons`
 -- Indexes for table `courierapis`
 --
 ALTER TABLE `courierapis`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_courierapis_type_status` (`type`,`status`);
 
 --
 -- Indexes for table `create_pages`
@@ -6440,7 +6441,8 @@ ALTER TABLE `cron_job_settings`
 -- Indexes for table `customers`
 --
 ALTER TABLE `customers`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_customers_phone` (`phone`);
 
 --
 -- Indexes for table `delivery_boys`
@@ -6695,20 +6697,32 @@ ALTER TABLE `notification_settings`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `orders_delivery_boy_id_index` (`delivery_boy_id`);
+  ADD KEY `orders_delivery_boy_id_index` (`delivery_boy_id`),
+  ADD KEY `idx_orders_order_status` (`order_status`),
+  ADD KEY `idx_orders_status_id` (`order_status`,`id`),
+  ADD KEY `idx_orders_invoice_id` (`invoice_id`),
+  ADD KEY `idx_orders_customer_id` (`customer_id`),
+  ADD KEY `idx_orders_user_id` (`user_id`),
+  ADD KEY `idx_orders_created_at` (`created_at`),
+  ADD KEY `idx_orders_consignment_id` (`consignment_id`),
+  ADD KEY `idx_orders_traffic_source` (`traffic_source`);
 
 --
 -- Indexes for table `order_details`
 --
 ALTER TABLE `order_details`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `order_details_vendor_id_foreign` (`vendor_id`);
+  ADD KEY `order_details_vendor_id_foreign` (`vendor_id`),
+  ADD KEY `idx_order_details_order_id` (`order_id`),
+  ADD KEY `idx_order_details_product_id` (`product_id`);
 
 --
 -- Indexes for table `order_statuses`
 --
 ALTER TABLE `order_statuses`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_order_statuses_slug` (`slug`),
+  ADD KEY `idx_order_statuses_status` (`status`);
 
 --
 -- Indexes for table `password_resets`
@@ -6720,7 +6734,10 @@ ALTER TABLE `password_resets`
 -- Indexes for table `payments`
 --
 ALTER TABLE `payments`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_payments_order_id` (`order_id`),
+  ADD KEY `idx_payments_customer_id` (`customer_id`),
+  ADD KEY `idx_payments_payment_status` (`payment_status`);
 
 --
 -- Indexes for table `payment_gateways`
@@ -6917,7 +6934,10 @@ ALTER TABLE `seo_settings`
 -- Indexes for table `shippings`
 --
 ALTER TABLE `shippings`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_shippings_order_id` (`order_id`),
+  ADD KEY `idx_shippings_phone` (`phone`),
+  ADD KEY `idx_shippings_customer_id` (`customer_id`);
 
 --
 -- Indexes for table `shipping_charges`

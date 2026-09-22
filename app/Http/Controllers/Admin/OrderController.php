@@ -620,8 +620,7 @@ PROMPT;
     public function index($slug, Request $request)
     {
         if ($slug == 'all') {
-            // ✅ Cache order count for 5 minutes
-            $orders_count = Cache::remember('orders_count_all', 300, function () {
+            $orders_count = Cache::remember('orders_count_all', 60, function () {
                 return Order::count();
             });
             
@@ -630,50 +629,43 @@ PROMPT;
                 'orders_count' => $orders_count,
             ];
 
-            $show_data = Order::latest()
-                ->with([
-                    'shipping:id,order_id,name,phone,address',
-                    'status:id,name,slug',
-                    'customer:id,name,phone,email',
-                    'user:id,name,email',
-                    'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price',
-                    'orderdetails.image:id,product_id,image',
-                    'orderdetails.product:id,name',
-                    'orderdetails.vendor:id,shop_name,owner_name'
-                ]);
-
-            if ($request->keyword) {
-                $show_data = $show_data->where(function ($query) use ($request) {
-                    $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
-                        ->orWhereHas('shipping', function ($subQuery) use ($request) {
-                            $subQuery->where('phone', $request->keyword);
-                        });
-                });
-            }
-            $perPage = admin_per_page(10, 'admin_order_per_page');
-            $show_data = $this->applyTrafficSourceFilter($show_data, $request)->paginate($perPage)->withQueryString();
+            $query = Order::query();
         } else {
             $order_status = OrderStatus::where('slug', $slug)->first();
             if (!$order_status) {
                 abort(404, 'Order status not found');
             }
             
-            $show_data = Order::where(['order_status' => $order_status->id])
-                ->latest()
-                ->with([
-                    'shipping:id,order_id,name,phone,address',
-                    'status:id,name,slug',
-                    'customer:id,name,phone,email',
-                    'user:id,name,email',
-                    'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price',
-                    'orderdetails.image:id,product_id,image',
-                    'orderdetails.product:id,name',
-                    'orderdetails.vendor:id,shop_name,owner_name'
-                ]);
-
-            $perPage = admin_per_page(10, 'admin_order_per_page');
-            $show_data = $this->applyTrafficSourceFilter($show_data, $request)->paginate($perPage)->withQueryString();
+            $query = Order::where('order_status', $order_status->id);
         }
+
+        if ($request->filled('keyword')) {
+            $kw = trim($request->keyword);
+            $query->where(function ($q) use ($kw) {
+                $q->where('invoice_id', 'LIKE', "%{$kw}%")
+                  ->orWhere('consignment_id', $kw)
+                  ->orWhereHas('shipping', function ($sub) use ($kw) {
+                      $sub->where('phone', 'LIKE', "%{$kw}%")
+                          ->orWhere('name', 'LIKE', "%{$kw}%");
+                  });
+            });
+        }
+
+        $perPage = admin_per_page(10, 'admin_order_per_page');
+        $show_data = $this->applyTrafficSourceFilter($query, $request)
+            ->latest('id')
+            ->with([
+                'shipping:id,order_id,name,phone,address,division_id,district_id,upazila_id,area',
+                'status:id,name,slug',
+                'customer:id,name,phone,email',
+                'user:id,name,email',
+                'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price,product_discount,product_size,product_color',
+                'orderdetails.image:id,product_id,image',
+                'orderdetails.product:id,name',
+                'orderdetails.vendor:id,shop_name,owner_name'
+            ])
+            ->paginate($perPage)
+            ->withQueryString();
 
         // ✅ Cache users dropdown for 10 minutes
         $users = Cache::remember('users_dropdown', 600, function () {
