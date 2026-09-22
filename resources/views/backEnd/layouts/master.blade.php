@@ -301,7 +301,7 @@
           </div>
 
           <!-- Submenu Body -->
-          <div class="subpanel-body" data-simplebar>
+          <div class="subpanel-body">
 
             {{-- 1. MAIN PANE --}}
             <div class="section-pane {{ $activeSection === 'section-main' ? 'active' : '' }}" id="pane-section-main">
