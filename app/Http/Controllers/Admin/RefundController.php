@@ -22,26 +22,71 @@ class RefundController extends Controller
     {
         $query = Refund::with(['order', 'customer', 'processedBy']);
 
-        // Filter by status
-        if ($request->has('status') && $request->status != '') {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by order invoice
-        if ($request->has('order_invoice') && $request->order_invoice != '') {
-            $query->whereHas('order', function($q) use ($request) {
-                $q->where('invoice_id', 'like', '%' . $request->order_invoice . '%');
+        // Search keyword (refund_id, transaction_id, refund_account, customer name/phone, order invoice)
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('refund_id', 'like', "%{$keyword}%")
+                  ->orWhere('transaction_id', 'like', "%{$keyword}%")
+                  ->orWhere('refund_account', 'like', "%{$keyword}%")
+                  ->orWhere('refund_account_name', 'like', "%{$keyword}%")
+                  ->orWhereHas('order', function ($oq) use ($keyword) {
+                      $oq->where('invoice_id', 'like', "%{$keyword}%");
+                  })
+                  ->orWhereHas('customer', function ($cq) use ($keyword) {
+                      $cq->where('name', 'like', "%{$keyword}%")
+                         ->orWhere('phone', 'like', "%{$keyword}%")
+                         ->orWhere('email', 'like', "%{$keyword}%");
+                  });
             });
         }
 
-        $data = $query->latest()->paginate(15)->withQueryString();
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by refund method
+        if ($request->filled('refund_method')) {
+            $query->where('refund_method', $request->refund_method);
+        }
+
+        // Filter by order invoice
+        if ($request->filled('order_invoice')) {
+            $invoice = trim($request->order_invoice);
+            $query->whereHas('order', function ($q) use ($invoice) {
+                $q->where('invoice_id', 'like', "%{$invoice}%");
+            });
+        }
+
+        // Filter by date range
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // Dynamic per page
+        $perPage = (int) $request->get('per_page', 15);
+        if (!in_array($perPage, [10, 15, 25, 50, 100, 200])) {
+            $perPage = 15;
+        }
+
+        $data = $query->latest()->paginate($perPage)->withQueryString();
 
         $statuses = ['pending', 'approved', 'rejected', 'processed'];
-        $statusCounts = Refund::selectRaw('status, COUNT(*) as total')
+        
+        // Comprehensive counts and amounts
+        $statusCounts = Refund::selectRaw('status, COUNT(*) as total, SUM(amount + shipping_charge) as total_amount')
             ->groupBy('status')
-            ->pluck('total', 'status');
+            ->get()
+            ->keyBy('status');
 
-        return view('backEnd.refunds.index', compact('data', 'statuses', 'statusCounts'));
+        $totalCount = Refund::count();
+        $totalAmount = Refund::sum(DB::raw('amount + shipping_charge'));
+
+        return view('backEnd.refunds.index', compact('data', 'statuses', 'statusCounts', 'totalCount', 'totalAmount', 'perPage'));
     }
 
     /**

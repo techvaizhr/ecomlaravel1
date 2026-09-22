@@ -133,15 +133,21 @@ class OrderController extends Controller
 
     public function manualFraudCheck(Request $request)
     {
-        $mobile = $request->input('mobile');
+        $mobile = trim((string) $request->input('mobile'));
 
         if (!$mobile) {
             return back()->with('error', 'দয়া করে একটি মোবাইল নাম্বার লিখুন');
         }
 
+        // Clean mobile number (strip +88, 88 prefix and non-digits)
+        $cleanPhone = preg_replace('/[^0-9]/', '', $mobile);
+        if (str_starts_with($cleanPhone, '880')) {
+            $cleanPhone = substr($cleanPhone, 2);
+        }
+
         $apiKey = BdCourierService::resolveApiKey();
         if (!$apiKey) {
-            return back()->with('error', 'BD Courier API কী নেই। ফ্রড সেটিংসে কী দিন অথবা .env এ BDCOURIER_API_KEY সেট করুন।');
+            return back()->with('error', 'BD Courier API কী কনফিগার করা নেই। ফ্রড সেটিংসে API Key প্রদান করুন।');
         }
 
         try {
@@ -150,7 +156,7 @@ class OrderController extends Controller
                 'Content-Type'  => 'application/json',
                 'Accept'        => 'application/json',
             ])->timeout(20)->post('https://api.bdcourier.com/courier-check', [
-                'phone' => $mobile,
+                'phone' => $cleanPhone,
             ]);
 
             $res = $response->json();
@@ -162,7 +168,21 @@ class OrderController extends Controller
             $data    = $res['data'] ?? [];
             $reports = $res['reports'] ?? [];
 
-            return view('backEnd.fraud.manual_check', compact('mobile', 'data', 'reports'));
+            // Local Store Order History
+            $localOrders = \App\Models\Order::where(function($q) use ($cleanPhone, $mobile) {
+                    $q->where('phoneNumber', 'like', "%{$cleanPhone}%")
+                      ->orWhere('phoneNumber', 'like', "%{$mobile}%")
+                      ->orWhereHas('shipping', function($sq) use ($cleanPhone, $mobile) {
+                          $sq->where('phone', 'like', "%{$cleanPhone}%")
+                             ->orWhere('phone', 'like', "%{$mobile}%");
+                      });
+                })
+                ->with(['orderstatus', 'orderdetails'])
+                ->latest()
+                ->take(10)
+                ->get();
+
+            return view('backEnd.fraud.manual_check', compact('mobile', 'cleanPhone', 'data', 'reports', 'localOrders'));
         } catch (\Exception $e) {
             return back()->with('error', 'API Error: ' . $e->getMessage());
         }
