@@ -172,80 +172,213 @@ table.clean tbody tr:hover td { background: #fafafa; }
     <div class="db-heading">
         <h1>Dashboard</h1>
         <p>{{ now()->format('l, F j, Y') }}</p>
-  </div>
+    </div>
 
-    <div class="dash-top-row">
-
-    {{-- ── SMS Balance Strip ── --}}
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:38px;height:38px;border-radius:9px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.35 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 5.49 5.49l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 15.42z"/></svg>
+    {{-- ── Stat Cards ── --}}
+    <div class="stat-grid">
+        <div class="sc">
+            <div class="sc-ico" style="background:#eff6ff;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
             </div>
-    <div>
-                <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">BulkSMSBD Balance</span>
-                <div style="display:flex;align-items:baseline;gap:8px;">
-                    <span id="sms-bal-val" style="font-size:20px;font-weight:700;color:#111827;letter-spacing:-.3px;">—</span>
-                    <span id="sms-bal-msg" style="font-size:12px;color:#9ca3af;">Click to check</span>
+            <div>
+                <div class="sc-label">Total Orders</div>
+                <div class="sc-val">{{ number_format($total_order) }}</div>
+                <div class="sc-note">{{ $pending_orders }} pending</div>
+            </div>
+        </div>
+
+        <div class="sc">
+            <div class="sc-ico" style="background:#f0fdf4;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div>
+                <div class="sc-label">Total Revenue</div>
+                <div class="sc-val">৳{{ number_format($total_revenue) }}</div>
+                <div class="sc-note">{{ $total_delivery }} delivered</div>
+            </div>
+        </div>
+
+        <div class="sc">
+            <div class="sc-ico" style="background:#fffbeb;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <div>
+                <div class="sc-label">Pending Orders</div>
+                <div class="sc-val">{{ number_format($pending_orders) }}</div>
+                <div class="sc-note">Need attention</div>
+            </div>
+        </div>
+
+        <div class="sc">
+            <div class="sc-ico" style="background:#fff1f2;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+                <div class="sc-label">Low Stock</div>
+                <div class="sc-val">{{ number_format($low_stock) }}</div>
+                <div class="sc-note">Below 10 units</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Today's Snapshot ── --}}
+    <div class="section-label">Today's Snapshot</div>
+    <div class="snap-grid">
+        <div class="sn">
+            <div class="sn-top">
+                <span class="sn-name">Orders</span>
+                <span class="sn-badge" style="background:#eff6ff;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </span>
+            </div>
+            <div class="sn-val">{{ $today_order }}</div>
+            <div class="sn-sub">Orders placed today</div>
+        </div>
+
+        <div class="sn">
+            <div class="sn-top">
+                <span class="sn-name">Revenue</span>
+                <span class="sn-badge" style="background:#f0fdf4;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </span>
+            </div>
+            <div class="sn-val">৳{{ number_format($today_revenue) }}</div>
+            <div class="sn-sub">Revenue today</div>
+        </div>
+
+        <div class="sn">
+            <div class="sn-top">
+                <span class="sn-name">Delivered</span>
+                <span class="sn-badge" style="background:#f0fdf4;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+            </div>
+            <div class="sn-val">৳{{ number_format($today_delivered_revenue) }}</div>
+            <div class="sn-sub">Delivered revenue</div>
+        </div>
+    </div>
+
+    {{-- ── Finance Summary (Moved Above Quick Actions) ── --}}
+    <div class="section-label">Finance Summary</div>
+    <div class="fin-strip">
+        <div class="fin-item">
+            <div class="fin-item-label">Fund Balance</div>
+            <div class="fin-item-val">৳{{ number_format($fund_balance) }}</div>
+        </div>
+        <div class="fin-item">
+            <div class="fin-item-label">Total Expenses</div>
+            <div class="fin-item-val">৳{{ number_format($total_expenses) }}</div>
+        </div>
+        <div class="fin-item">
+            <div class="fin-item-label">Today's Expenses</div>
+            <div class="fin-item-val">৳{{ number_format($today_expenses) }}</div>
+        </div>
+        <div class="fin-item">
+            <div class="fin-item-label">Monthly Expenses</div>
+            <div class="fin-item-val">৳{{ number_format($monthly_expenses) }}</div>
+        </div>
+    </div>
+
+    {{-- ── Quick Actions ── --}}
+    <div class="section-label">Quick Actions</div>
+    <div class="qa-grid">
+        @can('product-create')
+        <a href="{{ route('products.create') }}" class="qa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Product
+        </a>
+        @endcan
+        @can('order-list')
+        <a href="{{ route('admin.orders',['slug'=>'all']) }}" class="qa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
+            View Orders
+        </a>
+        @endcan
+        @can('category-list')
+        <a href="{{ route('categories.index') }}" class="qa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Categories
+        </a>
+        @endcan
+        @can('product-list')
+        <a href="{{ route('inhouse.products.index') }}" class="qa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Products
+        </a>
+        @endcan
+    </div>
+
+    {{-- ── SMS + Courier Balance Grids (Moved Below Quick Actions) ── --}}
+    <div class="dash-top-row">
+        {{-- ── SMS Balance Strip ── --}}
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:38px;height:38px;border-radius:9px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.35 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 5.49 5.49l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 15.42z"/></svg>
+                </div>
+                <div>
+                    <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">BulkSMSBD Balance</span>
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                        <span id="sms-bal-val" style="font-size:20px;font-weight:700;color:#111827;letter-spacing:-.3px;">—</span>
+                        <span id="sms-bal-msg" style="font-size:12px;color:#9ca3af;">Click to check</span>
+                    </div>
                 </div>
             </div>
+            <button onclick="fetchSmsBalance()" id="sms-bal-btn"
+                style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;"
+                onmouseover="this.style.borderColor='#243b22';this.style.color='#243b22';this.style.background='#f0f7f0'"
+                onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
+                <svg id="sms-bal-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
+                Refresh
+            </button>
         </div>
-        <button onclick="fetchSmsBalance()" id="sms-bal-btn"
-            style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;"
-            onmouseover="this.style.borderColor='#243b22';this.style.color='#243b22';this.style.background='#f0f7f0'"
-            onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
-            <svg id="sms-bal-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
-            Refresh
-        </button>
+
+        {{-- ── BD Courier My Plan ── --}}
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;">
+                <div style="width:38px;height:38px;border-radius:9px;background:#f0f7f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#243b22" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </div>
+                <div style="min-width:0;">
+                    <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">BD Courier · My Plan</span>
+                    <div id="bd-plan-main" style="font-size:17px;font-weight:700;color:#111827;margin-top:2px;line-height:1.25;">—</div>
+                    <div id="bd-plan-detail" style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.45;white-space:pre-line;"></div>
+                    <span id="bd-plan-msg" style="font-size:11px;display:block;margin-top:4px;"></span>
+                </div>
+            </div>
+            <button type="button" onclick="fetchBdCourierPlan()" id="bd-plan-btn"
+                style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;align-self:center;"
+                onmouseover="this.style.borderColor='#243b22';this.style.color='#243b22';this.style.background='#f0f7f0'"
+                onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
+                <svg id="bd-plan-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
+                Refresh
+            </button>
+        </div>
+
+        {{-- ── Steadfast balance + ইন রিভিউ (নিকট অর্ডার API চেক) ── --}}
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;">
+                <div style="width:38px;height:38px;border-radius:9px;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div style="min-width:0;">
+                    <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">Steadfast Courier</span>
+                    <div id="sf-main" style="font-size:17px;font-weight:700;color:#111827;margin-top:2px;line-height:1.25;">—</div>
+                    <div id="sf-detail" style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.45;white-space:pre-line;"></div>
+                    <span id="sf-msg" style="font-size:11px;display:block;margin-top:4px;"></span>
+                </div>
+            </div>
+            <button type="button" onclick="fetchSteadfastWidget()" id="sf-btn"
+                style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;align-self:center;"
+                onmouseover="this.style.borderColor='#7c3aed';this.style.color='#7c3aed';this.style.background='#faf5ff'"
+                onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
+                <svg id="sf-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
+                Refresh
+            </button>
+        </div>
     </div>
 
-    {{-- ── BD Courier My Plan ── --}}
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <div style="display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;">
-            <div style="width:38px;height:38px;border-radius:9px;background:#f0f7f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#243b22" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            </div>
-            <div style="min-width:0;">
-                <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">BD Courier · My Plan</span>
-                <div id="bd-plan-main" style="font-size:17px;font-weight:700;color:#111827;margin-top:2px;line-height:1.25;">—</div>
-                <div id="bd-plan-detail" style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.45;white-space:pre-line;"></div>
-                <span id="bd-plan-msg" style="font-size:11px;display:block;margin-top:4px;"></span>
-            </div>
-        </div>
-        <button type="button" onclick="fetchBdCourierPlan()" id="bd-plan-btn"
-            style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;align-self:center;"
-            onmouseover="this.style.borderColor='#243b22';this.style.color='#243b22';this.style.background='#f0f7f0'"
-            onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
-            <svg id="bd-plan-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
-            Refresh
-        </button>
-    </div>
-
-    {{-- ── Steadfast balance + ইন রিভিউ (নিকট অর্ডার API চেক) ── --}}
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <div style="display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;">
-            <div style="width:38px;height:38px;border-radius:9px;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </div>
-            <div style="min-width:0;">
-                <span style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#9ca3af;">Steadfast Courier</span>
-                <div id="sf-main" style="font-size:17px;font-weight:700;color:#111827;margin-top:2px;line-height:1.25;">—</div>
-                <div id="sf-detail" style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.45;white-space:pre-line;"></div>
-                <span id="sf-msg" style="font-size:11px;display:block;margin-top:4px;"></span>
-            </div>
-        </div>
-        <button type="button" onclick="fetchSteadfastWidget()" id="sf-btn"
-            style="display:inline-flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;align-self:center;"
-            onmouseover="this.style.borderColor='#7c3aed';this.style.color='#7c3aed';this.style.background='#faf5ff'"
-            onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151';this.style.background='#f9fafb'">
-            <svg id="sf-ico" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.48-3.44"/></svg>
-            Refresh
-        </button>
-  </div>
-
-    </div>
-
-    {{-- ── Traffic Source Widget ── --}}
+    {{-- ── Traffic Source Widget (Moved Below Quick Actions) ── --}}
     <div style="background:#fff;border:1px solid #eaecf0;border-radius:12px;padding:18px 20px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
             <div>
@@ -300,121 +433,8 @@ table.clean tbody tr:hover td { background: #fafafa; }
                 <span style="font-size:10px;color:#9ca3af;margin-top:4px;display:block;">{{ $pct }}%</span>
             </div>
             @endforeach
-      </div>
+        </div>
         @endif
-    </div>
-
-    {{-- ── Stat Cards ── --}}
-    <div class="stat-grid">
-        <div class="sc">
-            <div class="sc-ico" style="background:#eff6ff;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            </div>
-            <div>
-                <div class="sc-label">Total Orders</div>
-                <div class="sc-val">{{ number_format($total_order) }}</div>
-                <div class="sc-note">{{ $pending_orders }} pending</div>
-            </div>
-        </div>
-
-        <div class="sc">
-            <div class="sc-ico" style="background:#f0fdf4;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            <div>
-                <div class="sc-label">Total Revenue</div>
-                <div class="sc-val">৳{{ number_format($total_revenue) }}</div>
-                <div class="sc-note">{{ $total_delivery }} delivered</div>
-            </div>
-        </div>
-
-        <div class="sc">
-            <div class="sc-ico" style="background:#fffbeb;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            </div>
-            <div>
-                <div class="sc-label">Pending Orders</div>
-                <div class="sc-val">{{ number_format($pending_orders) }}</div>
-                <div class="sc-note">Need attention</div>
-      </div>
-    </div>
-
-        <div class="sc">
-            <div class="sc-ico" style="background:#fff1f2;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
-            <div>
-                <div class="sc-label">Low Stock</div>
-                <div class="sc-val">{{ number_format($low_stock) }}</div>
-                <div class="sc-note">Below 10 units</div>
-      </div>
-    </div>
-  </div>
-
-    {{-- ── Today's Snapshot ── --}}
-    <div class="section-label">Today's Snapshot</div>
-    <div class="snap-grid">
-        <div class="sn">
-            <div class="sn-top">
-                <span class="sn-name">Orders</span>
-                <span class="sn-badge" style="background:#eff6ff;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                </span>
-            </div>
-            <div class="sn-val">{{ $today_order }}</div>
-            <div class="sn-sub">Orders placed today</div>
-        </div>
-
-        <div class="sn">
-            <div class="sn-top">
-                <span class="sn-name">Revenue</span>
-                <span class="sn-badge" style="background:#f0fdf4;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                </span>
-            </div>
-            <div class="sn-val">৳{{ number_format($today_revenue) }}</div>
-            <div class="sn-sub">Revenue today</div>
-        </div>
-
-        <div class="sn">
-            <div class="sn-top">
-                <span class="sn-name">Delivered</span>
-                <span class="sn-badge" style="background:#f0fdf4;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                </span>
-            </div>
-            <div class="sn-val">৳{{ number_format($today_delivered_revenue) }}</div>
-            <div class="sn-sub">Delivered revenue</div>
-      </div>
-    </div>
-
-    {{-- ── Quick Actions ── --}}
-    <div class="section-label">Quick Actions</div>
-    <div class="qa-grid">
-        @can('product-create')
-        <a href="{{ route('products.create') }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Product
-        </a>
-        @endcan
-        @can('order-list')
-        <a href="{{ route('admin.orders',['slug'=>'all']) }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
-            View Orders
-        </a>
-        @endcan
-        @can('category-list')
-        <a href="{{ route('categories.index') }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            Categories
-        </a>
-        @endcan
-        @can('product-list')
-        <a href="{{ route('inhouse.products.index') }}" class="qa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            Products
-        </a>
-        @endcan
     </div>
 
     {{-- ── Charts ── --}}
@@ -424,7 +444,7 @@ table.clean tbody tr:hover td { background: #fafafa; }
             <div class="chart-box-sub">Last 7 days</div>
             <div id="trendChart"></div>
         </div>
-      <div class="chart-box">
+        <div class="chart-box">
             <div class="chart-box-title">Order Status</div>
             <div class="chart-box-sub">All time breakdown</div>
             <div id="statusChart"></div>
@@ -498,9 +518,9 @@ table.clean tbody tr:hover td { background: #fafafa; }
                 @empty
                 <div class="text-center text-muted py-4">No categories</div>
                 @endforelse
-      </div>
+            </div>
+        </div>
     </div>
-  </div>
 
     {{-- ── Recent Orders ── --}}
     <div class="tbl-card mb-4">
@@ -513,13 +533,13 @@ table.clean tbody tr:hover td { background: #fafafa; }
         <div class="tbl-card-body">
             <table class="table clean mb-0">
                 <thead><tr>
-                <th>Customer</th>
-                <th>Invoice</th>
+                    <th>Customer</th>
+                    <th>Invoice</th>
                     <th>Amount</th>
-                <th>Status</th>
-                <th>Date</th>
+                    <th>Status</th>
+                    <th>Date</th>
                 </tr></thead>
-            <tbody>
+                <tbody>
                 @forelse($latest_order as $order)
                 <tr>
                     <td style="font-weight:500;">{{ $order->customer->name ?? 'Guest' }}</td>
@@ -539,37 +559,16 @@ table.clean tbody tr:hover td { background: #fafafa; }
                                 @default {{ $order->status->name ?? 'Unknown' }}
                             @endswitch
                         </span>
-                </td>
+                    </td>
                     <td style="color:#9ca3af;white-space:nowrap;">{{ optional($order->created_at)->format('d M Y') }}</td>
-              </tr>
-            @empty
+                </tr>
+                @empty
                 <tr><td colspan="5" class="text-center text-muted py-3">No orders yet</td></tr>
-            @endforelse
-            </tbody>
-          </table>
+                @endforelse
+                </tbody>
+            </table>
         </div>
-      </div>
-
-    {{-- ── Finance ── --}}
-    <div class="section-label">Finance Summary</div>
-    <div class="fin-strip">
-        <div class="fin-item">
-            <div class="fin-item-label">Fund Balance</div>
-            <div class="fin-item-val">৳{{ number_format($fund_balance) }}</div>
-        </div>
-        <div class="fin-item">
-            <div class="fin-item-label">Total Expenses</div>
-            <div class="fin-item-val">৳{{ number_format($total_expenses) }}</div>
-        </div>
-        <div class="fin-item">
-            <div class="fin-item-label">Today's Expenses</div>
-            <div class="fin-item-val">৳{{ number_format($today_expenses) }}</div>
     </div>
-        <div class="fin-item">
-            <div class="fin-item-label">Monthly Expenses</div>
-            <div class="fin-item-val">৳{{ number_format($monthly_expenses) }}</div>
-    </div>
-  </div>
 
 </div>
 
