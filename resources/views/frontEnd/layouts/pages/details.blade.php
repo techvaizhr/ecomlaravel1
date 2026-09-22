@@ -153,306 +153,271 @@
 
 @section('content')
 <div class="homeproduct main-details-page">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <section class="product-section">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-6 position-relative">
-                                @if($details->old_price)
-                                <div class="product-details-discount-badge">
-                                    <div class="sale-badge">
-                                        <div class="sale-badge-inner">
-                                            <div class="sale-badge-box">
-                                                <span class="sale-badge-text">
-                                                    <p> @php $discount=(((($details->old_price)-($details->new_price))*100) / ($details->old_price)) @endphp {{ number_format($discount, 0) }}%</p>
-                                                    ছাড়
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endif
-                                <div class="details_slider owl-carousel" id="details_slider_main">
-                                    @foreach ($details->images as $value)
-                                        <div class="dimage_item" data-color-id="{{ $value->color_id ?? '' }}">
-                                            <img src="{{ asset($value->image) }}" class="block__pic" />
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <div
-                                    class="indicator_thumb @if ($details->images->count() > 4) thumb_slider owl-carousel @endif" id="indicator_thumb_wrapper">
-                                    @foreach ($details->images as $key => $image)
-                                        <div class="indicator-item" data-id="{{ $key }}" data-color-id="{{ $image->color_id ?? '' }}">
-                                            <img src="{{ asset($image->image) }}" />
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="details_right">
-                                    <div class="breadcrumb">
-                                        <ul>
-                                            <li><a href="{{ url('/') }}">Home</a></li>
-                                            <li><span>/</span></li>
-                                            <li><a
-                                                    href="{{ url('/category/' . $details->category->slug) }}">{{ $details->category->name }}</a>
-                                            </li>
-                                            @if ($details->subcategory)
-                                                <li><span>/</span></li>
-                                                <li><a
-                                                        href="#">{{ $details->subcategory ? $details->subcategory->subcategoryName : '' }}</a>
-                                                </li>
-                                                @endif @if ($details->childcategory)
-                                                    <li><span>/</span></li>
-                                                    <li><a
-                                                            href="#">{{ $details->childcategory->childcategoryName }}</a>
-                                                    </li>
-                                                @endif
-                                        </ul>
-                                    </div>
+    <section class="product-section">
+        <div class="container">
+            <div class="row align-items-start">
 
-                                    <div class="product">
-                                        <div class="product-cart">
-                                            <p class="name">{{ $details->name }}</p>
-                                            <p class="details-price">
-                                                @if ($details->old_price)
-                                                    <del>৳{{ $details->old_price }}</del>
-                                                @endif <span id="newPrice">৳{{ $details->new_price }}</span>
-
-                                            </p>
-                                            <div class="details-ratting-wrapper">
-                                            @php
-                                                $averageRating = (float) ($productReviewsAverage ?? 0);
-                                                $filledStars = floor($averageRating);
-                                                $emptyStars = 5 - $filledStars;
-                                            @endphp
-                                            
-                                            @if ($averageRating >= 0 && $averageRating <= 5)
-                                                @for ($i = 1; $i <= $filledStars; $i++)
-                                                    <i class="fas fa-star"></i>
-                                                @endfor
-                                            
-                                                @if ($averageRating == $filledStars)
-                                                    {{-- If averageRating is an integer, don't display half star --}}
-                                                @else
-                                                    <i class="far fa-star-half-alt"></i>
-                                                @endif
-                                            
-                                                @for ($i = 1; $i <= $emptyStars; $i++)
-                                                    <i class="far fa-star"></i>
-                                                @endfor
-                                            
-                                                <span>{{ number_format($averageRating, 2) }}/5</span>
-                                            @else
-                                                <span>Invalid rating range</span>
-                                            @endif
-                                            <a class="all-reviews-button" href="#writeReview">See Reviews</a>
-                                            </div>
-                                            <div class="product-code">
-                                                <p><span>প্রোডাক্ট কোড : </span>{{ $details->product_code }}</p>
-                                            </div>
-
-                                            {{-- ⭐⭐ এখানে Product Type দেখানো হচ্ছে ⭐⭐ --}}
-                                            @php
-                                                $productTypeText = $details->is_digital
-                                                    ? 'Digital'
-                                                    : 'Physical';
-                                            @endphp
-                                            <div class="pro_brand">
-                                                <p>
-                                                  Product Type: {{ $productTypeText }}
-                                                </p>
-                                            </div>
-                                            {{-- ⭐⭐ Product Type End ⭐⭐ --}}
-
-                                            {{-- ⭐⭐ Wholesale Pricing Tiers - Simple Clean Design ⭐⭐ --}}
-                                            @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
-                                            <div class="wholesale-pricing-section" style="margin: 20px 0;">
-                                                <h5 style="margin-bottom: 15px; font-size: 16px; font-weight: 600; color: #333;">
-                                                    <i class="fa fa-tag me-2"></i> Wholesale Pricing
-                                                </h5>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-hover mb-0" style="background: #fff;">
-                                                        <thead style="background: #f8f9fa;">
-                                                            <tr>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">Quantity</th>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">Price</th>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">Stock</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach($details->wholesalePrices->sortBy('min_quantity') as $tier)
-                                                            <tr class="wholesale-tier-row" 
-                                                                data-min-qty="{{ $tier->min_quantity }}" 
-                                                                data-max-qty="{{ $tier->max_quantity ?? 999999 }}" 
-                                                                data-price="{{ $tier->wholesale_price }}"
-                                                                style="cursor: pointer; transition: background 0.2s;">
-                                                                <td style="padding: 12px; font-size: 14px;">
-                                                                    {{ $tier->min_quantity }}{{ $tier->max_quantity ? ' - ' . $tier->max_quantity : '+' }} pcs
-                                                                </td>
-                                                                <td style="padding: 12px; font-size: 14px; font-weight: 600; color: #28a745;">
-                                                                    ৳{{ number_format($tier->wholesale_price, 2) }}
-                                                                </td>
-                                                                <td style="padding: 12px; font-size: 14px; color: {{ ($tier->stock ?? 0) > 0 ? '#28a745' : '#dc3545' }};">
-                                                                    {{ $tier->stock ?? 0 }} pcs
-                                                                </td>
-                                                            </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <p class="text-muted mt-2 mb-0" style="font-size: 12px;">
-                                                    <i class="fa fa-info-circle me-1"></i> Quantity select করলে wholesale price automatically apply হবে
-                                                </p>
-                                            </div>
-                                            @endif
-                                            {{-- ⭐⭐ Wholesale Pricing End ⭐⭐ --}}
-
-                                            <form action="{{ route('cart.store') }}" method="POST" name="formName">
-                                                @csrf
-                                                <input type="hidden" name="id" value="{{ $details->id }}" />
-
-
-{{-- ✅ Variant-based Color & Size (with your old design style) --}}
-@if ($details->variantPrices->count() > 0)
-    @php
-        $productcolors = $details->variantPrices->pluck('color')->unique('id')->filter();
-        $productsizes = $details->variantPrices->pluck('size')->unique('id')->filter();
-    @endphp
-
-    {{-- 🎨 Color Section --}}
-    @if ($productcolors->count() > 0)
-        <div class="pro-color" style="width: 100%;">
-            <div class="color_inner">
-                <p>Color -</p>
-                <div class="size-container">
-                    <div class="selector">
-                        @foreach ($productcolors as $procolor)
-                            <div class="selector-item">
-                                {{-- ✅ এখন color_id পাঠানো হচ্ছে (নাম নয়) --}}
-                                <input type="radio"
-                                    id="fc-option{{ $procolor->id }}"
-                                    value="{{ $procolor->id }}"
-                                    name="product_color"
-                                    class="selector-item_radio emptyalert"
-                                    required />
-                                <label for="fc-option{{ $procolor->id }}"
-                                    style="background-color: {{ $procolor->color ?? '#ccc' }}"
-                                    class="selector-item_label">
-                                    <span>
-                                        <img src="{{ asset('public/frontEnd/images/check-icon.svg') }}" alt="Checked Icon" />
+                {{-- LEFT: Image Gallery --}}
+                <div class="col-sm-6 col-12 position-relative mb-4 mb-sm-0">
+                    @if($details->old_price)
+                    <div class="product-details-discount-badge">
+                        <div class="sale-badge">
+                            <div class="sale-badge-inner">
+                                <div class="sale-badge-box">
+                                    <span class="sale-badge-text">
+                                        <p>@php $discount=(((($details->old_price)-($details->new_price))*100) / ($details->old_price)) @endphp {{ number_format($discount, 0) }}%</p>
+                                        ছাড়
                                     </span>
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- 📏 Size Section --}}
-    @if ($productsizes->count() > 0)
-        <div class="pro-size" style="width: 100%;">
-            <div class="size_inner">
-                <p>Size & Variant - <span class="attibute-name"></span></p>
-                <div class="size-container">
-                    <div class="selector">
-                        @foreach ($productsizes as $prosize)
-                            <div class="selector-item">
-                                {{-- ✅ এখন size_id পাঠানো হচ্ছে --}}
-                                <input type="radio"
-                                    id="f-option{{ $prosize->id }}"
-                                    value="{{ $prosize->id }}"
-                                    name="product_size"
-                                    class="selector-item_radio emptyalert"
-                                    required />
-                                <label for="f-option{{ $prosize->id }}" class="selector-item_label">
-                                    {{ $prosize->sizeName ?? $prosize->name }}
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-@endif
-
-
-
-
-
-                                                        @if ($details->pro_unit)
-                                                            <div class="pro_unig">
-                                                                <label>Unit: {{ $details->pro_unit }}</label>
-                                                                <input type="hidden" name="pro_unit"
-                                                                    value="{{ $details->pro_unit }}" />
-                                                            </div>
-                                                        @endif
-                                                        <div class="pro_brand">
-                                                            <p>Brand :
-                                                                {{ $details->brand ? $details->brand->name : 'N/A' }}
-                                                            </p>
-                                                        </div>
-
-                                                        <div class="row">
-                                                            <div class="qty-cart col-sm-12">
-                                                                <div class="quantity">
-                                                                    <span class="minus">-</span>
-                                                                    @php
-                                                                        $defaultQty = 1;
-                                                                        if ($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0) {
-                                                                            $defaultQty = max(1, (int) $details->wholesalePrices->sortBy('min_quantity')->first()->min_quantity);
-                                                                        }
-                                                                    @endphp
-                                                                    <input type="number" name="qty" class="product-qty-input"
-                                                                        value="{{ $defaultQty }}" min="1" step="1" />
-                                                                    <span class="plus">+</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex single_product col-sm-12">
-                                                  <input type="submit" class="btn px-4 add_cart_btn cart_store" data-id="{{ $details->id }}" onclick="return sendSuccess();" name="add_cart" value="কার্টে যোগ করুন" />
-<input type="submit" class="btn px-4 order_now_btn order_now_btn_m" onclick="return sendSuccess();" name="order_now" value="অর্ডার করুন" />
-                                                            </div>
-                                                        </div>
-                                                        <div class="mt-md-2 mt-2">
-                                                            <h4 class="font-weight-bold">
-                                                                <a class="btn btn-success w-100 call_now_btn"
-                                                                    href="tel: {{ $contact->hotline }}">
-                                                                    <i class="fa fa-phone-square"></i>
-                                                                    {{ $contact->hotline }}
-                                                                </a>
-                                                            </h4>
-                                                        </div>
-                                                       <div class="mt-md-2 mt-2">
-                                                        <h4 class="font-weight-bold">
-                                                            <a class="btn btn-success w-100 call_now_btn"
-                                                                href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
-                                                                target="_blank">
-                                                                <i class="fa fa-whatsapp"></i>
-                                                                এই পণ্যটি সম্পর্কে জিজ্ঞাসা করুন
-                                                            </a>
-                                                        </h4>
-                                                    </div>
-
-
-                                                     
-                                            </form>
-
-
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
+                    @endif
+
+                    <div class="details_slider owl-carousel" id="details_slider_main">
+                        @foreach ($details->images as $value)
+                            <div class="dimage_item" data-color-id="{{ $value->color_id ?? '' }}">
+                                <img src="{{ asset($value->image) }}" class="block__pic" />
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="indicator_thumb @if ($details->images->count() > 4) thumb_slider owl-carousel @endif" id="indicator_thumb_wrapper">
+                        @foreach ($details->images as $key => $image)
+                            <div class="indicator-item" data-id="{{ $key }}" data-color-id="{{ $image->color_id ?? '' }}">
+                                <img src="{{ asset($image->image) }}" />
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- RIGHT: Product Info --}}
+                <div class="col-sm-6 col-12">
+                    <div class="details_right">
+
+                        {{-- Breadcrumb --}}
+                        <div class="breadcrumb">
+                            <ul>
+                                <li><a href="{{ url('/') }}">Home</a></li>
+                                <li><span>/</span></li>
+                                <li><a href="{{ url('/category/' . $details->category->slug) }}">{{ $details->category->name }}</a></li>
+                                @if ($details->subcategory)
+                                    <li><span>/</span></li>
+                                    <li><a href="#">{{ $details->subcategory->subcategoryName }}</a></li>
+                                @endif
+                                @if ($details->childcategory)
+                                    <li><span>/</span></li>
+                                    <li><a href="#">{{ $details->childcategory->childcategoryName }}</a></li>
+                                @endif
+                            </ul>
+                        </div>
+
+                        <div class="product">
+                            <div class="product-cart">
+
+                                {{-- Product Name --}}
+                                <p class="name">{{ $details->name }}</p>
+
+                                {{-- Price --}}
+                                <p class="details-price">
+                                    @if ($details->old_price)
+                                        <del>৳{{ $details->old_price }}</del>
+                                    @endif
+                                    <span id="newPrice">৳{{ $details->new_price }}</span>
+                                </p>
+
+                                {{-- Rating --}}
+                                <div class="details-ratting-wrapper">
+                                    @php
+                                        $averageRating = (float) ($productReviewsAverage ?? 0);
+                                        $filledStars = floor($averageRating);
+                                        $emptyStars = 5 - $filledStars;
+                                    @endphp
+                                    @if ($averageRating >= 0 && $averageRating <= 5)
+                                        @for ($i = 1; $i <= $filledStars; $i++)<i class="fas fa-star"></i>@endfor
+                                        @if ($averageRating != $filledStars)<i class="far fa-star-half-alt"></i>@endif
+                                        @for ($i = 1; $i <= $emptyStars; $i++)<i class="far fa-star"></i>@endfor
+                                        <span>{{ number_format($averageRating, 2) }}/5</span>
+                                    @endif
+                                    <a class="all-reviews-button" href="#writeReview">See Reviews ({{ $productReviewsTotal }})</a>
+                                </div>
+
+                                {{-- Product Code --}}
+                                <div class="product-code">
+                                    <p><span>প্রোডাক্ট কোড :</span> {{ $details->product_code }}</p>
+                                </div>
+
+                                {{-- Product Type --}}
+                                @php $productTypeText = $details->is_digital ? 'Digital' : 'Physical'; @endphp
+                                <div class="pro_brand">
+                                    <p><i class="fa fa-tag" style="margin-right:4px;"></i> Product Type: {{ $productTypeText }}</p>
+                                </div>
+
+                                {{-- Wholesale Pricing --}}
+                                @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
+                                <div class="wholesale-pricing-section" style="margin: 14px 0;">
+                                    <h5 style="margin-bottom: 10px; font-size: 14px; font-weight: 700; color: #1e293b;">
+                                        <i class="fa fa-tag me-1"></i> Wholesale Pricing
+                                    </h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover mb-0" style="background:#fff; font-size:13px;">
+                                            <thead style="background:#f8f9fa;">
+                                                <tr>
+                                                    <th style="padding:8px 12px; font-weight:600;">Quantity</th>
+                                                    <th style="padding:8px 12px; font-weight:600;">Price</th>
+                                                    <th style="padding:8px 12px; font-weight:600;">Stock</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($details->wholesalePrices->sortBy('min_quantity') as $tier)
+                                                <tr class="wholesale-tier-row"
+                                                    data-min-qty="{{ $tier->min_quantity }}"
+                                                    data-max-qty="{{ $tier->max_quantity ?? 999999 }}"
+                                                    data-price="{{ $tier->wholesale_price }}"
+                                                    style="cursor:pointer; transition:background 0.2s;">
+                                                    <td style="padding:8px 12px;">{{ $tier->min_quantity }}{{ $tier->max_quantity ? ' - '.$tier->max_quantity : '+' }} pcs</td>
+                                                    <td style="padding:8px 12px; font-weight:600; color:#28a745;">৳{{ number_format($tier->wholesale_price, 2) }}</td>
+                                                    <td style="padding:8px 12px; color:{{ ($tier->stock ?? 0) > 0 ? '#28a745' : '#dc3545' }};">{{ $tier->stock ?? 0 }} pcs</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p class="text-muted mt-1 mb-0" style="font-size:12px;"><i class="fa fa-info-circle me-1"></i> Quantity select করলে wholesale price automatically apply হবে</p>
+                                </div>
+                                @endif
+
+                                {{-- Add to Cart Form --}}
+                                <form action="{{ route('cart.store') }}" method="POST" name="formName">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{ $details->id }}" />
+
+                                    {{-- Color Variants --}}
+                                    @if ($details->variantPrices->count() > 0)
+                                        @php
+                                            $productcolors = $details->variantPrices->pluck('color')->unique('id')->filter();
+                                            $productsizes  = $details->variantPrices->pluck('size')->unique('id')->filter();
+                                        @endphp
+
+                                        @if ($productcolors->count() > 0)
+                                        <div class="pro-color">
+                                            <div class="color_inner">
+                                                <p>Color -</p>
+                                                <div class="size-container">
+                                                    <div class="selector">
+                                                        @foreach ($productcolors as $procolor)
+                                                        <div class="selector-item">
+                                                            <input type="radio"
+                                                                id="fc-option{{ $procolor->id }}"
+                                                                value="{{ $procolor->id }}"
+                                                                name="product_color"
+                                                                class="selector-item_radio emptyalert"
+                                                                required />
+                                                            <label for="fc-option{{ $procolor->id }}"
+                                                                style="background-color: {{ $procolor->color ?? '#ccc' }}"
+                                                                class="selector-item_label">
+                                                                <span><img src="{{ asset('public/frontEnd/images/check-icon.svg') }}" alt="Checked Icon" /></span>
+                                                            </label>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        @if ($productsizes->count() > 0)
+                                        <div class="pro-size">
+                                            <div class="size_inner">
+                                                <p>Size & Variant - <span class="attibute-name"></span></p>
+                                                <div class="size-container">
+                                                    <div class="selector">
+                                                        @foreach ($productsizes as $prosize)
+                                                        <div class="selector-item">
+                                                            <input type="radio"
+                                                                id="f-option{{ $prosize->id }}"
+                                                                value="{{ $prosize->id }}"
+                                                                name="product_size"
+                                                                class="selector-item_radio emptyalert"
+                                                                required />
+                                                            <label for="f-option{{ $prosize->id }}" class="selector-item_label">
+                                                                {{ $prosize->sizeName ?? $prosize->name }}
+                                                            </label>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    @endif
+
+                                    {{-- Unit & Brand --}}
+                                    @if ($details->pro_unit)
+                                    <div class="pro_unig">
+                                        <label>Unit: {{ $details->pro_unit }}</label>
+                                        <input type="hidden" name="pro_unit" value="{{ $details->pro_unit }}" />
+                                    </div>
+                                    @endif
+                                    <div class="pro_brand">
+                                        <p><i class="fa fa-building" style="margin-right:4px;"></i> Brand: {{ $details->brand ? $details->brand->name : 'N/A' }}</p>
+                                    </div>
+
+                                    {{-- Quantity + Buttons --}}
+                                    <div class="row mt-2">
+                                        <div class="qty-cart col-12">
+                                            <div class="quantity">
+                                                <span class="minus">-</span>
+                                                @php
+                                                    $defaultQty = 1;
+                                                    if ($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0) {
+                                                        $defaultQty = max(1, (int) $details->wholesalePrices->sortBy('min_quantity')->first()->min_quantity);
+                                                    }
+                                                @endphp
+                                                <input type="number" name="qty" class="product-qty-input"
+                                                    value="{{ $defaultQty }}" min="1" step="1" />
+                                                <span class="plus">+</span>
+                                            </div>
+                                        </div>
+                                        <div class="single_product col-12">
+                                            <input type="submit"
+                                                class="btn add_cart_btn cart_store"
+                                                data-id="{{ $details->id }}"
+                                                onclick="return sendSuccess();"
+                                                name="add_cart"
+                                                value="কার্টে যোগ করুন" />
+                                            <input type="submit"
+                                                class="btn order_now_btn order_now_btn_m"
+                                                onclick="return sendSuccess();"
+                                                name="order_now"
+                                                value="অর্ডার করুন" />
+                                        </div>
+                                    </div>
+
+                                    {{-- Phone / WhatsApp --}}
+                                    <div class="mt-2">
+                                        <a class="btn btn-success w-100 call_now_btn mb-2"
+                                            href="tel: {{ $contact->hotline }}">
+                                            <i class="fa fa-phone-square me-2"></i>{{ $contact->hotline }}
+                                        </a>
+                                        <a class="btn btn-success w-100 call_now_btn"
+                                            href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
+                                            target="_blank">
+                                            <i class="fab fa-whatsapp me-2"></i>এই পণ্যটি সম্পর্কে জিজ্ঞাসা করুন
+                                        </a>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{-- END RIGHT --}}
+
             </div>
         </div>
-    </div>
+    </section>
 </div>
 
 <section class="pro_details_area">

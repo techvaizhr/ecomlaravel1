@@ -1442,12 +1442,13 @@ li.all__category__list:hover > a i {
 .mobile-search form.mobile-search-form .search-submit-btn {
     flex-shrink: 0 !important;
     height: 100% !important;
-    padding: 0 18px !important;
+    min-width: 90px !important;
+    padding: 0 20px !important;
     background: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
     border: none !important;
     color: #ffffff !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1456,6 +1457,8 @@ li.all__category__list:hover > a i {
     border-radius: 0 50px 50px 0 !important;
     float: none !important;
     position: static !important;
+    letter-spacing: 0.3px;
+    white-space: nowrap !important;
 }
 .mobile-search form.mobile-search-form .search-submit-btn:hover {
     filter: brightness(1.08);

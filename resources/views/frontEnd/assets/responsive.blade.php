@@ -3,7 +3,7 @@
     $hasNewsTicker = $generalsetting
         && (int) ($generalsetting->news_ticker_enabled ?? 0) === 1
         && trim((string) ($generalsetting->top_headline ?? '')) !== '';
-    $mobileContentPaddingTop = $hasNewsTicker ? '134px' : '104px';
+    $mobileContentPaddingTop = $hasNewsTicker ? '124px' : '94px';
 @endphp
 @media only screen and (min-width:767px) {
     .mobile-menu {
@@ -233,7 +233,47 @@
     }
 	.main_product_inner {
 	    grid-template-columns: 1fr 1fr;
+	    grid-gap: 8px;
 	}
+    .product_item {
+        padding: 5px !important;
+        margin-bottom: 10px !important;
+        border-radius: 8px !important;
+    }
+    .pro_img {
+        height: 165px !important;
+        border-radius: 6px !important;
+    }
+    .pro_name {
+        margin-top: 5px !important;
+        margin-bottom: 2px !important;
+    }
+    .pro_name a {
+        font-size: 13px !important;
+    }
+    .pro_price {
+        margin-top: 2px !important;
+        margin-bottom: 3px !important;
+    }
+    .pro_price p {
+        font-size: 14.5px !important;
+    }
+    .product_item .order-btn,
+    .product_item .order-btn-link {
+        height: 33px !important;
+        font-size: 12px !important;
+        padding: 3px 6px !important;
+    }
+    .product_item .cart-icon-btn,
+    .product_item .cart-icon-link {
+        height: 33px !important;
+        flex: 0 0 36px !important;
+        max-width: 36px !important;
+    }
+    .product_item .cart-icon-btn i,
+    .product_item .cart-icon-link i {
+        font-size: 15px !important;
+    }
 	.qty-cart {
 		grid-template-columns: 130px auto;
 	}
@@ -314,20 +354,41 @@
     font-size: 22px;
 }
 .mobile-logo {
-    display: grid;
-    grid-template-columns: 20% 60% 20%;
-    text-align: center;
-    font-size: 16px;
-    height: 70px;
+    display: flex;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    height: 60px;
+    padding: 0 10px;
+    gap: 8px;
 }
 	.fixed-top .mobile-logo {
 		margin-bottom: 0px;
 	}
+/* Logo — বাম দিকে, flex: 1 দিয়ে বাকি space নেবে */
+.menu-logo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    order: 1;
+}
 .menu-logo img {
     width: auto;
-    height: 50px;
+    height: 44px;
     margin-top: 0;
+    object-fit: contain;
+}
+/* Cart icon — মাঝে */
+.mobile-logo .menu-bag {
+    order: 2;
+    flex-shrink: 0;
+}
+/* Toggle (hamburger) — সবার ডানে */
+.mobile-logo .menu-bar {
+    order: 3;
+    flex-shrink: 0;
 }
 .footer-menu ul li a {
     text-align: center;
@@ -339,6 +400,18 @@
 	}
 .menu-bar {
     margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.menu-bar:hover {
+    background: #e2e8f0;
 }
 
 .menu-bag .margin-shopping {
@@ -362,10 +435,11 @@
     font-size: 22px;
 }
 .menu-bag {
-    margin-top: 0px;
+    margin-top: 0;
+    margin-right: 4px;
     display: flex;
-    justify-content: flex-end;
-    margin-right: 7px;
+    align-items: center;
+    justify-content: center;
 }
 	.menu-bag ul li a {
 	    margin-right: 15px;
