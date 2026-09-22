@@ -57,9 +57,7 @@
                 <table id="datatable-buttons" class="table oi-table order-index-table w-100 mb-0">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" class="form-check-input checkall" value="" aria-label="সব সিলেক্ট"></th>
-                            <th>#</th>
-                            <th>অ্যাকশন</th>
+                            <th style="width: 45px; text-align: center;"><input type="checkbox" class="form-check-input checkall" value="" aria-label="সব সিলেক্ট"></th>
                             <th>ইনভয়েস</th>
                             <th>তারিখ</th>
                             <th>গ্রাহক</th>
@@ -67,5 +65,6 @@
                             <th>পরিমাণ</th>
                             <th>স্ট্যাটাস</th>
                             <th>ফ্রড চেক</th>
+                            <th class="text-end pe-3" style="width: 40px;"><i class="fas fa-ellipsis-v"></i></th>
                         </tr>
                     </thead>

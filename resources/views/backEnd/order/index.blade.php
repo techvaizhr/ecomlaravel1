@@ -10,41 +10,71 @@
 <tbody>
                                 @foreach($show_data as $key => $value)
                                     <tr>
-                                        <td><input type="checkbox" class="checkbox form-check-input" value="{{ $value->id }}"></td>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td class="oi-actions-cell">
-                                            <div class="oi-row-actions">
+                                        {{-- 1. Checkbox + Serial + Quick View --}}
+                                        <td class="text-center align-middle" style="width: 50px;">
+                                            <div class="d-flex flex-column align-items-center gap-1">
+                                                <input type="checkbox" class="checkbox form-check-input m-0" value="{{ $value->id }}">
+                                                <span class="text-muted fw-bold" style="font-size: 11px;">#{{ $loop->iteration }}</span>
                                                 <button type="button"
-                                                    class="oi-act-btn oi-act-view order-quick-view-btn"
+                                                    class="btn btn-xs btn-light p-0 border-0 order-quick-view-btn text-primary rounded-circle"
                                                     data-order-id="{{ $value->id }}"
-                                                    title="বিস্তারিত দেখুন"
-                                                    aria-label="বিস্তারিত দেখুন">
-                                                    <i class="fas fa-eye" aria-hidden="true"></i>
-                                                    <span class="oi-act-label">ভিউ</span>
+                                                    title="কুইক ভিউ"
+                                                    style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; background: #e0f2fe;">
+                                                    <i class="fas fa-eye" style="font-size: 11px;"></i>
                                                 </button>
-                                                <form method="post" action="{{ route('admin.order.destroy') }}" class="oi-act-delete-form">
-                                                    @csrf
-                                                    <input type="hidden" value="{{ $value->id }}" name="id">
-                                                    <button type="submit"
-                                                        title="ডিলিট"
-                                                        aria-label="অর্ডার ডিলিট"
-                                                        class="oi-act-btn oi-act-delete delete-confirm">
-                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                        <span class="oi-act-label">ডিলিট</span>
-                                                    </button>
-                                                </form>
                                             </div>
                                         </td>
-                                        <td><a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" class="oi-invoice-link">#{{ $value->invoice_id }}</a></td>
-                                        <td>
-                                            {{ date('d-m-Y', strtotime($value->updated_at)) }}<br>
-                                            {{ date('h:i:s a', strtotime($value->updated_at)) }}
+
+                                        {{-- 2. Invoice --}}
+                                        <td class="align-middle">
+                                            <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" class="oi-invoice-link fw-bold text-primary">#{{ $value->invoice_id }}</a>
                                         </td>
-                                        <td>
-                                            <strong>{{ $value->shipping ? $value->shipping->name : '' }}</strong>
-                                            <p class="mb-0">{{ $value->shipping ? $value->shipping->phone : '' }}</p>
+
+                                        {{-- 3. Date & Time --}}
+                                        <td class="align-middle text-nowrap" style="font-size: 12px;">
+                                            <div>{{ date('d-m-Y', strtotime($value->updated_at)) }}</div>
+                                            <small class="text-muted">{{ date('h:i:s A', strtotime($value->updated_at)) }}</small>
                                         </td>
-                                        <td>
+
+                                        {{-- 4. Customer with Call, WhatsApp, Copy & Address --}}
+                                        <td class="align-middle" style="min-width: 210px;">
+                                            @php
+                                                $custName = $value->shipping ? $value->shipping->name : ($value->customer ? $value->customer->name : 'N/A');
+                                                $custPhone = $value->shipping ? $value->shipping->phone : ($value->customer ? $value->customer->phone : '');
+                                                $custAddr = $value->shipping ? $value->shipping->address : ($value->customer ? $value->customer->address : '');
+                                            @endphp
+                                            <div class="fw-bold text-dark" style="font-size: 13.5px;">{{ $custName }}</div>
+                                            @if($custPhone)
+                                                <div class="d-flex align-items-center gap-1 mt-1">
+                                                    <span class="text-secondary fw-semibold" style="font-size: 12px;">{{ $custPhone }}</span>
+                                                    <a href="tel:{{ $custPhone }}" class="btn btn-xs btn-outline-primary p-0 d-inline-flex align-items-center justify-content-center rounded" style="width: 22px; height: 22px;" title="কল করুন">
+                                                        <i class="fas fa-phone-alt" style="font-size: 10px;"></i>
+                                                    </a>
+                                                    @php
+                                                        $cleanPhone = preg_replace('/[^0-9]/', '', $custPhone);
+                                                        if (str_starts_with($cleanPhone, '0')) {
+                                                            $waPhone = '88' . $cleanPhone;
+                                                        } else {
+                                                            $waPhone = $cleanPhone;
+                                                        }
+                                                    @endphp
+                                                    <a href="https://wa.me/{{ $waPhone }}" target="_blank" class="btn btn-xs btn-outline-success p-0 d-inline-flex align-items-center justify-content-center rounded" style="width: 22px; height: 22px;" title="হোয়াটসঅ্যাপ মেসেজ">
+                                                        <i class="fab fa-whatsapp" style="font-size: 11px;"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-xs btn-outline-secondary p-0 d-inline-flex align-items-center justify-content-center rounded copy-phone-btn" data-phone="{{ $custPhone }}" style="width: 22px; height: 22px;" title="নাম্বার কপি করুন">
+                                                        <i class="far fa-copy" style="font-size: 10px;"></i>
+                                                    </button>
+                                                </div>
+                                            @endif
+                                            @if(!empty($custAddr))
+                                                <div class="text-muted mt-1" style="font-size: 11.5px; line-height: 1.35; max-width: 240px;">
+                                                    <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 10px;"></i>{{ $custAddr }}
+                                                </div>
+                                            @endif
+                                        </td>
+
+                                        {{-- 5. Traffic Source (Name only) --}}
+                                        <td class="align-middle">
                                             @php
                                                 $tsKey = strtolower(trim((string) ($value->traffic_source ?? 'direct')));
                                                 $trafficOpts = isset($traffic_source_options) ? $traffic_source_options : [];
@@ -63,16 +93,12 @@
                                                     'other' => 'bg-warning',
                                                     default => 'bg-secondary',
                                                 };
-                                                $tsTitleTip = isset($value->traffic_referrer) ? trim((string) $value->traffic_referrer) : '';
                                             @endphp
-                                            <span class="badge {{ $tsBadgeClass }}" @if($tsTitleTip !== '') title="{{ Str::limit($tsTitleTip, 240) }}" @endif>{{ Str::limit($tsLabel, 16) }}</span>
-                                            @if($tsTitleTip !== '')
-                                                <br><small class="text-muted" style="font-size: .68rem;">{{ Str::limit($tsTitleTip, 42) }}</small>
-                                            @endif
+                                            <span class="badge {{ $tsBadgeClass }} px-2 py-1" style="font-size: 11px; font-weight: 600;">{{ $tsLabel }}</span>
                                         </td>
 
-                                        {{-- Amount (show remaining if partial paid) --}}
-                                        <td>
+                                        {{-- 6. Amount --}}
+                                        <td class="align-middle text-nowrap">
                                             @php
                                                 $payment = \App\Models\Payment::where('order_id', $value->id)->first();
                                                 $paid = $payment ? floatval($payment->amount) : 0;
@@ -82,23 +108,21 @@
                                                     $showAmount = $total - $paid;
                                                 }
                                             @endphp
-                                            <span class="oi-amount">৳{{ number_format($showAmount, 2) }}</span>
+                                            <span class="oi-amount fw-bold text-dark" style="font-size: 14px;">৳{{ number_format($showAmount, 2) }}</span>
                                         </td>
 
-                                        <td><span class="oi-status-pill">{{ $value->status ? $value->status->name : '—' }}</span></td>
+                                        {{-- 7. Status --}}
+                                        <td class="align-middle text-nowrap">
+                                            <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11.5px; font-weight: 600;">{{ $value->status ? $value->status->name : '—' }}</span>
+                                        </td>
 
-                                        <td>
-                                            {{-- 
-                                                LOGIC:
-                                                - is_null() ব্যবহার করা হয়েছে কারণ 0 একটি ভ্যালিড রেট হতে পারে (ফ্রড)।
-                                                - NULL হলে "যাচাই করুন" (হলুদ)।
-                                                - অন্যথায় রেট দেখাবে (সবুজ/লাল)।
-                                            --}}
+                                        {{-- 8. Fraud Check --}}
+                                        <td class="align-middle text-nowrap">
                                             @if(is_null($value->fraud_rate))
-                                                 <a href="javascript:void(0);" 
+                                                <a href="javascript:void(0);" 
                                                 class="btn btn-sm fraud-check"
                                                 data-mobile="{{ $value->shipping ? $value->shipping->phone : '' }}"
-                                                style="background:#fb8709; color:#fff; padding:5px 12px; border-radius:6px; font-size:13px;">
+                                                style="background:#fb8709; color:#fff; padding:4px 10px; border-radius:6px; font-size:12px;">
                                                 চেকিং
                                             </a>
                                             @else
@@ -106,12 +130,71 @@
                                                    class="btn btn-sm fraud-check {{ $value->fraud_rate >= 80 ? 'btn-success' : 'btn-danger' }}"
                                                    data-mobile="{{ $value->shipping ? $value->shipping->phone : '' }}"
                                                    data-id="{{ $value->id }}"
-                                                   style="padding:5px 12px; border-radius:6px; font-size:13px;">
+                                                   style="padding:4px 10px; border-radius:6px; font-size:12px;">
                                                     {{ $value->fraud_rate }}% {{ $value->fraud_rate >= 80 ? 'নিরাপদ' : 'ঝুঁকি' }}
                                                 </a>
                                             @endif
                                         </td>
 
+                                        {{-- 9. 3-Dot Actions Menu --}}
+                                        <td class="align-middle text-end pe-3" style="width: 40px;">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light border p-1 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="অ্যাকশন">
+                                                    <i class="fas fa-ellipsis-v text-muted" style="font-size: 13px;"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="font-size: 13px; min-width: 180px;">
+                                                    <li>
+                                                        <a class="dropdown-item order-quick-view-btn py-1 d-flex align-items-center gap-2" href="javascript:void(0);" data-order-id="{{ $value->id }}">
+                                                            <i class="fas fa-eye text-primary" style="width: 16px;"></i> বিস্তারিত ভিউ
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item py-1 d-flex align-items-center gap-2" href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}">
+                                                            <i class="fas fa-tasks text-info" style="width: 16px;"></i> প্রসেস / স্ট্যাটাস
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item py-1 d-flex align-items-center gap-2" href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}">
+                                                            <i class="fas fa-edit text-warning" style="width: 16px;"></i> অর্ডার এডিট
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item py-1 d-flex align-items-center gap-2" target="_blank" href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}">
+                                                            <i class="fas fa-print text-secondary" style="width: 16px;"></i> ইনভয়েস প্রিন্ট
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item py-1 d-flex align-items-center gap-2" target="_blank" href="{{ route('admin.order.order_print') }}?order_ids[]={{ $value->id }}&type=label">
+                                                            <i class="fas fa-tag text-success" style="width: 16px;"></i> লেবেল প্রিন্ট
+                                                        </a>
+                                                    </li>
+                                                    @if(isset($steadfast) && $steadfast)
+                                                    <li>
+                                                        <a class="dropdown-item py-1 d-flex align-items-center gap-2" href="{{ route('admin.bulk_courier', 'steadfast') }}?order_ids[]={{ $value->id }}&status=5">
+                                                            <i class="fas fa-truck text-danger" style="width: 16px;"></i> Steadfast বুকিং
+                                                        </a>
+                                                    </li>
+                                                    @endif
+                                                    @if(isset($pathao_info) && $pathao_info)
+                                                    <li>
+                                                        <a class="dropdown-item single-pathao-btn py-1 d-flex align-items-center gap-2" href="javascript:void(0);" data-order-id="{{ $value->id }}">
+                                                            <i class="fas fa-motorcycle text-danger" style="width: 16px;"></i> Pathao বুকিং
+                                                        </a>
+                                                    </li>
+                                                    @endif
+                                                    <li><hr class="dropdown-divider my-1"></li>
+                                                    <li>
+                                                        <form method="post" action="{{ route('admin.order.destroy') }}" class="d-inline m-0">
+                                                            @csrf
+                                                            <input type="hidden" value="{{ $value->id }}" name="id">
+                                                            <button type="submit" class="dropdown-item py-1 text-danger delete-confirm d-flex align-items-center gap-2">
+                                                                <i class="fas fa-trash-alt" style="width: 16px;"></i> ডিলিট করুন
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -1287,6 +1370,41 @@ $(document).ready(function(){
                 toastr.error(errorMsg);
             }
         });
+    });
+
+    // Copy Customer Phone Number
+    $(document).on('click', '.copy-phone-btn', function(e) {
+        e.preventDefault();
+        var phone = $(this).data('phone');
+        if (!phone) return;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(phone).then(function() {
+                toastr.success('ফোন নাম্বার কপি করা হয়েছে: ' + phone);
+            }).catch(function() {
+                fallbackCopyText(phone);
+            });
+        } else {
+            fallbackCopyText(phone);
+        }
+    });
+
+    function fallbackCopyText(text) {
+        var tempInput = document.createElement("input");
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        toastr.success('ফোন নাম্বার কপি করা হয়েছে: ' + text);
+    }
+
+    // Single Pathao Booking Modal Trigger
+    $(document).on('click', '.single-pathao-btn', function(e) {
+        e.preventDefault();
+        var orderId = $(this).data('order-id');
+        $('#pathao_order_ids').val(orderId);
+        $('#pathao').modal('show');
     });
 
 });
