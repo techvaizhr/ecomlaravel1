@@ -169,7 +169,7 @@
 
           <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
             <li>
-              <button class="button-menu-mobile waves-effect waves-light">
+              <button class="button-menu-mobile waves-effect waves-light" id="sidebar-toggle-btn" title="Toggle Sidebar">
                 <i class="fe-menu"></i>
               </button>
             </li>
@@ -195,815 +195,861 @@
       </div>
       <!-- end Topbar -->
 
-      <!-- ========== Left Sidebar Start ========== -->
-      <div class="left-side-menu">
-        <div class="h-100" data-simplebar>
-          <!-- User box -->
-          <div class="user-box text-center">
-            <img src="{{asset('public/backEnd/')}}/assets/images/users/user-1.jpg" alt="user-img" title="Mat Helme" class="rounded-circle avatar-md" />
-            <div class="dropdown">
-              <a href="javascript: void(0);" class="text-dark dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown">{{Auth::guard('admin')->user()->name}}</a>
-              <div class="dropdown-menu user-pro-dropdown">
-                <!-- item-->
-                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                  <i class="fe-user me-1"></i>
-                  <span>My Account</span>
-                </a>
-
-                <!-- item-->
-                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                  <i class="fe-settings me-1"></i>
-                  <span>Settings</span>
-                </a>
-
-                <!-- item-->
-                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                  <i class="fe-lock me-1"></i>
-                  <span>Lock Screen</span>
-                </a>
-
-                <!-- item-->
-                <a
-                  href="{{ route('logout') }}"
-                  onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();"
-                  class="dropdown-item notify-item"
-                >
-                  <i class="fe-log-out me-1"></i>
-                  <span>Logout</span>
-                </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                  @csrf
-                </form>
-              </div>
-            </div>
-            <p class="text-muted">Admin Head</p>
-          </div>
-
-          <!--- Sidemenu -->
-          <div id="sidebar-menu">
-            <ul id="side-menu">
+      <!-- ========== Left Two-Column Sidebar Start ========== -->
 @php
   use Illuminate\Support\Facades\Auth;
   $user = Auth::guard('admin')->user();
   $pending_reviews = \App\Models\Review::where('status', 'pending')->count();
-@endphp
-
-{{-- ==================== 1. MAIN ==================== --}}
-<li class="menu-title">Main</li>
-
-@can('dashboard-view')
-<li class="{{ request()->is('admin/dashboard') ? 'menuitem-active' : '' }}">
-  <a href="{{ url('admin/dashboard') }}" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
-    <i data-feather="airplay"></i>
-    <span> Dashboard </span>
-  </a>
-</li>
-<li class="{{ request()->routeIs('admin.gemini_chat.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.gemini_chat.index') }}" class="{{ request()->routeIs('admin.gemini_chat.*') ? 'active' : '' }}">
-    <i data-feather="message-circle"></i>
-    <span> Gemini Assistant </span>
-  </a>
-</li>
-@endcan
-
-@can('order-create')
-<li class="{{ request()->routeIs('admin.order.create') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.order.create') }}" class="{{ request()->routeIs('admin.order.create') ? 'active' : '' }}">
-    <i data-feather="cpu"></i>
-    <span> POS System </span>
-  </a>
-</li>
-@endcan
-
-
-{{-- ==================== 2. SALES & ORDERS ==================== --}}
-<li class="menu-title">Sales & Orders</li>
-
-@canany(['order-list', 'order-edit', 'order-create'])
-<li class="{{ request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-orders" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block') ? 'active' : '' }}">
-    <i data-feather="shopping-cart"></i>
-    <span> Orders </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block') ? 'show' : '' }}" id="sidebar-orders">
-    <ul class="nav-second-level">
-      @can('order-list')
-      <li><a href="{{ route('admin.orders', ['slug'=>'all']) }}"><i data-feather="file-plus"></i> All Order</a></li>
-      <li><a href="{{ route('admin.reseller-orders.index') }}"><i data-feather="users"></i> Reseller Orders</a></li>
-      <li><a href="{{ route('admin.incomplete-orders.index') }}"><i data-feather="file-plus"></i> Incomplete Orders</a></li>
-      @if(isset($orderstatus))
-        @foreach($orderstatus as $value)
-          <li><a href="{{ route('admin.orders', ['slug'=>$value->slug]) }}"><i data-feather="file-plus"></i> {{ $value->name }}</a></li>
-        @endforeach
-      @endif
-      @endcan
-      @can('order-edit')
-      <li><a href="{{ route('orderstatus.index') }}"><i data-feather="file-plus"></i> Order Status</a></li>
-      @endcan
-      @can('order-manage')
-      <li><a href="{{ route('customers.ip_block') }}"><i data-feather="file-plus"></i> IP Block</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['order-list', 'order-edit'])
-<li class="{{ request()->routeIs('admin.refunds.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-refunds" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.refunds.*') ? 'active' : '' }}">
-    <i data-feather="rotate-ccw"></i>
-    <span> Refunds </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.refunds.*') ? 'show' : '' }}" id="sidebar-refunds">
-    <ul class="nav-second-level">
-      <li><a href="{{ route('admin.refunds.index') }}"><i data-feather="list"></i> All Refunds</a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}"><i data-feather="clock"></i> Pending Refunds</a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}"><i data-feather="check-circle"></i> Approved Refunds</a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}"><i data-feather="check"></i> Processed Refunds</a></li>
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@can('fraud-check')
-<li class="{{ request()->routeIs('manualFraud.page') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('manualFraud.page') }}" class="{{ request()->routeIs('manualFraud.page') ? 'active' : '' }}">
-    <i data-feather="search"></i>
-    <span> Manual Fraud Check </span>
-  </a>
-</li>
-@endcan
-
-@canany(['setting-list', 'setting-edit'])
-<li class="{{ request()->routeIs('admin.order.restriction.setting.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.order.restriction.setting.index') }}" class="{{ request()->routeIs('admin.order.restriction.setting.*') ? 'active' : '' }}">
-    <i data-feather="clock"></i>
-    <span> Order Restriction </span>
-  </a>
-</li>
-@endcanany
-
-
-{{-- ==================== 3. CATALOG & INVENTORY ==================== --}}
-<li class="menu-title">Catalog & Inventory</li>
-
-@canany(['product-list', 'category-list', 'subcategory-list', 'childcategory-list', 'brand-list', 'color-list', 'size-list'])
-<li class="{{ request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale') ? 'menuitem-active' : '' }}">
-  <a href="#siebar-product" data-bs-toggle="collapse" class="{{ request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale') ? 'active' : '' }}">
-    <i data-feather="package"></i>
-    <span> Products </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale') ? 'show' : '' }}" id="siebar-product">
-    <ul class="nav-second-level">
-      @can('product-list')
-      <li><a href="{{ route('inhouse.products.index') }}"><i data-feather="package"></i> All Inhouse Products</a></li>
-      <li><a href="{{ route('products.index') }}"><i data-feather="shopping-bag"></i> All Vendor Products</a></li>
-      <li><a href="{{ route('products.pending') }}"><i data-feather="clock"></i> Pending Products</a></li>
-      <li><a href="{{ route('admin.products.wholesale') }}"><i data-feather="layers"></i> Wholesale Products</a></li>
-      @endcan
-      @can('product-create')
-      <li><a href="{{ route('products.create') }}"><i data-feather="plus-circle"></i> Add Product</a></li>
-      @endcan
-      <li><hr class="dropdown-divider"></li>
-      @can('category-list')
-      <li><a href="{{ route('categories.index') }}"><i data-feather="file-plus"></i> Categories</a></li>
-      @endcan
-      @can('subcategory-list')
-      <li><a href="{{ route('subcategories.index') }}"><i data-feather="file-plus"></i> Subcategories</a></li>
-      @endcan
-      @can('childcategory-list')
-      <li><a href="{{ route('childcategories.index') }}"><i data-feather="file-plus"></i> Childcategories</a></li>
-      @endcan
-      @canany(['brand-list', 'brand-create', 'brand-edit'])
-      <li><a href="{{ route('brands.index') }}"><i data-feather="file-plus"></i> Brands</a></li>
-      @endcanany
-      @canany(['color-list', 'color-create', 'color-edit'])
-      <li><a href="{{ route('colors.index') }}"><i data-feather="file-plus"></i> Colors</a></li>
-      @endcanany
-      @canany(['size-list', 'size-create', 'size-edit'])
-      <li><a href="{{ route('sizes.index') }}"><i data-feather="file-plus"></i> Sizes</a></li>
-      @endcanany
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['purchase-list', 'purchase-create', 'purchase-edit'])
-<li class="{{ request()->routeIs('purchases.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('purchases.index') }}" class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
-    <i data-feather="file-text"></i>
-    <span> Purchases </span>
-  </a>
-</li>
-@endcanany
-
-@canany(['supplier-list', 'supplier-create', 'supplier-edit'])
-<li class="{{ request()->routeIs('admin.suppliers.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.suppliers.index') }}" class="{{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
-    <i data-feather="truck"></i>
-    <span> Suppliers </span>
-  </a>
-</li>
-@endcanany
-
-
-{{-- ==================== 4. PEOPLE & PARTNERS ==================== --}}
-<li class="menu-title">People & Partners</li>
-
-@canany(['user-list', 'role-list', 'permission-list', 'customer-list'])
-<li class="{{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-users" data-bs-toggle="collapse" class="{{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'active' : '' }}">
-    <i data-feather="users"></i>
-    <span> Users & Customers </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'show' : '' }}" id="sidebar-users">
-    <ul class="nav-second-level">
-      @canany(['customer-list', 'customer-create', 'customer-edit'])
-      <li><a href="{{ route('customers.index') }}"><i data-feather="file-plus"></i> Customers</a></li>
-      @endcanany
-      @can('user-list')
-      <li><a href="{{ route('users.index') }}"><i data-feather="file-plus"></i> Users</a></li>
-      @endcan
-      @can('role-list')
-      <li><a href="{{ route('roles.index') }}"><i data-feather="file-plus"></i> Roles</a></li>
-      @endcan
-      @can('permission-list')
-      <li><a href="{{ route('permissions.index') }}"><i data-feather="file-plus"></i> Permissions</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@php
   $vendorEnabled = (isset($generalsetting) && $generalsetting) ? (isset($generalsetting->vendor_enabled) ? $generalsetting->vendor_enabled : 1) : 1;
-@endphp
-@if($vendorEnabled == 1)
-@canany(['vendor-list', 'vendor-create', 'vendor-edit', 'vendor-verification', 'vendor-withdrawal'])
-@php
-  $pendingVerificationCount = \App\Models\Vendor::where('verification_status', 'pending')->count();
-@endphp
-<li class="{{ request()->routeIs('admin.vendors.*', 'admin.vendor.verification.*', 'admin.vendor.withdrawals.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-vendors" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.vendors.*', 'admin.vendor.verification.*', 'admin.vendor.withdrawals.*') ? 'active' : '' }}">
-    <i data-feather="shopping-bag"></i>
-    <span> Vendors </span>
-    @if($pendingVerificationCount > 0)
-      <span class="badge bg-danger rounded-pill float-end">{{ $pendingVerificationCount }}</span>
-    @else
-      <span class="menu-arrow"></span>
-    @endif
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.vendors.*', 'admin.vendor.verification.*', 'admin.vendor.withdrawals.*') ? 'show' : '' }}" id="sidebar-vendors">
-    <ul class="nav-second-level">
-      @can('vendor-list')
-      <li><a href="{{ route('admin.vendors.index') }}"><i data-feather="file-plus"></i> All Vendors</a></li>
-      @endcan
-      @can('vendor-verification')
-      <li>
-        <a href="{{ route('admin.vendor.verification.index') }}">
-          <i data-feather="shield"></i> Vendor Verifications
-          @if($pendingVerificationCount > 0)
-            <span class="badge bg-danger rounded-pill float-end"> {{ $pendingVerificationCount }}</span>
-          @endif
-        </a>
-      </li>
-      @endcan
-      @can('vendor-withdrawal')
-      <li><a href="{{ route('admin.vendor.withdrawals.index') }}"><i data-feather="dollar-sign"></i> Vendor Withdrawals</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-@endif
-
-@php
   $resellerEnabled = (isset($generalsetting) && $generalsetting) ? (isset($generalsetting->reseller_enabled) ? $generalsetting->reseller_enabled : 1) : 1;
+
+  // Determine active section based on current route
+  $activeSection = 'section-main';
+  if (request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*', 'admin.vendors.*', 'admin.vendor.*', 'admin.resellers.*', 'admin.reseller.*', 'admin.reseller-deposits.*', 'admin.delivery.*', 'admin.delivery-boys.*', 'admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*')) {
+      $activeSection = 'section-people';
+  } elseif (request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block', 'admin.refunds.*', 'manualFraud.page', 'admin.order.restriction.setting.*') || request()->is('admin/orders/*')) {
+      $activeSection = 'section-orders';
+  } elseif (request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale', 'purchases.*', 'admin.suppliers.*')) {
+      $activeSection = 'section-catalog';
+  } elseif (request()->routeIs('admin.fund.*', 'admin.expenses.*')) {
+      $activeSection = 'section-finance';
+  } elseif (request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*', 'paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*', 'email_setting*', 'backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*', 'admin.seo_settings.*', 'admin.sitemap.*', 'admin.cron.*', 'error-log.*')) {
+      $activeSection = 'section-settings';
+  } elseif (request()->routeIs('admin.ads_analytics.*', 'tagmanagers.*', 'pixels.*', 'tiktok.pixels.*', 'admin.facebook_page.*', 'admin.reports.*')) {
+      $activeSection = 'section-analytics';
+  } elseif (request()->routeIs('campaign.*', 'admin.coupons.*', 'banners.*', 'admin.popup.*', 'admin.sale-notification.*', 'reviews.*', 'admin.blog.*', 'admin.sms.custom.*')) {
+      $activeSection = 'section-marketing';
+  }
 @endphp
-@if($resellerEnabled == 1)
-@canany(['reseller-list', 'reseller-create', 'reseller-edit', 'reseller-verification', 'reseller-withdrawal'])
-@php
-  $pendingResellerVerificationCount = \App\Models\User::where('role', 'reseller')->where('verification_status', 'pending')->count();
-  $pendingResellerWithdrawalCount = \App\Models\ResellerWithdrawal::where('status', 'pending')->count();
-  $pendingDepositCount = \App\Models\ResellerDeposit::where('status', 'pending')->count();
-@endphp
-<li class="{{ request()->routeIs('admin.resellers.*', 'admin.reseller.verification.*', 'admin.reseller.withdrawals.*', 'admin.reseller-deposits.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-resellers" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.resellers.*', 'admin.reseller.verification.*', 'admin.reseller.withdrawals.*', 'admin.reseller-deposits.*') ? 'active' : '' }}">
-    <i data-feather="user-check"></i>
-    <span> Resellers </span>
-    @if(($pendingResellerVerificationCount + $pendingResellerWithdrawalCount + $pendingDepositCount) > 0)
-      <span class="badge bg-danger rounded-pill float-end">{{ $pendingResellerVerificationCount + $pendingResellerWithdrawalCount + $pendingDepositCount }}</span>
-    @else
-      <span class="menu-arrow"></span>
-    @endif
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.resellers.*', 'admin.reseller.verification.*', 'admin.reseller.withdrawals.*', 'admin.reseller-deposits.*') ? 'show' : '' }}" id="sidebar-resellers">
-    <ul class="nav-second-level">
-      @can('reseller-list')
-      <li><a href="{{ route('admin.resellers.index') }}"><i data-feather="file-plus"></i> All Resellers</a></li>
-      @endcan
-      @can('reseller-withdrawal')
-      <li>
-        <a href="{{ route('admin.reseller-deposits.index') }}">
-          <i data-feather="credit-card"></i> Reseller Deposits
-          @if($pendingDepositCount > 0)
-            <span class="badge bg-warning rounded-pill float-end">{{ $pendingDepositCount }}</span>
-          @endif
-        </a>
-      </li>
-      @endcan
-      @can('reseller-verification')
-      <li>
-        <a href="{{ route('admin.reseller.verification.index') }}">
-          <i data-feather="shield"></i> Verifications
-          @if($pendingResellerVerificationCount > 0)
-            <span class="badge bg-danger rounded-pill float-end">{{ $pendingResellerVerificationCount }}</span>
-          @endif
-        </a>
-      </li>
-      @endcan
-      @can('reseller-withdrawal')
-      <li>
-        <a href="{{ route('admin.reseller.withdrawals.index') }}">
-          <i data-feather="dollar-sign"></i> Withdrawals
-          @if($pendingResellerWithdrawalCount > 0)
-            <span class="badge bg-warning rounded-pill float-end">{{ $pendingResellerWithdrawalCount }}</span>
-          @endif
-        </a>
-      </li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-@endif
 
-@canany(['shipping-list', 'shipping-create', 'shipping-edit', 'delivery-boy-list', 'delivery-withdrawal-list', 'delivery-location-list'])
-<li class="{{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-delivery-module" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'active' : '' }}">
-    <i data-feather="truck"></i>
-    <span> Delivery / Riders </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'show' : '' }}" id="sidebar-delivery-module">
-    <ul class="nav-second-level">
-      @can('delivery-boy-list')
-      <li><a href="{{ route('admin.delivery-boys.index') }}"><i data-feather="users"></i> Delivery persons</a></li>
-      @endcan
-      @can('delivery-withdrawal-list')
-      <li><a href="{{ route('admin.delivery-boys.withdrawals') }}"><i data-feather="dollar-sign"></i> Rider withdrawals</a></li>
-      @endcan
-      @can('delivery-location-list')
-      <li><a href="{{ route('admin.delivery.divisions.index') }}"><i data-feather="map-pin"></i> Delivery locations</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['employee-list', 'attendance-list', 'leave-list', 'salary-list', 'bonus-list', 'salary-payment-list'])
-<li class="{{ request()->routeIs('admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-crm" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*') ? 'active' : '' }}">
-    <i data-feather="briefcase"></i>
-    <span> CRM / HR </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*') ? 'show' : '' }}" id="sidebar-crm">
-    <ul class="nav-second-level">
-      @can('employee-list')
-      <li><a href="{{ route('admin.employees.index') }}"><i data-feather="user"></i> Employees</a></li>
-      @endcan
-      @can('attendance-list')
-      <li><a href="{{ route('admin.attendances.index') }}"><i data-feather="check-circle"></i> Attendance</a></li>
-      @endcan
-      @can('leave-list')
-      <li><a href="{{ route('admin.leaves.index') }}"><i data-feather="calendar"></i> Leaves</a></li>
-      @endcan
-      @can('salary-list')
-      <li><a href="{{ route('admin.salaries.index') }}"><i data-feather="dollar-sign"></i> Salaries</a></li>
-      @endcan
-      @can('bonus-list')
-      <li><a href="{{ route('admin.bonuses.index') }}"><i data-feather="gift"></i> Bonuses</a></li>
-      @endcan
-      @can('salary-payment-list')
-      <li><a href="{{ route('admin.salary_payments.index') }}"><i data-feather="credit-card"></i> Salary Payments</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-
-{{-- ==================== 5. MARKETING & PROMOTIONS ==================== --}}
-<li class="menu-title">Marketing & Promotions</li>
-
-@canany(['campaign-list', 'campaign-create'])
-<li class="{{ request()->routeIs('campaign.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-landing-page" data-bs-toggle="collapse" class="{{ request()->routeIs('campaign.*') ? 'active' : '' }}">
-    <i data-feather="airplay"></i>
-    <span> Landing Page </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('campaign.*') ? 'show' : '' }}" id="sidebar-landing-page">
-    <ul class="nav-second-level">
-      @can('campaign-list')
-      <li><a href="{{ route('campaign.index') }}"><i data-feather="file-plus"></i> Campaign</a></li>
-      @endcan
-      @can('campaign-create')
-      <li><a href="{{ route('campaign.create') }}"><i data-feather="file-plus"></i> Create</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['coupon-list', 'coupon-create', 'coupon-edit', 'coupon-delete'])
-<li class="{{ request()->routeIs('admin.coupons.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-coupon" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
-    <i data-feather="gift"></i>
-    <span> Coupons </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.coupons.*') ? 'show' : '' }}" id="sidebar-coupon">
-    <ul class="nav-second-level">
-      @can('coupon-list')
-      <li>
-        <a href="{{ route('admin.coupons.index') }}">
-          <i data-feather="list"></i> All Coupons
-        </a>
-      </li>
-      @endcan
-      @can('coupon-create')
-      <li>
-        <a href="{{ route('admin.coupons.create') }}">
-          <i data-feather="plus-circle"></i> Add New
-        </a>
-      </li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['banner-list'])
-<li class="{{ request()->routeIs('banners.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('banners.index') }}" class="{{ request()->routeIs('banners.*') ? 'active' : '' }}">
-    <i data-feather="image"></i>
-    <span> Banner & Sliders </span>
-  </a>
-</li>
-@endcanany
-
-@canany(['popup-list', 'popup-manage', 'setting-list'])
-<li class="{{ request()->routeIs('admin.popup.*', 'admin.sale-notification.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-popups" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.popup.*', 'admin.sale-notification.*') ? 'active' : '' }}">
-    <i data-feather="bell"></i>
-    <span> Popups & Alerts </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.popup.*', 'admin.sale-notification.*') ? 'show' : '' }}" id="sidebar-popups">
-    <ul class="nav-second-level">
-      @canany(['popup-list', 'popup-manage'])
-      <li><a href="{{ route('admin.popup.index') }}"><i data-feather="message-square"></i> Popup Offer</a></li>
-      @endcanany
-      @can('setting-list')
-      <li><a href="{{ route('admin.sale-notification.index') }}"><i data-feather="bell"></i> Sales Notification Popup</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@can('review-list')
-<li class="{{ request()->routeIs('reviews.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-product-review" data-bs-toggle="collapse" class="{{ request()->routeIs('reviews.*') ? 'active' : '' }}">
-    <i data-feather="star"></i>
-    <span> Reviews </span>
-    @if($pending_reviews > 0)
-      <span class="badge bg-warning rounded-pill float-end">{{ $pending_reviews }}</span>
-    @else
-      <span class="menu-arrow"></span>
-    @endif
-  </a>
-  <div class="collapse {{ request()->routeIs('reviews.*') ? 'show' : '' }}" id="sidebar-product-review">
-    <ul class="nav-second-level">
-      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> Pending Reviews ({{ $pending_reviews }})</a></li>
-      <li><a href="{{ route('reviews.index') }}"><i data-feather="file-plus"></i> All Reviews</a></li>
-      @can('review-create')
-      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> Create</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcan
-
-@canany(['blog-list', 'blog-create', 'blog-edit', 'blog-delete'])
-<li class="{{ request()->routeIs('admin.blog.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-blog" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
-    <i data-feather="edit"></i>
-    <span> Blog </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.blog.*') ? 'show' : '' }}" id="sidebar-blog">
-    <ul class="nav-second-level">
-      @can('blog-list')
-      <li>
-        <a href="{{ route('admin.blog.index') }}">
-          <i data-feather="list"></i> All Blogs
-        </a>
-      </li>
-      @endcan
-      @can('blog-create')
-      <li>
-        <a href="{{ route('admin.blog.create') }}">
-          <i data-feather="plus-circle"></i> Add New Blog
-        </a>
-      </li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@can('sms-send')
-<li class="{{ request()->routeIs('admin.sms.custom.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.sms.custom.page') }}" class="{{ request()->routeIs('admin.sms.custom.*') ? 'active' : '' }}">
-    <i data-feather="send"></i>
-    <span> Send Custom SMS </span>
-  </a>
-</li>
-@endcan
-
-
-{{-- ==================== 6. ANALYTICS & REPORTS ==================== --}}
-<li class="menu-title">Analytics & Reports</li>
-
-@canany(['pixel-manage'])
-<li class="{{ request()->routeIs('admin.ads_analytics.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-ads-analytics" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.ads_analytics.*') ? 'active' : '' }}">
-    <i data-feather="trending-up"></i>
-    <span> Live Ads Result </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.ads_analytics.*') ? 'show' : '' }}" id="sidebar-ads-analytics">
-    <ul class="nav-second-level">
-      <li><a href="{{ route('admin.ads_analytics.dashboard') }}"><i data-feather="layout"></i> Overview</a></li>
-      <li><a href="{{ route('admin.ads_analytics.facebook') }}"><i data-feather="facebook"></i> Facebook Ads</a></li>
-      <li><a href="{{ route('admin.ads_analytics.google') }}"><i data-feather="globe"></i> Google Ads</a></li>
-      <li><a href="{{ route('admin.ads_analytics.tiktok') }}"><i data-feather="video"></i> TikTok Ads</a></li>
-    </ul>
-  </div>
-</li>
-
-<li class="{{ request()->routeIs('tagmanagers.*', 'pixels.*', 'tiktok.pixels.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-pixel-gtm" data-bs-toggle="collapse" class="{{ request()->routeIs('tagmanagers.*', 'pixels.*', 'tiktok.pixels.*') ? 'active' : '' }}">
-    <i data-feather="save"></i>
-    <span> G. Pixel and GTM </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('tagmanagers.*', 'pixels.*', 'tiktok.pixels.*') ? 'show' : '' }}" id="sidebar-pixel-gtm">
-    <ul class="nav-second-level">
-      <li><a href="{{ route('tagmanagers.index') }}"><i data-feather="file-plus"></i> Tag Manager</a></li>
-      <li><a href="{{ route('pixels.index') }}"><i data-feather="file-plus"></i> Pixel Manage</a></li>
-      <li><a href="{{ route('tiktok.pixels.index') }}"><i data-feather="film"></i> TikTok Pixel</a></li>
-    </ul>
-  </div>
-</li>
-
-<li class="{{ request()->routeIs('admin.facebook_page.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.facebook_page.settings') }}" class="{{ request()->routeIs('admin.facebook_page.*') ? 'active' : '' }}">
-    <i data-feather="share-2"></i>
-    <span> Facebook Page Post </span>
-  </a>
-</li>
-@endcanany
-
-@canany(['report-view','order-report','purchase-report','expense-report','stock-report','profit-loss-report'])
-<li class="{{ request()->routeIs('admin.reports.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-report" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-    <i data-feather="pie-chart"></i>
-    <span> Reports </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.reports.*') ? 'show' : '' }}" id="sidebar-report">
-    <ul class="nav-second-level">
-      @canany(['order-report','report-view'])
-      <li>
-        <a href="{{ route('admin.reports.orders') }}">
-          <i data-feather="file-text"></i> Order Report
-        </a>
-      </li>
-      @endcanany
-
-      @canany(['purchase-report','report-view'])
-      <li>
-        <a href="{{ route('admin.reports.purchases') }}">
-          <i data-feather="shopping-bag"></i> Purchase Report
-        </a>
-      </li>
-      @endcanany
-
-      @canany(['expense-report','report-view'])
-      <li>
-        <a href="{{ route('admin.reports.expenses') }}">
-          <i data-feather="trending-down"></i> Expense Report
-        </a>
-      </li>
-      @endcanany
-
-      @canany(['stock-report','report-view'])
-      <li>
-        <a href="{{ route('admin.reports.stock') }}">
-          <i data-feather="archive"></i> Stock Report
-        </a>
-      </li>
-      @endcanany
-
-      @canany(['profit-loss-report','report-view'])
-      <li>
-        <a href="{{ route('admin.reports.profit_loss') }}">
-          <i data-feather="activity"></i> Profit & Loss
-        </a>
-      </li>
-      @endcanany
-    </ul>
-  </div>
-</li>
-@endcanany
-
-
-{{-- ==================== 7. FINANCE & ACCOUNTS ==================== --}}
-<li class="menu-title">Finance & Accounts</li>
-
-@canany(['fund-list', 'fund-create', 'fund-edit'])
-<li class="{{ request()->routeIs('admin.fund.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.fund.index') }}" class="{{ request()->routeIs('admin.fund.*') ? 'active' : '' }}">
-    <i data-feather="briefcase"></i>
-    <span> Fund / Account </span>
-  </a>
-</li>
-@endcanany
-
-@canany(['expense-list', 'expense-create', 'expense-edit'])
-<li class="{{ request()->routeIs('admin.expenses.*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('admin.expenses.index') }}" class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}">
-    <i data-feather="credit-card"></i>
-    <span> Expenses </span>
-  </a>
-</li>
-@endcanany
-
-
-{{-- ==================== 8. SYSTEM & SETTINGS ==================== --}}
-<li class="menu-title">System & Settings</li>
-
-@canany(['setting-list', 'social-list', 'contact-list', 'page-list'])
-<li class="{{ request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*') ? 'menuitem-active' : '' }}">
-  <a href="#siebar-sitesetting" data-bs-toggle="collapse" class="{{ request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*') ? 'active' : '' }}">
-    <i data-feather="settings"></i>
-    <span> Site Setting </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*') ? 'show' : '' }}" id="siebar-sitesetting">
-    <ul class="nav-second-level">
-      @can('setting-list')
-      <li><a href="{{ route('settings.index') }}"><i data-feather="file-plus"></i> General Setting</a></li>
-      @endcan
-      @can('social-list')
-      <li><a href="{{ route('socialmedias.index') }}"><i data-feather="file-plus"></i> Social Media</a></li>
-      @endcan
-      @can('contact-list')
-      <li><a href="{{ route('contact.index') }}"><i data-feather="file-plus"></i> Contact</a></li>
-      @endcan
-      @canany(['page-list', 'page-create', 'page-edit'])
-      <li><a href="{{ route('pages.index') }}"><i data-feather="file-plus"></i> Create Page</a></li>
-      @endcanany
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['api-manage', 'fraud-setting-list'])
-<li class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-api-integration" data-bs-toggle="collapse" class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'active' : '' }}">
-    <i data-feather="save"></i>
-    <span> API Integration </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'show' : '' }}" id="sidebar-api-integration">
-    <ul class="nav-second-level">
-      @can('api-manage')
-      <li><a href="{{ route('paymentgeteway.manage') }}"><i data-feather="file-plus"></i> Payment Gateway</a></li>
-      <li><a href="{{ route('manual-payment-gateway.manage') }}"><i data-feather="credit-card"></i> Manual Payment</a></li>
-      <li><a href="{{ route('smsgeteway.manage') }}"><i data-feather="file-plus"></i> SMS Gateway</a></li>
-      <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> Courier API</a></li>
-      <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> Facebook CAPI</a></li>
-      <li><a href="{{ route('admin.gemini_ai.edit') }}"><i data-feather="cpu"></i> Gemini AI</a></li>
-      @endcan
-      @can('fraud-setting-list')
-      <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="key"></i> Manage Fraud API</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@can('email-setting-list')
-<li class="{{ request()->routeIs('email_setting*') ? 'menuitem-active' : '' }}">
-  <a href="{{ route('email_setting') }}" class="{{ request()->routeIs('email_setting*') ? 'active' : '' }}">
-    <i data-feather="mail"></i>
-    <span> Email Settings </span>
-  </a>
-</li>
-@endcan
-
-@canany(['complaint-list', 'contact-list', 'newsletter-list'])
-<li class="{{ request()->routeIs('backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-customer-inquiries" data-bs-toggle="collapse" class="{{ request()->routeIs('backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*') ? 'active' : '' }}">
-    <i data-feather="inbox"></i>
-    <span> Customer Inquiries </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*') ? 'show' : '' }}" id="sidebar-customer-inquiries">
-    <ul class="nav-second-level">
-      @canany(['complaint-list', 'complaint-create', 'complaint-edit'])
-      <li><a href="{{ route('backEnd.complaints.index') }}"><i data-feather="alert-circle"></i> Complaints</a></li>
-      @endcanany
-      @can('contact-list')
-      <li><a href="{{ route('admin.contact.messages') }}"><i data-feather="mail"></i> Contact Messages</a></li>
-      @endcan
-      @can('newsletter-list')
-      <li><a href="{{ route('admin.newsletter.subscribers') }}"><i data-feather="mail"></i> Newsletter Subscribers</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['seo-manage', 'sitemap-manage'])
-<li class="{{ request()->routeIs('admin.seo_settings.*', 'admin.sitemap.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-seo-sitemap" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.seo_settings.*', 'admin.sitemap.*') ? 'active' : '' }}">
-    <i data-feather="globe"></i>
-    <span> SEO & Sitemap </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.seo_settings.*', 'admin.sitemap.*') ? 'show' : '' }}" id="sidebar-seo-sitemap">
-    <ul class="nav-second-level">
-      @can('seo-manage')
-      <li><a href="{{ route('admin.seo_settings.index') }}"><i data-feather="globe"></i> SEO Settings</a></li>
-      @endcan
-      @can('sitemap-manage')
-      <li><a href="{{ route('admin.sitemap.index') }}"><i data-feather="map"></i> Sitemap Settings</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-@canany(['api-manage', 'cache-clear', 'error-log-view'])
-<li class="{{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'menuitem-active' : '' }}">
-  <a href="#sidebar-maintenance" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'active' : '' }}">
-    <i data-feather="tool"></i>
-    <span> Maintenance </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'show' : '' }}" id="sidebar-maintenance">
-    <ul class="nav-second-level">
-      @can('api-manage')
-      <li><a href="{{ route('admin.cron.index') }}"><i data-feather="clock"></i> Cron Job</a></li>
-      @endcan
-      @can('cache-clear')
-      <li>
-        <a href="{{ route('admin.clear.cache') }}" onclick="return confirm('Are you sure you want to clear all cache?')">
-          <i data-feather="refresh-cw"></i> Clear Cache
-        </a>
-      </li>
-      @endcan
-      @can('error-log-view')
-      <li><a href="{{ route('error-log.index') }}"><i data-feather="file-text"></i> Error Log</a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
-			  
-            </ul>
+      <div class="left-side-menu two-column-sidebar" id="two-column-sidebar">
+        <!-- 1. LEFT ICON RAIL (Always visible on desktop & in collapsed mode) -->
+        <div class="sidebar-icon-rail">
+          <div class="icon-rail-header">
+            <a href="{{ url('admin/dashboard') }}" class="rail-logo" title="Dashboard">
+              <span class="rail-logo-badge"><i data-feather="grid"></i></span>
+            </a>
           </div>
-		  
-		  
-		  
-          <!-- End Sidebar -->
 
-          <div class="clearfix"></div>
+          <div class="icon-rail-nav">
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-main' ? 'active' : '' }}" data-section="section-main" title="Main Menu" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="grid"></i>
+            </a>
+
+            @canany(['user-list', 'role-list', 'permission-list', 'customer-list', 'vendor-list', 'reseller-list', 'delivery-boy-list', 'employee-list'])
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-people' ? 'active' : '' }}" data-section="section-people" title="People & Partners" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="users"></i>
+            </a>
+            @endcanany
+
+            @canany(['order-list', 'order-edit', 'order-create', 'fraud-check'])
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-orders' ? 'active' : '' }}" data-section="section-orders" title="Sales & Orders" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="shopping-cart"></i>
+              @if(isset($neworder) && $neworder > 0)
+                <span class="rail-badge">{{ $neworder }}</span>
+              @endif
+            </a>
+            @endcanany
+
+            @canany(['product-list', 'category-list', 'subcategory-list', 'childcategory-list', 'brand-list', 'color-list', 'size-list', 'purchase-list', 'supplier-list'])
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-catalog' ? 'active' : '' }}" data-section="section-catalog" title="Catalog & Inventory" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="package"></i>
+            </a>
+            @endcanany
+
+            @canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit'])
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-finance' ? 'active' : '' }}" data-section="section-finance" title="Finance & Accounts" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="dollar-sign"></i>
+            </a>
+            @endcanany
+
+            @canany(['setting-list', 'social-list', 'contact-list', 'api-manage', 'email-setting-list', 'complaint-list', 'seo-manage', 'sitemap-manage', 'cache-clear', 'error-log-view'])
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-settings' ? 'active' : '' }}" data-section="section-settings" title="System & Settings" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="settings"></i>
+            </a>
+            @endcanany
+
+            @canany(['pixel-manage', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-analytics' ? 'active' : '' }}" data-section="section-analytics" title="Analytics & Reports" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="bar-chart-2"></i>
+            </a>
+            @endcanany
+
+            @canany(['campaign-list', 'coupon-list', 'banner-list', 'popup-list', 'review-list', 'blog-list', 'sms-send'])
+            <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-marketing' ? 'active' : '' }}" data-section="section-marketing" title="Marketing & Promotions" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="volume-2"></i>
+              @if($pending_reviews > 0)
+                <span class="rail-badge">{{ $pending_reviews }}</span>
+              @endif
+            </a>
+            @endcanany
+          </div>
+
+          <div class="icon-rail-footer">
+            <a href="{{ route('home') }}" target="_blank" class="rail-item" title="Visit Website" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="globe"></i>
+            </a>
+          </div>
         </div>
-        <!-- Sidebar -left -->
+
+        <!-- 2. SUBMENU PANEL (Collapsible) -->
+        <div class="sidebar-subpanel" id="sidebar-subpanel">
+          <div class="subpanel-header">
+            <div class="store-branding">
+              <a href="{{ url('admin/dashboard') }}" class="store-name-link">
+                <div class="store-avatar">
+                  <img src="{{ asset(isset($generalsetting->white_logo) && $generalsetting->white_logo ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png') }}" alt="Logo" />
+                </div>
+                <div class="store-info">
+                  <h6 class="store-title">{{ isset($generalsetting->name) ? $generalsetting->name : 'ecomlaravel1' }}</h6>
+                  <span class="store-subtitle">Shop Management</span>
+                </div>
+              </a>
+            </div>
+            <button type="button" class="subpanel-toggle-btn" id="sidebar-collapse-btn" title="Collapse Sidebar">
+              <i data-feather="sidebar"></i>
+            </button>
+          </div>
+
+          <!-- Quick Jump Search -->
+          <div class="subpanel-search">
+            <div class="search-wrap">
+              <i data-feather="search"></i>
+              <input type="text" id="sidebar-jump-search" placeholder="Jump to..." autocomplete="off" />
+              <button type="button" class="clear-search-btn" id="clear-jump-search" style="display:none;">&times;</button>
+            </div>
+          </div>
+
+          <!-- Submenu Body -->
+          <div class="subpanel-body" data-simplebar>
+
+            {{-- 1. MAIN PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-main' ? 'active' : '' }}" id="pane-section-main">
+              <div class="pane-title">Main Menu</div>
+              <ul class="subpanel-menu">
+                @can('dashboard-view')
+                <li class="{{ request()->is('admin/dashboard') ? 'menuitem-active' : '' }}">
+                  <a href="{{ url('admin/dashboard') }}" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                    <i data-feather="airplay"></i>
+                    <span> Dashboard </span>
+                  </a>
+                </li>
+                <li class="{{ request()->routeIs('admin.gemini_chat.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.gemini_chat.index') }}" class="{{ request()->routeIs('admin.gemini_chat.*') ? 'active' : '' }}">
+                    <i data-feather="message-circle"></i>
+                    <span> Gemini Assistant </span>
+                  </a>
+                </li>
+                @endcan
+
+                @can('order-create')
+                <li class="{{ request()->routeIs('admin.order.create') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.order.create') }}" class="{{ request()->routeIs('admin.order.create') ? 'active' : '' }}">
+                    <i data-feather="cpu"></i>
+                    <span> POS System </span>
+                  </a>
+                </li>
+                @endcan
+              </ul>
+            </div>
+
+            {{-- 2. PEOPLE & PARTNERS PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-people' ? 'active' : '' }}" id="pane-section-people">
+              <div class="pane-title">People & Partners</div>
+              <ul class="subpanel-menu">
+                @canany(['user-list', 'role-list', 'permission-list', 'customer-list'])
+                <li class="{{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-users" data-bs-toggle="collapse" class="{{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'active' : '' }}">
+                    <i data-feather="users"></i>
+                    <span> Users & Customers </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'show' : '' }}" id="sub-users">
+                    <ul class="subpanel-nested-menu">
+                      @canany(['customer-list', 'customer-create', 'customer-edit'])
+                      <li><a href="{{ route('customers.index') }}"><i data-feather="file-plus"></i> Customers</a></li>
+                      @endcanany
+                      @can('user-list')
+                      <li><a href="{{ route('users.index') }}"><i data-feather="file-plus"></i> Users</a></li>
+                      @endcan
+                      @can('role-list')
+                      <li><a href="{{ route('roles.index') }}"><i data-feather="file-plus"></i> Roles</a></li>
+                      @endcan
+                      @can('permission-list')
+                      <li><a href="{{ route('permissions.index') }}"><i data-feather="file-plus"></i> Permissions</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @if($vendorEnabled == 1)
+                @canany(['vendor-list', 'vendor-create', 'vendor-edit', 'vendor-verification', 'vendor-withdrawal'])
+                @php
+                  $pendingVerificationCount = \App\Models\Vendor::where('verification_status', 'pending')->count();
+                @endphp
+                <li class="{{ request()->routeIs('admin.vendors.*', 'admin.vendor.verification.*', 'admin.vendor.withdrawals.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-vendors" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.vendors.*', 'admin.vendor.verification.*', 'admin.vendor.withdrawals.*') ? 'active' : '' }}">
+                    <i data-feather="shopping-bag"></i>
+                    <span> Vendors </span>
+                    @if($pendingVerificationCount > 0)
+                      <span class="badge bg-danger rounded-pill float-end">{{ $pendingVerificationCount }}</span>
+                    @else
+                      <span class="menu-arrow"></span>
+                    @endif
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.vendors.*', 'admin.vendor.verification.*', 'admin.vendor.withdrawals.*') ? 'show' : '' }}" id="sub-vendors">
+                    <ul class="subpanel-nested-menu">
+                      @can('vendor-list')
+                      <li><a href="{{ route('admin.vendors.index') }}"><i data-feather="file-plus"></i> All Vendors</a></li>
+                      @endcan
+                      @can('vendor-verification')
+                      <li>
+                        <a href="{{ route('admin.vendor.verification.index') }}">
+                          <i data-feather="shield"></i> Verifications
+                          @if($pendingVerificationCount > 0)
+                            <span class="badge bg-danger rounded-pill float-end">{{ $pendingVerificationCount }}</span>
+                          @endif
+                        </a>
+                      </li>
+                      @endcan
+                      @can('vendor-withdrawal')
+                      <li><a href="{{ route('admin.vendor.withdrawals.index') }}"><i data-feather="dollar-sign"></i> Withdrawals</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+                @endif
+
+                @if($resellerEnabled == 1)
+                @canany(['reseller-list', 'reseller-create', 'reseller-edit', 'reseller-verification', 'reseller-withdrawal'])
+                @php
+                  $pendingResellerVerificationCount = \App\Models\User::where('role', 'reseller')->where('verification_status', 'pending')->count();
+                  $pendingResellerWithdrawalCount = \App\Models\ResellerWithdrawal::where('status', 'pending')->count();
+                  $pendingDepositCount = \App\Models\ResellerDeposit::where('status', 'pending')->count();
+                @endphp
+                <li class="{{ request()->routeIs('admin.resellers.*', 'admin.reseller.verification.*', 'admin.reseller.withdrawals.*', 'admin.reseller-deposits.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-resellers" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.resellers.*', 'admin.reseller.verification.*', 'admin.reseller.withdrawals.*', 'admin.reseller-deposits.*') ? 'active' : '' }}">
+                    <i data-feather="user-check"></i>
+                    <span> Resellers </span>
+                    @if(($pendingResellerVerificationCount + $pendingResellerWithdrawalCount + $pendingDepositCount) > 0)
+                      <span class="badge bg-danger rounded-pill float-end">{{ $pendingResellerVerificationCount + $pendingResellerWithdrawalCount + $pendingDepositCount }}</span>
+                    @else
+                      <span class="menu-arrow"></span>
+                    @endif
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.resellers.*', 'admin.reseller.verification.*', 'admin.reseller.withdrawals.*', 'admin.reseller-deposits.*') ? 'show' : '' }}" id="sub-resellers">
+                    <ul class="subpanel-nested-menu">
+                      @can('reseller-list')
+                      <li><a href="{{ route('admin.resellers.index') }}"><i data-feather="file-plus"></i> All Resellers</a></li>
+                      @endcan
+                      @can('reseller-withdrawal')
+                      <li>
+                        <a href="{{ route('admin.reseller-deposits.index') }}">
+                          <i data-feather="credit-card"></i> Reseller Deposits
+                          @if($pendingDepositCount > 0)
+                            <span class="badge bg-warning rounded-pill float-end">{{ $pendingDepositCount }}</span>
+                          @endif
+                        </a>
+                      </li>
+                      @endcan
+                      @can('reseller-verification')
+                      <li>
+                        <a href="{{ route('admin.reseller.verification.index') }}">
+                          <i data-feather="shield"></i> Verifications
+                          @if($pendingResellerVerificationCount > 0)
+                            <span class="badge bg-danger rounded-pill float-end">{{ $pendingResellerVerificationCount }}</span>
+                          @endif
+                        </a>
+                      </li>
+                      @endcan
+                      @can('reseller-withdrawal')
+                      <li>
+                        <a href="{{ route('admin.reseller.withdrawals.index') }}">
+                          <i data-feather="dollar-sign"></i> Withdrawals
+                          @if($pendingResellerWithdrawalCount > 0)
+                            <span class="badge bg-warning rounded-pill float-end">{{ $pendingResellerWithdrawalCount }}</span>
+                          @endif
+                        </a>
+                      </li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+                @endif
+
+                @canany(['shipping-list', 'shipping-create', 'shipping-edit', 'delivery-boy-list', 'delivery-withdrawal-list', 'delivery-location-list'])
+                <li class="{{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-delivery" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'active' : '' }}">
+                    <i data-feather="truck"></i>
+                    <span> Delivery / Riders </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'show' : '' }}" id="sub-delivery">
+                    <ul class="subpanel-nested-menu">
+                      @can('delivery-boy-list')
+                      <li><a href="{{ route('admin.delivery-boys.index') }}"><i data-feather="users"></i> Delivery Persons</a></li>
+                      @endcan
+                      @can('delivery-withdrawal-list')
+                      <li><a href="{{ route('admin.delivery-boys.withdrawals') }}"><i data-feather="dollar-sign"></i> Rider Withdrawals</a></li>
+                      @endcan
+                      @can('delivery-location-list')
+                      <li><a href="{{ route('admin.delivery.divisions.index') }}"><i data-feather="map-pin"></i> Delivery Locations</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['employee-list', 'attendance-list', 'leave-list', 'salary-list', 'bonus-list', 'salary-payment-list'])
+                <li class="{{ request()->routeIs('admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-crm" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*') ? 'active' : '' }}">
+                    <i data-feather="briefcase"></i>
+                    <span> CRM / HR </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*') ? 'show' : '' }}" id="sub-crm">
+                    <ul class="subpanel-nested-menu">
+                      @can('employee-list')
+                      <li><a href="{{ route('admin.employees.index') }}"><i data-feather="user"></i> Employees</a></li>
+                      @endcan
+                      @can('attendance-list')
+                      <li><a href="{{ route('admin.attendances.index') }}"><i data-feather="check-circle"></i> Attendance</a></li>
+                      @endcan
+                      @can('leave-list')
+                      <li><a href="{{ route('admin.leaves.index') }}"><i data-feather="calendar"></i> Leaves</a></li>
+                      @endcan
+                      @can('salary-list')
+                      <li><a href="{{ route('admin.salaries.index') }}"><i data-feather="dollar-sign"></i> Salaries</a></li>
+                      @endcan
+                      @can('bonus-list')
+                      <li><a href="{{ route('admin.bonuses.index') }}"><i data-feather="gift"></i> Bonuses</a></li>
+                      @endcan
+                      @can('salary-payment-list')
+                      <li><a href="{{ route('admin.salary_payments.index') }}"><i data-feather="credit-card"></i> Salary Payments</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+              </ul>
+            </div>
+
+            {{-- 3. SALES & ORDERS PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-orders' ? 'active' : '' }}" id="pane-section-orders">
+              <div class="pane-title">Sales & Orders</div>
+              <ul class="subpanel-menu">
+                @canany(['order-list', 'order-edit', 'order-create'])
+                <li class="{{ request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block') || request()->is('admin/orders/*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-orders" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block') || request()->is('admin/orders/*') ? 'active' : '' }}">
+                    <i data-feather="shopping-cart"></i>
+                    <span> Orders </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block') || request()->is('admin/orders/*') ? 'show' : '' }}" id="sub-orders">
+                    <ul class="subpanel-nested-menu">
+                      @can('order-list')
+                      <li><a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="{{ request()->is('admin/orders/all') ? 'active' : '' }}"><i data-feather="file-plus"></i> All Orders</a></li>
+                      <li><a href="{{ route('admin.reseller-orders.index') }}" class="{{ request()->routeIs('admin.reseller-orders.*') ? 'active' : '' }}"><i data-feather="users"></i> Reseller Orders</a></li>
+                      <li><a href="{{ route('admin.incomplete-orders.index') }}" class="{{ request()->routeIs('admin.incomplete-orders.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Incomplete Orders</a></li>
+                      @if(isset($orderstatus))
+                        @foreach($orderstatus as $value)
+                          <li><a href="{{ route('admin.orders', ['slug'=>$value->slug]) }}" class="{{ request()->is('admin/orders/'.$value->slug) ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ $value->name }}</a></li>
+                        @endforeach
+                      @endif
+                      @endcan
+                      @can('order-edit')
+                      <li><a href="{{ route('orderstatus.index') }}" class="{{ request()->routeIs('orderstatus.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Order Status</a></li>
+                      @endcan
+                      @can('order-manage')
+                      <li><a href="{{ route('customers.ip_block') }}" class="{{ request()->routeIs('customers.ip_block') ? 'active' : '' }}"><i data-feather="file-plus"></i> IP Block</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['order-list', 'order-edit'])
+                <li class="{{ request()->routeIs('admin.refunds.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-refunds" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.refunds.*') ? 'active' : '' }}">
+                    <i data-feather="rotate-ccw"></i>
+                    <span> Refunds </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.refunds.*') ? 'show' : '' }}" id="sub-refunds">
+                    <ul class="subpanel-nested-menu">
+                      <li><a href="{{ route('admin.refunds.index') }}"><i data-feather="list"></i> All Refunds</a></li>
+                      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}"><i data-feather="clock"></i> Pending Refunds</a></li>
+                      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}"><i data-feather="check-circle"></i> Approved Refunds</a></li>
+                      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}"><i data-feather="check"></i> Processed Refunds</a></li>
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @can('fraud-check')
+                <li class="{{ request()->routeIs('manualFraud.page') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('manualFraud.page') }}" class="{{ request()->routeIs('manualFraud.page') ? 'active' : '' }}">
+                    <i data-feather="search"></i>
+                    <span> Manual Fraud Check </span>
+                  </a>
+                </li>
+                @endcan
+
+                @canany(['setting-list', 'setting-edit'])
+                <li class="{{ request()->routeIs('admin.order.restriction.setting.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.order.restriction.setting.index') }}" class="{{ request()->routeIs('admin.order.restriction.setting.*') ? 'active' : '' }}">
+                    <i data-feather="clock"></i>
+                    <span> Order Restriction </span>
+                  </a>
+                </li>
+                @endcanany
+              </ul>
+            </div>
+
+            {{-- 4. CATALOG & INVENTORY PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-catalog' ? 'active' : '' }}" id="pane-section-catalog">
+              <div class="pane-title">Catalog & Inventory</div>
+              <ul class="subpanel-menu">
+                @canany(['product-list', 'category-list', 'subcategory-list', 'childcategory-list', 'brand-list', 'color-list', 'size-list'])
+                <li class="{{ request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-products" data-bs-toggle="collapse" class="{{ request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale') ? 'active' : '' }}">
+                    <i data-feather="package"></i>
+                    <span> Products </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale') ? 'show' : '' }}" id="sub-products">
+                    <ul class="subpanel-nested-menu">
+                      @can('product-list')
+                      <li><a href="{{ route('inhouse.products.index') }}"><i data-feather="package"></i> Inhouse Products</a></li>
+                      <li><a href="{{ route('products.index') }}"><i data-feather="shopping-bag"></i> Vendor Products</a></li>
+                      <li><a href="{{ route('products.pending') }}"><i data-feather="clock"></i> Pending Products</a></li>
+                      <li><a href="{{ route('admin.products.wholesale') }}"><i data-feather="layers"></i> Wholesale Products</a></li>
+                      @endcan
+                      @can('product-create')
+                      <li><a href="{{ route('products.create') }}"><i data-feather="plus-circle"></i> Add Product</a></li>
+                      @endcan
+                      @can('category-list')
+                      <li><a href="{{ route('categories.index') }}"><i data-feather="file-plus"></i> Categories</a></li>
+                      @endcan
+                      @can('subcategory-list')
+                      <li><a href="{{ route('subcategories.index') }}"><i data-feather="file-plus"></i> Subcategories</a></li>
+                      @endcan
+                      @can('childcategory-list')
+                      <li><a href="{{ route('childcategories.index') }}"><i data-feather="file-plus"></i> Childcategories</a></li>
+                      @endcan
+                      @canany(['brand-list', 'brand-create', 'brand-edit'])
+                      <li><a href="{{ route('brands.index') }}"><i data-feather="file-plus"></i> Brands</a></li>
+                      @endcanany
+                      @canany(['color-list', 'color-create', 'color-edit'])
+                      <li><a href="{{ route('colors.index') }}"><i data-feather="file-plus"></i> Colors</a></li>
+                      @endcanany
+                      @canany(['size-list', 'size-create', 'size-edit'])
+                      <li><a href="{{ route('sizes.index') }}"><i data-feather="file-plus"></i> Sizes</a></li>
+                      @endcanany
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['purchase-list', 'purchase-create', 'purchase-edit'])
+                <li class="{{ request()->routeIs('purchases.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('purchases.index') }}" class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
+                    <i data-feather="file-text"></i>
+                    <span> Purchases </span>
+                  </a>
+                </li>
+                @endcanany
+
+                @canany(['supplier-list', 'supplier-create', 'supplier-edit'])
+                <li class="{{ request()->routeIs('admin.suppliers.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.suppliers.index') }}" class="{{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
+                    <i data-feather="truck"></i>
+                    <span> Suppliers </span>
+                  </a>
+                </li>
+                @endcanany
+              </ul>
+            </div>
+
+            {{-- 5. FINANCE & ACCOUNTS PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-finance' ? 'active' : '' }}" id="pane-section-finance">
+              <div class="pane-title">Finance & Accounts</div>
+              <ul class="subpanel-menu">
+                @canany(['fund-list', 'fund-create', 'fund-edit'])
+                <li class="{{ request()->routeIs('admin.fund.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.fund.index') }}" class="{{ request()->routeIs('admin.fund.*') ? 'active' : '' }}">
+                    <i data-feather="briefcase"></i>
+                    <span> Fund / Account </span>
+                  </a>
+                </li>
+                @endcanany
+
+                @canany(['expense-list', 'expense-create', 'expense-edit'])
+                <li class="{{ request()->routeIs('admin.expenses.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.expenses.index') }}" class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}">
+                    <i data-feather="credit-card"></i>
+                    <span> Expenses </span>
+                  </a>
+                </li>
+                @endcanany
+              </ul>
+            </div>
+
+            {{-- 6. SYSTEM & SETTINGS PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-settings' ? 'active' : '' }}" id="pane-section-settings">
+              <div class="pane-title">System & Settings</div>
+              <ul class="subpanel-menu">
+                @canany(['setting-list', 'social-list', 'contact-list', 'page-list'])
+                <li class="{{ request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-sitesetting" data-bs-toggle="collapse" class="{{ request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*') ? 'active' : '' }}">
+                    <i data-feather="settings"></i>
+                    <span> Site Setting </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*') ? 'show' : '' }}" id="sub-sitesetting">
+                    <ul class="subpanel-nested-menu">
+                      @can('setting-list')
+                      <li><a href="{{ route('settings.index') }}"><i data-feather="file-plus"></i> General Setting</a></li>
+                      @endcan
+                      @can('social-list')
+                      <li><a href="{{ route('socialmedias.index') }}"><i data-feather="file-plus"></i> Social Media</a></li>
+                      @endcan
+                      @can('contact-list')
+                      <li><a href="{{ route('contact.index') }}"><i data-feather="file-plus"></i> Contact</a></li>
+                      @endcan
+                      @canany(['page-list', 'page-create', 'page-edit'])
+                      <li><a href="{{ route('pages.index') }}"><i data-feather="file-plus"></i> Create Page</a></li>
+                      @endcanany
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['api-manage', 'fraud-setting-list'])
+                <li class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-api" data-bs-toggle="collapse" class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'active' : '' }}">
+                    <i data-feather="save"></i>
+                    <span> API Integration </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'show' : '' }}" id="sub-api">
+                    <ul class="subpanel-nested-menu">
+                      @can('api-manage')
+                      <li><a href="{{ route('paymentgeteway.manage') }}"><i data-feather="file-plus"></i> Payment Gateway</a></li>
+                      <li><a href="{{ route('manual-payment-gateway.manage') }}"><i data-feather="credit-card"></i> Manual Payment</a></li>
+                      <li><a href="{{ route('smsgeteway.manage') }}"><i data-feather="file-plus"></i> SMS Gateway</a></li>
+                      <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> Courier API</a></li>
+                      <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> Facebook CAPI</a></li>
+                      <li><a href="{{ route('admin.gemini_ai.edit') }}"><i data-feather="cpu"></i> Gemini AI</a></li>
+                      @endcan
+                      @can('fraud-setting-list')
+                      <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="key"></i> Manage Fraud API</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @can('email-setting-list')
+                <li class="{{ request()->routeIs('email_setting*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('email_setting') }}" class="{{ request()->routeIs('email_setting*') ? 'active' : '' }}">
+                    <i data-feather="mail"></i>
+                    <span> Email Settings </span>
+                  </a>
+                </li>
+                @endcan
+
+                @canany(['complaint-list', 'contact-list', 'newsletter-list'])
+                <li class="{{ request()->routeIs('backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-inquiries" data-bs-toggle="collapse" class="{{ request()->routeIs('backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*') ? 'active' : '' }}">
+                    <i data-feather="inbox"></i>
+                    <span> Customer Inquiries </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*') ? 'show' : '' }}" id="sub-inquiries">
+                    <ul class="subpanel-nested-menu">
+                      @canany(['complaint-list', 'complaint-create', 'complaint-edit'])
+                      <li><a href="{{ route('backEnd.complaints.index') }}"><i data-feather="alert-circle"></i> Complaints</a></li>
+                      @endcanany
+                      @can('contact-list')
+                      <li><a href="{{ route('admin.contact.messages') }}"><i data-feather="mail"></i> Contact Messages</a></li>
+                      @endcan
+                      @can('newsletter-list')
+                      <li><a href="{{ route('admin.newsletter.subscribers') }}"><i data-feather="mail"></i> Subscribers</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['seo-manage', 'sitemap-manage'])
+                <li class="{{ request()->routeIs('admin.seo_settings.*', 'admin.sitemap.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-seo" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.seo_settings.*', 'admin.sitemap.*') ? 'active' : '' }}">
+                    <i data-feather="globe"></i>
+                    <span> SEO & Sitemap </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.seo_settings.*', 'admin.sitemap.*') ? 'show' : '' }}" id="sub-seo">
+                    <ul class="subpanel-nested-menu">
+                      @can('seo-manage')
+                      <li><a href="{{ route('admin.seo_settings.index') }}"><i data-feather="globe"></i> SEO Settings</a></li>
+                      @endcan
+                      @can('sitemap-manage')
+                      <li><a href="{{ route('admin.sitemap.index') }}"><i data-feather="map"></i> Sitemap Settings</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['api-manage', 'cache-clear', 'error-log-view'])
+                <li class="{{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-maintenance" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'active' : '' }}">
+                    <i data-feather="tool"></i>
+                    <span> Maintenance </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'show' : '' }}" id="sub-maintenance">
+                    <ul class="subpanel-nested-menu">
+                      @can('api-manage')
+                      <li><a href="{{ route('admin.cron.index') }}"><i data-feather="clock"></i> Cron Job</a></li>
+                      @endcan
+                      @can('cache-clear')
+                      <li>
+                        <a href="{{ route('admin.clear.cache') }}" onclick="return confirm('Are you sure you want to clear all cache?')">
+                          <i data-feather="refresh-cw"></i> Clear Cache
+                        </a>
+                      </li>
+                      @endcan
+                      @can('error-log-view')
+                      <li><a href="{{ route('error-log.index') }}"><i data-feather="file-text"></i> Error Log</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+              </ul>
+            </div>
+
+            {{-- 7. ANALYTICS & REPORTS PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-analytics' ? 'active' : '' }}" id="pane-section-analytics">
+              <div class="pane-title">Analytics & Reports</div>
+              <ul class="subpanel-menu">
+                @canany(['pixel-manage'])
+                <li class="{{ request()->routeIs('admin.ads_analytics.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-ads" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.ads_analytics.*') ? 'active' : '' }}">
+                    <i data-feather="trending-up"></i>
+                    <span> Live Ads Result </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.ads_analytics.*') ? 'show' : '' }}" id="sub-ads">
+                    <ul class="subpanel-nested-menu">
+                      <li><a href="{{ route('admin.ads_analytics.dashboard') }}"><i data-feather="layout"></i> Overview</a></li>
+                      <li><a href="{{ route('admin.ads_analytics.facebook') }}"><i data-feather="facebook"></i> Facebook Ads</a></li>
+                      <li><a href="{{ route('admin.ads_analytics.google') }}"><i data-feather="globe"></i> Google Ads</a></li>
+                      <li><a href="{{ route('admin.ads_analytics.tiktok') }}"><i data-feather="video"></i> TikTok Ads</a></li>
+                    </ul>
+                  </div>
+                </li>
+
+                <li class="{{ request()->routeIs('tagmanagers.*', 'pixels.*', 'tiktok.pixels.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-pixels" data-bs-toggle="collapse" class="{{ request()->routeIs('tagmanagers.*', 'pixels.*', 'tiktok.pixels.*') ? 'active' : '' }}">
+                    <i data-feather="save"></i>
+                    <span> G. Pixel & GTM </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('tagmanagers.*', 'pixels.*', 'tiktok.pixels.*') ? 'show' : '' }}" id="sub-pixels">
+                    <ul class="subpanel-nested-menu">
+                      <li><a href="{{ route('tagmanagers.index') }}"><i data-feather="file-plus"></i> Tag Manager</a></li>
+                      <li><a href="{{ route('pixels.index') }}"><i data-feather="file-plus"></i> Pixel Manage</a></li>
+                      <li><a href="{{ route('tiktok.pixels.index') }}"><i data-feather="film"></i> TikTok Pixel</a></li>
+                    </ul>
+                  </div>
+                </li>
+
+                <li class="{{ request()->routeIs('admin.facebook_page.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.facebook_page.settings') }}" class="{{ request()->routeIs('admin.facebook_page.*') ? 'active' : '' }}">
+                    <i data-feather="share-2"></i>
+                    <span> Facebook Page Post </span>
+                  </a>
+                </li>
+                @endcanany
+
+                @canany(['report-view','order-report','purchase-report','expense-report','stock-report','profit-loss-report'])
+                <li class="{{ request()->routeIs('admin.reports.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-reports" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                    <i data-feather="pie-chart"></i>
+                    <span> Reports </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.reports.*') ? 'show' : '' }}" id="sub-reports">
+                    <ul class="subpanel-nested-menu">
+                      @canany(['order-report','report-view'])
+                      <li><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> Order Report</a></li>
+                      @endcanany
+                      @canany(['purchase-report','report-view'])
+                      <li><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> Purchase Report</a></li>
+                      @endcanany
+                      @canany(['expense-report','report-view'])
+                      <li><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> Expense Report</a></li>
+                      @endcanany
+                      @canany(['stock-report','report-view'])
+                      <li><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> Stock Report</a></li>
+                      @endcanany
+                      @canany(['profit-loss-report','report-view'])
+                      <li><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> Profit & Loss</a></li>
+                      @endcanany
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+              </ul>
+            </div>
+
+            {{-- 8. MARKETING & PROMOTIONS PANE --}}
+            <div class="section-pane {{ $activeSection === 'section-marketing' ? 'active' : '' }}" id="pane-section-marketing">
+              <div class="pane-title">Marketing & Promotions</div>
+              <ul class="subpanel-menu">
+                @canany(['campaign-list', 'campaign-create'])
+                <li class="{{ request()->routeIs('campaign.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-campaign" data-bs-toggle="collapse" class="{{ request()->routeIs('campaign.*') ? 'active' : '' }}">
+                    <i data-feather="airplay"></i>
+                    <span> Landing Page </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('campaign.*') ? 'show' : '' }}" id="sub-campaign">
+                    <ul class="subpanel-nested-menu">
+                      @can('campaign-list')
+                      <li><a href="{{ route('campaign.index') }}"><i data-feather="file-plus"></i> All Campaigns</a></li>
+                      @endcan
+                      @can('campaign-create')
+                      <li><a href="{{ route('campaign.create') }}"><i data-feather="file-plus"></i> Create Campaign</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['coupon-list', 'coupon-create', 'coupon-edit', 'coupon-delete'])
+                <li class="{{ request()->routeIs('admin.coupons.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-coupons" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
+                    <i data-feather="gift"></i>
+                    <span> Coupons </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.coupons.*') ? 'show' : '' }}" id="sub-coupons">
+                    <ul class="subpanel-nested-menu">
+                      @can('coupon-list')
+                      <li><a href="{{ route('admin.coupons.index') }}"><i data-feather="list"></i> All Coupons</a></li>
+                      @endcan
+                      @can('coupon-create')
+                      <li><a href="{{ route('admin.coupons.create') }}"><i data-feather="plus-circle"></i> Add New</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['banner-list'])
+                <li class="{{ request()->routeIs('banners.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('banners.index') }}" class="{{ request()->routeIs('banners.*') ? 'active' : '' }}">
+                    <i data-feather="image"></i>
+                    <span> Banner & Sliders </span>
+                  </a>
+                </li>
+                @endcanany
+
+                @canany(['popup-list', 'popup-manage', 'setting-list'])
+                <li class="{{ request()->routeIs('admin.popup.*', 'admin.sale-notification.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-popups" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.popup.*', 'admin.sale-notification.*') ? 'active' : '' }}">
+                    <i data-feather="bell"></i>
+                    <span> Popups & Alerts </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.popup.*', 'admin.sale-notification.*') ? 'show' : '' }}" id="sub-popups">
+                    <ul class="subpanel-nested-menu">
+                      @canany(['popup-list', 'popup-manage'])
+                      <li><a href="{{ route('admin.popup.index') }}"><i data-feather="message-square"></i> Popup Offer</a></li>
+                      @endcanany
+                      @can('setting-list')
+                      <li><a href="{{ route('admin.sale-notification.index') }}"><i data-feather="bell"></i> Sales Notification</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @can('review-list')
+                <li class="{{ request()->routeIs('reviews.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-reviews" data-bs-toggle="collapse" class="{{ request()->routeIs('reviews.*') ? 'active' : '' }}">
+                    <i data-feather="star"></i>
+                    <span> Reviews </span>
+                    @if($pending_reviews > 0)
+                      <span class="badge bg-warning rounded-pill float-end">{{ $pending_reviews }}</span>
+                    @else
+                      <span class="menu-arrow"></span>
+                    @endif
+                  </a>
+                  <div class="collapse {{ request()->routeIs('reviews.*') ? 'show' : '' }}" id="sub-reviews">
+                    <ul class="subpanel-nested-menu">
+                      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> Pending ({{ $pending_reviews }})</a></li>
+                      <li><a href="{{ route('reviews.index') }}"><i data-feather="file-plus"></i> All Reviews</a></li>
+                      @can('review-create')
+                      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> Create Review</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcan
+
+                @canany(['blog-list', 'blog-create', 'blog-edit', 'blog-delete'])
+                <li class="{{ request()->routeIs('admin.blog.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-blog" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                    <i data-feather="edit"></i>
+                    <span> Blog </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.blog.*') ? 'show' : '' }}" id="sub-blog">
+                    <ul class="subpanel-nested-menu">
+                      @can('blog-list')
+                      <li><a href="{{ route('admin.blog.index') }}"><i data-feather="list"></i> All Blogs</a></li>
+                      @endcan
+                      @can('blog-create')
+                      <li><a href="{{ route('admin.blog.create') }}"><i data-feather="plus-circle"></i> Add New Blog</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @can('sms-send')
+                <li class="{{ request()->routeIs('admin.sms.custom.*') ? 'menuitem-active' : '' }}">
+                  <a href="{{ route('admin.sms.custom.page') }}" class="{{ request()->routeIs('admin.sms.custom.*') ? 'active' : '' }}">
+                    <i data-feather="send"></i>
+                    <span> Send Custom SMS </span>
+                  </a>
+                </li>
+                @endcan
+              </ul>
+            </div>
+
+          </div>
+
+          <!-- Subpanel Footer -->
+          <div class="subpanel-footer">
+            <a href="{{ route('home') }}" target="_blank" class="footer-website-link">
+              <i data-feather="globe"></i>
+              <span>View Website</span>
+              <i data-feather="arrow-up-right" class="ms-auto" style="width:13px;height:13px;"></i>
+            </a>
+          </div>
+        </div>
       </div>
+      <!-- Mobile Backdrop -->
+      <div class="two-column-backdrop" id="two-column-backdrop"></div>
       <!-- Left Sidebar End -->
 
       <div class="content-page">
@@ -1217,6 +1263,162 @@
                         setTimeout(initFeather, 50);
                     }
                 );
+            }
+        })();
+    </script>
+    <!-- Two-Column Sidebar Controller JS -->
+    <script>
+        (function () {
+            function initTwoColumnSidebar() {
+                var sidebar = document.getElementById('two-column-sidebar');
+                if (!sidebar) return;
+
+                var railItems = document.querySelectorAll('.sidebar-icon-rail .rail-item[data-section]');
+                var panes = document.querySelectorAll('.sidebar-subpanel .section-pane');
+                var collapseBtns = document.querySelectorAll('#sidebar-collapse-btn, #sidebar-toggle-btn, .button-menu-mobile');
+                var backdrop = document.getElementById('two-column-backdrop');
+                var jumpSearch = document.getElementById('sidebar-jump-search');
+                var clearSearch = document.getElementById('clear-jump-search');
+
+                // Restore desktop collapsed state
+                if (window.innerWidth >= 992) {
+                    var isCollapsed = localStorage.getItem('two_col_sidebar_collapsed') === '1';
+                    if (isCollapsed) {
+                        document.body.classList.add('sidebar-collapsed');
+                    }
+                }
+
+                // Rail item click handler
+                railItems.forEach(function (item) {
+                    item.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var targetSection = this.getAttribute('data-section');
+                        if (!targetSection) return;
+
+                        // If collapsed on desktop, clicking a section expands it
+                        if (document.body.classList.contains('sidebar-collapsed')) {
+                            document.body.classList.remove('sidebar-collapsed');
+                            localStorage.setItem('two_col_sidebar_collapsed', '0');
+                        }
+
+                        // Update rail item active state
+                        railItems.forEach(function (r) { r.classList.remove('active'); });
+                        this.classList.add('active');
+
+                        // Switch active pane
+                        panes.forEach(function (pane) {
+                            if (pane.id === 'pane-' + targetSection) {
+                                pane.classList.add('active');
+                            } else {
+                                pane.classList.remove('active');
+                            }
+                        });
+
+                        // Clear search filter when changing section
+                        if (jumpSearch && jumpSearch.value) {
+                            jumpSearch.value = '';
+                            if (clearSearch) clearSearch.style.display = 'none';
+                            resetSearchFilter();
+                        }
+
+                        if (typeof feather !== 'undefined' && typeof feather.replace === 'function') {
+                            feather.replace();
+                        }
+                    });
+                });
+
+                // Toggle sidebar (Collapse/Expand on desktop, Drawer on mobile)
+                collapseBtns.forEach(function (btn) {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (window.innerWidth >= 992) {
+                            var willCollapse = !document.body.classList.contains('sidebar-collapsed');
+                            document.body.classList.toggle('sidebar-collapsed', willCollapse);
+                            localStorage.setItem('two_col_sidebar_collapsed', willCollapse ? '1' : '0');
+                        } else {
+                            var willOpenMobile = !document.body.classList.contains('sidebar-mobile-open');
+                            document.body.classList.toggle('sidebar-mobile-open', willOpenMobile);
+                        }
+                    });
+                });
+
+                // Close mobile drawer on backdrop click
+                if (backdrop) {
+                    backdrop.addEventListener('click', function () {
+                        document.body.classList.remove('sidebar-mobile-open');
+                    });
+                }
+
+                // Close mobile drawer on direct link click
+                document.querySelectorAll('.sidebar-subpanel a:not([data-bs-toggle="collapse"])').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        if (window.innerWidth < 992) {
+                            document.body.classList.remove('sidebar-mobile-open');
+                        }
+                    });
+                });
+
+                // Jump to... Filter
+                function resetSearchFilter() {
+                    var activeRail = document.querySelector('.sidebar-icon-rail .rail-item.active');
+                    var activeSec = activeRail ? activeRail.getAttribute('data-section') : 'section-main';
+                    panes.forEach(function (p) {
+                        p.classList.toggle('active', p.id === 'pane-' + activeSec);
+                        p.querySelectorAll('li').forEach(function (li) { li.style.display = ''; });
+                    });
+                }
+
+                if (jumpSearch) {
+                    jumpSearch.addEventListener('input', function () {
+                        var query = this.value.trim().toLowerCase();
+                        if (clearSearch) clearSearch.style.display = query.length ? 'block' : 'none';
+
+                        if (!query) {
+                            resetSearchFilter();
+                            return;
+                        }
+
+                        panes.forEach(function (pane) {
+                            var hasMatch = false;
+                            var listItems = pane.querySelectorAll('.subpanel-menu > li');
+                            listItems.forEach(function (li) {
+                                var text = li.innerText.toLowerCase();
+                                if (text.indexOf(query) !== -1) {
+                                    li.style.display = '';
+                                    hasMatch = true;
+                                    var collapseEl = li.querySelector('.collapse');
+                                    if (collapseEl) {
+                                        collapseEl.classList.add('show');
+                                    }
+                                } else {
+                                    li.style.display = 'none';
+                                }
+                            });
+
+                            if (hasMatch) {
+                                pane.classList.add('active');
+                            } else {
+                                pane.classList.remove('active');
+                            }
+                        });
+                    });
+
+                    if (clearSearch) {
+                        clearSearch.addEventListener('click', function () {
+                            jumpSearch.value = '';
+                            this.style.display = 'none';
+                            resetSearchFilter();
+                            jumpSearch.focus();
+                        });
+                    }
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initTwoColumnSidebar);
+            } else {
+                initTwoColumnSidebar();
             }
         })();
     </script>
