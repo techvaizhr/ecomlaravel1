@@ -1432,19 +1432,15 @@ li.all__category__list:hover > a i {
     transform: translateX(3px);
 }
 
-/* 📐 GAP REDUCTION: Header bottom, Menu & Banner/Slider section */
+/* 📐 SPACING: Header bottom, Menu & Banner/Slider section */
 #navbar_top,
 .main-header,
 .menu-area {
     margin-bottom: 0 !important;
 }
-#content {
-    padding-top: 0 !important;
-    margin-top: 0 !important;
-}
 section.slider-section {
-    margin-top: 0 !important;
-    margin-bottom: 6px !important;
+    margin-top: 10px !important;
+    margin-bottom: 12px !important;
     padding-top: 0 !important;
 }
 .home-slider-container {
@@ -1464,7 +1460,7 @@ section.slider-section {
         margin-bottom: 0 !important;
     }
     section.slider-section {
-        margin-top: 0 !important;
+        margin-top: 8px !important;
         padding-top: 0 !important;
     }
 }
