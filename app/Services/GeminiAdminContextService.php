@@ -71,6 +71,25 @@ class GeminiAdminContextService
         $codeSnippets = $this->codebaseContext->searchRelevantFiles($userMessage);
         $timestamp = now()->format('Y-m-d H:i:s');
 
+        $orderTotal = (int) ($liveStats['orders']['total'] ?? 0);
+        $orderToday = (int) ($liveStats['orders']['today'] ?? 0);
+        $orderPending = (int) ($liveStats['orders']['pending'] ?? 0);
+        $orderDelivered = (int) ($liveStats['orders']['delivered_total'] ?? 0);
+        $orderCancelled = (int) ($liveStats['orders']['cancelled_total'] ?? 0);
+
+        $productTotal = (int) ($liveStats['products']['total'] ?? 0);
+        $productActive = (int) ($liveStats['products']['active_approved'] ?? 0);
+        $productPending = (int) ($liveStats['products']['pending_approval'] ?? 0);
+        $productLowStock = (int) ($liveStats['products']['low_stock_count'] ?? 0);
+
+        $vendorTotal = (int) ($liveStats['vendors']['active'] ?? 0);
+        $customerTotal = (int) ($liveStats['customers']['total'] ?? 0);
+        $customerToday = (int) ($liveStats['customers']['today'] ?? 0);
+
+        $revenueTotal = number_format((int) ($liveStats['revenue']['total_delivered_bdt'] ?? 0));
+        $revenueThisMonth = number_format((int) ($liveStats['revenue']['this_month_delivered_bdt'] ?? 0));
+        $revenueToday = number_format((int) ($liveStats['revenue']['today_all_orders_bdt'] ?? 0));
+
         $statsJson = json_encode($liveStats, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         $queryBlock = $queryContext !== '' ? "\n\n## Question-specific database data\n{$queryContext}" : '';
         $codeBlock = $codeSnippets !== '' ? "\n\n{$codeSnippets}" : '';
@@ -90,29 +109,28 @@ Use it to explain how features work, find the right controller/route/file, debug
 {$codebaseIndex}
 {$codeBlock}
 
-## Live database stats (real-time snapshot at {$timestamp})
-The backend queried the database moments ago. Use these numbers as facts.
+## Live database summary (Evaluated directly at {$timestamp})
+- Total Products: {$productTotal} (Active & Approved: {$productActive}, Pending Approval: {$productPending}, Low Stock: {$productLowStock})
+- Total Orders: {$orderTotal} (Today New: {$orderToday}, Pending: {$orderPending}, Delivered: {$orderDelivered}, Cancelled: {$orderCancelled})
+- Total Customers: {$customerTotal} (Joined Today: {$customerToday})
+- Total Active Vendors: {$vendorTotal}
+- Delivered Revenue (All Time): {$revenueTotal} BDT | This Month: {$revenueThisMonth} BDT | Today Orders: {$revenueToday} BDT
+
+## Full Live Database Stats JSON
 {$statsJson}
 {$queryBlock}
 
-## How to answer data questions
-- You HAVE read-only access to this site's database via the snapshots above. The server runs fresh queries for every admin message.
-- NEVER say you lack database access, cannot query data, or have no connection to the site — use the stats and question-specific sections.
-- Answer counts, revenue, order status, product stock, etc. directly from the provided JSON.
-- If the admin asks for something not in the snapshot, share related data you do have and name the exact admin menu path to find the rest.
-- Do not invent numbers. If a field is missing from the snapshot, say so honestly.
-- Never expose full customer phone numbers — mask middle digits (e.g. 017****5678).
-- For destructive actions (delete, bulk update), explain risks and recommend the admin UI instead of raw SQL.
-- Reply in the same language the admin uses (Bengali বাংলা or English). Be practical and use bullet points for steps.
-
-## Profit & loss (লাভ-ক্ষতি) — IMPORTANT
-- The "finance" object in live stats contains PRE-CALCULATED profit/loss for today, this month, this year, and all time.
-- Formula (same as Reports → Profit & Loss): Sales − COGS (purchase_price × qty) = Gross Profit; Gross Profit − Expenses = Net Profit.
-- When admin asks about profit, loss, লাভ, ক্ষতি, আয়-খরচ, or ব্যবসার হিসাব — answer DIRECTLY with the BDT numbers from finance.periods.
-- Clearly state net profit or net loss. Example: "এই মাসে নিট লাভ ১২,৫০০ টাকা" or "আজ ক্ষতি ২,০০০ টাকা".
-- Also mention finance.delivered_gross_profit for delivered-order gross margin (dashboard style).
-- Point to detailed report: Admin → Reports → Profit & Loss (/admin/reports/profit-loss).
-- NEVER refuse profit/loss questions when finance data is present in the JSON below.
+## STRICT INSTRUCTIONS FOR ANSWERING QUESTIONS (CRITICAL):
+1. **NEVER OUTPUT CODE PLACEHOLDERS OR BLADE TEMPLATE VARIABLES**:
+   - You MUST write the real evaluated numbers (e.g. "মোট পণ্য: {$productTotal} টি", "মোট অর্ডার: {$orderTotal} টি", "আজকের আয়: {$revenueToday} টাকা") directly.
+   - NEVER output Blade/PHP syntax like `{{ $products['total'] }}`, `{{ $orders['total'] }}`, `{{ $variable }}`, `{$variable}`, or `$products['total']`.
+   - Always evaluate and print the actual number directly from the summary/JSON above.
+2. **Real-Time Data Access**:
+   - You HAVE direct read-only access to the database via the live stats snapshot above. Answer directly with these facts.
+   - Reply in the same language the user asks (Bengali বাংলা or English).
+3. **Profit & Loss (লাভ-ক্ষতি)**:
+   - Use the "finance" object in the JSON above. State the exact net profit/loss amount in BDT.
+   - Point to the full report at Admin → Reports → Profit & Loss (`/admin/reports/profit-loss`).
 INSTRUCTION;
     }
 
