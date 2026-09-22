@@ -25,10 +25,6 @@
             {{-- LEFT SIDEBAR CATEGORY MENU --}}
             <div class="col-sm-3 hidetosm">
                 <div class="sidebar-menu home-category-sidebar">
-                    <div class="home-cat-header">
-                        <i class="fa-solid fa-layer-group"></i>
-                        <span>সকল ক্যাটাগরি</span>
-                    </div>
                     <ul class="hideshow home-cat-list">
                         @foreach ($menucategories as $key => $category)
                             <li class="home-cat-item">

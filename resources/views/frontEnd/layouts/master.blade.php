@@ -1176,50 +1176,48 @@ li.all__category__list:hover > a i {
 /* ═══════════════════════════════════════════════════════════════
    📂 HERO BANNER LEFT CATEGORY SIDEBAR MENU
    ═══════════════════════════════════════════════════════════════ */
+.slider-section .row {
+    align-items: stretch;
+}
 .slider-section .sidebar-menu,
 .home-category-sidebar {
     background: #ffffff !important;
-    border-radius: 14px !important;
+    border-radius: 8px !important;
     border: 1px solid #e8ecf2 !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
-    padding: 0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+    padding: 4px 6px !important;
     margin: 0 !important;
-    height: 100%;
-    min-height: 380px;
+    height: 100% !important;
+    max-height: 100% !important;
     display: flex;
     flex-direction: column;
     position: relative;
     z-index: 95;
-    overflow: visible !important;
+    overflow-y: auto !important;
+    overflow-x: visible !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
-
-.home-cat-header {
-    background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
-    color: #ffffff;
-    padding: 12px 18px;
-    font-size: 15px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-radius: 13px 13px 0 0;
-    letter-spacing: 0.2px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-.home-cat-header i {
-    font-size: 16px;
-    color: #ffffff;
-    opacity: 0.95;
+.slider-section .sidebar-menu::-webkit-scrollbar,
+.home-category-sidebar::-webkit-scrollbar,
+.home-cat-list::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .home-cat-list {
     list-style: none !important;
-    padding: 6px 8px !important;
+    padding: 0 !important;
     margin: 0 !important;
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    overflow-y: auto !important;
+    overflow-x: visible !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
 .home-cat-item {
