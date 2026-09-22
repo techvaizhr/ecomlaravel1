@@ -140,12 +140,18 @@ class ProductController extends Controller
             'download_limit'      => 'nullable|integer|min:1',
             'download_expire_days'=> 'nullable|integer|min:1',
             
+            // Video file validation (max 5MB = 5120KB)
+            'pro_video_file'      => 'nullable|file|mimes:mp4,webm,ogg,mov,avi,m4v|max:5120',
+            
             // Wholesale fields
             'is_wholesale'        => 'nullable',
             'wholesale_price'    => 'nullable|array',
             'wholesale_price.*.min_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.max_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.wholesale_price' => 'nullable|numeric|min:0',
+        ], [
+            'pro_video_file.max' => 'ভিডিও ফাইলের সাইজ সর্বোচ্চ ৫ মেগাবাইট (5MB) হতে পারবে।',
+            'pro_video_file.mimes' => 'ভিডিও ফাইলটি অবশ্যই mp4, webm, ogg, mov বা avi ফরম্যাটের হতে হবে।',
         ]);
 
         $last_id = Product::max('id') + 1;
@@ -402,12 +408,18 @@ class ProductController extends Controller
             'download_limit'      => 'nullable|integer|min:1',
             'download_expire_days'=> 'nullable|integer|min:1',
             
+            // Video file validation (max 5MB = 5120KB)
+            'pro_video_file'      => 'nullable|file|mimes:mp4,webm,ogg,mov,avi,m4v|max:5120',
+            
             // Wholesale fields
             'is_wholesale'        => 'nullable',
             'wholesale_price'    => 'nullable|array',
             'wholesale_price.*.min_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.max_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.wholesale_price' => 'nullable|numeric|min:0',
+        ], [
+            'pro_video_file.max' => 'ভিডিও ফাইলের সাইজ সর্বোচ্চ ৫ মেগাবাইট (5MB) হতে পারবে।',
+            'pro_video_file.mimes' => 'ভিডিও ফাইলটি অবশ্যই mp4, webm, ogg, mov বা avi ফরম্যাটের হতে হবে।',
         ]);
 
         $product = Product::findOrFail($request->id);

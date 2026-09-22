@@ -1,4 +1,4 @@
-﻿@extends('backEnd.layouts.master')
+@extends('backEnd.layouts.master')
 @section('title','Create New Product')
 
 @section('css')
@@ -9,39 +9,58 @@
 
 @section('content')
 <div class="container-fluid product-form-page">
+    
+    {{-- Page Header --}}
     <div class="pf-page-header">
         <div>
-            <h4>নতুন প্রোডাক্ট যোগ করুন</h4>
-            <p class="pf-sub mb-0">বেসিক তথ্য, ভ্যারিয়েন্ট, হোলসেল, SEO ও মিডিয়া — সব ফিল্ড একইভাবে সেভ হবে।</p>
+            <h4>
+                <span class="header-icon-badge"><i class="fe-package"></i></span>
+                নতুন প্রোডাক্ট যোগ করুন
+            </h4>
+            <p class="pf-sub mb-0">প্রোডাক্টের সাধারণ তথ্য, ভ্যারিয়েন্ট, হোলসেল টায়ার, এসইও এবং মিডিয়া ফাইল যুক্ত করে সহজে পাবলিশ করুন।</p>
         </div>
         <div class="pf-header-actions">
-            <a href="{{ route('products.index') }}" class="pf-btn-manage"><i class="fe-list"></i> প্রোডাক্ট তালিকা</a>
+            <a href="{{ route('products.index') }}" class="pf-btn-manage">
+                <i class="fe-arrow-left"></i> প্রোডাক্ট তালিকা
+            </a>
         </div>
     </div>
 
-    <form action="{{route('products.store')}}" method="POST" data-parsley-validate="" enctype="multipart/form-data">
+    <form action="{{route('products.store')}}" method="POST" id="productForm" data-parsley-validate="" enctype="multipart/form-data">
         @csrf
         <div class="row">
+            {{-- Left Main Column --}}
             <div class="col-lg-8">
+                
+                {{-- 1. Basic Information Card --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-info me-1"></i> Basic Information</div>
+                        <div class="section-title">
+                            <div class="section-title-left">
+                                <i class="fe-info"></i>
+                                <span>Basic Information</span>
+                            </div>
+                            <span class="badge bg-soft-primary text-primary rounded-pill px-2.5 py-1">ধাপ ১ : সাধারণ তথ্য</span>
+                        </div>
                         
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Product Name *</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" placeholder="Enter product name" required />
+                            <label for="name" class="form-label">
+                                Product Name <span class="req">*</span>
+                            </label>
+                            <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" name="name" id="product_name_input" value="{{ old('name') }}" placeholder="e.g. Premium Cotton Casual Shirt for Men" required />
                             @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Main Category *</label>
-                                <select class="form-control select2" name="category_id" id="category_id" required>
-                                    <option value="">Select Category</option>
+                                <label class="form-label">Main Category <span class="req">*</span></label>
+                                <select class="form-control select2 @error('category_id') is-invalid @enderror" name="category_id" id="category_id" required>
+                                    <option value="">Select Main Category</option>
                                     @foreach($categories as $category)
-                                        <option value="{{$category->id}}">{{$category->name}}</option>
+                                        <option value="{{$category->id}}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{$category->name}}</option>
                                     @endforeach
                                 </select>
+                                @error('category_id') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Sub Category</label>
@@ -59,56 +78,76 @@
 
                         <div class="form-group mb-3">
                             <div class="pf-desc-label-row">
-                                <label class="form-label mb-0">Full Description *</label>
+                                <label class="form-label mb-0">Full Description <span class="req">*</span></label>
                                 @include('backEnd.product.partials.ai_description_button')
                             </div>
                             <textarea name="description" class="summernote" required>{{ old('description') }}</textarea>
+                            @error('description') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group mb-0">
-                            <label class="form-label">Short Note</label>
-                            <textarea name="note" rows="2" class="form-control" placeholder="Small note for internal use..."></textarea>
+                            <label class="form-label">Internal Short Note <small class="text-muted">(Optional)</small></label>
+                            <textarea name="note" rows="2" class="form-control" placeholder="অভ্যন্তরীণ বা স্টাফদের জন্য কোনো বিশেষ নোট...">{{ old('note') }}</textarea>
                         </div>
                     </div>
                 </div>
 
+                {{-- 2. Wholesale Pricing Card --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="form-group mb-3">
-                            <label class="d-block form-label">Wholesale Product</label>
-                            <label class="switch"><input type="checkbox" value="1" name="is_wholesale" id="is_wholesale"><span class="slider round"></span></label>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle bg-soft-success p-2 d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                    <i class="fe-tag text-success fs-5"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" style="font-size:14px;">Wholesale / পাইকারি বিক্রি</h6>
+                                    <small class="text-muted">পরিমাণ অনুযায়ী পাইকারি বা হোলসেল মূল্যের স্তর তৈরি করুন</small>
+                                </div>
+                            </div>
+                            <label class="switch mb-0">
+                                <input type="checkbox" value="1" name="is_wholesale" id="is_wholesale">
+                                <span class="slider slider-success"></span>
+                            </label>
                         </div>
                     </div>
                 </div>
 
                 <div id="wholesale_area" style="display:none;" class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-dollar-sign me-1"></i> Wholesale Pricing Tiers</span>
-                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add New Tier</button>
+                        <div class="section-title">
+                            <div class="section-title-left">
+                                <i class="fe-dollar-sign text-success"></i>
+                                <span>Wholesale Pricing Tiers</span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3 shadow-sm">
+                                <i class="fa fa-plus me-1"></i> Add Tier
+                            </button>
                         </div>
                         
                         <div id="wholesale-wrapper">
                             <div class="variant-card">
-                                <div class="row align-items-end">
-                                    <div class="col-md-3 mb-2">
+                                <div class="row align-items-end g-2">
+                                    <div class="col-md-3">
                                         <label class="form-label">Min Quantity</label>
                                         <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
                                     </div>
-                                    <div class="col-md-3 mb-2">
-                                        <label class="form-label">Max Quantity</label>
-                                        <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Max Quantity <small class="text-muted">(Opt)</small></label>
+                                        <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50">
                                     </div>
-                                    <div class="col-md-2 mb-2">
-                                        <label class="form-label">Wholesale Price</label>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Tier Price (৳)</label>
                                         <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
                                     </div>
-                                    <div class="col-md-2 mb-2">
+                                    <div class="col-md-2">
                                         <label class="form-label">Stock Qty</label>
                                         <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
                                     </div>
-                                    <div class="col-md-2 mb-2">
-                                        <button type="button" class="btn btn-success add-wholesale-tier w-100"><i class="fa fa-plus"></i></button>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-success add-wholesale-tier w-100 rounded-3">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -116,17 +155,23 @@
                     </div>
                 </div>
 
+                {{-- 3. Product Variants Card --}}
                 <div class="card mb-4" id="variant_section">
                     <div class="card-body">
-                        <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-layers me-1"></i> Product Variants (Size & Color)</span>
-                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add New Variant</button>
+                        <div class="section-title">
+                            <div class="section-title-left">
+                                <i class="fe-layers"></i>
+                                <span>Product Variants (Size & Color)</span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-primary add-variant rounded-pill px-3 shadow-sm" style="background:var(--pf-primary);border-color:var(--pf-primary);">
+                                <i class="fa fa-plus me-1"></i> Add New Variant
+                            </button>
                         </div>
                         
                         <div id="variant-wrapper">
                             <div class="variant-card variant-item">
-                                <div class="row align-items-end">
-                                    <div class="col-md-2 mb-2">
+                                <div class="row align-items-end g-2">
+                                    <div class="col-md-3 mb-2">
                                         <label class="form-label">Color <small class="text-muted">(Optional)</small></label>
                                         <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
                                             <option value="">Select Color</option>
@@ -135,7 +180,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-2 mb-2">
+                                    <div class="col-md-3 mb-2">
                                         <label class="form-label">Size <small class="text-muted">(Optional)</small></label>
                                         <select name="variant_price[0][size_id][]" class="form-control select2 variant-size-select" multiple>
                                             @foreach($sizes as $size)
@@ -144,65 +189,91 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <label class="form-label">Price</label>
+                                        <label class="form-label">Price (৳)</label>
                                         <input type="number" step="0.01" name="variant_price[0][price]" class="form-control" placeholder="0.00">
                                     </div>
                                     <div class="col-md-2 mb-2">
                                         <label class="form-label">Stock</label>
                                         <input type="number" name="variant_price[0][stock]" class="form-control" placeholder="0">
                                     </div>
-                                    <div class="col-md-3 mb-2">
-                                        <label class="form-label">Variant Image</label>
-                                        <div class="variant-img-upload position-relative">
+                                    <div class="col-md-2 mb-2">
+                                        <button type="button" class="btn btn-outline-danger btn-remove-row d-none w-100 rounded-3">
+                                            <i class="fe-trash-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="row align-items-center mt-2 pt-2 border-top g-2">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <label class="form-label mb-0" style="min-width:90px;font-size:12px;">Variant Image:</label>
                                             <input type="file" name="variant_image[0][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
-                                            <div class="variant-img-preview mt-1" style="display:none;">
-                                                <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
-                                                <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="Remove"><i class="fe-x"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="variant-img-preview" style="display:none;">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img src="" alt="Preview" class="rounded border" style="width:40px;height:40px;object-fit:cover;">
+                                                <button type="button" class="btn btn-xs btn-outline-danger variant-img-clear" title="Remove image">
+                                                    <i class="fe-x"></i> Clear
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-1 mb-2">
-                                        <button type="button" class="btn btn-danger btn-remove-row d-none w-100"><i class="fe-trash-2"></i></button>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <small class="text-muted">
-                                            <i class="fa fa-info-circle"></i> 
-                                            Color ও Size অনুযায়ী ইমেজ এড করুন। Product details পেজে সিলেক্ট করলে সেই ইমেজ দেখাবে।
-                                        </small>
-                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fa fa-info-circle text-primary me-1"></i> কালার ও সাইজ নির্বাচন করে ভ্যারিয়েন্ট তৈরি করুন। একাধিক সাইজ সিলেক্ট করলে স্বয়ংক্রিয়ভাবে আলাদা ভ্যারিয়েন্ট সাজিয়ে সেভ হবে।
+                        </small>
                     </div>
                 </div>
 
+                {{-- 4. SEO Configuration Card --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-search me-1"></i> SEO Configuration</div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                        <div class="section-title">
+                            <div class="section-title-left">
+                                <i class="fe-search text-info"></i>
+                                <span>Search Engine Optimization (SEO)</span>
+                            </div>
+                            <span class="badge bg-soft-info text-info rounded-pill px-2.5 py-1">Google SERP Preview</span>
+                        </div>
+
+                        {{-- Google SERP Snippet Preview Box --}}
+                        <div class="serp-preview-card">
+                            <div class="serp-url">
+                                <i class="fa fa-globe text-muted"></i>
+                                <span>{{ url('/') }} › product › <span id="serp_slug_preview">your-product-slug</span></span>
+                            </div>
+                            <div class="serp-title" id="serp_title_preview">Your Product Title Preview - Buy Online in Bangladesh</div>
+                            <div class="serp-desc" id="serp_desc_preview">Product description snippet will appear here on Google search results...</div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
                                 <label class="form-label">Meta Title</label>
-                                <input type="text" name="meta_title" class="form-control" placeholder="SEO optimized title">
+                                <input type="text" name="meta_title" id="meta_title_input" class="form-control" placeholder="SEO optimized title">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6">
                                 <label class="form-label">Meta Keywords</label>
-                                <input type="text" name="meta_keywords" class="form-control" placeholder="keyword1, keyword2">
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Meta Description</label>
-                                <textarea name="meta_description" class="form-control" rows="2" placeholder="Brief description for search engines"></textarea>
+                                <input type="text" name="meta_keywords" class="form-control" placeholder="keyword1, keyword2, keyword3">
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label">Meta Image</label>
-                                <input type="file" name="meta_image" class="form-control">
+                                <label class="form-label">Meta Description</label>
+                                <textarea name="meta_description" id="meta_desc_input" class="form-control" rows="2" placeholder="Brief search snippet description (max 160 characters)..."></textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Meta Social Image <small class="text-muted">(OG Share Image)</small></label>
+                                <input type="file" name="meta_image" class="form-control" accept="image/*">
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
+            {{-- Right Sidebar Column --}}
             <div class="col-lg-4 pf-sidebar-col">
                 @include('backEnd.product.partials.create_sidebar')
             </div>
@@ -219,7 +290,19 @@
 <script>
     $(document).ready(function () {
         $('.select2').select2({ width: '100%' });
-        $(".summernote").summernote({ height: 200, placeholder: "Describe your product..." });
+        $(".summernote").summernote({
+            height: 220,
+            placeholder: "প্রোডাক্টের বিস্তারিত বর্ণনা লিখুন...",
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview']]
+            ]
+        });
 
         // Image Increment
         $(".btn-increment").click(function () {
@@ -260,13 +343,11 @@
             let wrapper = $("#variant-wrapper");
             let firstRow = wrapper.find('.variant-item').first().clone();
             
-            // Clear inputs and fix select2
             firstRow.find('.select2-container').remove();
             firstRow.find('input').val('');
             firstRow.find('select').each(function(){
                 let oldName = $(this).attr('name');
                 if (oldName) {
-                    // Handle size array name
                     if (oldName.includes('[size_id][]')) {
                         $(this).attr('name', 'variant_price[' + variantIndex + '][size_id][]');
                     } else if (oldName.includes('variant_image')) {
@@ -285,7 +366,6 @@
             firstRow.find('.btn-remove-row').removeClass('d-none');
             wrapper.append(firstRow);
             
-            // Reinitialize Select2 for new row
             setTimeout(() => {
                 firstRow.find('.variant-size-select').select2({
                     multiple: true,
@@ -308,7 +388,8 @@
         // Variant Image Preview & Clear
         $("body").on("change", ".variant-img-input", function() {
             var $input = $(this);
-            var $preview = $input.siblings(".variant-img-preview");
+            var $row = $input.closest(".variant-item");
+            var $preview = $row.find(".variant-img-preview");
             var $img = $preview.find("img");
             var file = this.files[0];
             if (file && file.type.startsWith("image/")) {
@@ -318,16 +399,15 @@
             } else { $preview.hide(); $img.attr("src", ""); }
         });
         $("body").on("click", ".variant-img-clear", function() {
-            var $preview = $(this).closest(".variant-img-preview");
-            $preview.siblings(".variant-img-input").val("");
-            $preview.find("img").attr("src", "");
-            $preview.hide();
+            var $row = $(this).closest(".variant-item");
+            $row.find(".variant-img-input").val("");
+            $row.find(".variant-img-preview").hide().find("img").attr("src", "");
         });
 
-        // Handle form submission - expand multiple sizes into separate entries (keep file inputs)
-        $('form[data-parsley-validate]').on('submit', function(e) {
+        // Handle form submission - expand multiple sizes into separate entries
+        $('#productForm').on('submit', function(e) {
             let variantData = [];
-            let variantIndex = 0;
+            let variantIdx = 0;
             let rowIndex = 0;
             
             $('#variant-wrapper .variant-item').each(function() {
@@ -341,23 +421,22 @@
                 
                 if (selectedSizes.length > 0) {
                     selectedSizes.forEach(function(sizeId) {
-                        variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, price: price, stock: stock, image_row: rowIndex });
+                        variantData.push({ index: variantIdx++, color_id: colorId, size_id: sizeId, price: price, stock: stock, image_row: rowIndex });
                     });
                 } else {
-                    variantData.push({ index: variantIndex++, color_id: colorId, size_id: null, price: price, stock: stock, image_row: rowIndex });
+                    variantData.push({ index: variantIdx++, color_id: colorId, size_id: null, price: price, stock: stock, image_row: rowIndex });
                 }
                 rowIndex++;
             });
             
-            // Remove only non-file variant_price inputs (keep file inputs for images)
             $(this).find('input[name*="variant_price"]:not([type="file"]), select[name*="variant_price"]').remove();
             
             variantData.forEach(function(v) {
-                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][color_id]', value: v.color_id }).appendTo($('form[data-parsley-validate]'));
-                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][size_id]', value: v.size_id || '' }).appendTo($('form[data-parsley-validate]'));
-                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][price]', value: v.price }).appendTo($('form[data-parsley-validate]'));
-                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][stock]', value: v.stock }).appendTo($('form[data-parsley-validate]'));
-                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][image_row]', value: v.image_row }).appendTo($('form[data-parsley-validate]'));
+                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][color_id]', value: v.color_id }).appendTo($('#productForm'));
+                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][size_id]', value: v.size_id || '' }).appendTo($('#productForm'));
+                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][price]', value: v.price }).appendTo($('#productForm'));
+                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][stock]', value: v.stock }).appendTo($('#productForm'));
+                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][image_row]', value: v.image_row }).appendTo($('#productForm'));
             });
         });
 
@@ -365,10 +444,8 @@
         $("#is_wholesale").on("change", function () {
             if ($(this).is(':checked')) {
                 $("#wholesale_area").slideDown();
-                $("#wholesale_area input").prop('required', true);
             } else {
                 $("#wholesale_area").slideUp();
-                $("#wholesale_area input").prop('required', false);
             }
         });
 
@@ -380,12 +457,13 @@
             
             firstRow.find('input').each(function(){
                 let oldName = $(this).attr('name');
-                $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + wholesaleIndex + ']'));
+                if (oldName) {
+                    $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + wholesaleIndex + ']'));
+                }
                 $(this).val('');
             });
 
-            // Change add button to remove button
-            firstRow.find('.add-wholesale-tier').removeClass('btn-success add-wholesale-tier').addClass('btn-danger btn-remove-wholesale').html('<i class="fa fa-trash"></i>');
+            firstRow.find('.add-wholesale-tier').removeClass('btn-success add-wholesale-tier').addClass('btn-outline-danger btn-remove-wholesale').html('<i class="fa fa-trash"></i>');
             wrapper.append(firstRow);
             wholesaleIndex++;
         });
@@ -404,6 +482,9 @@
                         $("#subcategory_id").append('<option value="'+key+'">'+value+'</option>');
                     });
                 });
+            } else {
+                $("#subcategory_id").empty().append('<option value="">Choose Sub Category</option>');
+                $("#childcategory_id").empty().append('<option value="">Choose Child Category</option>');
             }
         });
 
@@ -416,15 +497,80 @@
                         $("#childcategory_id").append('<option value="'+key+'">'+value+'</option>');
                     });
                 });
+            } else {
+                $("#childcategory_id").empty().append('<option value="">Choose Child Category</option>');
             }
+        });
+
+        // Live Profit & Discount % Calculator
+        function calculateMetrics() {
+            var purchase = parseFloat($('#pro_purchase_price').val()) || 0;
+            var oldP = parseFloat($('#pro_old_price').val()) || 0;
+            var newP = parseFloat($('#pro_new_price').val()) || 0;
+            var $area = $('#price_metrics_area');
+            var $disc = $('#discount_pill');
+            var $prof = $('#profit_pill');
+            var hasAny = false;
+
+            // Discount calculation
+            if (oldP > 0 && newP > 0 && oldP > newP) {
+                var discPct = Math.round(((oldP - newP) / oldP) * 100);
+                $disc.html('<i class="fe-tag"></i> ' + discPct + '% Discount').show();
+                hasAny = true;
+            } else {
+                $disc.hide();
+            }
+
+            // Profit calculation
+            if (newP > 0 && purchase > 0) {
+                var profit = newP - purchase;
+                var profitPct = Math.round((profit / purchase) * 100);
+                if (profit >= 0) {
+                    $prof.html('<i class="fe-trending-up"></i> Profit: ৳' + profit.toFixed(2) + ' (' + profitPct + '%)').removeClass('bg-danger text-white').show();
+                } else {
+                    $prof.html('<i class="fe-trending-down"></i> Loss: ৳' + Math.abs(profit).toFixed(2)).addClass('bg-danger text-white').show();
+                }
+                hasAny = true;
+            } else {
+                $prof.hide();
+            }
+
+            if (hasAny) {
+                $area.removeAttr('style').css('display', 'flex !important');
+            } else {
+                $area.attr('style', 'display:none !important;');
+            }
+        }
+
+        $('#pro_purchase_price, #pro_old_price, #pro_new_price').on('input change', calculateMetrics);
+
+        // SEO SERP Live Preview
+        $('#product_name_input').on('input', function() {
+            var name = $(this).val().trim();
+            if (!$('#meta_title_input').val()) {
+                $('#serp_title_preview').text(name || 'Your Product Title Preview');
+            }
+            var slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            $('#serp_slug_preview').text(slug || 'your-product-slug');
+        });
+
+        $('#meta_title_input').on('input', function() {
+            var val = $(this).val().trim();
+            $('#serp_title_preview').text(val || $('#product_name_input').val() || 'Your Product Title Preview');
+        });
+
+        $('#meta_desc_input').on('input', function() {
+            var val = $(this).val().trim();
+            $('#serp_desc_preview').text(val || 'Product description snippet will appear here on Google search results...');
         });
     });
 
-    // ===== VIDEO SOURCE SWITCHER (Create) =====
+    // ===== VIDEO LOGIC & 5MB FILE SIZE ENFORCEMENT =====
     (function () {
         var radios   = document.querySelectorAll('input[name="pro_video_source"]');
         var ytSec    = document.getElementById('yt_section_c');
         var upSec    = document.getElementById('up_section_c');
+        var limitBadge = document.getElementById('video_limit_badge');
 
         function switchVideo(val) {
             if (val === 'upload') {
@@ -458,19 +604,68 @@
             });
         }
 
-        // Upload local preview
+        // Direct Video Upload: 5MB MAX SIZE ENFORCEMENT
         var upInput = document.getElementById('pro_video_file_c');
+        var errBox  = document.getElementById('video_size_error_c');
+        var errMsg  = document.getElementById('video_error_msg');
+        var sizeTxt = document.getElementById('video_file_size_text');
+        var box     = document.getElementById('up_preview_c');
+        var vid     = document.getElementById('up_video_c');
+        var clearBtn = document.getElementById('clear_video_btn');
+
+        var MAX_VIDEO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB = 5,242,880 Bytes
+
         if (upInput) {
             upInput.addEventListener('change', function () {
                 var file = this.files[0];
-                var box  = document.getElementById('up_preview_c');
-                var vid  = document.getElementById('up_video_c');
-                if (file) {
-                    vid.src = URL.createObjectURL(file);
-                    box.style.display = '';
-                } else {
-                    vid.src = '';
+                if (!file) {
                     box.style.display = 'none';
+                    errBox.style.display = 'none';
+                    vid.src = '';
+                    return;
+                }
+
+                // Check 5 MB Limit
+                if (file.size > MAX_VIDEO_SIZE_BYTES) {
+                    var currentMb = (file.size / (1024 * 1024)).toFixed(2);
+                    errMsg.innerHTML = 'ভিডিও সাইজ সর্বোচ্চ <strong>৫ MB</strong> হতে পারবে। আপনার ভিডিওর সাইজ <strong>' + currentMb + ' MB</strong>!';
+                    errBox.style.display = 'block';
+                    
+                    // Reset input and preview
+                    this.value = '';
+                    box.style.display = 'none';
+                    vid.src = '';
+
+                    if (limitBadge) {
+                        limitBadge.className = 'pf-video-size-badge';
+                        limitBadge.innerHTML = '<i class="fa fa-times-circle"></i> ' + currentMb + ' MB (Exceeded)';
+                    }
+                    return;
+                }
+
+                // Valid <= 5MB Video File
+                errBox.style.display = 'none';
+                var fileMb = (file.size / (1024 * 1024)).toFixed(2);
+                sizeTxt.innerText = fileMb + ' MB / 5 MB';
+                vid.src = URL.createObjectURL(file);
+                box.style.display = '';
+
+                if (limitBadge) {
+                    limitBadge.className = 'pf-video-size-badge valid';
+                    limitBadge.innerHTML = '<i class="fa fa-check-circle"></i> ' + fileMb + ' MB (Valid)';
+                }
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                if (upInput) upInput.value = '';
+                if (box) box.style.display = 'none';
+                if (vid) vid.src = '';
+                if (errBox) errBox.style.display = 'none';
+                if (limitBadge) {
+                    limitBadge.className = 'pf-video-size-badge';
+                    limitBadge.innerHTML = '<i class="fa fa-shield"></i> Max 5 MB';
                 }
             });
         }

@@ -106,42 +106,69 @@
             @endif
 
             @php $existingVideoType = $edit_data->pro_video_type ?? ($edit_data->pro_video ? 'youtube' : null); @endphp
-            <label class="form-label mt-2 mb-1">প্রোডাক্ট ভিডিও</label>
-            <div class="d-flex pf-video-radios flex-wrap">
-                <div class="form-check form-check-inline mb-0">
-                    <input class="form-check-input" type="radio" name="pro_video_source" id="vs_yt_e" value="youtube" {{ $existingVideoType !== 'upload' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="vs_yt_e"><i class="fa fa-youtube-play text-danger"></i> YouTube</label>
+            <div class="pf-side-head mt-2">
+                <div class="pf-side-head-left">
+                    <i class="fe-video"></i>
+                    <span>Product Video</span>
                 </div>
-                <div class="form-check form-check-inline mb-0">
-                    <input class="form-check-input" type="radio" name="pro_video_source" id="vs_up_e" value="upload" {{ $existingVideoType === 'upload' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="vs_up_e"><i class="fa fa-upload text-primary"></i> Upload</label>
-                </div>
+                <span class="pf-video-size-badge" id="video_limit_badge_e">
+                    <i class="fa fa-shield"></i> Max 5 MB
+                </span>
             </div>
-            <div id="yt_section_e" style="{{ $existingVideoType === 'upload' ? 'display:none;' : '' }}">
-                <input type="text" name="pro_video" id="pro_video_e" class="form-control form-control-sm @error('pro_video') is-invalid @enderror"
-                       value="{{ $edit_data->pro_video }}" placeholder="YouTube URL / Video ID">
-                @error('pro_video')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                @if($edit_data->pro_video)
-                <div id="yt_preview_e" class="mt-1">
-                    <iframe id="yt_iframe_e" width="100%" height="100" src="https://www.youtube.com/embed/{{ $edit_data->pro_video }}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe>
+
+            <div class="pf-video-card">
+                <div class="pf-video-source-pill">
+                    <input type="radio" name="pro_video_source" id="vs_yt_e" value="youtube" {{ $existingVideoType !== 'upload' ? 'checked' : '' }}>
+                    <label for="vs_yt_e"><i class="fa fa-youtube-play text-danger"></i> YouTube</label>
+
+                    <input type="radio" name="pro_video_source" id="vs_up_e" value="upload" {{ $existingVideoType === 'upload' ? 'checked' : '' }}>
+                    <label for="vs_up_e"><i class="fa fa-cloud-upload text-primary"></i> Upload</label>
                 </div>
-                @else
-                <div id="yt_preview_e" class="mt-1" style="display:none;">
-                    <iframe id="yt_iframe_e" width="100%" height="100" src="" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe>
+
+                <div id="yt_section_e" style="{{ $existingVideoType === 'upload' ? 'display:none;' : '' }}">
+                    <input type="text" name="pro_video" id="pro_video_e" class="form-control form-control-sm @error('pro_video') is-invalid @enderror"
+                           value="{{ $edit_data->pro_video }}" placeholder="YouTube URL / Video ID">
+                    @error('pro_video')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                    @if($edit_data->pro_video)
+                    <div id="yt_preview_e" class="mt-2">
+                        <iframe id="yt_iframe_e" width="100%" height="130" src="https://www.youtube.com/embed/{{ $edit_data->pro_video }}" frameborder="0" allowfullscreen style="border-radius:10px;"></iframe>
+                    </div>
+                    @else
+                    <div id="yt_preview_e" class="mt-2" style="display:none;">
+                        <iframe id="yt_iframe_e" width="100%" height="130" src="" frameborder="0" allowfullscreen style="border-radius:10px;"></iframe>
+                    </div>
+                    @endif
                 </div>
-                @endif
-            </div>
-            <div id="up_section_e" style="{{ $existingVideoType === 'upload' ? '' : 'display:none;' }}">
-                @if($existingVideoType === 'upload' && $edit_data->pro_video_path)
-                <div class="mb-1 p-1 bg-light rounded d-flex align-items-center gap-1" style="font-size:11px;">
-                    <i class="fa fa-film text-primary"></i>
-                    <span class="text-truncate">{{ basename($edit_data->pro_video_path) }}</span>
-                    <a href="{{ asset($edit_data->pro_video_path) }}" target="_blank" class="btn btn-xs btn-outline-primary ms-auto py-0 px-1"><i class="fa fa-play"></i></a>
-                </div>
-                @endif
-                <input type="file" name="pro_video_file" id="pro_video_file_e" class="form-control form-control-sm" accept="video/mp4,video/webm,video/ogg">
-                <div id="up_preview_e" class="mt-1" style="display:none;">
-                    <video id="up_video_e" width="100%" height="100" controls style="border-radius:8px;background:#000;"></video>
+
+                <div id="up_section_e" style="{{ $existingVideoType === 'upload' ? '' : 'display:none;' }}">
+                    @if($existingVideoType === 'upload' && $edit_data->pro_video_path)
+                    <div class="mb-2 p-2 bg-light rounded d-flex align-items-center gap-2" style="font-size:12px;">
+                        <i class="fa fa-film text-primary"></i>
+                        <span class="text-truncate fw-bold">{{ basename($edit_data->pro_video_path) }}</span>
+                        <a href="{{ asset($edit_data->pro_video_path) }}" target="_blank" class="btn btn-xs btn-outline-primary ms-auto py-0 px-2"><i class="fa fa-play"></i></a>
+                    </div>
+                    @endif
+                    <input type="file" name="pro_video_file" id="pro_video_file_e" class="form-control form-control-sm" accept="video/mp4,video/webm,video/ogg">
+                    
+                    <div id="up_preview_e" class="mt-2" style="display:none;">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="badge bg-soft-success text-success" id="video_file_size_text_e" style="font-size:11px;">0 MB / 5 MB</span>
+                            <button type="button" class="btn btn-xs btn-link text-danger p-0 text-decoration-none" id="clear_video_btn_e">
+                                <i class="fe-trash-2"></i> রিমুভ
+                            </button>
+                        </div>
+                        <video id="up_video_e" width="100%" height="130" controls style="border-radius:10px;background:#000;"></video>
+                    </div>
+
+                    <div id="video_size_error_e" class="video-error-alert">
+                        <i class="fa fa-exclamation-triangle me-1"></i>
+                        <span id="video_error_msg_e">ভিডিও সাইজ ৫ MB এর বেশি হতে পারবে না!</span>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mt-1">
+                        <small class="text-muted" style="font-size:11px;">MP4, WebM, OGG</small>
+                        <small class="text-danger fw-bold" style="font-size:11px;">সর্বোচ্চ ৫ MB</small>
+                    </div>
                 </div>
             </div>
         </div>

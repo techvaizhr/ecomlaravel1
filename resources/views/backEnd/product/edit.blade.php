@@ -1,4 +1,4 @@
-﻿@extends('backEnd.layouts.master')
+@extends('backEnd.layouts.master')
 @section('title','Product Edit')
 
 @section('css')
@@ -798,16 +798,68 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Upload local preview
+    // Upload local preview & 5MB Size Validation
     var upInput = document.getElementById('pro_video_file_e');
+    var errBox  = document.getElementById('video_size_error_e');
+    var errMsg  = document.getElementById('video_error_msg_e');
+    var sizeTxt = document.getElementById('video_file_size_text_e');
+    var box     = document.getElementById('up_preview_e');
+    var vid     = document.getElementById('up_video_e');
+    var clearBtn = document.getElementById('clear_video_btn_e');
+    var limitBadge = document.getElementById('video_limit_badge_e');
+
+    var MAX_VIDEO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
     if (upInput) {
         upInput.addEventListener('change', function () {
             var file = this.files[0];
-            var box  = document.getElementById('up_preview_e');
-            var vid  = document.getElementById('up_video_e');
-            if (file && box && vid) {
-                vid.src = URL.createObjectURL(file);
-                box.style.display = '';
+            if (!file) {
+                if (box) box.style.display = 'none';
+                if (errBox) errBox.style.display = 'none';
+                if (vid) vid.src = '';
+                return;
+            }
+
+            // Check 5 MB Limit
+            if (file.size > MAX_VIDEO_SIZE_BYTES) {
+                var currentMb = (file.size / (1024 * 1024)).toFixed(2);
+                if (errMsg) errMsg.innerHTML = 'ভিডিও সাইজ সর্বোচ্চ <strong>৫ MB</strong> হতে পারবে। আপনার ভিডিওর সাইজ <strong>' + currentMb + ' MB</strong>!';
+                if (errBox) errBox.style.display = 'block';
+                
+                this.value = '';
+                if (box) box.style.display = 'none';
+                if (vid) vid.src = '';
+
+                if (limitBadge) {
+                    limitBadge.className = 'pf-video-size-badge';
+                    limitBadge.innerHTML = '<i class="fa fa-times-circle"></i> ' + currentMb + ' MB (Exceeded)';
+                }
+                return;
+            }
+
+            // Valid <= 5MB Video File
+            if (errBox) errBox.style.display = 'none';
+            var fileMb = (file.size / (1024 * 1024)).toFixed(2);
+            if (sizeTxt) sizeTxt.innerText = fileMb + ' MB / 5 MB';
+            if (vid) vid.src = URL.createObjectURL(file);
+            if (box) box.style.display = '';
+
+            if (limitBadge) {
+                limitBadge.className = 'pf-video-size-badge valid';
+                limitBadge.innerHTML = '<i class="fa fa-check-circle"></i> ' + fileMb + ' MB (Valid)';
+            }
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            if (upInput) upInput.value = '';
+            if (box) box.style.display = 'none';
+            if (vid) vid.src = '';
+            if (errBox) errBox.style.display = 'none';
+            if (limitBadge) {
+                limitBadge.className = 'pf-video-size-badge';
+                limitBadge.innerHTML = '<i class="fa fa-shield"></i> Max 5 MB';
             }
         });
     }
