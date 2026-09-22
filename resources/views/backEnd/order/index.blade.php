@@ -285,8 +285,13 @@
                         </table>
                     </div>
 
-                    <div class="oi-paginate custom-paginate order-custom-paginate mt-3">
-                        {{ $show_data->links('pagination::bootstrap-4') }}
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2 border-top">
+                        <div class="text-muted small">
+                            দেখাচ্ছে <span class="fw-bold text-dark">{{ $show_data->firstItem() ?? 0 }}</span> থেকে <span class="fw-bold text-dark">{{ $show_data->lastItem() ?? 0 }}</span> (মোট <span class="fw-bold text-primary">{{ $show_data->total() }}</span> টি অর্ডার)
+                        </div>
+                        <div class="oi-paginate custom-paginate order-custom-paginate m-0">
+                            {{ $show_data->links('pagination::bootstrap-4') }}
+                        </div>
                     </div>
         </div>
     </div>

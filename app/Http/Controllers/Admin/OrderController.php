@@ -649,7 +649,8 @@ PROMPT;
                         });
                 });
             }
-            $show_data = $this->applyTrafficSourceFilter($show_data, $request)->paginate(10)->withQueryString();
+            $perPage = admin_per_page(10, 'admin_order_per_page');
+            $show_data = $this->applyTrafficSourceFilter($show_data, $request)->paginate($perPage)->withQueryString();
         } else {
             $order_status = OrderStatus::where('slug', $slug)->first();
             if (!$order_status) {
@@ -669,7 +670,8 @@ PROMPT;
                     'orderdetails.vendor:id,shop_name,owner_name'
                 ]);
 
-            $show_data = $this->applyTrafficSourceFilter($show_data, $request)->paginate(10)->withQueryString();
+            $perPage = admin_per_page(10, 'admin_order_per_page');
+            $show_data = $this->applyTrafficSourceFilter($show_data, $request)->paginate($perPage)->withQueryString();
         }
 
         // ✅ Cache users dropdown for 10 minutes
