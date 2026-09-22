@@ -116,9 +116,9 @@
     .oi-table-rail, .order-table-rail {
         width: 100%;
         overflow-x: auto;
-        overflow-y: visible;
         -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
+        overscroll-behavior-x: auto;
+        overscroll-behavior-y: auto;
         border-radius: 10px;
         border: 1px solid #e2e8f0;
         position: relative;
