@@ -67,8 +67,6 @@ class GeminiAdminContextService
 
         $liveStats = $this->liveStats();
         $queryContext = $userMessage ? $this->buildQueryContext($userMessage) : '';
-        $codebaseIndex = $this->codebaseContext->buildCodebaseIndex();
-        $codeSnippets = $this->codebaseContext->searchRelevantFiles($userMessage);
         $timestamp = now()->format('Y-m-d H:i:s');
 
         $orderTotal = (int) ($liveStats['orders']['total'] ?? 0);
@@ -92,22 +90,9 @@ class GeminiAdminContextService
 
         $statsJson = json_encode($liveStats, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         $queryBlock = $queryContext !== '' ? "\n\n## Question-specific database data\n{$queryContext}" : '';
-        $codeBlock = $codeSnippets !== '' ? "\n\n{$codeSnippets}" : '';
 
         return <<<INSTRUCTION
 {$static}
-
-## Codebase access (Laravel project source)
-You have read-only access to this website's full Laravel source code index below.
-Use it to explain how features work, find the right controller/route/file, debug errors, and suggest exact fixes.
-- Project files live under: app/, routes/, resources/views/backEnd/, config/
-- When admin asks how something works or reports a bug, cite exact file paths and methods from the index/snippets.
-- You may suggest code changes with file path and line references — admin will apply them.
-- NEVER say you cannot see the codebase when the index/snippets are provided below.
-- Do NOT expose .env secrets, API keys, or passwords. Config values only as names, not values.
-
-{$codebaseIndex}
-{$codeBlock}
 
 ## Live database summary (Evaluated directly at {$timestamp})
 - Total Products: {$productTotal} (Active & Approved: {$productActive}, Pending Approval: {$productPending}, Low Stock: {$productLowStock})

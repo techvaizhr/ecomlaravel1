@@ -439,28 +439,41 @@
     transform: scale(1.02);
 }
 
-/* 🔍 Modern Search Box */
+/* 🔍 Modern E-Commerce Search Box (Sleek Clean Style) */
 .main-search {
     flex: 1;
-    max-width: 620px;
+    max-width: 600px;
     margin: 0 auto;
     position: relative;
 }
-.main-search form {
+.main-search form.search-form-v2 {
     display: flex;
     align-items: center;
-    background: #f8fafc;
-    border: 2px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    border-radius: 50px;
-    padding: 3px 4px 3px 18px;
-    height: 46px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    transition: all 0.25s ease;
-    overflow: hidden;
-}
-.main-search form:focus-within {
     background: #ffffff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 3px {{ optional($generalsetting)->primary_color ?? '#667eea' }}25;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    height: 44px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+    overflow: hidden;
+    padding: 0;
+}
+.main-search form.search-form-v2:focus-within {
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 3px {{ optional($generalsetting)->primary_color ?? '#667eea' }}22;
+}
+.search-input-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 14px;
+}
+.search-icon-left {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-right: 10px;
+    flex-shrink: 0;
 }
 .main-search form input {
     flex: 1;
@@ -469,38 +482,40 @@
     background: transparent !important;
     font-size: 14px !important;
     color: #1e293b;
-    padding: 0 8px 0 0 !important;
+    padding: 0 !important;
     height: 100% !important;
-    width: auto !important;
+    width: 100% !important;
     float: none !important;
 }
 .main-search form input::placeholder {
     color: #94a3b8;
     font-size: 13.5px;
 }
-.main-search form button {
+.search-submit-btn {
     flex-shrink: 0;
-    width: 44px !important;
-    height: 38px !important;
-    border-radius: 50px !important;
+    height: 100% !important;
+    padding: 0 20px !important;
     background: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
     border: none !important;
     color: #ffffff !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
     cursor: pointer;
+    border-radius: 0 !important;
     transition: all 0.2s ease;
     float: none !important;
 }
-.main-search form button:hover {
-    filter: brightness(1.1);
-    transform: scale(1.04);
+.search-submit-btn:hover {
+    filter: brightness(1.08);
 }
-.main-search form button svg,
-.main-search form button i {
-    width: 18px;
-    height: 18px;
+.search-submit-btn svg,
+.search-submit-btn i {
+    width: 15px;
+    height: 15px;
     stroke: #ffffff;
     color: #ffffff;
 }
@@ -1073,10 +1088,13 @@ li.all__category__list:hover > a i {
                                         <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="" /></a>
                                     </div>
                                     <div class="main-search">
-                                        <form action="{{route('search')}}">
-                                            <input type="text" placeholder="Search Product..." class="search_keyword search_click" name="keyword" />
-                                            <button>
-                                                <i data-feather="search"></i>
+                                        <form action="{{route('search')}}" class="search-form-v2">
+                                            <div class="search-input-group">
+                                                <i class="fa fa-search search-icon-left"></i>
+                                                <input type="text" placeholder="পছন্দের পণ্য খুঁজুন..." class="search_keyword search_click" name="keyword" autocomplete="off" />
+                                            </div>
+                                            <button type="submit" class="search-submit-btn">
+                                                <span>খুঁজুন</span> <i data-feather="search"></i>
                                             </button>
                                         </form>
                                         <div class="search_result"></div>
