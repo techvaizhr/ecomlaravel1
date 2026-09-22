@@ -1117,5 +1117,37 @@
         periodic: true,
         periodInterval: 1,
     });
+
+    // 🎯 Dynamically Sync PC Slider Height with Left Category Menu
+    function syncHeroSliderHeight() {
+        if (window.innerWidth >= 992) {
+            var sidebar = document.querySelector('.home-category-sidebar');
+            if (sidebar) {
+                var sidebarHeight = sidebar.offsetHeight;
+                if (sidebarHeight > 220) {
+                    var sliderContainer = document.querySelector('.home-slider-container');
+                    var sliderItems = document.querySelectorAll('.main_slider .slider-item');
+                    if (sliderContainer) {
+                        sliderContainer.style.height = sidebarHeight + 'px';
+                    }
+                    sliderItems.forEach(function(item) {
+                        item.style.height = sidebarHeight + 'px';
+                    });
+                }
+            }
+        } else {
+            var sliderContainer = document.querySelector('.home-slider-container');
+            var sliderItems = document.querySelectorAll('.main_slider .slider-item');
+            if (sliderContainer) sliderContainer.style.height = '';
+            sliderItems.forEach(function(item) {
+                item.style.height = '';
+            });
+        }
+    }
+
+    window.addEventListener('load', syncHeroSliderHeight);
+    window.addEventListener('resize', syncHeroSliderHeight);
+    setTimeout(syncHeroSliderHeight, 300);
+    setTimeout(syncHeroSliderHeight, 1000);
 </script>
 @endpush

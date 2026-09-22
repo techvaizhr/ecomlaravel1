@@ -1391,10 +1391,11 @@ section.slider-section {
     opacity: 1;
 }
 
+/*==== SLIDER CSS START (Responsive Height Matching PC Menu & Taller on Mobile) ====*/
 .slider-item {
     width: 100%;
-    height: 400px;
     overflow: hidden;
+    border-radius: 10px;
 }
 
 .slider-item img {
@@ -1403,7 +1404,66 @@ section.slider-section {
     object-fit: cover;
 }
 
-/*==== SLIDER CSS END ====  */
+/* PC: Match sidebar menu height */
+@media (min-width: 992px) {
+    .slider-section .row {
+        display: flex;
+        align-items: stretch;
+    }
+    .slider-section .col-sm-3,
+    .slider-section .col-sm-9 {
+        display: flex;
+        flex-direction: column;
+    }
+    .home-category-sidebar {
+        height: 100%;
+    }
+    .home-slider-container {
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .main_slider,
+    .main_slider .owl-stage-outer,
+    .main_slider .owl-stage,
+    .main_slider .owl-item,
+    .slider-item {
+        height: 100% !important;
+        max-height: 360px;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .home-slider-container {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .slider-item {
+        height: 270px !important;
+    }
+}
+
+/* Mobile (<768px): Increased Banner Height */
+@media (max-width: 767px) {
+    .slider-section {
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+    }
+    .home-slider-container {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .main_slider,
+    .main_slider .owl-stage-outer,
+    .main_slider .owl-stage,
+    .main_slider .owl-item,
+    .slider-item {
+        height: 215px !important;
+    }
+}
+/*==== SLIDER CSS END ====*/
 
 /*==== FRONT CATEGORY  CSS START ====  */
 .hot-deals-section {
