@@ -186,22 +186,23 @@
         </div>
     </div>
 
-    {{-- Filter Bar --}}
-    <div class="filter-card">
+    {{-- Standardized Product Filter Bar --}}
+    <div class="prod-filter-card">
         <form method="GET" action="{{ route('products.pending') }}" id="filterForm">
             <div class="row g-2 align-items-end">
-                <div class="col-lg-3 col-md-4">
-                    <label class="form-label small fw-bold text-muted mb-1">Search Product / Barcode</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light"><i class="fe-search"></i></span>
-                        <input type="text" name="keyword" class="form-control" placeholder="Search by name, barcode..." value="{{ request('keyword') }}">
+                {{-- Search --}}
+                <div class="col-xxl-4 col-xl-3 col-lg-3 col-md-6 col-12">
+                    <label class="prod-form-label">Search Product / Barcode</label>
+                    <div class="position-relative">
+                        <i class="fe-search position-absolute text-muted" style="left: 10px; top: 10px; font-size: 14px; pointer-events: none;"></i>
+                        <input type="text" name="keyword" class="form-control form-control-sm ps-4" placeholder="Search by name, barcode..." value="{{ request('keyword') }}" style="padding-left: 32px !important; height: 36px; border-radius: 8px;">
                     </div>
                 </div>
 
                 @if(isset($categories) && $categories->count() > 0)
-                <div class="col-lg-3 col-md-4">
-                    <label class="form-label small fw-bold text-muted mb-1">Category</label>
-                    <select name="category_id" class="form-select form-select-sm select2">
+                <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-3 col-6">
+                    <label class="prod-form-label">Category</label>
+                    <select name="category_id" class="form-select form-select-sm" style="height: 36px; border-radius: 8px;">
                         <option value="">All Categories</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
@@ -213,28 +214,34 @@
                 @endif
 
                 {{-- Global Smart Date Filter Integration --}}
-                <div class="col-lg-3 col-md-4">
-                    <label class="form-label small fw-bold text-muted mb-1">Submission Date</label>
+                <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-12">
+                    <label class="prod-form-label">Submission Date</label>
                     @include('backEnd.layouts.partials.smart_date_filter')
                 </div>
 
-                <div class="col-lg-1 col-md-2">
-                    <label class="form-label small fw-bold text-muted mb-1">Per Page</label>
-                    <select name="per_page" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                        <option value="25" {{ request('per_page', 25) == 25 ? 'selected' : '' }}>25</option>
-                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                    </select>
-                </div>
-
-                <div class="col-lg-2 col-md-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-warning text-dark fw-bold flex-fill rounded-3">
-                        <i class="fe-filter me-1"></i> Filter
-                    </button>
-                    <a href="{{ route('products.pending') }}" class="btn btn-sm btn-outline-secondary rounded-3" title="Reset">
-                        <i class="fe-rotate-ccw"></i>
-                    </a>
+                {{-- Per Page & Action Buttons in single aligned group --}}
+                <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-6 col-12">
+                    <div class="d-flex align-items-end gap-1">
+                        <div style="min-width: 65px; width: 65px;">
+                            <label class="prod-form-label">Per Page</label>
+                            <select name="per_page" class="form-select form-select-sm px-1 text-center" style="height: 36px; border-radius: 8px;" onchange="document.getElementById('filterForm').submit();">
+                                @foreach([10, 15, 25, 50, 100, 200] as $size)
+                                    <option value="{{ $size }}" {{ (request('per_page', 25) == $size) ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex-grow-1">
+                            <label class="prod-form-label d-none d-md-block">&nbsp;</label>
+                            <div class="d-flex gap-1">
+                                <button type="submit" class="btn btn-warning text-dark fw-bold btn-sm flex-grow-1 d-flex align-items-center justify-content-center shadow-sm" style="height: 36px; border-radius: 8px; font-size: 13px;" title="Filter Products">
+                                    <i class="fe-filter me-1"></i> Filter
+                                </button>
+                                <a href="{{ route('products.pending') }}" class="btn btn-light btn-sm border d-flex align-items-center justify-content-center" style="height: 36px; width: 36px; border-radius: 8px;" title="Reset Filters">
+                                    <i class="fe-rotate-ccw"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -254,7 +261,7 @@
                         <th>Price & Stock</th>
                         <th>Submission Date</th>
                         <th>Status</th>
-                        <th class="text-end" style="width: 140px;">Action</th>
+                        <th class="text-end" style="width: 80px;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -301,50 +308,46 @@
                             </span>
                         </td>
 
-                        {{-- 3-Dot Action Dropdown with Quick Approve & Reject --}}
+                        {{-- 3-Dot Action Dropdown (Single Unified List, No Dividers) --}}
                         <td class="text-end">
-                            <div class="d-inline-flex align-items-center gap-1">
-                                {{-- Quick Approve Button --}}
-                                <form method="post" action="{{ route('products.approve') }}" class="d-inline">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $value->id }}">
-                                    <button type="submit" class="btn btn-xs btn-outline-success rounded-pill px-2" title="Quick Approve">
-                                        <i class="fe-check"></i>
-                                    </button>
-                                </form>
-
-                                {{-- Quick Reject Button --}}
-                                <form method="post" action="{{ route('products.reject') }}" class="d-inline">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $value->id }}">
-                                    <button type="submit" class="btn btn-xs btn-outline-danger rounded-pill px-2" title="Reject">
-                                        <i class="fe-x"></i>
-                                    </button>
-                                </form>
-
-                                {{-- 3-Dot Menu --}}
-                                <div class="dropdown">
-                                    <button class="btn btn-3dot" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More Options">
-                                        <i class="fe-more-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-prod">
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('products.edit', $value->id) }}">
-                                                <i class="fe-edit-2 text-primary"></i> Review & Edit
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider my-1"></li>
-                                        <li>
-                                            <form method="post" action="{{ route('products.destroy') }}" class="d-inline">
-                                                @csrf
-                                                <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                                <button type="submit" class="dropdown-item text-danger delete-confirm">
-                                                    <i class="fe-trash-2"></i> Delete
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
+                            <div class="dropdown">
+                                <button class="btn btn-3dot" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">
+                                    <i class="fe-more-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-prod">
+                                    <li>
+                                        <form method="post" action="{{ route('products.approve') }}" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $value->id }}">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="fe-check-circle text-success"></i> Approve Product
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{{ route('products.reject') }}" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $value->id }}">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="fe-x-circle text-warning"></i> Reject Product
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('products.edit', $value->id) }}">
+                                            <i class="fe-edit-2 text-primary"></i> Review & Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{{ route('products.destroy') }}" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" value="{{ $value->id }}" name="hidden_id">
+                                            <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                <i class="fe-trash-2"></i> Delete Product
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
                         </td>
                     </tr>
