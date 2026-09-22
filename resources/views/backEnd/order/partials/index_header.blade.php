@@ -58,12 +58,12 @@
                     <thead>
                         <tr>
                             <th style="width: 45px; text-align: center;"><input type="checkbox" class="form-check-input checkall" value="" aria-label="সব সিলেক্ট"></th>
-                            <th>ইনভয়েস</th>
-                            <th>তারিখ</th>
+                            <th style="width: 110px;">ইনভয়েস</th>
+                            <th style="width: 100px;">তারিখ</th>
                             <th>গ্রাহক</th>
-                            <th>পরিমাণ</th>
-                            <th>স্ট্যাটাস</th>
-                            <th class="text-center px-1" style="width: 80px;">ফ্রড চেক</th>
-                            <th class="text-end pe-3" style="width: 40px;"><i class="fas fa-ellipsis-v"></i></th>
+                            <th class="text-end text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">পরিমাণ</th>
+                            <th class="text-center text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">স্ট্যাটাস</th>
+                            <th class="text-center text-nowrap" style="width: 1%; padding-left: 6px; padding-right: 6px;">ফ্রড চেক</th>
+                            <th class="text-end pe-2" style="width: 32px;"><i class="fas fa-ellipsis-v"></i></th>
                         </tr>
                     </thead>

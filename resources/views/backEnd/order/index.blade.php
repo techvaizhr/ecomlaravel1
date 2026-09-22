@@ -100,8 +100,8 @@
                                              @endif
                                         </td>
 
-                                        {{-- 6. Amount --}}
-                                        <td class="align-middle text-nowrap">
+                                        {{-- 5. Amount --}}
+                                        <td class="align-middle text-end text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">
                                             @php
                                                 $payment = \App\Models\Payment::where('order_id', $value->id)->first();
                                                 $paid = $payment ? floatval($payment->amount) : 0;
@@ -111,16 +111,16 @@
                                                     $showAmount = $total - $paid;
                                                 }
                                             @endphp
-                                            <span class="oi-amount fw-bold text-dark" style="font-size: 14px;">৳{{ number_format($showAmount, 0) }}</span>
+                                            <span class="oi-amount fw-bold text-dark" style="font-size: 13.5px;">৳{{ number_format($showAmount, 0) }}</span>
                                         </td>
 
-                                        {{-- 7. Status --}}
-                                        <td class="align-middle text-nowrap">
-                                            <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11.5px; font-weight: 600;">{{ $value->status ? $value->status->name : '—' }}</span>
+                                        {{-- 6. Status --}}
+                                        <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">
+                                            <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">{{ $value->status ? $value->status->name : '—' }}</span>
                                         </td>
 
-                                        {{-- 8. Fraud Check (Tight & Compact) --}}
-                                        <td class="align-middle text-center text-nowrap px-1" style="width: 80px;">
+                                        {{-- 7. Fraud Check (Tight & Compact) --}}
+                                        <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 6px; padding-right: 6px;">
                                             @if(is_null($value->fraud_rate))
                                                 <a href="javascript:void(0);" 
                                                    class="btn btn-xs fraud-check"
@@ -139,10 +139,10 @@
                                             @endif
                                         </td>
 
-                                        {{-- 9. 3-Dot Actions Menu --}}
-                                        <td class="align-middle text-end pe-3" style="width: 40px;">
+                                        {{-- 8. 3-Dot Actions Menu --}}
+                                        <td class="align-middle text-end pe-2" style="width: 32px;">
                                             <div class="dropdown">
-                                                <button class="btn btn-sm btn-light border p-1 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="অ্যাকশন">
+                                                <button class="btn btn-sm btn-light border p-0 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;" title="অ্যাকশন">
                                                     <i class="fas fa-ellipsis-v text-muted" style="font-size: 13px;"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 order-action-dropdown">
