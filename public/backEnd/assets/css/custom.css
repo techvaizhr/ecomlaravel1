@@ -272,6 +272,17 @@ input.invdiscount {
         padding: 0 !important;
     }
 
+    .two-column-sidebar .sidebar-icon-rail {
+        display: flex !important;
+        width: var(--rail-width) !important;
+    }
+    .two-column-sidebar .sidebar-subpanel {
+        display: flex !important;
+        width: var(--subpanel-width) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
     .content-page {
         margin-top: 70px !important;
         margin-left: var(--two-col-total-width) !important;
@@ -279,38 +290,24 @@ input.invdiscount {
     }
 
     /* When Collapsed (Section Icon Rail stays ALWAYS visible; Submenu hides) */
-    body.sidebar-collapsed .two-column-sidebar {
+    body.sidebar-collapsed .two-column-sidebar,
+    body[data-leftbar-size="condensed"] .two-column-sidebar {
         width: var(--rail-width) !important;
     }
-    body.sidebar-collapsed .two-column-sidebar .sidebar-subpanel {
+    body.sidebar-collapsed .two-column-sidebar .sidebar-subpanel,
+    body[data-leftbar-size="condensed"] .two-column-sidebar .sidebar-subpanel {
         display: none !important;
         width: 0 !important;
         opacity: 0 !important;
         pointer-events: none !important;
         overflow: hidden !important;
     }
-    body.sidebar-collapsed .two-column-sidebar .sidebar-icon-rail {
-        display: flex !important;
-        width: var(--rail-width) !important;
-    }
-    body.sidebar-collapsed .content-page {
+    body.sidebar-collapsed .content-page,
+    body[data-leftbar-size="condensed"] .content-page {
         margin-left: var(--rail-width) !important;
     }
 }
 
-/* Prevent legacy theme condensed flyouts from conflicting with Two-Column sidebar */
-body[data-leftbar-size="condensed"] .two-column-sidebar,
-body[data-sidebar-size="condensed"] .two-column-sidebar {
-    width: auto !important;
-}
-body[data-leftbar-size="condensed"] .content-page,
-body[data-sidebar-size="condensed"] .content-page {
-    margin-left: var(--two-col-total-width) !important;
-}
-body.sidebar-collapsed[data-leftbar-size="condensed"] .content-page,
-body.sidebar-collapsed[data-sidebar-size="condensed"] .content-page {
-    margin-left: var(--rail-width) !important;
-}
 .two-column-sidebar ul,
 .two-column-sidebar li,
 .two-column-sidebar a {
@@ -333,6 +330,7 @@ body.sidebar-collapsed[data-sidebar-size="condensed"] .content-page {
 
 .icon-rail-nav {
     flex: 1;
+    overflow-y: overlay !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     width: 100%;
@@ -341,13 +339,35 @@ body.sidebar-collapsed[data-sidebar-size="condensed"] .content-page {
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    scrollbar-width: none !important; /* Firefox */
-    -ms-overflow-style: none !important; /* IE and Edge */
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent !important;
+}
+.icon-rail-nav:hover {
+    scrollbar-color: rgba(16, 185, 129, 0.35) transparent !important;
 }
 .icon-rail-nav::-webkit-scrollbar {
+    width: 3px !important;
+    display: block !important;
+    background: transparent !important;
+}
+.icon-rail-nav::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+.icon-rail-nav::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
+}
+.icon-rail-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-radius: 99px !important;
+    transition: background 0.2s ease !important;
+}
+.icon-rail-nav:hover::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.35) !important;
+}
+.icon-rail-nav::-webkit-scrollbar-thumb:hover {
+    background: #10b981 !important;
 }
 
 .rail-item {
@@ -475,27 +495,45 @@ body.sidebar-collapsed[data-sidebar-size="condensed"] .content-page {
     line-height: 1;
 }
 
-/* Subpanel Body (Smooth vertical scroll without visible scrollbar) */
+/* Subpanel Body (Ultra-thin, Floating, Elegant Scrollbar) */
 .subpanel-body {
     flex: 1;
+    overflow-y: overlay !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    padding: 8px 8px 30px 8px;
-    scrollbar-width: none !important; /* Firefox */
-    -ms-overflow-style: none !important; /* IE and Edge */
+    padding: 8px 6px 30px 8px;
+    scrollbar-width: thin !important; /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent !important; /* Firefox */
 }
+.subpanel-body:hover {
+    scrollbar-color: rgba(16, 185, 129, 0.35) transparent !important;
+}
+
+/* WebKit Custom Scrollbar (Chrome, Safari, Edge, Opera) */
 .subpanel-body::-webkit-scrollbar {
+    width: 3.5px !important;
+    height: 3.5px !important;
+    display: block !important;
+    background: transparent !important;
+}
+.subpanel-body::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+.subpanel-body::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
 }
-.sidebar-subpanel .simplebar-track,
-.sidebar-subpanel .simplebar-scrollbar,
-.subpanel-body .simplebar-track,
-.subpanel-body .simplebar-scrollbar {
-    display: none !important;
-    opacity: 0 !important;
-    width: 0 !important;
+.subpanel-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-radius: 99px !important;
+    transition: background 0.2s ease !important;
+}
+.subpanel-body:hover::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.35) !important;
+}
+.subpanel-body::-webkit-scrollbar-thumb:hover {
+    background: #10b981 !important;
 }
 
 .section-pane {

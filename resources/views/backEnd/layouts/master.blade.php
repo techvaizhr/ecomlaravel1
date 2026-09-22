@@ -1265,6 +1265,10 @@
                     var isCollapsed = localStorage.getItem('two_col_sidebar_collapsed') === '1';
                     if (isCollapsed) {
                         document.body.classList.add('sidebar-collapsed');
+                        document.body.setAttribute('data-leftbar-size', 'condensed');
+                    } else {
+                        document.body.classList.remove('sidebar-collapsed');
+                        document.body.setAttribute('data-leftbar-size', 'default');
                     }
                 }
 
@@ -1276,8 +1280,9 @@
                         if (!targetSection) return;
 
                         // If collapsed on desktop, clicking a section expands it
-                        if (document.body.classList.contains('sidebar-collapsed')) {
+                        if (document.body.classList.contains('sidebar-collapsed') || document.body.getAttribute('data-leftbar-size') === 'condensed') {
                             document.body.classList.remove('sidebar-collapsed');
+                            document.body.setAttribute('data-leftbar-size', 'default');
                             localStorage.setItem('two_col_sidebar_collapsed', '0');
                         }
 
@@ -1308,20 +1313,30 @@
                 });
 
                 // Toggle sidebar (Collapse/Expand on desktop, Drawer on mobile)
-                collapseBtns.forEach(function (btn) {
-                    btn.addEventListener('click', function (e) {
+                var toggleBtn = document.getElementById('sidebar-toggle-btn');
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', function (e) {
                         e.preventDefault();
                         e.stopPropagation();
+                        e.stopImmediatePropagation();
+
                         if (window.innerWidth >= 992) {
-                            var willCollapse = !document.body.classList.contains('sidebar-collapsed');
-                            document.body.classList.toggle('sidebar-collapsed', willCollapse);
-                            localStorage.setItem('two_col_sidebar_collapsed', willCollapse ? '1' : '0');
+                            var isCollapsedNow = document.body.classList.contains('sidebar-collapsed') || document.body.getAttribute('data-leftbar-size') === 'condensed';
+                            if (isCollapsedNow) {
+                                document.body.classList.remove('sidebar-collapsed');
+                                document.body.setAttribute('data-leftbar-size', 'default');
+                                localStorage.setItem('two_col_sidebar_collapsed', '0');
+                            } else {
+                                document.body.classList.add('sidebar-collapsed');
+                                document.body.setAttribute('data-leftbar-size', 'condensed');
+                                localStorage.setItem('two_col_sidebar_collapsed', '1');
+                            }
                         } else {
                             var willOpenMobile = !document.body.classList.contains('sidebar-mobile-open');
                             document.body.classList.toggle('sidebar-mobile-open', willOpenMobile);
                         }
                     });
-                });
+                }
 
                 // Close mobile drawer on backdrop click
                 if (backdrop) {
