@@ -90,7 +90,7 @@ class GeminiAdminChatController extends Controller
      */
     protected function toGeminiContents(array $history): array
     {
-        $contents = [];
+        $raw = [];
 
         foreach ($history as $message) {
             $role = ($message['role'] ?? '') === 'model' ? 'model' : 'user';
@@ -100,14 +100,35 @@ class GeminiAdminChatController extends Controller
                 continue;
             }
 
-            $contents[] = [
-                'role'  => $role,
-                'parts' => [['text' => $text]],
-            ];
+            $raw[] = ['role' => $role, 'text' => $text];
         }
 
-        if ($contents === [] || ($contents[0]['role'] ?? '') !== 'user') {
+        // Ensure first message is always from user
+        while (! empty($raw) && $raw[0]['role'] !== 'user') {
+            array_shift($raw);
+        }
+
+        if (empty($raw)) {
             throw new \RuntimeException('Invalid chat history.');
+        }
+
+        // Merge consecutive same-role messages so Google Gemini API never gets consecutive user/user or model/model
+        $sanitized = [];
+        foreach ($raw as $item) {
+            $lastIndex = count($sanitized) - 1;
+            if ($lastIndex >= 0 && $sanitized[$lastIndex]['role'] === $item['role']) {
+                $sanitized[$lastIndex]['text'] .= "\n" . $item['text'];
+            } else {
+                $sanitized[] = $item;
+            }
+        }
+
+        $contents = [];
+        foreach ($sanitized as $item) {
+            $contents[] = [
+                'role'  => $item['role'],
+                'parts' => [['text' => $item['text']]],
+            ];
         }
 
         return $contents;

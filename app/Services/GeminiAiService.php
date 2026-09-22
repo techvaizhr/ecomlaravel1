@@ -160,7 +160,7 @@ class GeminiAiService
                 'body'   => $response->json(),
             ]);
 
-            if (! in_array($response->status(), [404, 429], true)) {
+            if (! in_array($response->status(), [404, 429, 500, 502, 503], true)) {
                 break;
             }
         }
