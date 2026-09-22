@@ -54,12 +54,12 @@
 #gcc-panel {
     position: fixed;
     right: 20px;
-    bottom: 140px;
+    bottom: 80px;
     z-index: 99989;
-    width: 380px;
+    width: 400px;
     max-width: calc(100vw - 24px);
-    height: 520px;
-    max-height: calc(100vh - 160px);
+    height: 590px;
+    max-height: calc(100vh - 100px);
     background: #ffffff;
     border-radius: 18px;
     box-shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
@@ -456,7 +456,7 @@
 #gcc-complaint-cancel { background: #f1f5f9; color: #475569; }
 
 @media (max-width: 480px) {
-    #gcc-panel { right: 12px; bottom: 125px; width: calc(100vw - 24px); height: 66vh; }
+    #gcc-panel { right: 10px; bottom: 70px; width: calc(100vw - 20px); height: calc(100vh - 90px); max-height: calc(100vh - 85px); }
     #gcc-toggle { right: 16px; bottom: 65px; width: 48px; height: 48px; }
 }
 </style>
