@@ -249,6 +249,11 @@
                                                         </a>
                                                     </li>
                                                     <li>
+                                                        <a class="dropdown-item single-assign-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-current-user="{{ $value->user_id }}" data-invoice="{{ $value->invoice_id }}">
+                                                            <i class="fas fa-user-plus text-primary"></i> ইউজার অ্যাসাইন
+                                                        </a>
+                                                    </li>
+                                                    <li>
                                                         <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}">
                                                             <i class="fas fa-edit text-warning"></i> অর্ডার এডিট
                                                         </a>
@@ -274,6 +279,13 @@
                                                     <li>
                                                         <a class="dropdown-item single-pathao-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}">
                                                             <i class="fas fa-motorcycle text-danger"></i> Pathao বুকিং
+                                                        </a>
+                                                    </li>
+                                                    @endif
+                                                    @if(isset($redx_info) && $redx_info)
+                                                    <li>
+                                                        <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'redx') }}?order_ids[]={{ $value->id }}&status=5">
+                                                            <i class="fas fa-truck text-danger"></i> RedX বুকিং
                                                         </a>
                                                     </li>
                                                     @endif
@@ -313,12 +325,14 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-user-plus me-1"></i> ইউজার অ্যাসাইন</h5>
+        <h5 class="modal-title" id="asignUserModalTitle"><i class="fas fa-user-plus me-1"></i> ইউজার অ্যাসাইন</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="{{ route('admin.order.assign') }}" id="order_assign">
+        <input type="hidden" id="single_assign_order_id" value="">
         <div class="modal-body">
             <div class="form-group">
+                <label class="form-label mb-1">ইউজার নির্বাচন করুন</label>
                 <select name="user_id" id="user_id" class="form-control">
                     <option value="">Select..</option>
                     @foreach($users as $u)
@@ -1051,21 +1065,55 @@ $(document).ready(function(){
         });
     });
 
-    // order assign
+    // order assign (Single from 3-dot)
+    $(document).on('click', '.single-assign-btn', function (e) {
+        e.preventDefault();
+        var orderId = $(this).data('order-id');
+        var currentUserId = $(this).data('current-user') || '';
+        var invoice = $(this).data('invoice') || '';
+        $('#single_assign_order_id').val(orderId);
+        $('#user_id').val(currentUserId);
+        $('#asignUserModalTitle').html('<i class="fas fa-user-plus me-1"></i> ইউজার অ্যাসাইন #' + invoice);
+        $('#asignUser').modal('show');
+    });
+
+    // Bulk assign trigger from toolbar
+    $(document).on('click', '[data-bs-target="#asignUser"]', function () {
+        $('#single_assign_order_id').val('');
+        $('#user_id').val('');
+        $('#asignUserModalTitle').html('<i class="fas fa-user-plus me-1"></i> ইউজার অ্যাসাইন (বাল্ক)');
+    });
+
+    // order assign submit
     $(document).on('submit', 'form#order_assign', function(e){
         e.preventDefault();
         var url = $(this).attr('action');
         let user_id = $('#user_id').val();
+        let singleOrderId = $('#single_assign_order_id').val();
 
-        var order = $('input.checkbox:checked').map(function(){
-          return $(this).val();
-        });
-        var order_ids = order.get();
+        var order_ids = [];
+        if (singleOrderId) {
+            order_ids = [singleOrderId];
+        } else {
+            var order = $('input.checkbox:checked').map(function(){
+              return $(this).val();
+            });
+            order_ids = order.get();
+        }
 
         if(order_ids.length == 0){
             toastr.error('Please Select An Order First !');
             return;
         }
+
+        if(!user_id){
+            toastr.error('Please Select A User First !');
+            return;
+        }
+
+        var $submitBtn = $(this).find('button[type="submit"]');
+        var origText = $submitBtn.text();
+        $submitBtn.prop('disabled', true).text('অ্যাসাইন হচ্ছে...');
 
         $.ajax({
            type: 'GET',
@@ -1074,13 +1122,18 @@ $(document).ready(function(){
            success: function(res){
                if(res.status == 'success'){
                    toastr.success(res.message);
-                   window.location.reload();
+                   $('#asignUser').modal('hide');
+                   setTimeout(function(){
+                       window.location.reload();
+                   }, 500);
                } else {
                    toastr.error(res.message || 'Failed something wrong');
+                   $submitBtn.prop('disabled', false).text(origText);
                }
            },
            error: function(){
                toastr.error('Something went wrong');
+               $submitBtn.prop('disabled', false).text(origText);
            }
         });
     });
