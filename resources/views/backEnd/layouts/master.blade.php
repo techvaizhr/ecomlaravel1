@@ -648,31 +648,31 @@
                   <div class="collapse {{ request()->routeIs('inhouse.products.*', 'products.*', 'categories.*', 'subcategories.*', 'childcategories.*', 'brands.*', 'colors.*', 'sizes.*', 'admin.products.wholesale') ? 'show' : '' }}" id="sub-products">
                     <ul class="subpanel-nested-menu">
                       @can('product-list')
-                      <li><a href="{{ route('inhouse.products.index') }}"><i data-feather="package"></i> Inhouse Products</a></li>
-                      <li><a href="{{ route('products.index') }}"><i data-feather="shopping-bag"></i> Vendor Products</a></li>
-                      <li><a href="{{ route('products.pending') }}"><i data-feather="clock"></i> Pending Products</a></li>
-                      <li><a href="{{ route('admin.products.wholesale') }}"><i data-feather="layers"></i> Wholesale Products</a></li>
+                      <li><a href="{{ route('inhouse.products.index') }}" class="{{ request()->routeIs('inhouse.products.*') ? 'active' : '' }}"><i data-feather="package"></i> Inhouse Products</a></li>
+                      <li><a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.index') ? 'active' : '' }}"><i data-feather="shopping-bag"></i> Vendor Products</a></li>
+                      <li><a href="{{ route('products.pending') }}" class="{{ request()->routeIs('products.pending') ? 'active' : '' }}"><i data-feather="clock"></i> Pending Products</a></li>
+                      <li><a href="{{ route('admin.products.wholesale') }}" class="{{ request()->routeIs('admin.products.wholesale') ? 'active' : '' }}"><i data-feather="layers"></i> Wholesale Products</a></li>
                       @endcan
                       @can('product-create')
-                      <li><a href="{{ route('products.create') }}"><i data-feather="plus-circle"></i> Add Product</a></li>
+                      <li><a href="{{ route('products.create') }}" class="{{ request()->routeIs('products.create') ? 'active' : '' }}"><i data-feather="plus-circle"></i> Add Product</a></li>
                       @endcan
                       @can('category-list')
-                      <li><a href="{{ route('categories.index') }}"><i data-feather="file-plus"></i> Categories</a></li>
+                      <li><a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Categories</a></li>
                       @endcan
                       @can('subcategory-list')
-                      <li><a href="{{ route('subcategories.index') }}"><i data-feather="file-plus"></i> Subcategories</a></li>
+                      <li><a href="{{ route('subcategories.index') }}" class="{{ request()->routeIs('subcategories.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Subcategories</a></li>
                       @endcan
                       @can('childcategory-list')
-                      <li><a href="{{ route('childcategories.index') }}"><i data-feather="file-plus"></i> Childcategories</a></li>
+                      <li><a href="{{ route('childcategories.index') }}" class="{{ request()->routeIs('childcategories.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Childcategories</a></li>
                       @endcan
                       @canany(['brand-list', 'brand-create', 'brand-edit'])
-                      <li><a href="{{ route('brands.index') }}"><i data-feather="file-plus"></i> Brands</a></li>
+                      <li><a href="{{ route('brands.index') }}" class="{{ request()->routeIs('brands.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Brands</a></li>
                       @endcanany
                       @canany(['color-list', 'color-create', 'color-edit'])
-                      <li><a href="{{ route('colors.index') }}"><i data-feather="file-plus"></i> Colors</a></li>
+                      <li><a href="{{ route('colors.index') }}" class="{{ request()->routeIs('colors.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Colors</a></li>
                       @endcanany
                       @canany(['size-list', 'size-create', 'size-edit'])
-                      <li><a href="{{ route('sizes.index') }}"><i data-feather="file-plus"></i> Sizes</a></li>
+                      <li><a href="{{ route('sizes.index') }}" class="{{ request()->routeIs('sizes.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Sizes</a></li>
                       @endcanany
                     </ul>
                   </div>
@@ -737,16 +737,16 @@
                   <div class="collapse {{ request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*') ? 'show' : '' }}" id="sub-sitesetting">
                     <ul class="subpanel-nested-menu">
                       @can('setting-list')
-                      <li><a href="{{ route('settings.index') }}"><i data-feather="file-plus"></i> General Setting</a></li>
+                      <li><a href="{{ route('settings.index') }}" class="{{ request()->routeIs('settings.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> General Setting</a></li>
                       @endcan
                       @can('social-list')
-                      <li><a href="{{ route('socialmedias.index') }}"><i data-feather="file-plus"></i> Social Media</a></li>
+                      <li><a href="{{ route('socialmedias.index') }}" class="{{ request()->routeIs('socialmedias.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Social Media</a></li>
                       @endcan
                       @can('contact-list')
-                      <li><a href="{{ route('contact.index') }}"><i data-feather="file-plus"></i> Contact</a></li>
+                      <li><a href="{{ route('contact.index') }}" class="{{ request()->routeIs('contact.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Contact</a></li>
                       @endcan
                       @canany(['page-list', 'page-create', 'page-edit'])
-                      <li><a href="{{ route('pages.index') }}"><i data-feather="file-plus"></i> Create Page</a></li>
+                      <li><a href="{{ route('pages.index') }}" class="{{ request()->routeIs('pages.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Create Page</a></li>
                       @endcanany
                     </ul>
                   </div>
@@ -763,15 +763,15 @@
                   <div class="collapse {{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'show' : '' }}" id="sub-api">
                     <ul class="subpanel-nested-menu">
                       @can('api-manage')
-                      <li><a href="{{ route('paymentgeteway.manage') }}"><i data-feather="file-plus"></i> Payment Gateway</a></li>
-                      <li><a href="{{ route('manual-payment-gateway.manage') }}"><i data-feather="credit-card"></i> Manual Payment</a></li>
-                      <li><a href="{{ route('smsgeteway.manage') }}"><i data-feather="file-plus"></i> SMS Gateway</a></li>
-                      <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> Courier API</a></li>
-                      <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> Facebook CAPI</a></li>
-                      <li><a href="{{ route('admin.gemini_ai.edit') }}"><i data-feather="cpu"></i> Gemini AI</a></li>
+                      <li><a href="{{ route('paymentgeteway.manage') }}" class="{{ request()->routeIs('paymentgeteway.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Payment Gateway</a></li>
+                      <li><a href="{{ route('manual-payment-gateway.manage') }}" class="{{ request()->routeIs('manual-payment-gateway.*') ? 'active' : '' }}"><i data-feather="credit-card"></i> Manual Payment</a></li>
+                      <li><a href="{{ route('smsgeteway.manage') }}" class="{{ request()->routeIs('smsgeteway.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> SMS Gateway</a></li>
+                      <li><a href="{{ route('courierapi.manage') }}" class="{{ request()->routeIs('courierapi.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Courier API</a></li>
+                      <li><a href="{{ route('admin.facebook_capi.edit') }}" class="{{ request()->routeIs('admin.facebook_capi.*') ? 'active' : '' }}"><i data-feather="facebook"></i> Facebook CAPI</a></li>
+                      <li><a href="{{ route('admin.gemini_ai.edit') }}" class="{{ request()->routeIs('admin.gemini_ai.*') ? 'active' : '' }}"><i data-feather="cpu"></i> Gemini AI</a></li>
                       @endcan
                       @can('fraud-setting-list')
-                      <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="key"></i> Manage Fraud API</a></li>
+                      <li><a href="{{ route('admin.fraud.index') }}" class="{{ request()->routeIs('admin.fraud.*') ? 'active' : '' }}"><i data-feather="key"></i> Manage Fraud API</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -797,13 +797,13 @@
                   <div class="collapse {{ request()->routeIs('backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*') ? 'show' : '' }}" id="sub-inquiries">
                     <ul class="subpanel-nested-menu">
                       @canany(['complaint-list', 'complaint-create', 'complaint-edit'])
-                      <li><a href="{{ route('backEnd.complaints.index') }}"><i data-feather="alert-circle"></i> Complaints</a></li>
+                      <li><a href="{{ route('backEnd.complaints.index') }}" class="{{ request()->routeIs('backEnd.complaints.*') ? 'active' : '' }}"><i data-feather="alert-circle"></i> Complaints</a></li>
                       @endcanany
                       @can('contact-list')
-                      <li><a href="{{ route('admin.contact.messages') }}"><i data-feather="mail"></i> Contact Messages</a></li>
+                      <li><a href="{{ route('admin.contact.messages') }}" class="{{ request()->routeIs('admin.contact.messages*') ? 'active' : '' }}"><i data-feather="mail"></i> Contact Messages</a></li>
                       @endcan
                       @can('newsletter-list')
-                      <li><a href="{{ route('admin.newsletter.subscribers') }}"><i data-feather="mail"></i> Subscribers</a></li>
+                      <li><a href="{{ route('admin.newsletter.subscribers') }}" class="{{ request()->routeIs('admin.newsletter.subscribers*') ? 'active' : '' }}"><i data-feather="mail"></i> Subscribers</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -820,10 +820,10 @@
                   <div class="collapse {{ request()->routeIs('admin.seo_settings.*', 'admin.sitemap.*') ? 'show' : '' }}" id="sub-seo">
                     <ul class="subpanel-nested-menu">
                       @can('seo-manage')
-                      <li><a href="{{ route('admin.seo_settings.index') }}"><i data-feather="globe"></i> SEO Settings</a></li>
+                      <li><a href="{{ route('admin.seo_settings.index') }}" class="{{ request()->routeIs('admin.seo_settings.*') ? 'active' : '' }}"><i data-feather="globe"></i> SEO Settings</a></li>
                       @endcan
                       @can('sitemap-manage')
-                      <li><a href="{{ route('admin.sitemap.index') }}"><i data-feather="map"></i> Sitemap Settings</a></li>
+                      <li><a href="{{ route('admin.sitemap.index') }}" class="{{ request()->routeIs('admin.sitemap.*') ? 'active' : '' }}"><i data-feather="map"></i> Sitemap Settings</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -840,7 +840,7 @@
                   <div class="collapse {{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'show' : '' }}" id="sub-maintenance">
                     <ul class="subpanel-nested-menu">
                       @can('api-manage')
-                      <li><a href="{{ route('admin.cron.index') }}"><i data-feather="clock"></i> Cron Job</a></li>
+                      <li><a href="{{ route('admin.cron.index') }}" class="{{ request()->routeIs('admin.cron.*') ? 'active' : '' }}"><i data-feather="clock"></i> Cron Job</a></li>
                       @endcan
                       @can('cache-clear')
                       <li>
@@ -850,7 +850,7 @@
                       </li>
                       @endcan
                       @can('error-log-view')
-                      <li><a href="{{ route('error-log.index') }}"><i data-feather="file-text"></i> Error Log</a></li>
+                      <li><a href="{{ route('error-log.index') }}" class="{{ request()->routeIs('error-log.*') ? 'active' : '' }}"><i data-feather="file-text"></i> Error Log</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -872,10 +872,10 @@
                   </a>
                   <div class="collapse {{ request()->routeIs('admin.ads_analytics.*') ? 'show' : '' }}" id="sub-ads">
                     <ul class="subpanel-nested-menu">
-                      <li><a href="{{ route('admin.ads_analytics.dashboard') }}"><i data-feather="layout"></i> Overview</a></li>
-                      <li><a href="{{ route('admin.ads_analytics.facebook') }}"><i data-feather="facebook"></i> Facebook Ads</a></li>
-                      <li><a href="{{ route('admin.ads_analytics.google') }}"><i data-feather="globe"></i> Google Ads</a></li>
-                      <li><a href="{{ route('admin.ads_analytics.tiktok') }}"><i data-feather="video"></i> TikTok Ads</a></li>
+                      <li><a href="{{ route('admin.ads_analytics.dashboard') }}" class="{{ request()->routeIs('admin.ads_analytics.dashboard') ? 'active' : '' }}"><i data-feather="layout"></i> Overview</a></li>
+                      <li><a href="{{ route('admin.ads_analytics.facebook') }}" class="{{ request()->routeIs('admin.ads_analytics.facebook') ? 'active' : '' }}"><i data-feather="facebook"></i> Facebook Ads</a></li>
+                      <li><a href="{{ route('admin.ads_analytics.google') }}" class="{{ request()->routeIs('admin.ads_analytics.google') ? 'active' : '' }}"><i data-feather="globe"></i> Google Ads</a></li>
+                      <li><a href="{{ route('admin.ads_analytics.tiktok') }}" class="{{ request()->routeIs('admin.ads_analytics.tiktok') ? 'active' : '' }}"><i data-feather="video"></i> TikTok Ads</a></li>
                     </ul>
                   </div>
                 </li>
@@ -888,9 +888,9 @@
                   </a>
                   <div class="collapse {{ request()->routeIs('tagmanagers.*', 'pixels.*', 'tiktok.pixels.*') ? 'show' : '' }}" id="sub-pixels">
                     <ul class="subpanel-nested-menu">
-                      <li><a href="{{ route('tagmanagers.index') }}"><i data-feather="file-plus"></i> Tag Manager</a></li>
-                      <li><a href="{{ route('pixels.index') }}"><i data-feather="file-plus"></i> Pixel Manage</a></li>
-                      <li><a href="{{ route('tiktok.pixels.index') }}"><i data-feather="film"></i> TikTok Pixel</a></li>
+                      <li><a href="{{ route('tagmanagers.index') }}" class="{{ request()->routeIs('tagmanagers.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Tag Manager</a></li>
+                      <li><a href="{{ route('pixels.index') }}" class="{{ request()->routeIs('pixels.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Pixel Manage</a></li>
+                      <li><a href="{{ route('tiktok.pixels.index') }}" class="{{ request()->routeIs('tiktok.pixels.*') ? 'active' : '' }}"><i data-feather="film"></i> TikTok Pixel</a></li>
                     </ul>
                   </div>
                 </li>
@@ -913,19 +913,19 @@
                   <div class="collapse {{ request()->routeIs('admin.reports.*') ? 'show' : '' }}" id="sub-reports">
                     <ul class="subpanel-nested-menu">
                       @canany(['order-report','report-view'])
-                      <li><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> Order Report</a></li>
+                      <li><a href="{{ route('admin.reports.orders') }}" class="{{ request()->routeIs('admin.reports.orders') ? 'active' : '' }}"><i data-feather="file-text"></i> Order Report</a></li>
                       @endcanany
                       @canany(['purchase-report','report-view'])
-                      <li><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> Purchase Report</a></li>
+                      <li><a href="{{ route('admin.reports.purchases') }}" class="{{ request()->routeIs('admin.reports.purchases') ? 'active' : '' }}"><i data-feather="shopping-bag"></i> Purchase Report</a></li>
                       @endcanany
                       @canany(['expense-report','report-view'])
-                      <li><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> Expense Report</a></li>
+                      <li><a href="{{ route('admin.reports.expenses') }}" class="{{ request()->routeIs('admin.reports.expenses') ? 'active' : '' }}"><i data-feather="trending-down"></i> Expense Report</a></li>
                       @endcanany
                       @canany(['stock-report','report-view'])
-                      <li><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> Stock Report</a></li>
+                      <li><a href="{{ route('admin.reports.stock') }}" class="{{ request()->routeIs('admin.reports.stock') ? 'active' : '' }}"><i data-feather="archive"></i> Stock Report</a></li>
                       @endcanany
                       @canany(['profit-loss-report','report-view'])
-                      <li><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> Profit & Loss</a></li>
+                      <li><a href="{{ route('admin.reports.profit_loss') }}" class="{{ request()->routeIs('admin.reports.profit_loss') ? 'active' : '' }}"><i data-feather="activity"></i> Profit & Loss</a></li>
                       @endcanany
                     </ul>
                   </div>
@@ -948,10 +948,10 @@
                   <div class="collapse {{ request()->routeIs('campaign.*') ? 'show' : '' }}" id="sub-campaign">
                     <ul class="subpanel-nested-menu">
                       @can('campaign-list')
-                      <li><a href="{{ route('campaign.index') }}"><i data-feather="file-plus"></i> All Campaigns</a></li>
+                      <li><a href="{{ route('campaign.index') }}" class="{{ request()->routeIs('campaign.index') ? 'active' : '' }}"><i data-feather="file-plus"></i> All Campaigns</a></li>
                       @endcan
                       @can('campaign-create')
-                      <li><a href="{{ route('campaign.create') }}"><i data-feather="file-plus"></i> Create Campaign</a></li>
+                      <li><a href="{{ route('campaign.create') }}" class="{{ request()->routeIs('campaign.create') ? 'active' : '' }}"><i data-feather="file-plus"></i> Create Campaign</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -968,10 +968,10 @@
                   <div class="collapse {{ request()->routeIs('admin.coupons.*') ? 'show' : '' }}" id="sub-coupons">
                     <ul class="subpanel-nested-menu">
                       @can('coupon-list')
-                      <li><a href="{{ route('admin.coupons.index') }}"><i data-feather="list"></i> All Coupons</a></li>
+                      <li><a href="{{ route('admin.coupons.index') }}" class="{{ request()->routeIs('admin.coupons.index') ? 'active' : '' }}"><i data-feather="list"></i> All Coupons</a></li>
                       @endcan
                       @can('coupon-create')
-                      <li><a href="{{ route('admin.coupons.create') }}"><i data-feather="plus-circle"></i> Add New</a></li>
+                      <li><a href="{{ route('admin.coupons.create') }}" class="{{ request()->routeIs('admin.coupons.create') ? 'active' : '' }}"><i data-feather="plus-circle"></i> Add New</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -997,10 +997,10 @@
                   <div class="collapse {{ request()->routeIs('admin.popup.*', 'admin.sale-notification.*') ? 'show' : '' }}" id="sub-popups">
                     <ul class="subpanel-nested-menu">
                       @canany(['popup-list', 'popup-manage'])
-                      <li><a href="{{ route('admin.popup.index') }}"><i data-feather="message-square"></i> Popup Offer</a></li>
+                      <li><a href="{{ route('admin.popup.index') }}" class="{{ request()->routeIs('admin.popup.*') ? 'active' : '' }}"><i data-feather="message-square"></i> Popup Offer</a></li>
                       @endcanany
                       @can('setting-list')
-                      <li><a href="{{ route('admin.sale-notification.index') }}"><i data-feather="bell"></i> Sales Notification</a></li>
+                      <li><a href="{{ route('admin.sale-notification.index') }}" class="{{ request()->routeIs('admin.sale-notification.*') ? 'active' : '' }}"><i data-feather="bell"></i> Sales Notification</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -1020,10 +1020,10 @@
                   </a>
                   <div class="collapse {{ request()->routeIs('reviews.*') ? 'show' : '' }}" id="sub-reviews">
                     <ul class="subpanel-nested-menu">
-                      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> Pending ({{ $pending_reviews }})</a></li>
-                      <li><a href="{{ route('reviews.index') }}"><i data-feather="file-plus"></i> All Reviews</a></li>
+                      <li><a href="{{ route('reviews.pending') }}" class="{{ request()->routeIs('reviews.pending') ? 'active' : '' }}"><i data-feather="file-plus"></i> Pending ({{ $pending_reviews }})</a></li>
+                      <li><a href="{{ route('reviews.index') }}" class="{{ request()->routeIs('reviews.index') ? 'active' : '' }}"><i data-feather="file-plus"></i> All Reviews</a></li>
                       @can('review-create')
-                      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> Create Review</a></li>
+                      <li><a href="{{ route('reviews.create') }}" class="{{ request()->routeIs('reviews.create') ? 'active' : '' }}"><i data-feather="file-plus"></i> Create Review</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -1040,10 +1040,10 @@
                   <div class="collapse {{ request()->routeIs('admin.blog.*') ? 'show' : '' }}" id="sub-blog">
                     <ul class="subpanel-nested-menu">
                       @can('blog-list')
-                      <li><a href="{{ route('admin.blog.index') }}"><i data-feather="list"></i> All Blogs</a></li>
+                      <li><a href="{{ route('admin.blog.index') }}" class="{{ request()->routeIs('admin.blog.index') ? 'active' : '' }}"><i data-feather="list"></i> All Blogs</a></li>
                       @endcan
                       @can('blog-create')
-                      <li><a href="{{ route('admin.blog.create') }}"><i data-feather="plus-circle"></i> Add New Blog</a></li>
+                      <li><a href="{{ route('admin.blog.create') }}" class="{{ request()->routeIs('admin.blog.create') ? 'active' : '' }}"><i data-feather="plus-circle"></i> Add New Blog</a></li>
                       @endcan
                     </ul>
                   </div>
