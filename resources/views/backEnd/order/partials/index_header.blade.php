@@ -7,7 +7,7 @@
         </div>
         <div class="oi-header-actions">
             <a href="{{ route('admin.order.create') }}" class="btn btn-sm oi-btn-primary">
-                <i class="fas fa-plus me-1"></i> POS অর্ডার
+                <i class="fas fa-plus me-1"></i> নতুন অর্ডার তৈরি করুন
             </a>
         </div>
     </div>

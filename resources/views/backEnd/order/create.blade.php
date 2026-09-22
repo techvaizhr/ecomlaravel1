@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Point of Sale')
+@section('title','নতুন অর্ডার তৈরি করুন')
 
 @section('css')
 <style>
@@ -196,11 +196,11 @@
     <div class="row mb-2">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Point of Sale</h4>
+                <h4 class="mb-0">নতুন অর্ডার তৈরি করুন</h4>
                 <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill delete-confirm" title="Clear Cart">
-                        <i class="fas fa-trash-alt"></i> Cart Clear
+                        <i class="fas fa-trash-alt"></i> কার্ট খালি করুন
                     </button>
                 </form>
             </div>
@@ -215,11 +215,11 @@
                 {{-- POS HEADER STRIP --}}
                 <div class="pos-header-bar mb-3">
                     <div>
-                        <h5>Shop Store</h5>
-                        <small class="pos-badge-soft">Walk-in Customer POS</small>
+                        <h5>অর্ডার ও কাস্টমার তথ্য</h5>
+                        <small style="opacity:.9; font-size:12px;">প্রয়োজনীয় তথ্য পূরণ করে অর্ডার তৈরি করুন</small>
                     </div>
                     <div class="text-end">
-                        <div style="font-size:12px;opacity:.8;">Session</div>
+                        <div style="font-size:12px;opacity:.8;">সেশন</div>
                         <div style="font-weight:600;">SL-{{ date('dmy-His') }}</div>
                     </div>
                 </div>
@@ -360,7 +360,7 @@
 
                         <div class="text-end mt-1">
                             <button type="submit" class="btn btn-pos-primary">
-                                Complete Sale
+                                <i class="fas fa-check-circle me-1"></i> অর্ডার কনফার্ম করুন
                             </button>
                         </div>
                     </div>
@@ -665,12 +665,98 @@
         updateCartVariant(rowId, productId, undefined, colorId);
     });
 
-    // -------- FORM SUBMIT - আগে Size/Color সিঙ্ক করুন --------
+    // -------- FORM SUBMIT - ভ্যালিডেশন ও Size/Color সিঙ্ক --------
+    function showFieldError($el, message, title) {
+        if (typeof toastr !== 'undefined') {
+            toastr.error(message, title || 'তথ্য আবশ্যক');
+        } else {
+            alert(message);
+        }
+        $el.addClass('is-invalid');
+        $el.focus();
+    }
+
+    function clearFieldError($el) {
+        $el.removeClass('is-invalid');
+    }
+
     var posFormSubmitting = false;
     $("#pos_order_form").on("submit", function (e) {
         if (posFormSubmitting) return;
         e.preventDefault();
         var form = this;
+
+        // ১. কার্ট চেক
+        if ($("#cartTable tr").length === 0) {
+            if (typeof toastr !== 'undefined') {
+                toastr.error('আপনার কার্ট খালি! অনুগ্রহ করে ডান পাশের তালিকা থেকে পণ্য যোগ করুন।', 'কার্ট খালি');
+            } else {
+                alert('আপনার কার্ট খালি! অনুগ্রহ করে ডান পাশের তালিকা থেকে পণ্য যোগ করুন।');
+            }
+            return false;
+        }
+
+        // ২. কাস্টমার ও ডেলিভারি তথ্য ফিল্ড ভ্যালিডেশন
+        var $name = $("#name");
+        var $phone = $("#phone");
+        var $address = $("#address");
+        var $division = $("#adm_pos_division");
+        var $district = $("#adm_pos_district");
+        var $upazila = $("#adm_pos_upazila");
+
+        var nameVal = $.trim($name.val());
+        var phoneVal = $.trim($phone.val());
+        var addrVal = $.trim($address.val());
+        var divVal = $division.val();
+        var distVal = $district.val();
+        var upzVal = $upazila.val();
+
+        if (!nameVal) {
+            showFieldError($name, 'কাস্টমারের নাম প্রদান করুন।');
+            return false;
+        } else {
+            clearFieldError($name);
+        }
+
+        if (!phoneVal) {
+            showFieldError($phone, 'কাস্টমারের মোবাইল নম্বর প্রদান করুন।');
+            return false;
+        } else if (phoneVal.length < 11) {
+            showFieldError($phone, 'সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।', 'ভুল মোবাইল নম্বর');
+            return false;
+        } else {
+            clearFieldError($phone);
+        }
+
+        if (!addrVal) {
+            showFieldError($address, 'কাস্টমারের ডেলিভারি ঠিকানা প্রদান করুন।');
+            return false;
+        } else {
+            clearFieldError($address);
+        }
+
+        if (!divVal) {
+            showFieldError($division, 'বিভাগ নির্বাচন করুন।');
+            return false;
+        } else {
+            clearFieldError($division);
+        }
+
+        if (!distVal) {
+            showFieldError($district, 'জেলা নির্বাচন করুন।');
+            return false;
+        } else {
+            clearFieldError($district);
+        }
+
+        if (!upzVal) {
+            showFieldError($upazila, 'উপজেলা নির্বাচন করুন।');
+            return false;
+        } else {
+            clearFieldError($upazila);
+        }
+
+        // ৩. ভ্যারিয়েন্ট সিঙ্ক ও সাবমিট
         var rows = [];
         $(".cart-size-selector, .cart-color-selector").each(function () {
             var rowId = $(this).data("id");
@@ -699,6 +785,13 @@
             posFormSubmitting = true;
             setTimeout(function () { form.submit(); }, 150);
         });
+    });
+
+    // ইনপুট টাইপ করার সাথে সাথে is-invalid ক্লাস রিমুভ
+    $(document).on("input change", "#name, #phone, #address, #adm_pos_division, #adm_pos_district, #adm_pos_upazila", function () {
+        if ($.trim($(this).val())) {
+            $(this).removeClass("is-invalid");
+        }
     });
 
     // -------- PRODUCT SEARCH (Right side) ----------

@@ -346,8 +346,8 @@
                 @can('order-create')
                 <li class="{{ request()->routeIs('admin.order.create') ? 'menuitem-active' : '' }}">
                   <a href="{{ route('admin.order.create') }}" class="{{ request()->routeIs('admin.order.create') ? 'active' : '' }}">
-                    <i data-feather="cpu"></i>
-                    <span> POS System </span>
+                    <i data-feather="plus-circle"></i>
+                    <span> Add Order </span>
                   </a>
                 </li>
                 @endcan
@@ -1491,6 +1491,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {!! Toastr::message() !!}
 	<script>
+@if($errors->any())
+    @foreach ($errors->all() as $error)
+        toastr.error(@json($error));
+    @endforeach
+@endif
 @if(Session::has('success'))
     toastr.success(@json(Session::get('success')));
 @endif

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use GuzzleHttp\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -2121,7 +2122,9 @@ PROMPT;
 
     public function order_create()
     {
-        Cart::instance('pos_shopping')->destroy();
+        if (!session()->has('errors') && !old('_token')) {
+            Cart::instance('pos_shopping')->destroy();
+        }
 
         // ✅ Limit products for POS dropdown to avoid memory issues
         $products = Product::select('id', 'name', 'new_price','stock', 'product_code')
@@ -2141,18 +2144,35 @@ PROMPT;
 
     public function order_store(Request $request)
     {
-        $this->validate($request, [
-            'name'    => 'required',
-            'phone'   => 'required',
-            'address' => 'required',
+        $validator = Validator::make($request->all(), [
+            'name'        => 'required',
+            'phone'       => 'required',
+            'address'     => 'required',
             'division_id' => 'required|exists:divisions,id',
             'district_id' => 'required|exists:districts,id',
             'upazila_id'  => 'required|exists:upazilas,id',
+        ], [
+            'name.required'        => 'কাস্টমারের নাম প্রদান করুন।',
+            'phone.required'       => 'মোবাইল নম্বর প্রদান করুন।',
+            'address.required'     => 'ডেলিভারি ঠিকানা প্রদান করুন।',
+            'division_id.required' => 'বিভাগ নির্বাচন করুন।',
+            'division_id.exists'   => 'নির্বাচিত বিভাগটি সঠিক নয়।',
+            'district_id.required' => 'জেলা নির্বাচন করুন।',
+            'district_id.exists'   => 'নির্বাচিত জেলাটি সঠিক নয়।',
+            'upazila_id.required'  => 'উপজেলা নির্বাচন করুন।',
+            'upazila_id.exists'    => 'নির্বাচিত উপজেলাটি সঠিক নয়।',
         ]);
 
+        if ($validator->fails()) {
+            foreach ($validator->errors()->all() as $error) {
+                Toastr::error($error, 'ভুল তথ্য!');
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
         if (Cart::instance('pos_shopping')->count() <= 0) {
-            Toastr::error('Your shopping empty', 'Failed!');
-            return redirect()->back();
+            Toastr::error('আপনার কার্ট খালি! অনুগ্রহ করে পণ্য যোগ করুন।', 'কার্ট খালি!');
+            return redirect()->back()->withInput();
         }
 
         $divisionId = (int) $request->division_id;
