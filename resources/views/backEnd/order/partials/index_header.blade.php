@@ -61,7 +61,6 @@
                             <th>ইনভয়েস</th>
                             <th>তারিখ</th>
                             <th>গ্রাহক</th>
-                            <th class="text-center px-1" style="width: 75px;">ট্র্যাফিক</th>
                             <th>পরিমাণ</th>
                             <th>স্ট্যাটাস</th>
                             <th>ফ্রড চেক</th>

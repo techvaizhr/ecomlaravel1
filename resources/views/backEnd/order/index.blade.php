@@ -25,9 +25,36 @@
                                             </div>
                                         </td>
 
-                                        {{-- 2. Invoice --}}
-                                        <td class="align-middle">
-                                            <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" class="oi-invoice-link fw-bold text-primary">#{{ $value->invoice_id }}</a>
+                                        {{-- 2. Invoice with Copy Icon & Traffic Source Below --}}
+                                        <td class="align-middle text-nowrap">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" class="oi-invoice-link fw-bold text-primary" style="font-size: 13.5px;">#{{ $value->invoice_id }}</a>
+                                                <button type="button" class="btn btn-xs p-0 border-0 text-secondary copy-invoice-btn d-inline-flex align-items-center justify-content-center" data-invoice="{{ $value->invoice_id }}" style="width: 18px; height: 18px;" title="ইনভয়েস কপি করুন">
+                                                    <i class="far fa-copy" style="font-size: 11px;"></i>
+                                                </button>
+                                            </div>
+                                            @php
+                                                $tsKey = strtolower(trim((string) ($value->traffic_source ?? 'direct')));
+                                                $trafficOpts = isset($traffic_source_options) ? $traffic_source_options : [];
+                                                $tsLabel = isset($trafficOpts[$tsKey]) ? $trafficOpts[$tsKey] : ucfirst($tsKey ?: 'direct');
+                                                $tsBadgeClass = match ($tsKey) {
+                                                    'facebook' => 'bg-primary',
+                                                    'instagram' => 'bg-danger',
+                                                    'google' => 'bg-success',
+                                                    'tiktok' => 'bg-dark',
+                                                    'youtube' => 'bg-danger',
+                                                    'whatsapp' => 'bg-success',
+                                                    'bing' => 'bg-info',
+                                                    'yahoo' => 'bg-secondary',
+                                                    'twitter' => 'bg-info',
+                                                    'direct' => 'bg-secondary',
+                                                    'other' => 'bg-warning',
+                                                    default => 'bg-secondary',
+                                                };
+                                            @endphp
+                                            <div class="mt-1">
+                                                <span class="badge {{ $tsBadgeClass }}" style="font-size: 10px; font-weight: 600; padding: 2px 6px;">{{ $tsLabel }}</span>
+                                            </div>
                                         </td>
 
                                         {{-- 3. Date & Time --}}
@@ -71,30 +98,6 @@
                                                     <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 10px;"></i>{{ $custAddr }}
                                                 </div>
                                              @endif
-                                        </td>
-
-                                        {{-- 5. Traffic Source (Compact & Tight) --}}
-                                        <td class="align-middle text-center text-nowrap px-1" style="width: 75px;">
-                                            @php
-                                                $tsKey = strtolower(trim((string) ($value->traffic_source ?? 'direct')));
-                                                $trafficOpts = isset($traffic_source_options) ? $traffic_source_options : [];
-                                                $tsLabel = isset($trafficOpts[$tsKey]) ? $trafficOpts[$tsKey] : ucfirst($tsKey ?: 'direct');
-                                                $tsBadgeClass = match ($tsKey) {
-                                                    'facebook' => 'bg-primary',
-                                                    'instagram' => 'bg-danger',
-                                                    'google' => 'bg-success',
-                                                    'tiktok' => 'bg-dark',
-                                                    'youtube' => 'bg-danger',
-                                                    'whatsapp' => 'bg-success',
-                                                    'bing' => 'bg-info',
-                                                    'yahoo' => 'bg-secondary',
-                                                    'twitter' => 'bg-info',
-                                                    'direct' => 'bg-secondary',
-                                                    'other' => 'bg-warning',
-                                                    default => 'bg-secondary',
-                                                };
-                                            @endphp
-                                            <span class="badge {{ $tsBadgeClass }}" style="font-size: 10.5px; font-weight: 600; padding: 2.5px 6px;">{{ $tsLabel }}</span>
                                         </td>
 
                                         {{-- 6. Amount --}}
@@ -1381,21 +1384,38 @@ $(document).ready(function(){
             navigator.clipboard.writeText(phone).then(function() {
                 toastr.success('ফোন নাম্বার কপি করা হয়েছে: ' + phone);
             }).catch(function() {
-                fallbackCopyText(phone);
+                fallbackCopyText(phone, 'ফোন নাম্বার কপি করা হয়েছে: ');
             });
         } else {
-            fallbackCopyText(phone);
+            fallbackCopyText(phone, 'ফোন নাম্বার কপি করা হয়েছে: ');
         }
     });
 
-    function fallbackCopyText(text) {
+    // Copy Invoice Number
+    $(document).on('click', '.copy-invoice-btn', function(e) {
+        e.preventDefault();
+        var inv = $(this).data('invoice');
+        if (!inv) return;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(inv).then(function() {
+                toastr.success('ইনভয়েস নম্বর কপি করা হয়েছে: #' + inv);
+            }).catch(function() {
+                fallbackCopyText(inv, 'ইনভয়েস নম্বর কপি করা হয়েছে: #');
+            });
+        } else {
+            fallbackCopyText(inv, 'ইনভয়েস নম্বর কপি করা হয়েছে: #');
+        }
+    });
+
+    function fallbackCopyText(text, prefix) {
         var tempInput = document.createElement("input");
         tempInput.value = text;
         document.body.appendChild(tempInput);
         tempInput.select();
         document.execCommand("copy");
         document.body.removeChild(tempInput);
-        toastr.success('ফোন নাম্বার কপি করা হয়েছে: ' + text);
+        toastr.success((prefix || 'কপি করা হয়েছে: ') + text);
     }
 
     // Single Pathao Booking Modal Trigger
