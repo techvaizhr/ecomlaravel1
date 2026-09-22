@@ -36,6 +36,20 @@
 
     $tsKey = strtolower(trim((string) ($order->traffic_source ?? 'direct')));
     $tsLabel = $traffic_source_options[$tsKey] ?? ucfirst($tsKey ?: 'direct');
+    $tsBadgeClass = match ($tsKey) {
+        'facebook' => 'bg-primary',
+        'instagram' => 'bg-danger',
+        'google' => 'bg-success',
+        'tiktok' => 'bg-dark',
+        'youtube' => 'bg-danger',
+        'whatsapp' => 'bg-success',
+        'bing' => 'bg-info',
+        'yahoo' => 'bg-secondary',
+        'twitter' => 'bg-info',
+        'direct' => 'bg-secondary',
+        'other' => 'bg-warning',
+        default => 'bg-secondary',
+    };
     $tsReferrer = trim((string) ($order->traffic_referrer ?? ''));
 
     $orderNote = $order->order_note ?? $order->note ?? '';
@@ -130,10 +144,9 @@
                     </div>
                     <div class="col-6 col-lg-4">
                         <span class="oqv-label">ট্র্যাফিক</span>
-                        <span class="badge bg-primary">{{ $tsLabel }}</span>
-                        @if($tsReferrer !== '')
-                        <small class="d-block text-muted mt-1">{{ Str::limit($tsReferrer, 60) }}</small>
-                        @endif
+                        <div>
+                            <span class="badge {{ $tsBadgeClass }} px-2 py-1" style="font-size: 11px; font-weight: 600;">{{ $tsLabel }}</span>
+                        </div>
                     </div>
                 </div>
 
