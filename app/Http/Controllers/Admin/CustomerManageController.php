@@ -17,14 +17,51 @@ use Auth;
 use Hash;
 class CustomerManageController extends Controller
 {
-    public function index(Request $request){
-        if($request->keyword){
-            $show_data = Customer::orWhere('phone',$request->keyword)->orWhere('name',$request->keyword)->paginate(20);
-        }else{
-             $show_data = Customer::paginate(20);
+    public function index(Request $request)
+    {
+        $query = Customer::query();
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('phone', 'LIKE', "%{$keyword}%")
+                    ->orWhere('name', 'LIKE', "%{$keyword}%")
+                    ->orWhere('email', 'LIKE', "%{$keyword}%");
+            });
         }
-       
-        return view('backEnd.customer.index',compact('show_data'));
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('sort_by')) {
+            if ($request->sort_by === 'oldest') {
+                $query->oldest('id');
+            } elseif ($request->sort_by === 'name_asc') {
+                $query->orderBy('name', 'asc');
+            } else {
+                $query->latest('id');
+            }
+        } else {
+            $query->latest('id');
+        }
+
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(Customer::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $show_data = $query->paginate($perPage)->withQueryString();
+
+        $stats = [
+            'total'    => Customer::count(),
+            'active'   => Customer::where('status', 'active')->count(),
+            'inactive' => Customer::where('status', '!=', 'active')->count(),
+        ];
+
+        return view('backEnd.customer.index', compact('show_data', 'stats'));
     }
 
     public function edit($id){

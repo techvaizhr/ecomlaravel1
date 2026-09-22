@@ -19,12 +19,36 @@ class RoleController extends Controller
     
     public function index(Request $request)
     {
-        $show_data = Role::withCount(['permissions', 'users'])->orderBy('id','DESC')->get();
+        $query = Role::withCount(['permissions', 'users']);
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where('name', 'LIKE', "%{$keyword}%");
+        }
+
+        $query->orderBy('id', 'DESC');
+
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(Role::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $show_data = $query->paginate($perPage)->withQueryString();
+
         $totalPermissions = Permission::where('guard_name', 'admin')->count();
         if ($totalPermissions === 0) {
             $totalPermissions = Permission::count();
         }
-        return view('backEnd.roles.index',compact('show_data', 'totalPermissions'));
+
+        $stats = [
+            'total_roles'       => Role::count(),
+            'total_permissions' => $totalPermissions,
+            'assigned_staff'    => \App\Models\User::whereHas('roles')->count(),
+        ];
+
+        return view('backEnd.roles.index', compact('show_data', 'totalPermissions', 'stats'));
     }
 
     /**

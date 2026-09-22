@@ -15,20 +15,66 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // ✅ Filter out Vendor and Reseller users - only show Admin/Staff users with eager loaded roles
-        $data = User::with('roles')
+        // Filter out Vendor and Reseller users - only show Admin/Staff users with eager loaded roles
+        $query = User::with('roles')
             ->whereNull('vendor_id')
-            ->where(function($query) {
-                $query->where('role', '!=', 'reseller')
-                      ->orWhereNull('role');
+            ->where(function($q) {
+                $q->where('role', '!=', 'reseller')
+                  ->orWhereNull('role');
             })
             ->whereDoesntHave('roles', function($q) {
                 $q->whereIn('name', ['vendor', 'reseller']);
+            });
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%{$keyword}%")
+                  ->orWhere('email', 'LIKE', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== '') {
+            $query->where('status', (int)$request->status);
+        }
+
+        if ($request->filled('role_id')) {
+            $query->whereHas('roles', function($rq) use ($request) {
+                $rq->where('roles.id', $request->role_id);
+            });
+        }
+
+        $query->orderBy('id', 'DESC');
+
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max($query->count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $data = $query->paginate($perPage)->withQueryString();
+        $roles = Role::where('guard_name', 'admin')->get();
+        if ($roles->isEmpty()) {
+            $roles = Role::get();
+        }
+
+        $baseCount = User::whereNull('vendor_id')
+            ->where(function($q) {
+                $q->where('role', '!=', 'reseller')->orWhereNull('role');
             })
-            ->orderBy('id','DESC')
-            ->get();
-        
-        return view('backEnd.users.index',compact('data'));
+            ->whereDoesntHave('roles', function($q) {
+                $q->whereIn('name', ['vendor', 'reseller']);
+            });
+
+        $stats = [
+            'total'       => (clone $baseCount)->count(),
+            'active'      => (clone $baseCount)->where('status', 1)->count(),
+            'inactive'    => (clone $baseCount)->where('status', 0)->count(),
+            'roles_count' => $roles->count(),
+        ];
+
+        return view('backEnd.users.index', compact('data', 'roles', 'stats'));
     }
     
     public function create()
