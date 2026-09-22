@@ -108,7 +108,7 @@
                                                     $showAmount = $total - $paid;
                                                 }
                                             @endphp
-                                            <span class="oi-amount fw-bold text-dark" style="font-size: 14px;">৳{{ number_format($showAmount, 2) }}</span>
+                                            <span class="oi-amount fw-bold text-dark" style="font-size: 14px;">৳{{ number_format($showAmount, 0) }}</span>
                                         </td>
 
                                         {{-- 7. Status --}}
