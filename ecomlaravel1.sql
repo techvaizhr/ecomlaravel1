@@ -3376,9 +3376,35 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (190, '2026_06_28_000003_create_gemini_ai_settings_table', 118),
 (191, '2026_06_28_000004_add_customer_chat_to_gemini_ai_settings', 119),
 (192, '2026_06_28_000005_add_homepage_section_toggles_to_general_settings', 119),
-(193, '2026_09_23_010000_ensure_product_images_path_length', 120);
+(193, '2026_09_23_010000_ensure_product_images_path_length', 120),
+(194, '2026_09_23_020000_create_media_table', 121);
 
 -- --------------------------------------------------------
+
+--
+-- Table structure for table `media`
+--
+
+CREATE TABLE `media` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `folder` varchar(50) NOT NULL,
+  `subfolder` varchar(50) DEFAULT NULL,
+  `extension` varchar(10) NOT NULL,
+  `file_size` bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  `dimensions` varchar(50) DEFAULT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `media_file_path_unique` (`file_path`),
+  KEY `media_folder_index` (`folder`),
+  KEY `media_created_at_index` (`created_at`),
+  KEY `media_file_size_index` (`file_size`),
+  KEY `media_file_name_index` (`file_name`),
+  KEY `media_folder_created_at_index` (`folder`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `model_has_permissions`

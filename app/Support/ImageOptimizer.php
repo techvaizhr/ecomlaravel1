@@ -148,7 +148,50 @@ class ImageOptimizer
 
         self::saveOptimizedWebp($file->getRealPath(), $fullPath, $maxBytes, $maxWidth, $maxHeight);
 
+        // Auto-index into Media table for super-fast indexed queries
+        try {
+            self::indexMediaRow($fullPath, $relativePath, $basename);
+        } catch (\Throwable $e) {
+            // Silently ignore if table is migrating or unavailable
+        }
+
         return $relativePath;
+    }
+
+    /**
+     * Index file metadata into media database table.
+     */
+    public static function indexMediaRow(string $fullPath, string $relativePath, string $filename): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('media')) {
+            return;
+        }
+
+        $cleanRelative = str_replace('\\', '/', $relativePath);
+        $cleanDir = str_replace(['public/uploads/', 'uploads/'], '', $cleanRelative);
+        $parts = explode('/', $cleanDir);
+        $folder = count($parts) > 1 ? $parts[0] : 'root';
+        $subfolder = count($parts) > 2 ? $parts[1] : null;
+
+        $fileSize = file_exists($fullPath) ? filesize($fullPath) : 0;
+        $dimensions = null;
+        $info = @getimagesize($fullPath);
+        if ($info && !empty($info[0]) && !empty($info[1])) {
+            $dimensions = $info[0] . ' × ' . $info[1];
+        }
+
+        \App\Models\Media::updateOrCreate(
+            ['file_path' => $cleanRelative],
+            [
+                'file_name'  => $filename,
+                'folder'     => $folder,
+                'subfolder'  => $subfolder,
+                'extension'  => strtolower(pathinfo($cleanRelative, PATHINFO_EXTENSION) ?: 'webp'),
+                'file_size'  => $fileSize,
+                'dimensions' => $dimensions,
+                'mime_type'  => 'image/webp',
+            ]
+        );
     }
 
     public static function makeBasename(UploadedFile $file): string

@@ -19,6 +19,9 @@
                     <span class="badge bg-soft-primary text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill fs-12 fw-semibold">
                         <i class="fas fa-images me-1"></i> মোট {{ number_format($stats['total_files']) }} টি ফাইল ({{ $stats['total_size'] }})
                     </span>
+                    <a href="{{ route('admin.media.sync') }}" class="btn btn-outline-primary rounded-pill px-3 shadow-sm d-flex align-items-center gap-1" title="ফাইল সিস্টেমের সাথে ডাটাবেজ ইনডেক্স সিঙ্ক করুন">
+                        <i class="fas fa-sync-alt" style="font-size: 13px;"></i> সিঙ্ক করুন
+                    </a>
                     <button type="button" class="btn btn-primary rounded-pill px-3 shadow-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#uploadMediaModal">
                         <i data-feather="upload-cloud" style="width: 16px; height: 16px;"></i> নতুন ইমেজ আপলোড
                     </button>

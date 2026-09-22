@@ -630,6 +630,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     // 📸 Media Library / File Manager
     Route::group(['as' => 'admin.media.', 'prefix' => 'media'], function () {
         Route::get('/', [MediaController::class, 'index'])->name('index');
+        Route::get('/sync', [MediaController::class, 'sync'])->name('sync');
         Route::post('/upload', [MediaController::class, 'upload'])->name('upload');
         Route::post('/delete', [MediaController::class, 'destroy'])->name('destroy');
         Route::post('/bulk-delete', [MediaController::class, 'bulkDestroy'])->name('bulkDestroy');
