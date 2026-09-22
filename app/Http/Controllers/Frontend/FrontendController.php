@@ -1263,12 +1263,21 @@ class FrontendController extends Controller
                 ->get();
 
             foreach ($realNotifs as $n) {
+                $timeText = 'কিছুক্ষণ আগে';
+                if ($n->created_at) {
+                    if ($n->created_at->diffInHours(now()) <= 12) {
+                        $timeText = $n->created_at->diffForHumans();
+                    } else {
+                        $randomMins = rand(2, 40);
+                        $timeText = $randomMins . ' মিনিট আগে';
+                    }
+                }
                 $items->push([
                     'name'         => $n->customer_name,
                     'product_name' => \Str::limit($n->product_name, 55),
                     'product_url'  => $n->product_url ?? '#',
                     'image'        => $n->product_image ? asset($n->product_image) : null,
-                    'time'         => $n->created_at ? $n->created_at->diffForHumans() : 'recently',
+                    'time'         => $timeText,
                     'is_real'      => true,
                 ]);
             }
@@ -1282,12 +1291,14 @@ class FrontendController extends Controller
                 ->get();
 
             foreach ($customs as $n) {
+                $randomMins = rand(3, 48);
+                $timeText = $randomMins . ' মিনিট আগে';
                 $items->push([
                     'name'         => $n->customer_name,
                     'product_name' => \Str::limit($n->product_name, 55),
                     'product_url'  => $n->product_url ?? '#',
                     'image'        => $n->product_image ? asset($n->product_image) : null,
-                    'time'         => $n->created_at->diffForHumans(),
+                    'time'         => $timeText,
                     'is_real'      => false,
                 ]);
             }

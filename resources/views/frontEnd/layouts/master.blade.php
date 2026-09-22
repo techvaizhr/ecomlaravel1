@@ -64,245 +64,328 @@
             }
         </style>
 		<style>
-/* ========== Footer V2 — 100% Responsive (colors from General Setting) ========== */
+/* ═══════════════════════════════════════════════════════════════
+   🌟 ULTRA-MODERN PREMIUM STORE FOOTER DESIGN
+   ═══════════════════════════════════════════════════════════════ */
 .footer-v2 {
-    background-color: {{ optional($generalsetting)->footer_color ?? '#222222' }};
-    color: #e8e8e8;
-    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(180deg, {{ optional($generalsetting)->footer_color ?? '#111827' }} 0%, #090d16 100%);
+    color: #e2e8f0;
+    font-family: inherit;
     position: relative;
     overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.footer-v2 p, .footer-v2 a, .footer-v2 h5, .footer-v2 h6, .footer-v2 li, .footer-v2 span {
-    color: #e8e8e8 !important;
-}
-
-/* Top accent line — Primary Color from setting */
+/* Glowing Top Accent Line */
 .footer-v2__wave {
-    height: 4px;
+    height: 3px;
     width: 100%;
-    background: linear-gradient(90deg, transparent 0%, {{ optional($generalsetting)->primary_color ?? '#667eea' }} 20%, {{ optional($generalsetting)->primary_color ?? '#667eea' }} 80%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, {{ optional($generalsetting)->primary_color ?? '#667eea' }} 25%, {{ optional($generalsetting)->secodery_color ?? '#3b82f6' }} 75%, transparent 100%);
     opacity: 0.9;
 }
 
-/* Main content — padding responsive (mobile first) */
-.footer-v2__main {
-    padding: 2rem 1rem 2rem;
-    box-sizing: border-box;
+/* 🛡️ Store Trust Features Strip */
+.footer-trust-strip {
+    padding: 24px 0 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
 }
-@media (min-width: 360px) {
-    .footer-v2__main { padding-left: 1.25rem; padding-right: 1.25rem; }
+.footer-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 16px;
 }
-@media (min-width: 576px) {
-    .footer-v2__main { padding: 3rem 1.5rem 2.5rem; }
+.footer-trust-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    transition: all 0.25s ease;
 }
-@media (min-width: 992px) {
-    .footer-v2__main { padding: 4rem 2rem 3rem; }
+.footer-trust-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+.footer-trust-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#667eea' }}25 0%, {{ optional($generalsetting)->secodery_color ?? '#3b82f6' }}25 100%);
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.footer-trust-info h6 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #ffffff !important;
+    margin: 0 0 2px;
+    line-height: 1.2;
+}
+.footer-trust-info p {
+    font-size: 11.5px;
+    color: #94a3b8 !important;
+    margin: 0;
+    line-height: 1.3;
 }
 
-/* Grid: 1 col mobile → 2 col → 3 col → 4 col desktop (100% responsive) */
+@media (max-width: 991px) {
+    .footer-trust-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+@media (max-width: 540px) {
+    .footer-trust-grid { grid-template-columns: 1fr; gap: 8px; }
+    .footer-trust-card { padding: 10px 12px; }
+}
+
+/* Main Footer Content */
+.footer-v2__main {
+    padding: 3.5rem 1.25rem 2.5rem;
+    box-sizing: border-box;
+}
 .footer-v2__grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    max-width: 1200px;
+    grid-template-columns: 1.8fr 1fr 1fr 1.3fr;
+    gap: 2.5rem;
+    max-width: 1240px;
     margin: 0 auto;
 }
-@media (min-width: 576px) {
-    .footer-v2__grid { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+@media (max-width: 1100px) {
+    .footer-v2__grid { grid-template-columns: 1.5fr 1fr 1fr 1.2fr; gap: 2rem; }
 }
-@media (min-width: 768px) {
-    .footer-v2__grid { grid-template-columns: 1.5fr 1fr 1fr; }
+@media (max-width: 890px) {
+    .footer-v2__grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
 }
-@media (min-width: 992px) {
-    .footer-v2__grid { grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 3rem; }
+@media (max-width: 576px) {
+    .footer-v2__grid { grid-template-columns: 1fr; gap: 1.75rem; }
 }
 
 /* Brand block */
-.footer-v2__brand { }
 .footer-v2__logo {
     display: inline-block;
     margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+.footer-v2__logo:hover {
+    transform: scale(1.02);
 }
 .footer-v2__logo img {
-    height: 48px;
+    max-height: 48px;
     width: auto;
-    filter: brightness(0) invert(1);
-}
-@media (min-width: 768px) {
-    .footer-v2__logo img { height: 52px; }
+    object-fit: contain;
 }
 .footer-v2__tagline {
-    font-size: 0.9375rem;
+    font-size: 13.5px;
     line-height: 1.65;
-    opacity: 0.9;
-    margin-bottom: 1.5rem;
-    max-width: 100%;
+    color: #94a3b8 !important;
+    margin-bottom: 1.25rem;
+    max-width: 340px;
 }
-@media (min-width: 400px) {
-    .footer-v2__tagline { max-width: 320px; }
+
+/* Contact Pills */
+.footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.25rem;
 }
-.footer-v2__apps {
-    margin-top: 1.25rem;
+.footer-contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #cbd5e1 !important;
+    text-decoration: none !important;
+    transition: color 0.2s;
 }
+.footer-contact-item:hover {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
+}
+.footer-contact-item i {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+/* App Download Badges */
 .footer-v2__apps-title {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    opacity: 0.95;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #cbd5e1 !important;
+    margin-bottom: 0.65rem;
 }
 .footer-v2__app-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.65rem;
 }
-.footer-v2__app-badges a {
-    display: block;
-}
-.footer-v2__app-badges img {
-    height: 40px;
+.footer-v2__app-badges a img {
+    height: 38px;
     width: auto;
     border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(0, 0, 0, 0.3);
+    transition: all 0.25s ease;
 }
 .footer-v2__app-badges a:hover img {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    border-color: rgba(255, 255, 255, 0.35);
 }
 
-/* Link blocks */
-.footer-v2__block { }
+/* Column Headings */
 .footer-v2__title {
-    font-size: 1rem;
+    font-size: 15px;
     font-weight: 700;
-    margin-bottom: 1rem;
+    color: #ffffff !important;
+    margin-bottom: 1.25rem;
     position: relative;
-    padding-bottom: 0.5rem;
+    padding-bottom: 8px;
     display: inline-block;
+    letter-spacing: 0.3px;
 }
 .footer-v2__title::after {
     content: '';
     position: absolute;
     left: 0;
     bottom: 0;
-    width: 28px;
-    height: 2px;
-    background-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    width: 32px;
+    height: 2.5px;
+    background: linear-gradient(90deg, {{ optional($generalsetting)->primary_color ?? '#667eea' }}, transparent);
     border-radius: 2px;
 }
+
+/* Links */
 .footer-v2__links {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
-.footer-v2__links li {
-    margin-bottom: 0.5rem;
+.footer-v2__links li a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none !important;
+    font-size: 13.5px;
+    color: #94a3b8 !important;
+    transition: all 0.2s ease;
+    line-height: 1.4;
 }
-.footer-v2__links a {
-    text-decoration: none;
-    font-size: 0.9375rem;
-    opacity: 0.85;
-    transition: opacity 0.2s, color 0.2s, padding-left 0.2s;
-    display: inline-block;
+.footer-v2__links li a::before {
+    content: '›';
+    font-size: 15px;
+    font-weight: 700;
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s;
 }
-.footer-v2__links a:hover {
+.footer-v2__links li a:hover {
+    color: #ffffff !important;
+    transform: translateX(4px);
+}
+.footer-v2__links li a:hover::before {
     opacity: 1;
-    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
-    padding-left: 4px;
+    transform: translateX(2px);
 }
 
-/* মোবাইলে Useful Link ও Link মেনু কনফ্লিক্ট রোধ — এক কলাম, স্পষ্ট আলাদা */
-@media (max-width: 767px) {
-    .footer-v2__grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-    .footer-v2__block {
-        width: 100%;
-        min-width: 0;
-        padding: 1rem 0;
-        margin: 0;
-        border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
-    .footer-v2__block:last-of-type {
-        border-bottom: none;
-    }
-    .footer-v2__title {
-        display: block;
-        margin-bottom: 0.75rem;
-    }
-    .footer-v2__links {
-        display: block;
-    }
-    .footer-v2__links li {
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-    .footer-v2__links a {
-        display: block;
-        padding: 0.35rem 0;
-        line-height: 1.4;
-        white-space: normal;
-        word-break: break-word;
-    }
-}
-
-/* Newsletter + Social block */
-.footer-v2__newsletter { }
-.footer-v2__newsletter .footer-v2__title { margin-bottom: 0.75rem; }
+/* Newsletter Box */
 .footer-v2__newsletter-desc {
-    font-size: 0.8125rem;
-    opacity: 0.85;
+    font-size: 13px;
+    color: #94a3b8 !important;
+    line-height: 1.5;
     margin-bottom: 1rem;
 }
 .footer-v2__form {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 8px;
     margin-bottom: 1.5rem;
     width: 100%;
-    max-width: 100%;
 }
-@media (min-width: 400px) {
-    .footer-v2__form { flex-direction: row; }
+.footer-newsletter-wrap {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50px;
+    padding: 4px 5px 4px 14px;
+    transition: all 0.25s ease;
 }
-.footer-v2__form input {
+.footer-newsletter-wrap:focus-within {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    box-shadow: 0 0 0 3px {{ optional($generalsetting)->primary_color ?? '#667eea' }}25;
+}
+.footer-newsletter-wrap input {
     flex: 1;
     min-width: 0;
-    padding: 0.65rem 1rem;
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 10px;
-    background: rgba(255,255,255,0.08);
-    color: #fff !important;
-    font-size: 0.9375rem;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    padding: 6px 0 !important;
 }
-.footer-v2__form input::placeholder { color: rgba(255,255,255,0.5); }
-.footer-v2__form button {
-    padding: 0.65rem 1.25rem;
-    border-radius: 10px;
+.footer-newsletter-wrap input::placeholder {
+    color: #64748b !important;
+}
+.footer-newsletter-wrap button {
+    padding: 8px 18px;
+    border-radius: 50px;
     border: none;
-    background-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    color: #fff !important;
-    font-weight: 600;
-    font-size: 0.9375rem;
+    background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#667eea' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#3b82f6' }} 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 12.5px;
     white-space: nowrap;
-    transition: transform 0.2s, opacity 0.2s;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px {{ optional($generalsetting)->primary_color ?? '#667eea' }}40;
 }
-.footer-v2__form button:hover {
-    transform: scale(1.02);
-    opacity: 0.95;
+.footer-newsletter-wrap button:hover {
+    transform: scale(1.03);
+    filter: brightness(1.1);
 }
+
+/* Social icons */
 .footer-v2__social-title {
-    font-size: 0.8125rem;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #cbd5e1 !important;
     margin-bottom: 0.75rem;
-    opacity: 0.95;
 }
 .footer-v2__social-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 8px;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -311,101 +394,78 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #fff !important;
-    transition: background 0.2s, transform 0.2s;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1 !important;
+    font-size: 15px;
+    transition: all 0.25s ease;
 }
 .footer-v2__social-list a:hover {
-    background-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    transform: translateY(-2px);
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    color: #ffffff !important;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px {{ optional($generalsetting)->primary_color ?? '#667eea' }}50;
 }
-.footer-v2__social-list i { font-size: 1.1rem; }
 
-/* Bottom bar — Copyright Color from setting */
+/* Bottom Copyright Bar */
 .footer-v2__bottom {
-    background-color: {{ optional($generalsetting)->copyright_color ?? '#000000' }};
+    background: {{ optional($generalsetting)->copyright_color ?? '#060a12' }};
     padding: 1.25rem 1rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
-}
-@media (min-width: 576px) {
-    .footer-v2__bottom { padding: 1.25rem 1.5rem; }
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 .footer-v2__copy-wrap {
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.75rem;
-    text-align: center;
-    font-size: 0.875rem;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+    color: #64748b !important;
 }
-@media (min-width: 768px) {
-    .footer-v2__copy-wrap {
-        flex-direction: row;
-        justify-content: center;
-        flex-wrap: wrap;
-        text-align: left;
-    }
+.footer-v2__copy-text {
+    color: #94a3b8 !important;
 }
-.footer-v2__copy-text { margin: 0; }
-.footer-v2__copy-sep {
-    display: none;
-    margin: 0 0.75rem;
-    opacity: 0.6;
-}
-@media (min-width: 768px) {
-    .footer-v2__copy-sep { display: inline; }
+.footer-v2__copy-text strong {
+    color: #f1f5f9;
 }
 .footer-v2__designer {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
+    color: #64748b;
 }
 .footer-v2__designer-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.75rem;
+    padding: 3px 10px;
     border-radius: 20px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #fff !important;
-    text-decoration: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0 !important;
+    text-decoration: none !important;
     font-weight: 600;
-    font-size: 0.8125rem;
-    transition: background 0.2s, color 0.2s;
+    font-size: 12px;
+    transition: all 0.2s;
 }
 .footer-v2__designer-link:hover {
-    background: #fff;
-    color: #1a1a2e !important;
-}
-.footer-v2__designer-link img {
-    height: 18px;
-    width: auto;
-    display: block;
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    color: #ffffff !important;
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
 }
 
-/* Mobile: space above fixed bottom nav + safe area */
 @media (max-width: 768px) {
-    .footer-v2__bottom { padding-bottom: 95px; }
-    .footer-v2__main { padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
-}
-
-/* Mobile Responsive Adjustments */
-@media (max-width: 768px) {
-    .copyright-wrapper {
-        flex-direction: column; /* Stack on mobile */
-        gap: 15px;
-        text-align: center;
+    .footer-v2__bottom {
+        padding-bottom: 95px;
     }
-    
-    .designer-credit {
+    .footer-v2__copy-wrap {
         justify-content: center;
+        text-align: center;
     }
 }
 
@@ -1960,60 +2020,128 @@ section.slider-section {
 <footer class="footer-v2">
     <div class="footer-v2__wave"></div>
 
+    {{-- 🛡️ Store Trust Features Strip --}}
+    <div class="footer-trust-strip">
+        <div class="footer-trust-grid">
+            <div class="footer-trust-card">
+                <div class="footer-trust-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                <div class="footer-trust-info">
+                    <h6>সারা দেশে হোম ডেলিভারি</h6>
+                    <p>ক্যাশ অন ডেলিভারি সুবিধা</p>
+                </div>
+            </div>
+            <div class="footer-trust-card">
+                <div class="footer-trust-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="footer-trust-info">
+                    <h6>১০০% অরিজিনাল পণ্য</h6>
+                    <p>গুণগত মান ও আস্থার প্রতীক</p>
+                </div>
+            </div>
+            <div class="footer-trust-card">
+                <div class="footer-trust-icon"><i class="fa-solid fa-rotate-left"></i></div>
+                <div class="footer-trust-info">
+                    <h6>সহজ রিটার্ন পলিসি</h6>
+                    <p>ঝামেলামুক্ত পণ্য পরিবর্তনের সুবিধা</p>
+                </div>
+            </div>
+            <div class="footer-trust-card">
+                <div class="footer-trust-icon"><i class="fa-solid fa-headset"></i></div>
+                <div class="footer-trust-info">
+                    <h6>২৪/৭ কাস্টমার সাপোর্ট</h6>
+                    <p>যে কোনো সহায়তায় পাশে আছি</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="footer-v2__main">
         <div class="footer-v2__grid">
-            <!-- Brand -->
+            <!-- Brand & Contact -->
             <div class="footer-v2__brand">
                 <a href="{{ url('/') }}" class="footer-v2__logo">
                     <img src="{{ asset(optional($generalsetting)->white_logo ?? 'public/logo.png') }}" alt="{{ optional($generalsetting)->name ?? 'Logo' }}">
                 </a>
                 <p class="footer-v2__tagline">
-                    {{ optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।' }}
+                    {{ optional($generalsetting)->footer_about_text ?? 'আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। আমরা সেরা মানের পণ্য ও দ্রুততম ডেলিভারি সেবা প্রদানে প্রতিশ্রুতিবদ্ধ।' }}
                 </p>
+
+                <div class="footer-contact-list">
+                    @if(!empty($contact->phone))
+                    <a href="tel:{{ $contact->phone }}" class="footer-contact-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>{{ $contact->phone }}</span>
+                    </a>
+                    @endif
+                    @if(!empty($contact->email))
+                    <a href="mailto:{{ $contact->email }}" class="footer-contact-item">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>{{ $contact->email }}</span>
+                    </a>
+                    @endif
+                    @if(!empty($contact->address))
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>{{ $contact->address }}</span>
+                    </div>
+                    @endif
+                </div>
+
+                @if(!empty($generalsetting->google_play_link) || !empty($generalsetting->app_store_link))
                 <div class="footer-v2__apps">
-                    <div class="footer-v2__apps-title">Download our app</div>
+                    <div class="footer-v2__apps-title">মোবাইল অ্যাপ ডাউনলোড করুন</div>
                     <div class="footer-v2__app-badges">
-                        <a href="{{ optional($generalsetting)->google_play_link ?? '#' }}" target="_blank" rel="noopener">
+                        @if(!empty($generalsetting->google_play_link))
+                        <a href="{{ $generalsetting->google_play_link }}" target="_blank" rel="noopener">
                             <img src="/public/uploads/play.svg" alt="Google Play">
                         </a>
-                        <a href="{{ optional($generalsetting)->app_store_link ?? '#' }}" target="_blank" rel="noopener">
+                        @endif
+                        @if(!empty($generalsetting->app_store_link))
+                        <a href="{{ $generalsetting->app_store_link }}" target="_blank" rel="noopener">
                             <img src="/public/uploads/app.png" alt="App Store">
                         </a>
+                        @endif
                     </div>
                 </div>
+                @endif
             </div>
 
-            <!-- Useful Link -->
+            <!-- Useful Links -->
             <div class="footer-v2__block">
-                <h5 class="footer-v2__title">Useful Link</h5>
+                <h5 class="footer-v2__title">প্রয়োজনীয় লিংক</h5>
                 <ul class="footer-v2__links">
-                    <li><a href="{{ route('complaint') }}">Complaints</a></li>
+                    <li><a href="{{ route('customer.order_track') }}">অর্ডার ট্র্যাকিং</a></li>
+                    <li><a href="{{ route('complaint') }}">অভিযোগ / সমস্যা জানান</a></li>
                     @foreach($pages as $page)
                     <li><a href="{{ route('page', ['slug' => $page->slug]) }}">{{ $page->name }}</a></li>
                     @endforeach
                 </ul>
             </div>
 
-            <!-- Link -->
+            <!-- Policy & Information -->
             <div class="footer-v2__block">
-                <h5 class="footer-v2__title">Link</h5>
+                <h5 class="footer-v2__title">তথ্য ও পলিসি</h5>
                 <ul class="footer-v2__links">
                     @foreach($pagesright as $key => $value)
                     <li><a href="{{ route('page', ['slug' => $value->slug]) }}">{{ $value->name }}</a></li>
                     @endforeach
+                    @if(Route::has('contact'))
+                    <li><a href="{{ route('contact') }}">যোগাযোগ করুন</a></li>
+                    @endif
                 </ul>
             </div>
 
             <!-- Newsletter + Social -->
             <div class="footer-v2__newsletter">
-                <h5 class="footer-v2__title">Newsletter</h5>
-                <p class="footer-v2__newsletter-desc">Subscribe for offers and updates.</p>
+                <h5 class="footer-v2__title">নিউজলেটার</h5>
+                <p class="footer-v2__newsletter-desc">এক্সক্লুসিভ অফার ও ডিসকাউন্টের আপডেট পেতে সাবস্ক্রাইব করুন।</p>
                 <form action="{{ route('frontend.newsletter.subscribe') }}" method="POST" class="footer-v2__form">
                     @csrf
-                    <input type="email" name="email" placeholder="Your email..." required>
-                    <button type="submit"><i class="fas fa-paper-plane"></i> Subscribe</button>
+                    <div class="footer-newsletter-wrap">
+                        <input type="email" name="email" placeholder="আপনার ইমেইল লিখুন..." required autocomplete="email">
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> সাবস্ক্রাইব</button>
+                    </div>
                 </form>
-                <div class="footer-v2__social-title">Follow Us</div>
+                <div class="footer-v2__social-title">আমাদের সোশ্যাল মিডিয়া</div>
                 <ul class="footer-v2__social-list">
                     @foreach($socialicons as $value)
                     <li>
@@ -2027,8 +2155,7 @@ section.slider-section {
 
     <div class="footer-v2__bottom">
         <div class="footer-v2__copy-wrap">
-            <span class="footer-v2__copy-text">&copy; {{ date('Y') }} <strong>{{ optional($generalsetting)->name ?? config('app.name') }}</strong>. All rights reserved</span>
-            <span class="footer-v2__copy-sep">|</span>
+            <span class="footer-v2__copy-text">&copy; {{ date('Y') }} <strong>{{ optional($generalsetting)->name ?? config('app.name') }}</strong>. সর্বস্বত্ব সংরক্ষিত</span>
             <span class="footer-v2__designer">
                 Designed by
                 <a href="#" class="footer-v2__designer-link">
@@ -3931,120 +4058,196 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
 </style>
 @endif
 
-@php $snxAccent = optional($generalsetting)->primary_color ?? '#e94560'; @endphp
-{{-- Sales Notification Popup — bottom-left --}}
+@php $snxAccent = optional($generalsetting)->primary_color ?? '#007bff'; @endphp
+{{-- 🛍️ MODERN LIVE SALES NOTIFICATION POPUP --}}
 <style>
 #snx-popup {
     position: fixed;
     bottom: 24px;
     left: 24px;
-    z-index: 99999;
-    width: 320px;
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    z-index: 99995;
+    width: 330px;
+    max-width: calc(100vw - 32px);
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 14px 38px -4px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 16px;
-    border-left: 4px solid {{ $snxAccent }};
-    transform: translateX(-380px);
+    padding: 12px 14px;
+    transform: translateY(30px) scale(0.95);
     opacity: 0;
-    transition: transform 0.45s cubic-bezier(.34,1.56,.64,1), opacity 0.35s ease;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
     pointer-events: none;
+    border-top: 3px solid {{ $snxAccent }};
 }
 #snx-popup.snx-show {
-    transform: translateX(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
     pointer-events: auto;
 }
-#snx-popup .snx-img {
+.snx-img-wrap {
+    position: relative;
     width: 58px;
     height: 58px;
-    border-radius: 10px;
-    object-fit: cover;
     flex-shrink: 0;
-    border: 1px solid #f0f0f0;
 }
-#snx-popup .snx-body { flex: 1; min-width: 0; }
-#snx-popup .snx-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1e293b;
+#snx-popup .snx-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #f8fafc;
+    border: 1px solid #eef2f6;
+    display: block;
+}
+.snx-cart-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: {{ $snxAccent }};
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+#snx-popup .snx-body {
+    flex: 1;
+    min-width: 0;
+}
+#snx-popup .snx-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 2px;
+}
+#snx-popup .snx-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0f172a;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-#snx-popup .snx-title span { color: {{ $snxAccent }}; }
+#snx-popup .snx-title span#snx-name {
+    color: {{ $snxAccent }};
+}
 #snx-popup .snx-product {
     font-size: 12px;
+    font-weight: 500;
     color: #475569;
-    line-height: 1.4;
+    line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    transition: color 0.15s ease;
+}
+#snx-popup .snx-product:hover {
+    color: {{ $snxAccent }};
+    text-decoration: underline;
+}
+.snx-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 5px;
 }
 #snx-popup .snx-time {
-    font-size: 11px;
-    color: #94a3b8;
-    margin-top: 4px;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #64748b;
     display: flex;
     align-items: center;
     gap: 4px;
 }
-#snx-popup .snx-close {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    font-size: 16px;
-    color: #94a3b8;
-    cursor: pointer;
-    line-height: 1;
-    background: none;
-    border: none;
-    padding: 0;
+#snx-popup .snx-dot {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    animation: snx-pulse 1.8s infinite;
 }
-#snx-popup .snx-close:hover { color: {{ $snxAccent }}; }
+@keyframes snx-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.35); opacity: 0.6; }
+}
 #snx-popup .snx-badge {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     font-size: 10px;
-    color: #64748b;
-    background: #f1f5f9;
+    font-weight: 600;
+    color: #059669;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
     border-radius: 20px;
-    padding: 2px 7px;
-    margin-top: 4px;
+    padding: 1px 7px;
+    white-space: nowrap;
 }
-#snx-popup .snx-dot {
-    width: 7px; height: 7px;
-    background: #22c55e;
+#snx-popup .snx-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    display: inline-block;
-    animation: snx-pulse 1.5s infinite;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    font-size: 11px;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
 }
-@keyframes snx-pulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50%      { opacity:.5; transform:scale(1.4); }
+#snx-popup .snx-close:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fecaca;
+    transform: rotate(90deg);
 }
-@media (max-width: 480px) {
-    #snx-popup { width: calc(100vw - 32px); left: 16px; bottom: 16px; }
+@media (max-width: 768px) {
+    #snx-popup {
+        left: 12px;
+        bottom: 74px;
+        width: calc(100vw - 24px);
+        max-width: 320px;
+    }
 }
 </style>
 
 <div id="snx-popup" role="alert" aria-live="polite">
-    <button class="snx-close" id="snx-close-btn" aria-label="Close">✕</button>
-    <img id="snx-img" class="snx-img" src="" alt="Product">
+    <button class="snx-close" id="snx-close-btn" aria-label="Close" title="বিজ্ঞপ্তিটি বন্ধ করুন">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="snx-img-wrap">
+        <img id="snx-img" class="snx-img" src="" alt="Product" loading="lazy">
+        <span class="snx-cart-badge"><i class="fa-solid fa-bag-shopping"></i></span>
+    </div>
     <div class="snx-body">
-        <div class="snx-title"><span id="snx-name"></span> just purchased</div>
-        <div class="snx-product" id="snx-product"></div>
-        <div class="snx-time">
-            <span class="snx-dot"></span>
-            <span id="snx-time"></span>
+        <div class="snx-header">
+            <span class="snx-title"><span id="snx-name"></span> একটি অর্ডার করেছেন</span>
         </div>
-        <div class="snx-badge">🛡️ Verified Order</div>
+        <div class="snx-product" id="snx-product" title="পণ্যটি দেখতে ক্লিক করুন"></div>
+        <div class="snx-footer">
+            <div class="snx-time">
+                <span class="snx-dot"></span>
+                <span id="snx-time">কিছুক্ষণ আগে</span>
+            </div>
+            <div class="snx-badge"><i class="fa-solid fa-circle-check"></i> ভেরিফাইড অর্ডার</div>
+        </div>
     </div>
 </div>
 
