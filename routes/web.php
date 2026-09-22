@@ -1085,15 +1085,17 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('page/active', [CreatePageController::class,'active'])->name('pages.active');
     Route::post('page/destroy', [CreatePageController::class,'destroy'])->name('pages.destroy');
 
-    // Pos route
+    // Pos / Order create & edit routes
     Route::get('order/create', [OrderController::class,'order_create'])->name('admin.order.create');
     Route::post('order/store', [OrderController::class,'order_store'])->name('admin.order.store');
+    Route::get('order/product-search', [OrderController::class, 'product_search'])->name('admin.order.product_search');
     Route::get('order/cart-add', [OrderController::class,'cart_add'])->name('admin.order.cart_add');
     Route::get('order/cart-content', [OrderController::class,'cart_content'])->name('admin.order.cart_content');
     Route::get('order/cart-increment', [OrderController::class,'cart_increment'])->name('admin.order.cart_increment');
     Route::get('order/cart-decrement', [OrderController::class,'cart_decrement'])->name('admin.order.cart_decrement');
     Route::get('order/cart-remove', [OrderController::class,'cart_remove'])->name('admin.order.cart_remove');
     Route::get('order/cart-product-discount', [OrderController::class,'product_discount'])->name('admin.order.product_discount');
+    Route::post('order/cart/price-discount-update', [OrderController::class, 'cart_price_discount_update'])->name('admin.order.cart.price_discount_update');
     Route::get('order/cart-details', [OrderController::class,'cart_details'])->name('admin.order.cart_details');
     Route::get('order/cart-shipping', [OrderController::class,'cart_shipping'])->name('admin.order.cart_shipping');
     Route::get('order/cart-clear', [OrderController::class,'cart_clear'])->name('admin.order.cart_clear');

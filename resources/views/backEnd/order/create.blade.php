@@ -1,457 +1,596 @@
 @extends('backEnd.layouts.master')
-@section('title','নতুন অর্ডার তৈরি করুন')
+@section('title', 'নতুন অর্ডার তৈরি করুন')
 
 @section('css')
 <style>
-    body{
-        background:#eef1f8;
+    body {
+        background: #f1f5f9;
     }
-    .pos-shell{
-        background:#eef1f8;
-        padding:10px 0 25px;
+    .order-create-shell {
+        padding: 12px 0 30px;
     }
-    .pos-card{
-        background:#ffffff;
-        border-radius:14px;
-        box-shadow:0 15px 30px rgba(15,23,42,0.08);
-        padding:14px 14px 10px;
-        border:1px solid rgba(148,163,184,0.25);
+    .order-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        margin-bottom: 20px;
+        overflow: visible;
     }
-    .pos-header-bar{
-        background:linear-gradient(135deg,#4f46e5,#6366f1);
-        color:#fff;
-        border-radius:12px;
-        padding:10px 14px;
-        margin-bottom:10px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
+    .order-card-header {
+        padding: 14px 20px;
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        border-bottom: 1px solid #e2e8f0;
+        border-top-left-radius: 14px;
+        border-top-right-radius: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    .pos-header-bar h5{
-        margin:0;
-        font-size:16px;
-        font-weight:600;
-        letter-spacing:.3px;
+    .order-card-header h6 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-    .pos-badge-soft{
-        padding:3px 10px;
-        border-radius:999px;
-        background:rgba(15,23,42,.18);
-        font-size:12px;
+    .order-card-header h6 i {
+        color: #4f46e5;
     }
-
-    /* LEFT – CART TABLE */
-    .pos-cart-table thead{
-        background:#f9fafb;
-    }
-    .pos-cart-table th{
-        font-size:12px;
-        text-transform:uppercase;
-        letter-spacing:.03em;
-        color:#64748b;
-        border-bottom:1px solid #e2e8f0;
-    }
-    .pos-cart-table td{
-        vertical-align:middle;
-    }
-    .pos-cart-table th:nth-child(2),
-    .pos-cart-table td:nth-child(2){
-        min-width:220px;
+    .order-card-body {
+        padding: 20px;
     }
 
-    .qty-cart .quantity{
-        display:flex;
-        align-items:center;
-        justify-content:center;
+    /* PRODUCT LIVE SEARCH BAR & DROPDOWN */
+    .pos-search-container {
+        position: relative;
+        margin-bottom: 16px;
     }
-    .qty-cart .quantity button{
-        border:1px solid #cbd5f5;
-        background:#e5edff;
-        width:28px;
-        height:28px;
-        border-radius:6px;
-        line-height:26px;
-        text-align:center;
-        padding:0;
-        font-weight:600;
-        color:#4f46e5;
+    .pos-search-input-wrap {
+        position: relative;
     }
-    .qty-cart .quantity input{
-        width:40px;
-        text-align:center;
-        border:0;
-        background:transparent;
-        font-weight:600;
+    .pos-search-input-wrap .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 15px;
+        pointer-events: none;
     }
-
-    /* CUSTOMER + TOTAL CARD */
-    .pos-section-title{
-        font-size:13px;
-        text-transform:uppercase;
-        letter-spacing:.12em;
-        color:#94a3b8;
-        font-weight:600;
-        margin-bottom:6px;
+    .pos-search-input {
+        height: 46px;
+        padding-left: 42px;
+        padding-right: 40px;
+        font-size: 14px;
+        border-radius: 10px;
+        border: 1.5px solid #cbd5e1;
+        transition: all 0.2s ease;
+        background: #f8fafc;
     }
-    .pos-summary-table td{
-        padding:6px 10px;
-        font-size:14px;
+    .pos-search-input:focus {
+        background: #ffffff;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
     }
-    .pos-summary-table tr:last-child td{
-        border-top:1px dashed #e2e8f0;
-        font-size:15px;
-        font-weight:700;
+    .pos-search-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        cursor: pointer;
+        display: none;
+        padding: 4px;
     }
-    .pos-grand-total{
-        font-size:18px !important;
-        color:#16a34a;
+    .pos-search-clear:hover {
+        color: #ef4444;
     }
 
-    .btn-pos-primary{
-        background:linear-gradient(135deg,#4f46e5,#6366f1);
-        border:none;
-        padding:9px 22px;
-        border-radius:999px;
-        font-weight:600;
-        font-size:14px;
-        box-shadow:0 10px 20px rgba(79,70,229,.35);
-        color:#fff;
+    /* SEARCH RESULTS DROPDOWN */
+    .pos-search-results-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+        max-height: 380px;
+        overflow-y: auto;
+        z-index: 1050;
+        display: none;
     }
-    .btn-pos-primary:hover{
-        opacity:.94;
-        box-shadow:0 16px 30px rgba(79,70,229,.45);
+    .pos-search-item {
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+    .pos-search-item:last-child {
+        border-bottom: none;
+    }
+    .pos-search-item:hover, .pos-search-item.active {
+        background: #f0f4ff;
+    }
+    .pos-search-item-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-grow: 1;
+        min-width: 0;
+    }
+    .pos-search-thumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+        flex-shrink: 0;
+    }
+    .pos-search-info {
+        min-width: 0;
+    }
+    .pos-search-name {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .pos-search-meta {
+        font-size: 12px;
+        color: #64748b;
+        display: flex;
+        gap: 8px;
+        margin-top: 2px;
+    }
+    .pos-search-stock {
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .stock-in { background: #dcfce7; color: #166534; }
+    .stock-out { background: #fee2e2; color: #991b1b; }
+    .pos-search-item-right {
+        text-align: right;
+        flex-shrink: 0;
+    }
+    .pos-search-price {
+        font-size: 14px;
+        font-weight: 700;
+        color: #4f46e5;
     }
 
-    /* RIGHT – PRODUCTS GRID */
-    .pos-products-wrapper{
-        max-height:520px;
-        overflow-y:auto;
-        padding-right:4px;
+    /* CART TABLE */
+    .pos-cart-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 10px 12px;
     }
-    .pos-product-card{
-        border-radius:12px;
-        padding:8px 8px 10px;
-        margin-bottom:10px;
-        text-align:center;
-        cursor:pointer;
-        transition:.18s all;
-        background:linear-gradient(145deg,#f9fafb,#e5edff);
-        border:1px solid rgba(148,163,184,.35);
-        position:relative;
+    .pos-cart-table tbody td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f1f5f9;
     }
-    .pos-product-card:hover{
-        transform:translateY(-2px);
-        box-shadow:0 12px 24px rgba(15,23,42,.15);
+    .cart-empty-state {
+        padding: 45px 20px;
+        text-align: center;
+        color: #94a3b8;
     }
-    .pos-product-img{
-        height:72px;
-        object-fit:contain;
-        margin-bottom:4px;
-    }
-    .pos-product-name{
-        font-size:13px;
-        font-weight:600;
-        min-height:34px;
-        color:#111827;
-    }
-    .pos-product-price{
-        font-size:14px;
-        font-weight:700;
-        color:#16a34a;
-    }
-    .pos-stock-badge{
-        position:absolute;
-        top:6px;
-        left:8px;
-        background:rgba(30,64,175,.12);
-        color:#1d4ed8;
-        font-size:11px;
-        padding:2px 6px;
-        border-radius:999px;
+    .cart-empty-state i {
+        font-size: 40px;
+        color: #cbd5e1;
+        margin-bottom: 10px;
     }
 
-    .pos-search-bar input{
-        border-radius:999px;
-        border:1px solid #cbd5f5;
-        font-size:13px;
-        padding-left:32px;
+    /* FORM STYLES */
+    .form-section-title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6366f1;
+        margin-bottom: 14px;
+        padding-bottom: 6px;
+        border-bottom: 1.5px solid #e0e7ff;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
-    .pos-search-bar .icon{
-        position:absolute;
-        top:50%;
-        left:10px;
-        transform:translateY(-50%);
-        color:#94a3b8;
-        font-size:13px;
+    .pos-summary-table td {
+        padding: 8px 10px;
+        font-size: 13.5px;
+    }
+    .btn-submit-order {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        border: none;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 12px 24px;
+        border-radius: 10px;
+        width: 100%;
+        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+        transition: all 0.2s ease;
+    }
+    .btn-submit-order:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(79, 70, 229, 0.45);
+        color: #fff;
     }
 </style>
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-<link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
-<div class="container-fluid pos-shell">
+<div class="container-fluid order-create-shell">
 
     {{-- TOP BAR --}}
-    <div class="row mb-2">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">নতুন অর্ডার তৈরি করুন</h4>
-                <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill delete-confirm" title="Clear Cart">
-                        <i class="fas fa-trash-alt"></i> কার্ট খালি করুন
-                    </button>
-                </form>
-            </div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-plus-circle text-primary me-2"></i>নতুন অর্ডার তৈরি করুন</h4>
+            <span class="text-muted small">ম্যানুয়াল কাস্টমার ও ডেলিভারি অর্ডার এন্ট্রি ফরম</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('admin.orders', 'pending') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                <i class="fas fa-arrow-left me-1"></i> অর্ডার তালিকা
+            </a>
+            <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 delete-confirm" title="কার্ট খালি করুন">
+                    <i class="fas fa-trash-alt me-1"></i> কার্ট খালি করুন
+                </button>
+            </form>
         </div>
     </div>
 
-    <div class="row g-3">
-        {{-- ================= LEFT COLUMN ================= --}}
-        <div class="col-lg-7">
-            <div class="pos-card h-100">
+    {{-- ================= 1. PRODUCTS & ORDER ITEMS SECTION (FULL WIDTH) ================= --}}
+    <div class="order-card">
+        <div class="order-card-header">
+            <h6><i class="fas fa-box-open"></i> পণ্যের বিবরণ ও নির্বাচন</h6>
+            <span class="badge bg-primary rounded-pill px-3 py-1">আইটেম নির্বাচন করুন</span>
+        </div>
+        <div class="order-card-body">
 
-                {{-- POS HEADER STRIP --}}
-                <div class="pos-header-bar mb-3">
-                    <div>
-                        <h5>অর্ডার ও কাস্টমার তথ্য</h5>
-                        <small style="opacity:.9; font-size:12px;">প্রয়োজনীয় তথ্য পূরণ করে অর্ডার তৈরি করুন</small>
-                    </div>
-                    <div class="text-end">
-                        <div style="font-size:12px;opacity:.8;">সেশন</div>
-                        <div style="font-weight:600;">SL-{{ date('dmy-His') }}</div>
-                    </div>
+            {{-- LIVE PRODUCT SEARCH BAR --}}
+            <div class="pos-search-container">
+                <div class="pos-search-input-wrap">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text"
+                           id="pos_product_search_input"
+                           class="form-control pos-search-input"
+                           placeholder="পণ্য খুঁজুন (নাম অথবা কোড/SKU লিখুন)..."
+                           autocomplete="off">
+                    <i class="fas fa-times pos-search-clear" id="pos_search_clear_btn" title="ক্লিয়ার করুন"></i>
                 </div>
 
-                {{-- CART TABLE --}}
-                <div class="table-responsive mb-3">
-                    <table class="table table-bordered table-sm mb-0 pos-cart-table">
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Item</th>
-                                <th>Qty</th>
-                                <th>Price</th>
-                                <th>Subtotal</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="cartTable">
+                {{-- AUTOCOMPLETE DROPDOWN RESULTS --}}
+                <div class="pos-search-results-dropdown" id="pos_search_dropdown">
+                    <div id="pos_search_results_list"></div>
+                </div>
+            </div>
+
+            {{-- ORDER ITEMS CART TABLE --}}
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm align-middle pos-cart-table mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 55px;" class="text-center">ছবি</th>
+                            <th>পণ্যের নাম ও ভ্যারিয়েন্ট</th>
+                            <th style="width: 120px;" class="text-center">মূল্য (Price)</th>
+                            <th style="width: 120px;" class="text-center">পরিমাণ (Qty)</th>
+                            <th style="width: 110px;" class="text-center">ছাড় (Discount)</th>
+                            <th style="width: 110px;" class="text-end">মোট মূল্য</th>
+                            <th style="width: 50px;" class="text-center">একশন</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartTable">
+                        @if(Cart::instance('pos_shopping')->count() > 0)
                             @include('backEnd.order.cart_table_rows')
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- COUPON SECTION --}}
-                <div class="mb-3 p-3 rounded" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                    <div class="pos-section-title mb-2">কুপন কোড</div>
-                    <div class="d-flex gap-2 align-items-center flex-wrap">
-                        <input type="text" id="pos_coupon_code" class="form-control form-control-sm" placeholder="কুপন কোড লিখুন" value="{{ Session::get('pos_coupon_code', '') }}" style="max-width:180px">
-                        <button type="button" id="pos_apply_coupon" class="btn btn-sm btn-success rounded-pill">
-                            <i class="fas fa-tag me-1"></i> অ্যাপ্লাই
-                        </button>
-                        <button type="button" id="pos_remove_coupon" class="btn btn-sm btn-outline-secondary rounded-pill" style="{{ Session::has('pos_coupon_code') ? '' : 'display:none' }}">
-                            <i class="fas fa-times me-1"></i> রিমুভ
-                        </button>
-                        <span id="pos_coupon_msg" class="small text-muted"></span>
-                    </div>
-                </div>
-
-                {{-- CUSTOMER + TOTAL --}}
-                <form action="{{route('admin.order.store')}}" method="POST" class="row pos_form" data-parsley-validate="" enctype="multipart/form-data" id="pos_order_form">
-                    @csrf
-                    <input type="hidden" name="coupon_code" value="{{ Session::get('pos_coupon_code', '') }}">
-
-                    {{-- CUSTOMER --}}
-                    <div class="col-md-6">
-                        <div class="pos-section-title">Customer</div>
-
-                        <div class="mb-2">
-                            <input type="text"
-                                   id="name"
-                                   class="form-control form-control-sm @error('name') is-invalid @enderror"
-                                   placeholder="Customer Name"
-                                   name="name" required>
-                            @error('name')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-
-                        <div class="mb-2">
-                            <input type="number"
-                                   id="phone"
-                                   class="form-control form-control-sm @error('phone') is-invalid @enderror"
-                                   placeholder="Mobile Number"
-                                   name="phone" required>
-                            @error('phone')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-
-                        <div class="mb-2">
-                            <input type="text"
-                                   id="address"
-                                   class="form-control form-control-sm @error('address') is-invalid @enderror"
-                                   placeholder="Address"
-                                   name="address" required>
-                            @error('address')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-
-                        <div class="mb-2">
-                            <label class="small text-muted d-block mb-1">বিভাগ</label>
-                            <select id="adm_pos_division"
-                                    class="form-control form-control-sm @error('division_id') is-invalid @enderror"
-                                    name="division_id" required>
-                                <option value="">বিভাগ নির্বাচন...</option>
-                                @foreach(($divisions ?? []) as $d)
-                                <option value="{{ $d->id }}" {{ (int) old('division_id', 0) === (int) $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('division_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-                        <div class="mb-2">
-                            <label class="small text-muted d-block mb-1">জেলা</label>
-                            <select id="adm_pos_district"
-                                    class="form-control form-control-sm @error('district_id') is-invalid @enderror"
-                                    name="district_id" required disabled>
-                                <option value="">আগে বিভাগ সিলেক্ট করুন</option>
-                            </select>
-                            @error('district_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-                        <div class="mb-2">
-                            <label class="small text-muted d-block mb-1">উপজেলা</label>
-                            <select id="adm_pos_upazila"
-                                    class="form-control form-control-sm @error('upazila_id') is-invalid @enderror"
-                                    name="upazila_id" required disabled>
-                                <option value="">আগে জেলা সিলেক্ট করুন</option>
-                            </select>
-                            @error('upazila_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-                    </div>
-
-                    {{-- SUMMARY --}}
-                    <div class="col-md-6">
-                        <div class="pos-section-title">Summary</div>
-
-                        @php
-                            $subtotal = Cart::instance('pos_shopping')->subtotal();
-                            $subtotal = str_replace(',','',$subtotal);
-                            $subtotal = str_replace('.00', '',$subtotal);
-                            $shipping = Session::get('pos_shipping');
-                            $couponDiscount = Session::get('pos_discount', 0);
-                            $grand = ($subtotal + $shipping) - $couponDiscount;
-                        @endphp
-
-                        <table class="table table-borderless pos-summary-table mb-2" id="cart_details">
-                            <tr>
-                                <td>Sub Total</td>
-                                <td class="text-end">৳{{$subtotal}}</td>
-                            </tr>
-                            <tr>
-                                <td>Shipping Fee</td>
-                                <td class="text-end">৳{{$shipping}}</td>
-                            </tr>
-                            <tr>
-                                <td>কুপন ডিস্কাউন্ট</td>
-                                <td class="text-end">৳{{$couponDiscount}}</td>
-                            </tr>
-                            <tr>
-                                <td>Grand Total</td>
-                                <td class="text-end pos-grand-total">৳{{$grand}}</td>
-                            </tr>
-                        </table>
-
-                        <div class="text-end mt-1">
-                            <button type="submit" class="btn btn-pos-primary">
-                                <i class="fas fa-check-circle me-1"></i> অর্ডার কনফার্ম করুন
-                            </button>
-                        </div>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-
-        {{-- ================= RIGHT COLUMN – PRODUCT LIST ================= --}}
-        <div class="col-lg-5">
-            <div class="pos-card h-100">
-
-                {{-- SEARCH BAR --}}
-                <div class="mb-2">
-                    <div class="pos-section-title">Products</div>
-                    <div class="pos-search-bar position-relative">
-                        <span class="icon"><i class="fa fa-search"></i></span>
-                        <input type="text"
-                               id="product_search"
-                               class="form-control form-control-sm"
-                               placeholder="Search product by name...">
-                    </div>
-                </div>
-
-                <div class="pos-products-wrapper">
-                    <div class="row">
-                        @foreach($products as $p)
-                            @php $img = optional($p->image)->image ?? 'public/no-image.png'; @endphp
-                            <div class="col-6 mb-2 pos-product-wrapper" data-name="{{ strtolower($p->name) }}">
-                                <div class="pos-product-card pos-add-product" data-id="{{ $p->id }}">
-                                    <span class="pos-stock-badge">Stock: {{ $p->stock}}</span>
-                                    <img src="{{ asset($img) }}" class="pos-product-img" alt="">
-                                    <div class="pos-product-name">{{ $p->name }}</div>
-                                    <div class="pos-product-price">
-                                        TK {{ $p->new_price ?? $p->old_price }}
+                        @else
+                            <tr id="cart_empty_row">
+                                <td colspan="7">
+                                    <div class="cart-empty-state">
+                                        <i class="fas fa-shopping-cart d-block"></i>
+                                        <strong>কোনো পণ্য এখনো যোগ করা হয়নি!</strong>
+                                        <div class="small text-muted mt-1">উপরের সার্চ বার থেকে পণ্য খুঁজুন এবং ক্লিক করে যোগ করুন।</div>
                                     </div>
-                                </div>
+                                </td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- ================= 2. CUSTOMER & DELIVERY + ORDER SUMMARY (2 COLUMNS) ================= --}}
+    <form action="{{route('admin.order.store')}}" method="POST" class="pos_form" data-parsley-validate="" enctype="multipart/form-data" id="pos_order_form" novalidate>
+        @csrf
+        <input type="hidden" name="coupon_code" value="{{ Session::get('pos_coupon_code', '') }}">
+
+        <div class="row g-3">
+            {{-- LEFT: CUSTOMER & DELIVERY INFO --}}
+            <div class="col-lg-7">
+                <div class="order-card h-100">
+                    <div class="order-card-header">
+                        <h6><i class="fas fa-user-check"></i> কাস্টমার ও ডেলিভারি তথ্য</h6>
+                    </div>
+                    <div class="order-card-body">
+
+                        <div class="form-section-title">
+                            <i class="fas fa-address-card"></i> গ্রাহক তথ্য
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-dark">কাস্টমারের নাম <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       id="name"
+                                       class="form-control form-control-sm @error('name') is-invalid @enderror"
+                                       placeholder="কাস্টমারের পূর্ণ নাম"
+                                       name="name"
+                                       value="{{ old('name') }}"
+                                       required>
+                                @error('name')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                             </div>
-                        @endforeach
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-dark">মোবাইল নম্বর <span class="text-danger">*</span></label>
+                                <input type="number"
+                                       id="phone"
+                                       class="form-control form-control-sm @error('phone') is-invalid @enderror"
+                                       placeholder="01XXXXXXXXX"
+                                       name="phone"
+                                       value="{{ old('phone') }}"
+                                       required>
+                                @error('phone')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold text-dark">ডেলিভারি ঠিকানা <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       id="address"
+                                       class="form-control form-control-sm @error('address') is-invalid @enderror"
+                                       placeholder="বাসা/হোল্ডিং, রোড, এলাকা ইত্যাদি বিস্তারিত ঠিকানা"
+                                       name="address"
+                                       value="{{ old('address') }}"
+                                       required>
+                                @error('address')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                            </div>
+                        </div>
+
+                        <div class="form-section-title">
+                            <i class="fas fa-map-marker-alt"></i> ডেলিভারি লোকেশন ও চার্জ
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold text-dark">বিভাগ <span class="text-danger">*</span></label>
+                                <select id="adm_pos_division"
+                                        class="form-select form-select-sm @error('division_id') is-invalid @enderror"
+                                        name="division_id" required>
+                                    <option value="">বিভাগ নির্বাচন...</option>
+                                    @foreach(($divisions ?? []) as $d)
+                                    <option value="{{ $d->id }}" {{ (int) old('division_id', 0) === (int) $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('division_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold text-dark">জেলা <span class="text-danger">*</span></label>
+                                <select id="adm_pos_district"
+                                        class="form-select form-select-sm @error('district_id') is-invalid @enderror"
+                                        name="district_id" required disabled>
+                                    <option value="">আগে বিভাগ নির্বাচন করুন</option>
+                                </select>
+                                @error('district_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold text-dark">উপজেলা / থানা <span class="text-danger">*</span></label>
+                                <select id="adm_pos_upazila"
+                                        class="form-select form-select-sm @error('upazila_id') is-invalid @enderror"
+                                        name="upazila_id" required disabled>
+                                    <option value="">আগে জেলা নির্বাচন করুন</option>
+                                </select>
+                                @error('upazila_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label small fw-semibold text-dark">অর্ডার নোট (ঐচ্ছিক)</label>
+                            <textarea name="note" class="form-control form-control-sm" rows="2" placeholder="অর্ডারের বিশেষ নির্দেশনা থাকলে লিখুন...">{{ old('note') }}</textarea>
+                        </div>
+
                     </div>
                 </div>
+            </div>
 
+            {{-- RIGHT: COUPON, SUMMARY & SUBMIT --}}
+            <div class="col-lg-5">
+                <div class="order-card h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="order-card-header">
+                            <h6><i class="fas fa-file-invoice-dollar"></i> অর্ডার হিসাব ও কনফার্মেশন</h6>
+                        </div>
+                        <div class="order-card-body">
+
+                            {{-- COUPON SECTION --}}
+                            <div class="p-2 mb-3 rounded bg-light border">
+                                <label class="form-label small fw-semibold text-dark mb-1">কুপন ডিস্কাউন্ট কোড</label>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <input type="text" id="pos_coupon_code" class="form-control form-control-sm" placeholder="কুপন কোড..." value="{{ Session::get('pos_coupon_code', '') }}">
+                                    <button type="button" id="pos_apply_coupon" class="btn btn-sm btn-success text-nowrap rounded-pill px-3">
+                                        <i class="fas fa-tag me-1"></i> অ্যাপ্লাই
+                                    </button>
+                                    <button type="button" id="pos_remove_coupon" class="btn btn-sm btn-outline-danger text-nowrap rounded-pill px-2" style="{{ Session::has('pos_coupon_code') ? '' : 'display:none' }}" title="কুপন বাতিল করুন">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div id="pos_coupon_msg" class="small mt-1"></div>
+                            </div>
+
+                            {{-- SUMMARY TABLE --}}
+                            <table class="table table-borderless pos-summary-table mb-3" id="cart_details">
+                                @include('backEnd.order.cart_details')
+                            </table>
+
+                        </div>
+                    </div>
+
+                    {{-- SUBMIT BUTTON --}}
+                    <div class="p-3 bg-light border-top rounded-bottom">
+                        <button type="submit" class="btn btn-submit-order d-flex align-items-center justify-content-center gap-2" id="pos_submit_btn">
+                            <i class="fas fa-check-circle fs-5"></i>
+                            <span>অর্ডার কনফার্ম করুন</span>
+                        </button>
+                    </div>
+
+                </div>
             </div>
         </div>
 
-    </div>
+    </form>
 </div>
 @endsection
 
 @section('script')
-<script src="{{asset('public/backEnd/')}}/assets/libs/parsleyjs/parsley.min.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/js/pages/form-validation.init.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/libs/select2/js/select2.min.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/js/pages/form-advanced.init.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/libs//summernote/summernote-lite.min.js"></script>
-
-<script>
-    $(".summernote").summernote({
-        placeholder: "Enter Your Text Here",
-    });
-</script>
 
 <script type="text/javascript">
     $(document).ready(function () {
         $(".select2").select2();
     });
 
-    // -------- CART CONTENT LOADERS ----------
-    function cart_content() {
+    // -------- CART CONTENT & DETAILS AJAX RELOADERS ----------
+    function reloadCartViews() {
         $.ajax({
             type: "GET",
             url: "{{route('admin.order.cart_content')}}",
             dataType: "html",
-            success: function (cartinfo) {
-                $("#cartTable").html(cartinfo);
+            success: function (cartHtml) {
+                if ($.trim(cartHtml) === "") {
+                    $("#cartTable").html('<tr id="cart_empty_row"><td colspan="7"><div class="cart-empty-state"><i class="fas fa-shopping-cart d-block"></i><strong>কোনো পণ্য এখনো যোগ করা হয়নি!</strong><div class="small text-muted mt-1">উপরের সার্চ বার থেকে পণ্য খুঁজুন এবং ক্লিক করে যোগ করুন।</div></div></td></tr>');
+                } else {
+                    $("#cartTable").html(cartHtml);
+                }
             },
         });
-    }
-    function cart_details() {
+
         $.ajax({
             type: "GET",
             url: "{{route('admin.order.cart_details')}}",
             dataType: "html",
-            success: function (cartinfo) {
-                $("#cart_details").html(cartinfo);
+            success: function (detailsHtml) {
+                $("#cart_details").html(detailsHtml);
             },
         });
     }
 
+    // -------- LIVE PRODUCT SEARCH DROPDOWN ----------
+    var searchTimer = null;
+    var $searchInput = $("#pos_product_search_input");
+    var $searchDropdown = $("#pos_search_dropdown");
+    var $searchResultsList = $("#pos_search_results_list");
+    var $searchClearBtn = $("#pos_search_clear_btn");
+
+    $searchInput.on("input focus", function () {
+        var keyword = $.trim($(this).val());
+        if (keyword.length > 0) {
+            $searchClearBtn.show();
+        } else {
+            $searchClearBtn.hide();
+        }
+
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () {
+            if (keyword.length === 0) {
+                $searchDropdown.hide();
+                $searchResultsList.empty();
+                return;
+            }
+
+            $searchResultsList.html('<div class="p-3 text-center text-muted"><i class="fas fa-spinner fa-spin me-1"></i> পণ্য খোঁজা হচ্ছে...</div>');
+            $searchDropdown.show();
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('admin.order.product_search') }}",
+                data: { keyword: keyword },
+                dataType: "json",
+                success: function (products) {
+                    if (!products || products.length === 0) {
+                        $searchResultsList.html('<div class="p-3 text-center text-muted"><i class="fas fa-info-circle me-1"></i> কোনো পণ্য পাওয়া যায়নি</div>');
+                        return;
+                    }
+
+                    var html = "";
+                    products.forEach(function (p) {
+                        var stockBadge = p.stock > 0
+                            ? '<span class="pos-search-stock stock-in"><i class="fas fa-check-circle me-1"></i>স্টক: ' + p.stock + '</span>'
+                            : '<span class="pos-search-stock stock-out"><i class="fas fa-times-circle me-1"></i>স্টক শেষ</span>';
+
+                        var codeText = p.product_code ? '<span class="badge bg-light text-secondary border">SKU: ' + p.product_code + '</span>' : '';
+
+                        html += '<div class="pos-search-item pos-select-product" data-id="' + p.id + '">';
+                        html += '  <div class="pos-search-item-left">';
+                        html += '    <img src="' + p.image + '" class="pos-search-thumb" alt="">';
+                        html += '    <div class="pos-search-info">';
+                        html += '      <div class="pos-search-name">' + p.name + '</div>';
+                        html += '      <div class="pos-search-meta">' + codeText + stockBadge + '</div>';
+                        html += '    </div>';
+                        html += '  </div>';
+                        html += '  <div class="pos-search-item-right">';
+                        html += '    <div class="pos-search-price">৳' + parseFloat(p.price).toFixed(2) + '</div>';
+                        html += '    <button type="button" class="btn btn-sm btn-primary rounded-pill py-0 px-2 mt-1" style="font-size: 11px;">+ যোগ করুন</button>';
+                        html += '  </div>';
+                        html += '</div>';
+                    });
+
+                    $searchResultsList.html(html);
+                },
+                error: function () {
+                    $searchResultsList.html('<div class="p-3 text-center text-danger">অনুসন্ধানে ত্রুটি হয়েছে</div>');
+                }
+            });
+        }, 220);
+    });
+
+    // ক্লিয়ার বাটন ক্লিক
+    $searchClearBtn.on("click", function () {
+        $searchInput.val("").focus();
+        $searchClearBtn.hide();
+        $searchDropdown.hide();
+        $searchResultsList.empty();
+    });
+
+    // ড্রপডাউনের বাইরে ক্লিক করলে হাইড করা
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest(".pos-search-container").length) {
+            $searchDropdown.hide();
+        }
+    });
+
     // -------- PRODUCT CLICK -> ADD TO CART ----------
-    $(document).on("click", ".pos-add-product", function (e) {
+    $(document).on("click", ".pos-select-product", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         if (id) {
@@ -461,15 +600,50 @@
                 data: { id: id },
                 url: "{{route('admin.order.cart_add')}}",
                 dataType: "json",
-                success: function (cartinfo) {
-                    cart_content();
-                    cart_details();
+                success: function () {
+                    reloadCartViews();
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('পণ্য কার্টে যুক্ত হয়েছে।');
+                    }
+                    $searchInput.val("");
+                    $searchClearBtn.hide();
+                    $searchDropdown.hide();
                 },
             });
         }
     });
 
-    // -------- CART QTY + / - (Delegated) ----------
+    // -------- UNIT PRICE / DISCOUNT LIVE UPDATE ----------
+    var priceDiscountTimer = null;
+    $(document).on("input change", ".cart-price-input, .cart-discount-input", function () {
+        var $row = $(this).closest("tr");
+        var rowId = $row.data("row-id") || $(this).data("id");
+        var price = parseFloat($row.find(".cart-price-input").val()) || 0;
+        var discount = parseFloat($row.find(".cart-discount-input").val()) || 0;
+
+        // Hidden input সিঙ্ক
+        $row.find(".line-discount-hidden").val(discount);
+
+        clearTimeout(priceDiscountTimer);
+        priceDiscountTimer = setTimeout(function () {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('admin.order.cart.price_discount_update') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: rowId,
+                    price: price,
+                    discount: discount
+                },
+                dataType: "json",
+                success: function () {
+                    reloadCartViews();
+                }
+            });
+        }, 400);
+    });
+
+    // -------- CART QTY + / - ----------
     $(document).on("click", ".cart_increment", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
@@ -481,9 +655,8 @@
                 type: "GET",
                 url: "{{route('admin.order.cart_increment')}}",
                 dataType: "json",
-                success: function (cartinfo) {
-                    cart_content();
-                    cart_details();
+                success: function () {
+                    reloadCartViews();
                 },
             });
         }
@@ -500,9 +673,8 @@
                 data: { id: id, qty: qty },
                 url: "{{route('admin.order.cart_decrement')}}",
                 dataType: "json",
-                success: function (cartinfo) {
-                    cart_content();
-                    cart_details();
+                success: function () {
+                    reloadCartViews();
                 },
             });
         }
@@ -519,15 +691,53 @@
                 data: { id: id },
                 url: "{{route('admin.order.cart_remove')}}",
                 dataType: "json",
-                success: function (cartinfo) {
-                    cart_content();
-                    cart_details();
+                success: function () {
+                    reloadCartViews();
+                    if (typeof toastr !== 'undefined') {
+                        toastr.info('পণ্যটি কার্ট থেকে সরানো হয়েছে।');
+                    }
                 },
             });
         }
     });
 
-    // -------- COUPON APPLY ----------
+    // -------- SIZE / COLOR VARIANT UPDATE ----------
+    function updateCartVariant(rowId, productId, sizeId, colorId) {
+        var $row = $('tr[data-row-id="'+rowId+'"]');
+        if (!$row.length) $row = $('.cart-size-selector[data-id="'+rowId+'"]').closest('tr');
+        var $sizeSelect = $row.find('.cart-size-selector');
+        var $colorSelect = $row.find('.cart-color-selector');
+        var sId = sizeId !== undefined ? sizeId : ($sizeSelect.length ? $sizeSelect.val() : '');
+        var cId = colorId !== undefined ? colorId : ($colorSelect.length ? $colorSelect.val() : '');
+        var pid = productId || $row.data('product-id') || '';
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            data: { id: rowId, product_id: pid, size_id: sId || '', color_id: cId || '' },
+            url: "{{ route('admin.order.cart.update') }}",
+            dataType: "json",
+            success: function () {
+                reloadCartViews();
+            },
+        });
+    }
+
+    $(document).on("change", ".cart-size-selector", function () {
+        var rowId = $(this).data("id");
+        var productId = $(this).data("product-id");
+        var sizeId = $(this).val();
+        updateCartVariant(rowId, productId, sizeId, undefined);
+    });
+
+    $(document).on("change", ".cart-color-selector", function () {
+        var rowId = $(this).data("id");
+        var productId = $(this).data("product-id");
+        var colorId = $(this).val();
+        updateCartVariant(rowId, productId, undefined, colorId);
+    });
+
+    // -------- COUPON APPLY & REMOVE ----------
     $("#pos_apply_coupon").on("click", function () {
         var code = $("#pos_coupon_code").val().trim();
         if (!code) {
@@ -543,7 +753,7 @@
                 if (res.success) {
                     $("#pos_coupon_msg").removeClass("text-danger").addClass("text-success").text(res.message);
                     $("#pos_remove_coupon").show();
-                    cart_details();
+                    reloadCartViews();
                 } else {
                     $("#pos_coupon_msg").removeClass("text-success").addClass("text-danger").text(res.message || "কুপন বৈধ নয়");
                 }
@@ -555,7 +765,6 @@
         });
     });
 
-    // -------- COUPON REMOVE ----------
     $("#pos_remove_coupon").on("click", function () {
         $.ajax({
             type: "GET",
@@ -565,55 +774,63 @@
                 $("#pos_coupon_code").val("");
                 $("#pos_coupon_msg").text("");
                 $("#pos_remove_coupon").hide();
-                cart_details();
+                reloadCartViews();
             }
         });
     });
 
-    // -------- SHIPPING (বিভাগ / জেলা / উপজেলা) ----------
+    // -------- DELIVERY LOCATION CASCADING (বিভাগ / জেলা / উপজেলা) ----------
     function admPosFillDistricts(divId, preselect, cb) {
         var $d = $('#adm_pos_district');
         var $u = $('#adm_pos_upazila');
-        $d.prop('disabled', !divId).html(divId ? '<option value="">লোড...</option>' : '<option value="">আগে বিভাগ...</option>');
-        $u.html('<option value="">আগে জেলা...</option>').prop('disabled', true);
+        $d.prop('disabled', !divId).html(divId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে বিভাগ নির্বাচন করুন</option>');
+        $u.html('<option value="">আগে জেলা নির্বাচন করুন</option>').prop('disabled', true);
         if (!divId) { if (cb) cb(); return; }
         $.get('{{ url('/ajax/delivery/districts') }}/' + divId, function (res) {
-            var opts = '<option value="">জেলা নির্বাচন...</option>';
+            var opts = '<option value="">জেলা নির্বাচন করুন...</option>';
             (res.data || []).forEach(function (r) {
-                opts += '<option value="' + r.id + '" data-charge="' + r.delivery_charge + '">' + r.name + ' (৳' + r.delivery_charge + ')</option>';
+                opts += '<option value="' + r.id + '" data-charge="' + r.delivery_charge + '">' + r.name + ' (ডেলিভারি চার্জ: ৳' + r.delivery_charge + ')</option>';
             });
             $d.html(opts).prop('disabled', false);
             if (preselect) $d.val(String(preselect));
             if (cb) cb();
         });
     }
+
     function admPosFillUpazilas(distId, preselect, cb) {
         var $u = $('#adm_pos_upazila');
-        $u.prop('disabled', !distId).html(distId ? '<option value="">লোড...</option>' : '<option value="">আগে জেলা...</option>');
+        $u.prop('disabled', !distId).html(distId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে জেলা নির্বাচন করুন</option>');
         if (!distId) { if (cb) cb(); return; }
         $.get('{{ url('/ajax/delivery/upazilas') }}/' + distId, function (res) {
-            var opts = '<option value="">উপজেলা নির্বাচন...</option>';
+            var opts = '<option value="">উপজেলা নির্বাচন করুন...</option>';
             (res.data || []).forEach(function (r) { opts += '<option value="' + r.id + '">' + r.name + '</option>'; });
             $u.html(opts).prop('disabled', false);
             if (preselect) $u.val(String(preselect));
             if (cb) cb();
         });
     }
+
     $(document).on("change", "#adm_pos_division", function () {
         admPosFillDistricts($(this).val(), null, function () {
-            cart_content(); cart_details();
+            reloadCartViews();
         });
     });
+
     $(document).on("change", "#adm_pos_district", function () {
         var id = $(this).val();
         if (id) {
             $.ajax({
-                type: "GET", data: { id: id }, url: "{{route('admin.order.cart_shipping')}}", dataType: "json",
-                complete: function () { cart_content(); cart_details(); }
+                type: "GET",
+                data: { id: id },
+                url: "{{route('admin.order.cart_shipping')}}",
+                dataType: "json",
+                complete: function () {
+                    reloadCartViews();
+                }
             });
         }
         admPosFillUpazilas(id, null, function () {
-            cart_content(); cart_details();
+            reloadCartViews();
         });
     });
 
@@ -624,48 +841,14 @@
         var oup = {{ (int) old('upazila_id', 0) }};
         admPosFillDistricts(odiv, odist || null, function () {
             if (odist) {
-                $.ajax({ type: 'GET', data: { id: odist }, url: "{{ route('admin.order.cart_shipping') }}", dataType: 'json', complete: function() {} });
+                $.ajax({ type: 'GET', data: { id: odist }, url: "{{ route('admin.order.cart_shipping') }}", dataType: 'json' });
                 admPosFillUpazilas(odist, oup || null, null);
             }
         });
     });
     @endif
 
-    // -------- SIZE / COLOR SELECT (variant price update) ----------
-    function updateCartVariant(rowId, productId, sizeId, colorId) {
-        var $row = $('.cart-size-selector[data-id="'+rowId+'"]').closest('tr');
-        if (!$row.length) $row = $('.cart-color-selector[data-id="'+rowId+'"]').closest('tr');
-        var $sizeSelect = $row.find('.cart-size-selector');
-        var $colorSelect = $row.find('.cart-color-selector');
-        var sId = sizeId !== undefined ? sizeId : ($sizeSelect.length ? $sizeSelect.val() : '');
-        var cId = colorId !== undefined ? colorId : ($colorSelect.length ? $colorSelect.val() : '');
-        var pid = productId || $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
-        $.ajax({
-            cache: false,
-            type: "GET",
-            data: { id: rowId, product_id: pid, size_id: sId || '', color_id: cId || '' },
-            url: "{{ route('admin.order.cart.update') }}",
-            dataType: "json",
-            success: function () {
-                cart_content();
-                cart_details();
-            },
-        });
-    }
-    $(document).on("change", ".cart-size-selector", function () {
-        var rowId = $(this).data("id");
-        var productId = $(this).data("product-id");
-        var sizeId = $(this).val();
-        updateCartVariant(rowId, productId, sizeId, undefined);
-    });
-    $(document).on("change", ".cart-color-selector", function () {
-        var rowId = $(this).data("id");
-        var productId = $(this).data("product-id");
-        var colorId = $(this).val();
-        updateCartVariant(rowId, productId, undefined, colorId);
-    });
-
-    // -------- FORM SUBMIT - ভ্যালিডেশন ও Size/Color সিঙ্ক --------
+    // -------- FORM VALIDATION & SUBMISSION ----------
     function showFieldError($el, message, title) {
         if (typeof toastr !== 'undefined') {
             toastr.error(message, title || 'তথ্য আবশ্যক');
@@ -687,12 +870,13 @@
         var form = this;
 
         // ১. কার্ট চেক
-        if ($("#cartTable tr").length === 0) {
+        if ($("#cartTable tr").not("#cart_empty_row").length === 0) {
             if (typeof toastr !== 'undefined') {
-                toastr.error('আপনার কার্ট খালি! অনুগ্রহ করে ডান পাশের তালিকা থেকে পণ্য যোগ করুন।', 'কার্ট খালি');
+                toastr.error('আপনার কার্ট খালি! অনুগ্রহ করে উপরের সার্চ বার থেকে পণ্য যোগ করুন।', 'কার্ট খালি');
             } else {
-                alert('আপনার কার্ট খালি! অনুগ্রহ করে ডান পাশের তালিকা থেকে পণ্য যোগ করুন।');
+                alert('আপনার কার্ট খালি! অনুগ্রহ করে উপরের সার্চ বার থেকে পণ্য যোগ করুন।');
             }
+            $searchInput.focus();
             return false;
         }
 
@@ -756,24 +940,26 @@
             clearFieldError($upazila);
         }
 
-        // ৩. ভ্যারিয়েন্ট সিঙ্ক ও সাবমিট
+        // ৩. ভ্যারিয়েন্ট ও প্রাইস সিঙ্ক করে সাবমিট
         var rows = [];
         $(".cart-size-selector, .cart-color-selector").each(function () {
             var rowId = $(this).data("id");
             if (rowId && rows.indexOf(rowId) === -1) rows.push(rowId);
         });
+
         if (rows.length === 0) {
             posFormSubmitting = true;
             form.submit();
             return;
         }
+
         var promises = [];
         rows.forEach(function (rowId) {
-            var $row = $('.cart-size-selector[data-id="'+rowId+'"]').closest('tr');
-            if (!$row.length) $row = $('.cart-color-selector[data-id="'+rowId+'"]').closest('tr');
+            var $row = $('tr[data-row-id="'+rowId+'"]');
+            if (!$row.length) $row = $('.cart-size-selector[data-id="'+rowId+'"]').closest('tr');
             var sId = $row.find('.cart-size-selector').val() || '';
             var cId = $row.find('.cart-color-selector').val() || '';
-            var productId = $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
+            var productId = $row.data('product-id') || $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
             promises.push($.ajax({
                 type: "GET",
                 url: "{{ route('admin.order.cart.update') }}",
@@ -781,30 +967,17 @@
                 dataType: "json"
             }));
         });
+
         $.when.apply($, promises).always(function () {
             posFormSubmitting = true;
             setTimeout(function () { form.submit(); }, 150);
         });
     });
 
-    // ইনপুট টাইপ করার সাথে সাথে is-invalid ক্লাস রিমুভ
     $(document).on("input change", "#name, #phone, #address, #adm_pos_division, #adm_pos_district, #adm_pos_upazila", function () {
         if ($.trim($(this).val())) {
             $(this).removeClass("is-invalid");
         }
-    });
-
-    // -------- PRODUCT SEARCH (Right side) ----------
-    $("#product_search").on("keyup", function () {
-        var q = $(this).val().toLowerCase();
-        $(".pos-product-wrapper").each(function(){
-            var name = $(this).data("name");
-            if(name.indexOf(q) !== -1){
-                $(this).show();
-            }else{
-                $(this).hide();
-            }
-        });
     });
 
 </script>

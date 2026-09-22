@@ -2126,20 +2126,71 @@ PROMPT;
             Cart::instance('pos_shopping')->destroy();
         }
 
-        // ✅ Limit products for POS dropdown to avoid memory issues
-        $products = Product::select('id', 'name', 'new_price','stock', 'product_code')
-            ->where(['status' => 1])
-            ->limit(100)
-            ->get();
-
         $cartinfo       = Cart::instance('pos_shopping')->content();
         $divisions = DeliveryDivision::active()->ordered()->get();
 
         return view('backEnd.order.create', compact(
-            'products',
             'cartinfo',
             'divisions'
         ));
+    }
+
+    public function product_search(Request $request)
+    {
+        $keyword = trim($request->keyword ?? $request->q ?? '');
+        if (!$keyword) {
+            return response()->json([]);
+        }
+
+        $products = Product::where('status', 1)
+            ->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%{$keyword}%")
+                  ->orWhere('product_code', 'LIKE', "%{$keyword}%");
+            })
+            ->with(['image:id,product_id,image'])
+            ->select('id', 'name', 'product_code', 'new_price', 'old_price', 'stock', 'purchase_price')
+            ->limit(20)
+            ->get()
+            ->map(function ($p) {
+                $img = optional($p->image)->image ?? 'public/no-image.png';
+                return [
+                    'id'           => $p->id,
+                    'name'         => $p->name,
+                    'product_code' => $p->product_code ?? '',
+                    'price'        => (float) ($p->new_price ?: $p->old_price ?: 0),
+                    'old_price'    => (float) ($p->old_price ?: 0),
+                    'stock'        => (int) $p->stock,
+                    'image'        => asset($img),
+                ];
+            });
+
+        return response()->json($products);
+    }
+
+    public function cart_price_discount_update(Request $request)
+    {
+        $rowId = $request->id;
+        $cartItem = Cart::instance('pos_shopping')->content()->where('rowId', $rowId)->first();
+        if (!$cartItem) {
+            return response()->json(['error' => 'Item not found'], 404);
+        }
+
+        $newPrice = $request->has('price') ? (float) $request->price : $cartItem->price;
+        $newDiscount = $request->has('discount') ? (float) $request->discount : (float) ($cartItem->options->product_discount ?? 0);
+        $newQty = $request->has('qty') ? max(1, (int) $request->qty) : $cartItem->qty;
+
+        $updatedItem = Cart::instance('pos_shopping')->update($rowId, [
+            'price'   => $newPrice,
+            'qty'     => $newQty,
+            'options' => $this->posCartOptions($cartItem, [
+                'product_discount' => $newDiscount,
+            ]),
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'updated' => $updatedItem,
+        ]);
     }
 
     public function order_store(Request $request)
@@ -2152,7 +2203,7 @@ PROMPT;
             'district_id' => 'required|exists:districts,id',
             'upazila_id'  => 'required|exists:upazilas,id',
         ], [
-            'name.required'        => 'কাস্টমারের নাম প্রদান করুন।',
+            'name.required'        => 'কাস্টমার এর নাম প্রদান করুন।',
             'phone.required'       => 'মোবাইল নম্বর প্রদান করুন।',
             'address.required'     => 'ডেলিভারি ঠিকানা প্রদান করুন।',
             'division_id.required' => 'বিভাগ নির্বাচন করুন।',
@@ -2183,10 +2234,18 @@ PROMPT;
             return redirect()->back()->withInput();
         }
 
-        $subtotalRaw = Cart::instance('pos_shopping')->subtotal();
-        $subtotal   = (float) preg_replace('/[^\d.]/', '', (string) $subtotalRaw);
-        $discount   = (float) (Session::get('pos_discount') ?? 0);
-        $shippingfee = DeliveryLocation::chargeForDistrictId($districtId);
+        $subtotal = 0;
+        $lineProductDiscount = 0;
+        foreach (Cart::instance('pos_shopping')->content() as $cart) {
+            $lineDiscount = $this->posCartLineDiscount($request, $cart);
+            $subtotal += ($cart->price * $cart->qty);
+            $lineProductDiscount += ($lineDiscount * $cart->qty);
+        }
+
+        $couponDiscount = (float) (Session::get('pos_discount') ?? 0);
+        $totalDiscount  = $couponDiscount + $lineProductDiscount;
+        $shippingfee    = DeliveryLocation::chargeForDistrictId($districtId);
+        $grandAmount    = max(0, ($subtotal + $shippingfee) - $totalDiscount);
 
         $exits_customer = Customer::where('phone', $request->phone)
             ->select('phone', 'id')->first();
@@ -2208,8 +2267,8 @@ PROMPT;
 
         $order                  = new Order();
         $order->invoice_id      = rand(11111, 99999);
-        $order->amount          = ($subtotal + $shippingfee) - $discount;
-        $order->discount        = $discount ? $discount : 0;
+        $order->amount          = $grandAmount;
+        $order->discount        = $totalDiscount;
         $order->shipping_charge = $shippingfee;
         $order->customer_id     = $customer_id;
         $order->order_status    = 1;
@@ -2242,16 +2301,6 @@ PROMPT;
             $colorId   = $cart->options->color_id ?? null;
             $colorName = $cart->options->product_color ?? null;
 
-            Log::channel('single')->info('[POS order_store] Cart options', [
-                'product_id' => $cart->id,
-                'product_name' => $cart->name,
-                'size_id' => $sizeId,
-                'product_size' => $sizeName,
-                'color_id' => $colorId,
-                'product_color' => $colorName,
-                'options_raw' => $cart->options ? json_decode(json_encode($cart->options), true) : [],
-            ]);
-
             if (!$sizeName && $sizeId) {
                 $s = Size::find($sizeId);
                 $sizeName = $s ? ($s->sizeName ?? $s->size_name ?? null) : null;
@@ -2263,18 +2312,14 @@ PROMPT;
 
             $savedSize  = $sizeId ?: $sizeName;
             $savedColor = $colorId ?: $colorName;
-            Log::channel('single')->info('[POS order_store] Saving to order_details', [
-                'product_id' => $cart->id,
-                'product_size' => $savedSize,
-                'product_color' => $savedColor,
-            ]);
+            $lineDiscount = $this->posCartLineDiscount($request, $cart);
 
             $order_details                   = new OrderDetails();
             $order_details->order_id         = $order->id;
             $order_details->product_id       = $cart->id;
             $order_details->product_name     = $cart->name;
             $order_details->purchase_price   = isset($cart->options->purchase_price) ? $cart->options->purchase_price : 0;
-            $order_details->product_discount = isset($cart->options->product_discount) ? $cart->options->product_discount : 0;
+            $order_details->product_discount = $lineDiscount;
             $order_details->sale_price       = $cart->price;
             $order_details->qty              = $cart->qty;
             $order_details->product_size     = $savedSize;
@@ -2286,9 +2331,9 @@ PROMPT;
         $this->handleStockChange($order, 0, (int) $order->order_status);
 
         Cart::instance('pos_shopping')->destroy();
-        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code', 'product_discount']);
 
-        Toastr::success('Thanks, Your order place successfully', 'Success!');
+        Toastr::success('অর্ডার সফলভাবে সম্পন্ন হয়েছে।', 'সফল!');
         return redirect('admin/order/pending');
     }
 
