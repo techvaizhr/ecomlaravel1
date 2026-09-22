@@ -1107,6 +1107,106 @@ li.all__category__list:hover > a i {
     transform: rotate(90deg);
 }
 
+/* Mobile Menu Scrollable Container */
+.mobile-menu-scrollable {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.mobile-menu-scrollable::-webkit-scrollbar {
+    width: 4px;
+}
+.mobile-menu-scrollable::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+/* Mobile Menu Section Header */
+.mobile-menu-section-header {
+    padding: 10px 14px 6px;
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.mobile-menu-section-header-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mobile-menu-section-header-text i {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+
+/* Primary Navigation Links */
+.mobile-menu-nav-links {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1e293b !important;
+    text-decoration: none !important;
+    font-size: 13.5px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 1px solid #f1f5f9;
+}
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
+}
+.mobile-nav-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.mobile-nav-link:hover .mobile-nav-icon,
+.mobile-nav-link.active .mobile-nav-icon {
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    color: #ffffff;
+}
+.mobile-nav-text {
+    flex: 1;
+    min-width: 0;
+}
+.mobile-nav-arrow {
+    font-size: 11px;
+    color: #94a3b8;
+    transition: transform 0.2s;
+}
+.mobile-nav-link:hover .mobile-nav-arrow {
+    transform: translateX(2px);
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+
 /* Category Title Banner */
 .mobile-menu-cat-title {
     padding: 10px 16px 8px;
@@ -1115,7 +1215,6 @@ li.all__category__list:hover > a i {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-shrink: 0;
 }
 .mobile-menu-cat-title-text {
     font-size: 12px;
@@ -1141,19 +1240,9 @@ li.all__category__list:hover > a i {
 
 /* Category Navigation List */
 .first-nav {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 10px;
+    padding: 8px 10px 16px;
     margin: 0;
     list-style: none;
-    -webkit-overflow-scrolling: touch;
-}
-.first-nav::-webkit-scrollbar {
-    width: 4px;
-}
-.first-nav::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
 }
 
 .first-nav .parent-category {
@@ -1360,20 +1449,21 @@ li.all__category__list:hover > a i {
 
 /* Mobile Menu Footer Quick Actions */
 .mobile-menu-footer {
-    padding: 12px 14px;
-    background: #f8fafc;
+    padding: 10px 12px;
+    background: #ffffff;
     border-top: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
 }
 .mobile-menu-action-btn {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 9px 12px;
-    background: #ffffff;
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     color: #334155 !important;
@@ -1389,6 +1479,40 @@ li.all__category__list:hover > a i {
 .mobile-menu-action-btn:hover {
     background: #f1f5f9;
     border-color: #cbd5e1;
+}
+.mobile-menu-support-row {
+    display: flex;
+    gap: 6px;
+}
+.mobile-menu-btn-phone,
+.mobile-menu-btn-wa {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+.mobile-menu-btn-phone {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8 !important;
+}
+.mobile-menu-btn-phone:hover {
+    background: #dbeafe;
+}
+.mobile-menu-btn-wa {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #047857 !important;
+}
+.mobile-menu-btn-wa:hover {
+    background: #d1fae5;
 }
 
 /* 🔍 Mobile Search Form - Matching PC Aesthetic */
@@ -1711,92 +1835,132 @@ section.slider-section {
         @endforeach
         @php $subtotal = Cart::instance('shopping')->subtotal(); @endphp
         <div class="mobile-menu">
+            {{-- 1. Header (Logo & Close) --}}
             <div class="mobile-menu-header">
                 <div class="mobile-menu-logo">
-                    <div class="logo-image">
+                    <a href="{{route('home')}}" class="logo-image">
                         <img src="{{asset($generalsetting->dark_logo)}}" alt="{{ $generalsetting->name ?? 'Logo' }}" />
-                    </div>
+                    </a>
                 </div>
-                <div class="mobile-menu-close" title="মেনু বন্ধ করুন">
+                <div class="mobile-menu-close" title="মেনু বন্ধ করুন" role="button" aria-label="মেনু বন্ধ করুন">
                     <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
 
-            <div class="mobile-menu-cat-title">
-                <div class="mobile-menu-cat-title-text">
-                    <i class="fa-solid fa-shapes"></i>
-                    <span>সকল ক্যাটাগরি</span>
+            {{-- 2. Scrollable Body: Main Links -> Categories nicely organized --}}
+            <div class="mobile-menu-scrollable">
+                {{-- Primary Navigation Links --}}
+                <div class="mobile-menu-section-header">
+                    <div class="mobile-menu-section-header-text">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>মূল মেনুসমূহ</span>
+                    </div>
                 </div>
-                <span class="mobile-menu-cat-badge">{{ $menucategories->count() }} টি</span>
+                <div class="mobile-menu-nav-links">
+                    <a href="{{ route('home') }}" class="mobile-nav-link {{ Request::is('/') ? 'active' : '' }}">
+                        <div class="mobile-nav-icon"><i class="fa-solid fa-house"></i></div>
+                        <span class="mobile-nav-text">হোম</span>
+                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
+                    </a>
+                    <a href="{{ route('shop') }}" class="mobile-nav-link {{ Request::is('shop') || Request::is('all-products') ? 'active' : '' }}">
+                        <div class="mobile-nav-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                        <span class="mobile-nav-text">সকল পণ্য</span>
+                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
+                    </a>
+                    @if(($generalsetting?->vendor_enabled ?? 1) == 1)
+                    <a href="{{ route('sellers') }}" class="mobile-nav-link {{ Request::is('sellers') ? 'active' : '' }}">
+                        <div class="mobile-nav-icon"><i class="fa-solid fa-store"></i></div>
+                        <span class="mobile-nav-text">সকল শপ / বিক্রেতা</span>
+                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
+                    </a>
+                    @endif
+                    <a href="{{ route('customer.order_track') }}" class="mobile-nav-link {{ Request::is('customer/order-track') ? 'active' : '' }}">
+                        <div class="mobile-nav-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                        <span class="mobile-nav-text">অর্ডার ট্র্যাক করুন</span>
+                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
+                    </a>
+                    <a href="{{ route('contact') }}" class="mobile-nav-link {{ Request::is('contact') ? 'active' : '' }}">
+                        <div class="mobile-nav-icon"><i class="fa-solid fa-headset"></i></div>
+                        <span class="mobile-nav-text">যোগাযোগ</span>
+                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
+                    </a>
+                </div>
+
+                {{-- Categories Header --}}
+                <div class="mobile-menu-cat-title">
+                    <div class="mobile-menu-cat-title-text">
+                        <i class="fa-solid fa-shapes"></i>
+                        <span>পণ্য ক্যাটাগরি</span>
+                    </div>
+                    <span class="mobile-menu-cat-badge">{{ $menucategories->count() }} টি</span>
+                </div>
+
+                {{-- Categories Tree List --}}
+                <ul class="first-nav">
+                    @foreach($menucategories as $scategory)
+                    <li class="parent-category">
+                        <div class="mobile-cat-row">
+                            <a href="{{url('category/'.$scategory->slug)}}" class="menu-category-name">
+                                <div class="mobile-cat-icon-box">
+                                    @if($scategory->icon)
+                                        <img src="{{ asset($scategory->icon) }}" alt="{{ $scategory->name }}" loading="lazy" />
+                                    @elseif($scategory->image)
+                                        <img src="{{ asset($scategory->image) }}" alt="{{ $scategory->name }}" loading="lazy" />
+                                    @else
+                                        <i class="fa-solid fa-shapes"></i>
+                                    @endif
+                                </div>
+                                <span class="mobile-cat-text">{{$scategory->name}}</span>
+                            </a>
+                            @if($scategory->subcategories && $scategory->subcategories->count() > 0)
+                            <span class="menu-category-toggle" title="সাবক্যাটাগরি দেখুন">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </span>
+                            @endif
+                        </div>
+
+                        @if($scategory->subcategories && $scategory->subcategories->count() > 0)
+                        <ul class="second-nav" style="display: none;">
+                            @foreach($scategory->subcategories as $subcategory)
+                            <li class="parent-subcategory">
+                                <div class="mobile-subcat-row">
+                                    <a href="{{url('subcategory/'.$subcategory->slug)}}" class="menu-subcategory-name">
+                                        <span class="subcat-dot"></span>
+                                        <span>{{$subcategory->subcategoryName}}</span>
+                                    </a>
+                                    @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
+                                    <span class="menu-subcategory-toggle">
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </span>
+                                    @endif
+                                </div>
+
+                                @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
+                                <ul class="third-nav" style="display: none;">
+                                    @foreach($subcategory->childcategories as $childcat)
+                                    <li class="childcategory">
+                                        <a href="{{url('products/'.$childcat->slug)}}" class="menu-childcategory-name">
+                                            {{$childcat->childcategoryName}}
+                                        </a>
+                                    </li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </li>
+                            @endforeach
+                        </ul>
+                        @endif
+                    </li>
+                    @endforeach
+                </ul>
             </div>
 
-            <ul class="first-nav">
-                @foreach($menucategories as $scategory)
-                <li class="parent-category">
-                    <div class="mobile-cat-row">
-                        <a href="{{url('category/'.$scategory->slug)}}" class="menu-category-name">
-                            <div class="mobile-cat-icon-box">
-                                @if($scategory->icon)
-                                    <img src="{{ asset($scategory->icon) }}" alt="{{ $scategory->name }}" loading="lazy" />
-                                @elseif($scategory->image)
-                                    <img src="{{ asset($scategory->image) }}" alt="{{ $scategory->name }}" loading="lazy" />
-                                @else
-                                    <i class="fa-solid fa-shapes"></i>
-                                @endif
-                            </div>
-                            <span class="mobile-cat-text">{{$scategory->name}}</span>
-                        </a>
-                        @if($scategory->subcategories && $scategory->subcategories->count() > 0)
-                        <span class="menu-category-toggle" title="সাবক্যাটাগরি দেখুন">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </span>
-                        @endif
-                    </div>
-
-                    @if($scategory->subcategories && $scategory->subcategories->count() > 0)
-                    <ul class="second-nav" style="display: none;">
-                        @foreach($scategory->subcategories as $subcategory)
-                        <li class="parent-subcategory">
-                            <div class="mobile-subcat-row">
-                                <a href="{{url('subcategory/'.$subcategory->slug)}}" class="menu-subcategory-name">
-                                    <span class="subcat-dot"></span>
-                                    <span>{{$subcategory->subcategoryName}}</span>
-                                </a>
-                                @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
-                                <span class="menu-subcategory-toggle">
-                                    <i class="fa-solid fa-chevron-down"></i>
-                                </span>
-                                @endif
-                            </div>
-
-                            @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
-                            <ul class="third-nav" style="display: none;">
-                                @foreach($subcategory->childcategories as $childcat)
-                                <li class="childcategory">
-                                    <a href="{{url('products/'.$childcat->slug)}}" class="menu-childcategory-name">
-                                        {{$childcat->childcategoryName}}
-                                    </a>
-                                </li>
-                                @endforeach
-                            </ul>
-                            @endif
-                        </li>
-                        @endforeach
-                    </ul>
-                    @endif
-                </li>
-                @endforeach
-            </ul>
-
+            {{-- 3. Fixed Footer Actions --}}
             <div class="mobile-menu-footer">
-                <a href="{{ route('customer.order_track') }}" class="mobile-menu-action-btn">
-                    <i class="fa-solid fa-truck"></i>
-                    <span>অর্ডার ট্র্যাক করুন</span>
-                </a>
                 @if(Auth::guard('customer')->check())
                     <a href="{{ route('customer.account') }}" class="mobile-menu-action-btn">
-                        <i class="fa-solid fa-user-check"></i>
-                        <span>আমার একাউন্ট</span>
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span>আমার একাউন্ট ({{ Str::limit(Auth::guard('customer')->user()->name, 14) }})</span>
                     </a>
                 @else
                     <a href="{{ route('customer.login') }}" class="mobile-menu-action-btn">
@@ -1804,12 +1968,20 @@ section.slider-section {
                         <span>লগইন / রেজিস্টার</span>
                     </a>
                 @endif
-                @if(!empty($contact->phone))
-                    <a href="tel:{{ $contact->phone }}" class="mobile-menu-action-btn" style="background: #ecfdf5; border-color: #a7f3d0; color: #047857 !important;">
-                        <i class="fa-solid fa-phone" style="color: #059669;"></i>
-                        <span>হটলাইন: {{ $contact->phone }}</span>
+                <div class="mobile-menu-support-row">
+                    @if(!empty($contact->phone))
+                    <a href="tel:{{ $contact->phone }}" class="mobile-menu-btn-phone">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>{{ $contact->phone }}</span>
                     </a>
-                @endif
+                    @endif
+                    @if(!empty($contact->whatsapp))
+                    <a href="https://wa.me/{{ preg_replace('/[^\d]/', '', $contact->whatsapp) }}" target="_blank" rel="noopener" class="mobile-menu-btn-wa">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                    @endif
+                </div>
             </div>
         </div>
         <header id="navbar_top">
@@ -1818,21 +1990,22 @@ section.slider-section {
 
             <div class="mobile-header sticky">
                 <div class="mobile-logo">
-                    <div class="menu-bar">
-                        <a class="toggle">
-                            <i class="fa-solid fa-bars"></i>
-                        </a>
-                    </div>
                     <div class="menu-logo">
-                        <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="" /></a>
+                        <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="{{ $generalsetting->name ?? 'Logo' }}" /></a>
                     </div>
-<div class="menu-bag">
-    <a href="javascript:void(0)" onclick="openSidebarCart()" class="margin-shopping">
-        <i class="fa-solid fa-cart-shopping"></i>
-        <span class="mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
-    </a>
-</div>
-
+                    <div class="mobile-header-actions">
+                        <div class="menu-bag">
+                            <a href="javascript:void(0)" onclick="openSidebarCart()" class="margin-shopping" aria-label="শপিং কার্ট">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                <span class="mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
+                            </a>
+                        </div>
+                        <div class="menu-bar">
+                            <a href="javascript:void(0)" class="toggle" aria-label="মেনু খুলুন" title="মেনু খুলুন">
+                                <i class="fa-solid fa-bars"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

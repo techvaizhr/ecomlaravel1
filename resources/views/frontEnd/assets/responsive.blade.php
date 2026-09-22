@@ -358,88 +358,121 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    font-size: 16px;
-    height: 60px;
-    padding: 0 10px;
-    gap: 8px;
+    height: 52px;
+    padding: 0 12px;
+    gap: 12px;
 }
-	.fixed-top .mobile-logo {
-		margin-bottom: 0px;
-	}
-/* Logo — বাম দিকে, flex: 1 দিয়ে বাকি space নেবে */
+.fixed-top .mobile-logo {
+    margin-bottom: 0px;
+}
+/* Logo — বাম দিকে সুন্দরভাবে অ্যালাইন */
 .menu-logo {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    order: 1;
+    min-width: 0;
+}
+.menu-logo a {
+    display: inline-flex;
+    align-items: center;
 }
 .menu-logo img {
     width: auto;
-    height: 44px;
+    max-width: 145px;
+    height: 38px;
+    max-height: 38px;
     margin-top: 0;
     object-fit: contain;
 }
-/* Cart icon — মাঝে */
-.mobile-logo .menu-bag {
-    order: 2;
+
+/* Header Actions Wrapper — ডানে কার্ট ও টগল বাটন পাশাপাশি পারফেক্ট অ্যালাইনমেন্টে */
+.mobile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex-shrink: 0;
 }
-/* Toggle (hamburger) — সবার ডানে */
+
+.mobile-logo .menu-bag,
 .mobile-logo .menu-bar {
-    order: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
     flex-shrink: 0;
 }
+
+/* Cart & Toggle Buttons — একদম সমান মাপ ও সুন্দর লুক */
+.menu-bag .margin-shopping,
+.menu-bar a.toggle {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.menu-bag .margin-shopping:hover,
+.menu-bar a.toggle:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.menu-bag .margin-shopping i,
+.menu-bar i {
+    font-size: 17px !important;
+    color: #334155;
+    line-height: 1;
+    display: inline-block;
+    transition: color 0.2s ease;
+}
+
+.menu-bag .margin-shopping:hover i,
+.menu-bar a.toggle:hover i {
+    color: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
+}
+
+/* Cart Badge — পারফেক্ট পজিশনিং ও সাইজিং */
+.menu-bag .margin-shopping span.mobilecart-qty {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
+    color: #ffffff;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 10px;
+    padding: 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    line-height: 1;
+}
+
 .footer-menu ul li a {
     text-align: center;
     text-transform: capitalize;
 }
-	.main-search.mobile-search {
-	    margin: 18px 0;
-	    padding: 0 10px;
-	}
-.menu-bar {
-    margin-top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    background: #f1f5f9;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.menu-bar:hover {
-    background: #e2e8f0;
-}
-
-.menu-bag .margin-shopping {
-    position: relative;
-    width: 30px;
-}
-.menu-bag .margin-shopping span {
-    position: absolute;
-    display: inline-block;
-    background-color: {{$generalsetting->secodery_color}};
-    height: 20px;
-    border-radius: 50px;
-    padding: 1px 7px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #fff;
-    top: -10px;
-    right: 0;
-}
-.menu-bag .margin-shopping span i.fa-solid.fa-bag-shopping {
-    font-size: 22px;
-}
-.menu-bag {
-    margin-top: 0;
-    margin-right: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.main-search.mobile-search {
+    margin: 18px 0;
+    padding: 0 10px;
 }
 	.menu-bag ul li a {
 	    margin-right: 15px;
