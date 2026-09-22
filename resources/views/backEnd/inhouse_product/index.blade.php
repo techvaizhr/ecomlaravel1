@@ -179,6 +179,8 @@
     {{-- Stat Cards --}}
     @php
         $totalInhouse = $data->total();
+        $inStockOnPage = $data->getCollection()->where('stock', '>', 0)->count();
+        $outOfStockOnPage = $data->getCollection()->where('stock', '<=', 0)->count();
     @endphp
     <div class="row g-3 mb-4">
         <div class="col-md-4 col-sm-6">
@@ -195,7 +197,7 @@
                 <div class="prod-stat-icon emerald"><i class="fe-check-circle"></i></div>
                 <div>
                     <div class="text-muted small fw-semibold">In-Stock Products</div>
-                    <h4 class="mb-0 fw-bold text-success">{{ $data->where('stock', '>', 0)->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                    <h4 class="mb-0 fw-bold text-success">{{ $inStockOnPage }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
                 </div>
             </div>
         </div>
@@ -204,7 +206,7 @@
                 <div class="prod-stat-icon rose"><i class="fe-alert-triangle"></i></div>
                 <div>
                     <div class="text-muted small fw-semibold">Out of Stock Alert</div>
-                    <h4 class="mb-0 fw-bold text-danger">{{ $data->where('stock', '<=', 0)->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                    <h4 class="mb-0 fw-bold text-danger">{{ $outOfStockOnPage }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
                 </div>
             </div>
         </div>

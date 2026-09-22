@@ -68,6 +68,7 @@ class ProductController extends Controller
     {
         // Show vendor products
         $query = Product::whereNotNull('vendor_id')
+            ->where('vendor_id', '!=', 0)
             ->orderBy('id','DESC')
             ->with('image','category','vendor');
 

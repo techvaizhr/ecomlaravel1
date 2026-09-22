@@ -192,6 +192,8 @@
     {{-- Stat Cards --}}
     @php
         $totalWholesale = $data->total();
+        $activeOnPage = $data->getCollection()->where('status', 1)->count();
+        $catsCount = $data->getCollection()->pluck('category_id')->filter()->unique()->count();
     @endphp
     <div class="row g-3 mb-4">
         <div class="col-md-4 col-sm-6">
@@ -208,7 +210,7 @@
                 <div class="ws-stat-icon teal"><i class="fe-check-circle"></i></div>
                 <div>
                     <div class="text-muted small fw-semibold">Active Products</div>
-                    <h4 class="mb-0 fw-bold text-success">{{ $data->where('status', 1)->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                    <h4 class="mb-0 fw-bold text-success">{{ $activeOnPage }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
                 </div>
             </div>
         </div>
@@ -217,7 +219,7 @@
                 <div class="ws-stat-icon blue"><i class="fe-tag"></i></div>
                 <div>
                     <div class="text-muted small fw-semibold">Categories Represented</div>
-                    <h4 class="mb-0 fw-bold text-primary">{{ $data->pluck('category_id')->filter()->unique()->count() }}</h4>
+                    <h4 class="mb-0 fw-bold text-primary">{{ $catsCount }}</h4>
                 </div>
             </div>
         </div>
@@ -357,12 +359,12 @@
                                 </a>
                             </div>
                             <small class="text-muted" style="font-family:monospace;font-size:11px;">
-                                Vendor: {{ $product->vendor ? $product->vendor->shop_name : 'Inhouse' }}
+                                Vendor: {{ $product->vendor ? (optional($product->vendor)->shop_name ?? optional($product->vendor)->name) : 'Inhouse' }}
                             </small>
                         </td>
                         <td>
                             <span class="badge bg-soft-secondary text-secondary rounded-pill px-2.5 py-1">
-                                {{ $product->category ? $product->category->name : 'Uncategorized' }}
+                                {{ optional($product->category)->name ?? 'Uncategorized' }}
                             </span>
                         </td>
                         <td>

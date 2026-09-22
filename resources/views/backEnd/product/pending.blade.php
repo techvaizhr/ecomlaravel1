@@ -164,6 +164,7 @@
     {{-- Stat Cards --}}
     @php
         $totalPending = $data->total();
+        $activeVendorsCount = $data->getCollection()->pluck('vendor_id')->filter()->unique()->count();
     @endphp
     <div class="row g-3 mb-4">
         <div class="col-md-6 col-sm-6">
@@ -180,7 +181,7 @@
                 <div class="pending-stat-icon blue"><i class="fe-users"></i></div>
                 <div>
                     <div class="text-muted small fw-semibold">Active Vendors on Page</div>
-                    <h4 class="mb-0 fw-bold text-primary">{{ $data->pluck('vendor_id')->filter()->unique()->count() }}</h4>
+                    <h4 class="mb-0 fw-bold text-primary">{{ $activeVendorsCount }}</h4>
                 </div>
             </div>
         </div>
@@ -283,7 +284,7 @@
                         </td>
                         <td>
                             @if($value->vendor)
-                                <div class="fw-bold text-dark"><i class="fe-user text-primary me-1"></i>{{ $value->vendor->shop_name ?? $value->vendor->name }}</div>
+                                <div class="fw-bold text-dark"><i class="fe-user text-primary me-1"></i>{{ optional($value->vendor)->shop_name ?? optional($value->vendor)->name }}</div>
                                 <small class="text-muted">Vendor ID: #{{ $value->vendor->id }}</small>
                             @else
                                 <span class="badge bg-soft-secondary text-secondary">Inhouse / Admin</span>
@@ -291,7 +292,7 @@
                         </td>
                         <td>
                             <span class="badge bg-soft-secondary text-secondary rounded-pill px-2.5 py-1">
-                                {{ $value->category ? $value->category->name : 'Uncategorized' }}
+                                {{ optional($value->category)->name ?? 'Uncategorized' }}
                             </span>
                         </td>
                         <td>

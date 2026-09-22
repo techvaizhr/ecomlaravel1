@@ -182,6 +182,8 @@
     {{-- Stat Cards --}}
     @php
         $totalVendorProds = $data->total();
+        $activeOnPage = $data->getCollection()->where('status', 1)->count();
+        $approvedOnPage = $data->getCollection()->where('approval_status', 'approved')->count();
     @endphp
     <div class="row g-3 mb-4">
         <div class="col-md-4 col-sm-6">
@@ -198,7 +200,7 @@
                 <div class="pm-stat-icon emerald"><i class="fe-check-circle"></i></div>
                 <div>
                     <div class="text-muted small fw-semibold">Active Products</div>
-                    <h4 class="mb-0 fw-bold text-success">{{ $data->where('status', 1)->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                    <h4 class="mb-0 fw-bold text-success">{{ $activeOnPage }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
                 </div>
             </div>
         </div>
@@ -207,7 +209,7 @@
                 <div class="pm-stat-icon amber"><i class="fe-shield"></i></div>
                 <div>
                     <div class="text-muted small fw-semibold">Approved Products</div>
-                    <h4 class="mb-0 fw-bold text-warning">{{ $data->where('approval_status', 'approved')->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                    <h4 class="mb-0 fw-bold text-warning">{{ $approvedOnPage }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
                 </div>
             </div>
         </div>
@@ -367,7 +369,7 @@
                         </td>
                         <td>
                             @if($value->vendor)
-                                <div class="fw-bold text-dark"><i class="fe-user text-primary me-1"></i>{{ $value->vendor->shop_name ?? $value->vendor->name }}</div>
+                                <div class="fw-bold text-dark"><i class="fe-user text-primary me-1"></i>{{ optional($value->vendor)->shop_name ?? optional($value->vendor)->name }}</div>
                                 <small class="text-muted">Vendor ID: #{{ $value->vendor->id }}</small>
                             @else
                                 <span class="badge bg-soft-secondary text-secondary">Inhouse / Admin</span>
@@ -375,7 +377,7 @@
                         </td>
                         <td>
                             <span class="badge bg-soft-secondary text-secondary rounded-pill px-2.5 py-1">
-                                {{ $value->category ? $value->category->name : 'Uncategorized' }}
+                                {{ optional($value->category)->name ?? 'Uncategorized' }}
                             </span>
                         </td>
                         <td>
@@ -384,14 +386,16 @@
                         </td>
                         <td>
                             @php
-                                $appClass = [
+                                $appStatus = $value->approval_status ?? 'approved';
+                                $appClass = match($appStatus) {
                                     'approved' => 'bg-soft-success text-success',
                                     'pending'  => 'bg-soft-warning text-warning',
-                                    'rejected' => 'bg-soft-danger text-danger'
-                                ][$value->approval_status] ?? 'bg-soft-secondary text-secondary';
+                                    'rejected' => 'bg-soft-danger text-danger',
+                                    default    => 'bg-soft-secondary text-secondary',
+                                };
                             @endphp
                             <span class="badge {{ $appClass }} text-uppercase px-2 py-1 rounded-pill" style="font-size:10px;">
-                                {{ $value->approval_status ?? 'Approved' }}
+                                {{ $appStatus }}
                             </span>
                         </td>
                         <td>
