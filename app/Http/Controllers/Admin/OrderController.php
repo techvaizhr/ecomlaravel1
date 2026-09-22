@@ -649,10 +649,10 @@ PROMPT;
             }
             $show_data = $this->applyTrafficSourceFilter($show_data, $request)->paginate(10)->withQueryString();
         } else {
-            // ✅ Cache order status with count
-            $order_status = Cache::remember("order_status_{$slug}", 300, function () use ($slug) {
-                return OrderStatus::where('slug', $slug)->withCount('orders')->first();
-            });
+            $order_status = OrderStatus::where('slug', $slug)->first();
+            if (!$order_status) {
+                abort(404, 'Order status not found');
+            }
             
             $show_data = Order::where(['order_status' => $order_status->id])
                 ->latest()
@@ -765,7 +765,7 @@ PROMPT;
         
         // ✅ Cache order statuses for 30 minutes
         $orderstatus = Cache::remember('order_statuses_list', 1800, function () {
-            return OrderStatus::orderBy('id')->get();
+            return OrderStatus::where('status', 1)->orderBy('id', 'ASC')->get();
         });
 
         $traffic_source_options = [
@@ -1191,7 +1191,7 @@ PROMPT;
             ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer', 'status'])
             ->firstOrFail();
 
-        $orderstatus = OrderStatus::all();
+        $orderstatus = OrderStatus::where('status', 1)->orderBy('id', 'ASC')->get();
 
         return view('backEnd.order.invoice', compact('order', 'orderstatus'));
     }
@@ -1200,14 +1200,15 @@ PROMPT;
     {
         $data = Order::where(['invoice_id' => $invoice_id])
             ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'orderdetails.image', 'payment', 'shipping', 'status'])
-            ->first();
+            ->firstOrFail();
 
         $divisions = DeliveryDivision::active()->ordered()->get();
         $districts = DeliveryDistrict::active()->ordered()->get(['id', 'division_id', 'name', 'delivery_charge']);
         $upazilas = DeliveryUpazila::active()->ordered()->get(['id', 'district_id', 'name']);
         $deliveryBoys = DeliveryBoy::active()->orderBy('name')->get();
+        $orderstatus = OrderStatus::where('status', 1)->orderBy('id', 'ASC')->get();
 
-        return view('backEnd.order.process', compact('data', 'divisions', 'districts', 'upazilas', 'deliveryBoys'));
+        return view('backEnd.order.process', compact('data', 'divisions', 'districts', 'upazilas', 'deliveryBoys', 'orderstatus'));
     }
 
     /**
@@ -1251,6 +1252,8 @@ PROMPT;
         if ($newStatus == 11) {
             \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
         }
+
+        $this->clearOrderStatusCache();
 
         \Log::info('Order status manually updated', [
             'order_id' => $order->id,
@@ -1421,6 +1424,8 @@ PROMPT;
             }
         }
 
+        $this->clearOrderStatusCache();
+
         Toastr::success('Success', 'Order status change successfully');
         return redirect('admin/order/' . $link);
     }
@@ -1584,6 +1589,8 @@ PROMPT;
                 curl_close($ch);
             }
         }
+
+        $this->clearOrderStatusCache();
 
         return response()->json([
             'status'  => 'success',
@@ -3035,5 +3042,15 @@ PROMPT;
         }
 
         return max(0, (float) data_get($cart->options, 'product_discount', 0));
+    }
+
+    public function clearOrderStatusCache()
+    {
+        Cache::forget('order_status_list');
+        Cache::forget('order_statuses_list');
+        Cache::forget('all_orders_count');
+        Cache::forget('new_order_count');
+        Cache::forget('pending_orders_list');
+        Cache::forget('incomplete_orders_count');
     }
 }

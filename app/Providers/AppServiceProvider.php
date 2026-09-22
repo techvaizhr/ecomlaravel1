@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Models\{GeneralSetting, Category, Brand, SocialMedia, Contact, CreatePage, OrderStatus, EcomPixel, GoogleTagManager, Order, PaymentGateway, Review, Vendor, ResellerWithdrawal, TiktokPixel};
+use App\Models\{GeneralSetting, Category, Brand, SocialMedia, Contact, CreatePage, OrderStatus, EcomPixel, GoogleTagManager, Order, PaymentGateway, Review, Vendor, ResellerWithdrawal, TiktokPixel, IncompleteOrder};
 use Illuminate\Support\Facades\{Config, Gate, Cache, Auth, DB};
 
 class AppServiceProvider extends ServiceProvider
@@ -157,32 +157,40 @@ class AppServiceProvider extends ServiceProvider
             });
             view()->share('brands', $brands);
 
-            if (request()->is('admin') || request()->is('admin/*')) {
+            view()->composer('backEnd.*', function ($view) {
                 $pending_reviews = Cache::remember('pending_reviews_count', 300, function () {
                     return Review::where('status', 'pending')->count();
                 });
-                view()->share('pending_reviews', $pending_reviews);
 
                 $neworder = Cache::remember('new_order_count', 120, function () {
                     return Order::where('order_status', 1)->count();
                 });
-                view()->share('neworder', $neworder);
 
                 $pendingorder = Cache::remember('pending_orders_list', 120, function () {
                     return Order::where('order_status', 1)->latest()->limit(9)->get();
                 });
-                view()->share('pendingorder', $pendingorder);
 
                 $orderstatus = Cache::remember('order_status_list', 1800, function () {
-                    return OrderStatus::withCount('orders')->get();
+                    return OrderStatus::where('status', 1)->withCount('orders')->orderBy('id', 'ASC')->get();
                 });
-                view()->share('orderstatus', $orderstatus);
 
                 $all_orders_count = Cache::remember('all_orders_count', 120, function () {
                     return Order::count();
                 });
-                view()->share('all_orders_count', $all_orders_count);
-            }
+
+                $incomplete_orders_count = Cache::remember('incomplete_orders_count', 120, function () {
+                    return IncompleteOrder::count();
+                });
+
+                $view->with([
+                    'pending_reviews'         => $pending_reviews,
+                    'neworder'                => $neworder,
+                    'pendingorder'            => $pendingorder,
+                    'orderstatus'             => $orderstatus,
+                    'all_orders_count'        => $all_orders_count,
+                    'incomplete_orders_count' => $incomplete_orders_count,
+                ]);
+            });
 
             $pixels = Cache::remember('pixels_list', 1800, function () {
                 return EcomPixel::where('status', 1)->get();

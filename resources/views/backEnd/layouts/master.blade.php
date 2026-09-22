@@ -553,23 +553,28 @@
                     <ul class="subpanel-nested-menu">
                       @can('order-list')
                       <li>
-                        <a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="{{ request()->is('admin/orders/all') ? 'active' : '' }} d-flex align-items-center justify-content-between">
+                        <a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="{{ (request()->routeIs('admin.orders') && request()->route('slug') === 'all') || request()->is('admin/orders/all') || request()->is('order/all') ? 'active' : '' }} d-flex align-items-center justify-content-between">
                           <span><i data-feather="file-plus"></i> All Orders</span>
                           @if(isset($all_orders_count))
-                            <span class="badge rounded-pill bg-light text-dark fw-bold" style="font-size:10px;padding:2px 6px;">{{ $all_orders_count }}</span>
+                            <span class="badge rounded-pill bg-light text-dark fw-bold ms-auto" style="font-size:10px;padding:2px 7px;">{{ $all_orders_count }}</span>
                           @endif
                         </a>
                       </li>
                       <li><a href="{{ route('admin.reseller-orders.index') }}" class="{{ request()->routeIs('admin.reseller-orders.*') ? 'active' : '' }}"><i data-feather="users"></i> Reseller Orders</a></li>
-                      <li><a href="{{ route('admin.incomplete-orders.index') }}" class="{{ request()->routeIs('admin.incomplete-orders.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Incomplete Orders</a></li>
+                      <li>
+                        <a href="{{ route('admin.incomplete-orders.index') }}" class="{{ request()->routeIs('admin.incomplete-orders.*') ? 'active' : '' }} d-flex align-items-center justify-content-between">
+                          <span><i data-feather="file-plus"></i> Incomplete Orders</span>
+                          @if(isset($incomplete_orders_count) && $incomplete_orders_count > 0)
+                            <span class="badge rounded-pill bg-light text-dark fw-bold ms-auto" style="font-size:10px;padding:2px 7px;">{{ $incomplete_orders_count }}</span>
+                          @endif
+                        </a>
+                      </li>
                       @if(isset($orderstatus))
                         @foreach($orderstatus as $value)
                           <li>
-                            <a href="{{ route('admin.orders', ['slug'=>$value->slug]) }}" class="{{ request()->is('admin/orders/'.$value->slug) ? 'active' : '' }} d-flex align-items-center justify-content-between">
+                            <a href="{{ route('admin.orders', ['slug'=>$value->slug]) }}" class="{{ (request()->routeIs('admin.orders') && request()->route('slug') === $value->slug) || request()->is('admin/orders/'.$value->slug) || request()->is('order/'.$value->slug) ? 'active' : '' }} d-flex align-items-center justify-content-between">
                               <span><i data-feather="file-plus"></i> {{ $value->name }}</span>
-                              @if(isset($value->orders_count))
-                                <span class="badge rounded-pill bg-light text-dark fw-bold" style="font-size:10px;padding:2px 6px;">{{ $value->orders_count }}</span>
-                              @endif
+                              <span class="badge rounded-pill bg-light text-dark fw-bold ms-auto" style="font-size:10px;padding:2px 7px;">{{ $value->orders_count ?? 0 }}</span>
                             </a>
                           </li>
                         @endforeach
