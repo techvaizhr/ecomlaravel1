@@ -292,7 +292,7 @@
 
             @canany(['campaign-list', 'coupon-list', 'banner-list', 'popup-list', 'review-list', 'blog-list', 'sms-send'])
             <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-marketing' ? 'active' : '' }}" data-section="section-marketing" title="Marketing & Promotions" data-bs-toggle="tooltip" data-bs-placement="right">
-              <i data-feather="volume-2"></i>
+              <i data-feather="target"></i>
               @if($pending_reviews > 0)
                 <span class="rail-badge">{{ $pending_reviews }}</span>
               @endif
@@ -368,16 +368,16 @@
                   <div class="collapse {{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*') ? 'show' : '' }}" id="sub-users">
                     <ul class="subpanel-nested-menu">
                       @canany(['customer-list', 'customer-create', 'customer-edit'])
-                      <li><a href="{{ route('customers.index') }}"><i data-feather="file-plus"></i> Customers</a></li>
+                      <li><a href="{{ route('customers.index') }}"><i data-feather="user-check"></i> Customers</a></li>
                       @endcanany
                       @can('user-list')
-                      <li><a href="{{ route('users.index') }}"><i data-feather="file-plus"></i> Users</a></li>
+                      <li><a href="{{ route('users.index') }}"><i data-feather="user"></i> Users</a></li>
                       @endcan
                       @can('role-list')
-                      <li><a href="{{ route('roles.index') }}"><i data-feather="file-plus"></i> Roles</a></li>
+                      <li><a href="{{ route('roles.index') }}"><i data-feather="shield"></i> Roles</a></li>
                       @endcan
                       @can('permission-list')
-                      <li><a href="{{ route('permissions.index') }}"><i data-feather="file-plus"></i> Permissions</a></li>
+                      <li><a href="{{ route('permissions.index') }}"><i data-feather="key"></i> Permissions</a></li>
                       @endcan
                     </ul>
                   </div>
