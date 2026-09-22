@@ -226,7 +226,7 @@
                                     <span id="newPrice">৳{{ $details->new_price }}</span>
                                 </p>
 
-                                {{-- Rating --}}
+                                {{-- Rating + Brand (same row) --}}
                                 <div class="details-ratting-wrapper">
                                     @php
                                         $averageRating = (float) ($productReviewsAverage ?? 0);
@@ -240,17 +240,9 @@
                                         <span>{{ number_format($averageRating, 2) }}/5</span>
                                     @endif
                                     <a class="all-reviews-button" href="#writeReview">See Reviews ({{ $productReviewsTotal }})</a>
-                                </div>
-
-                                {{-- Product Code --}}
-                                <div class="product-code">
-                                    <p><span>প্রোডাক্ট কোড :</span> {{ $details->product_code }}</p>
-                                </div>
-
-                                {{-- Product Type --}}
-                                @php $productTypeText = $details->is_digital ? 'Digital' : 'Physical'; @endphp
-                                <div class="pro_brand">
-                                    <p><i class="fa fa-tag" style="margin-right:4px;"></i> Product Type: {{ $productTypeText }}</p>
+                                    @if ($details->brand)
+                                        <span class="details-brand-badge"><i class="fa fa-building"></i> {{ $details->brand->name }}</span>
+                                    @endif
                                 </div>
 
                                 {{-- Wholesale Pricing --}}
@@ -352,16 +344,10 @@
                                         @endif
                                     @endif
 
-                                    {{-- Unit & Brand --}}
+                                    {{-- Unit hidden (value kept for cart logic if needed) --}}
                                     @if ($details->pro_unit)
-                                    <div class="pro_unig">
-                                        <label>Unit: {{ $details->pro_unit }}</label>
                                         <input type="hidden" name="pro_unit" value="{{ $details->pro_unit }}" />
-                                    </div>
                                     @endif
-                                    <div class="pro_brand">
-                                        <p><i class="fa fa-building" style="margin-right:4px;"></i> Brand: {{ $details->brand ? $details->brand->name : 'N/A' }}</p>
-                                    </div>
 
                                     {{-- Quantity + Buttons --}}
                                     <div class="row mt-2">

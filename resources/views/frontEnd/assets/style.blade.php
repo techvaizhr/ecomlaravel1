@@ -5219,6 +5219,24 @@ form.sort-form .form-select {
     text-decoration: underline;
     margin-left: 6px;
 }
+/* Brand badge inline with rating row */
+.details-brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+.details-brand-badge i {
+    color: #94a3b8;
+    font-size: 11px;
+}
 
 .product-code {
     margin-bottom: 10px;
