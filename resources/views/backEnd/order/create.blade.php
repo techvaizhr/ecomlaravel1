@@ -940,38 +940,9 @@
             clearFieldError($upazila);
         }
 
-        // ৩. ভ্যারিয়েন্ট ও প্রাইস সিঙ্ক করে সাবমিট
-        var rows = [];
-        $(".cart-size-selector, .cart-color-selector").each(function () {
-            var rowId = $(this).data("id");
-            if (rowId && rows.indexOf(rowId) === -1) rows.push(rowId);
-        });
-
-        if (rows.length === 0) {
-            posFormSubmitting = true;
-            form.submit();
-            return;
-        }
-
-        var promises = [];
-        rows.forEach(function (rowId) {
-            var $row = $('tr[data-row-id="'+rowId+'"]');
-            if (!$row.length) $row = $('.cart-size-selector[data-id="'+rowId+'"]').closest('tr');
-            var sId = $row.find('.cart-size-selector').val() || '';
-            var cId = $row.find('.cart-color-selector').val() || '';
-            var productId = $row.data('product-id') || $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
-            promises.push($.ajax({
-                type: "GET",
-                url: "{{ route('admin.order.cart.update') }}",
-                data: { id: rowId, product_id: productId, size_id: sId, color_id: cId },
-                dataType: "json"
-            }));
-        });
-
-        $.when.apply($, promises).always(function () {
-            posFormSubmitting = true;
-            setTimeout(function () { form.submit(); }, 150);
-        });
+        // ৩. সাবমিট
+        posFormSubmitting = true;
+        form.submit();
     });
 
     $(document).on("input change", "#name, #phone, #address, #adm_pos_division, #adm_pos_district, #adm_pos_upazila", function () {

@@ -2226,10 +2226,14 @@ PROMPT;
             return redirect()->back()->withInput();
         }
 
+        $firstStatus = OrderStatus::where('status', 1)->orderBy('id', 'ASC')->first();
+        $statusId = $firstStatus ? $firstStatus->id : 1;
+        $statusSlug = $firstStatus ? $firstStatus->slug : 'pending';
+
         $subtotal = 0;
         $lineProductDiscount = 0;
         foreach (Cart::instance('pos_shopping')->content() as $cart) {
-            $lineDiscount = $this->posCartLineDiscount($request, $cart);
+            $lineDiscount = (float) (data_get($cart->options, 'product_discount') ?: $this->posCartLineDiscount($request, $cart));
             $subtotal += ($cart->price * $cart->qty);
             $lineProductDiscount += ($lineDiscount * $cart->qty);
         }
@@ -2263,7 +2267,7 @@ PROMPT;
         $order->discount        = $totalDiscount;
         $order->shipping_charge = $shippingfee;
         $order->customer_id     = $customer_id;
-        $order->order_status    = 1;
+        $order->order_status    = $statusId;
         $order->note            = $request->note;
         $order->save();
 
@@ -2289,22 +2293,22 @@ PROMPT;
 
         foreach (Cart::instance('pos_shopping')->content() as $cart) {
             $sizeId   = $cart->options->size_id ?? null;
-            $sizeName = $cart->options->product_size ?? null;
+            $sizeName = $cart->options->product_size_name ?? $cart->options->product_size ?? null;
             $colorId   = $cart->options->color_id ?? null;
-            $colorName = $cart->options->product_color ?? null;
+            $colorName = $cart->options->product_color_name ?? $cart->options->product_color ?? null;
 
             if (!$sizeName && $sizeId) {
                 $s = Size::find($sizeId);
-                $sizeName = $s ? ($s->sizeName ?? $s->size_name ?? null) : null;
+                $sizeName = $s ? ($s->sizeName ?? $s->size_name ?? $s->name ?? null) : null;
             }
             if (!$colorName && $colorId) {
                 $c = Color::find($colorId);
-                $colorName = $c ? ($c->getAttribute('colorName') ?? $c->getAttribute('color_name') ?? $c->colorName ?? null) : null;
+                $colorName = $c ? ($c->getAttribute('colorName') ?? $c->getAttribute('color_name') ?? $c->name ?? null) : null;
             }
 
             $savedSize  = $sizeId ?: $sizeName;
             $savedColor = $colorId ?: $colorName;
-            $lineDiscount = $this->posCartLineDiscount($request, $cart);
+            $lineDiscount = (float) (data_get($cart->options, 'product_discount') ?: $this->posCartLineDiscount($request, $cart));
 
             $order_details                   = new OrderDetails();
             $order_details->order_id         = $order->id;
@@ -2322,11 +2326,13 @@ PROMPT;
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (oldStatus = 0, newStatus = 1)
         $this->handleStockChange($order, 0, (int) $order->order_status);
 
+        $this->clearOrderStatusCache();
+
         Cart::instance('pos_shopping')->destroy();
         Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code', 'product_discount']);
 
         Toastr::success('অর্ডার সফলভাবে সম্পন্ন হয়েছে।', 'সফল!');
-        return redirect('admin/order/pending');
+        return redirect('admin/order/' . $statusSlug);
     }
 
     public function cart_add(Request $request)
@@ -2457,6 +2463,34 @@ PROMPT;
         return response()->json($cartinfo);
     }
 
+    public function cart_price_discount_update(Request $request)
+    {
+        $rowId = $request->id;
+        $cartItem = Cart::instance('pos_shopping')->content()->where('rowId', $rowId)->first();
+        if (! $cartItem && $request->product_id) {
+            $cartItem = Cart::instance('pos_shopping')->content()->firstWhere('id', $request->product_id);
+            if ($cartItem) {
+                $rowId = $cartItem->rowId;
+            }
+        }
+
+        if (! $cartItem) {
+            return response()->json(['error' => 'Cart item not found'], 404);
+        }
+
+        $newPrice = (float) $request->input('price', $cartItem->price);
+        $newDiscount = max(0, (float) $request->input('discount', 0));
+
+        $cartinfo = Cart::instance('pos_shopping')->update($rowId, [
+            'price'   => $newPrice,
+            'options' => $this->posCartOptions($cartItem, [
+                'product_discount' => $newDiscount,
+            ]),
+        ]);
+
+        return response()->json($cartinfo);
+    }
+
     public function cart_update(Request $request)
     {
         Log::channel('single')->info('[POS cart_update] Request', [
@@ -2491,24 +2525,25 @@ PROMPT;
         $colorName = null;
 
         if ($product) {
-            $variant = ProductVariantPrice::where('product_id', $product->id)
-                ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
-                ->when($colorId, fn($q) => $q->where('color_id', $colorId))
-                ->first();
+            // যদি সাইজ অথবা কালার নির্দিষ্ট করা থাকে, তবেই ভ্যারিয়েন্ট টেবিল থেকে প্রাইস আনা হবে
+            if ($sizeId || $colorId) {
+                $variant = ProductVariantPrice::where('product_id', $product->id)
+                    ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
+                    ->when($colorId, fn($q) => $q->where('color_id', $colorId))
+                    ->first();
 
-            if ($variant && $variant->price > 0) {
-                $newPrice = $variant->price;
-            } else {
-                $newPrice = $product->new_price ?? $product->old_price ?? $cartItem->price;
+                if ($variant && $variant->price > 0) {
+                    $newPrice = $variant->price;
+                }
             }
 
             if ($sizeId) {
                 $size = Size::find($sizeId);
-                $sizeName = $size ? ($size->sizeName ?? $size->size_name ?? null) : null;
+                $sizeName = $size ? ($size->sizeName ?? $size->size_name ?? $size->name ?? null) : null;
             }
             if ($colorId) {
                 $color = Color::find($colorId);
-                $colorName = $color ? ($color->getAttribute('colorName') ?? $color->getAttribute('color_name') ?? $color->colorName ?? null) : null;
+                $colorName = $color ? ($color->getAttribute('colorName') ?? $color->getAttribute('color_name') ?? $color->name ?? null) : null;
             }
         }
 
@@ -2535,7 +2570,6 @@ PROMPT;
             'colorName' => $colorName,
         ]);
 
-        // update() options বদলালে rowId বদলে যায়, তাই Cart::get($rowId) ব্যর্থ হয়; update এর রিটার্ন ব্যবহার করুন
         return response()->json($updatedItem ?? Cart::instance('pos_shopping')->content()->firstWhere('id', $cartItem->id));
     }
 
@@ -2698,16 +2732,17 @@ PROMPT;
             return redirect()->back()->withInput();
         }
 
-        $subtotal = str_replace([',', '.00'], '', Cart::instance('pos_shopping')->subtotal());
-
+        $subtotal = 0;
         $lineProductDiscount = 0;
         foreach (Cart::instance('pos_shopping')->content() as $cartLine) {
-            $lineDiscount = $this->posCartLineDiscount($request, $cartLine);
-            $lineProductDiscount += $lineDiscount * $cartLine->qty;
+            $lineDiscount = (float) (data_get($cartLine->options, 'product_discount') ?: $this->posCartLineDiscount($request, $cartLine));
+            $subtotal += ($cartLine->price * $cartLine->qty);
+            $lineProductDiscount += ($lineDiscount * $cartLine->qty);
         }
         $discount = (float) Session::get('pos_discount', 0) + $lineProductDiscount;
 
         $shipAmt = DeliveryLocation::chargeForDistrictId($districtId);
+        $grandAmount = max(0, ($subtotal + $shipAmt) - $discount);
 
         $customer = Customer::firstOrCreate(
             ['phone' => $request->phone],
@@ -2721,11 +2756,10 @@ PROMPT;
         );
 
         $order                  = Order::findOrFail($request->order_id);
-        $order->amount          = ($subtotal + $shipAmt) - $discount;
+        $order->amount          = $grandAmount;
         $order->discount        = isset($discount) ? $discount : 0;
         $order->shipping_charge = $shipAmt;
         $order->customer_id     = $customer->id;
-        $order->order_status    = 1; // এখানে চাইলে স্টক হ্যান্ডেল করতে চাইলে handleStockChange আরও কেয়ারফুললি ব্যবহার করতে হবে
         $order->note            = $request->note;
         $order->save();
 
@@ -2760,7 +2794,7 @@ PROMPT;
             }
 
             $detail->purchase_price   = isset($cart->options->purchase_price) ? $cart->options->purchase_price : 0;
-            $detail->product_discount = $this->posCartLineDiscount($request, $cart);
+            $detail->product_discount = (float) (data_get($cart->options, 'product_discount') ?: $this->posCartLineDiscount($request, $cart));
             $detail->product_color    = data_get($cart->options, 'color_id') ?: data_get($cart->options, 'product_color');
             $detail->product_size     = data_get($cart->options, 'size_id') ?: data_get($cart->options, 'product_size');
             $detail->sale_price       = $cart->price;
@@ -2773,6 +2807,8 @@ PROMPT;
         OrderDetails::where('order_id', $order->id)
             ->whereNotIn('id', $updatedIds)
             ->delete();
+
+        $this->clearOrderStatusCache();
 
         Cart::instance('pos_shopping')->destroy();
         Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
@@ -3112,6 +3148,7 @@ PROMPT;
         Cache::forget('order_status_list');
         Cache::forget('order_statuses_list');
         Cache::forget('all_orders_count');
+        Cache::forget('orders_count_all');
         Cache::forget('new_order_count');
         Cache::forget('pending_orders_list');
         Cache::forget('incomplete_orders_count');
