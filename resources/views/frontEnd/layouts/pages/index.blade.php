@@ -1,4 +1,4 @@
-﻿@extends('frontEnd.layouts.master')
+@extends('frontEnd.layouts.master')
 
 @section('title', $seo->meta_title ?? 'Home')
 
@@ -24,34 +24,46 @@
 
             {{-- LEFT SIDEBAR CATEGORY MENU --}}
             <div class="col-sm-3 hidetosm">
-                <div class="sidebar-menu">
-                    <ul class="hideshow">
+                <div class="sidebar-menu home-category-sidebar">
+                    <div class="home-cat-header">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>সকল ক্যাটাগরি</span>
+                    </div>
+                    <ul class="hideshow home-cat-list">
                         @foreach ($menucategories as $key => $category)
-                            <li>
-                                <a href="{{ route('category', $category->slug) }}" style="text-decoration: none;">
-                                    <img src="{{ asset($category->icon) }}"
-                                         alt="{{ $category->name }}"
-                                         class="side_cat_img"
-                                         loading="lazy" />
-                                    <span style="color: #000;">{{ $category->name }}</span>
-                                    <i class="fa-solid fa-chevron-right" style="color: #000;"></i>
+                            <li class="home-cat-item">
+                                <a href="{{ route('category', $category->slug) }}" class="home-cat-link">
+                                    <div class="home-cat-link-left">
+                                        @if($category->icon)
+                                            <img src="{{ asset($category->icon) }}"
+                                                 alt="{{ $category->name }}"
+                                                 class="side_cat_img"
+                                                 loading="lazy" />
+                                        @else
+                                            <span class="home-cat-icon-fallback"><i class="fa-solid fa-shapes"></i></span>
+                                        @endif
+                                        <span class="home-cat-name">{{ $category->name }}</span>
+                                    </div>
+                                    @if($category->subcategories && $category->subcategories->count() > 0)
+                                        <i class="fa-solid fa-chevron-right home-cat-arrow"></i>
+                                    @endif
                                 </a>
 
                                 @if($category->subcategories && $category->subcategories->count() > 0)
-                                <ul class="sidebar-submenu">
+                                <ul class="sidebar-submenu home-cat-submenu">
                                     @foreach ($category->subcategories as $subcategory)
-                                        <li>
-                                            <a href="{{ route('subcategory', $subcategory->slug) }}"
-                                               style="color: #000; text-decoration: none;">
-                                                {{ $subcategory->subcategoryName }}
-                                                <i class="fa-solid fa-chevron-right"></i>
+                                        <li class="home-subcat-item">
+                                            <a href="{{ route('subcategory', $subcategory->slug) }}" class="home-subcat-link">
+                                                <span>{{ $subcategory->subcategoryName }}</span>
+                                                @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
+                                                    <i class="fa-solid fa-chevron-right home-cat-arrow"></i>
+                                                @endif
                                             </a>
                                             @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
-                                            <ul class="sidebar-childmenu">
+                                            <ul class="sidebar-childmenu home-cat-childmenu">
                                                 @foreach ($subcategory->childcategories as $childcat)
-                                                    <li>
-                                                        <a href="{{ route('products', $childcat->slug) }}"
-                                                           style="color: #000; text-decoration: none;">
+                                                    <li class="home-childcat-item">
+                                                        <a href="{{ route('products', $childcat->slug) }}" class="home-childcat-link">
                                                             {{ $childcat->childcategoryName }}
                                                         </a>
                                                     </li>
