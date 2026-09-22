@@ -1240,41 +1240,46 @@ li.all__category__list:hover > a i {
 
 /* Category Navigation List */
 .first-nav {
-    padding: 8px 10px 16px;
+    padding: 12px 10px 24px;
     margin: 0;
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .first-nav .parent-category {
     position: relative;
-    border-radius: 10px;
-    margin-bottom: 4px;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    overflow: hidden;
 }
 .first-nav .parent-category:hover,
 .first-nav .parent-category.active {
-    background: #f8fafc;
-    border-color: #e2e8f0;
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .mobile-cat-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 3px 4px;
+    padding: 5px 8px;
     width: 100%;
 }
 
 .first-nav .parent-category a.menu-category-name {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex: 1;
     min-width: 0;
-    padding: 7px 8px;
-    font-size: 13.5px;
+    padding: 4px 4px;
+    font-size: 14px;
     font-weight: 600;
     color: #1e293b;
     text-decoration: none;
@@ -1287,25 +1292,25 @@ li.all__category__list:hover > a i {
 }
 
 .mobile-cat-icon-box {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 .mobile-cat-icon-box img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 .mobile-cat-icon-box i {
-    font-size: 13px;
+    font-size: 14px;
     color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
 }
 
@@ -1315,14 +1320,16 @@ li.all__category__list:hover > a i {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 /* Category Expand Toggle Button */
 .menu-category-toggle {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
-    background: #f1f5f9;
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
     color: #64748b;
     display: flex;
@@ -1349,13 +1356,14 @@ li.all__category__list:hover > a i {
 
 /* Subcategories (2nd level) */
 .second-nav {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    margin: 2px 6px 8px 6px;
-    padding: 6px 8px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+    background: #f8fafc;
+    border-top: 1px solid #eef2f6;
+    margin: 0;
+    padding: 8px 10px 10px 32px;
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 .parent-subcategory {
     position: relative;
@@ -1847,53 +1855,8 @@ section.slider-section {
                 </div>
             </div>
 
-            {{-- 2. Scrollable Body: Main Links -> Categories nicely organized --}}
+            {{-- 2. Scrollable Body: Clean Vertical Collapsible Categories --}}
             <div class="mobile-menu-scrollable">
-                {{-- Primary Navigation Links --}}
-                <div class="mobile-menu-section-header">
-                    <div class="mobile-menu-section-header-text">
-                        <i class="fa-solid fa-compass"></i>
-                        <span>মূল মেনুসমূহ</span>
-                    </div>
-                </div>
-                <div class="mobile-menu-nav-links">
-                    <a href="{{ route('home') }}" class="mobile-nav-link {{ Request::is('/') ? 'active' : '' }}">
-                        <div class="mobile-nav-icon"><i class="fa-solid fa-house"></i></div>
-                        <span class="mobile-nav-text">হোম</span>
-                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
-                    </a>
-                    <a href="{{ route('shop') }}" class="mobile-nav-link {{ Request::is('shop') || Request::is('all-products') ? 'active' : '' }}">
-                        <div class="mobile-nav-icon"><i class="fa-solid fa-bag-shopping"></i></div>
-                        <span class="mobile-nav-text">সকল পণ্য</span>
-                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
-                    </a>
-                    @if(($generalsetting?->vendor_enabled ?? 1) == 1)
-                    <a href="{{ route('sellers') }}" class="mobile-nav-link {{ Request::is('sellers') ? 'active' : '' }}">
-                        <div class="mobile-nav-icon"><i class="fa-solid fa-store"></i></div>
-                        <span class="mobile-nav-text">সকল শপ / বিক্রেতা</span>
-                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
-                    </a>
-                    @endif
-                    <a href="{{ route('customer.order_track') }}" class="mobile-nav-link {{ Request::is('customer/order-track') ? 'active' : '' }}">
-                        <div class="mobile-nav-icon"><i class="fa-solid fa-truck-fast"></i></div>
-                        <span class="mobile-nav-text">অর্ডার ট্র্যাক করুন</span>
-                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
-                    </a>
-                    <a href="{{ route('contact') }}" class="mobile-nav-link {{ Request::is('contact') ? 'active' : '' }}">
-                        <div class="mobile-nav-icon"><i class="fa-solid fa-headset"></i></div>
-                        <span class="mobile-nav-text">যোগাযোগ</span>
-                        <i class="fa-solid fa-chevron-right mobile-nav-arrow"></i>
-                    </a>
-                </div>
-
-                {{-- Categories Header --}}
-                <div class="mobile-menu-cat-title">
-                    <div class="mobile-menu-cat-title-text">
-                        <i class="fa-solid fa-shapes"></i>
-                        <span>পণ্য ক্যাটাগরি</span>
-                    </div>
-                    <span class="mobile-menu-cat-badge">{{ $menucategories->count() }} টি</span>
-                </div>
 
                 {{-- Categories Tree List --}}
                 <ul class="first-nav">
