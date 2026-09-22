@@ -198,7 +198,17 @@
 
                                         {{-- 6. Status --}}
                                         <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">
-                                            <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">{{ $value->status ? $value->status->name : '—' }}</span>
+                                            <a href="javascript:void(0);" 
+                                               class="quick-change-status-btn text-decoration-none d-inline-block" 
+                                               data-order-id="{{ $value->id }}" 
+                                               data-current-status="{{ $value->order_status }}" 
+                                               data-invoice="{{ $value->invoice_id }}" 
+                                               data-status-name="{{ $value->status ? $value->status->name : '—' }}" 
+                                               title="স্ট্যাটাস পরিবর্তন করতে ক্লিক করুন">
+                                                <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600; cursor: pointer;">
+                                                    {{ $value->status ? $value->status->name : '—' }} <i class="fas fa-caret-down text-muted" style="font-size: 8.5px; margin-left: 2px;"></i>
+                                                </span>
+                                            </a>
                                         </td>
 
                                         {{-- 7. Fraud Check (Tight & Compact) --}}
@@ -356,6 +366,33 @@
             <button type="submit" class="btn btn-success">Update Status</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade oi-modal" id="quickSingleStatusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 360px;">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header py-2.5 px-3 bg-primary text-white">
+        <h6 class="modal-title m-0 fw-bold text-white" id="quickStatusModalTitle"><i class="fas fa-flag me-1"></i> স্ট্যাটাস পরিবর্তন</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <input type="hidden" id="quick_status_order_id" value="">
+        <div class="text-muted small mb-2 fw-semibold">নতুন স্ট্যাটাস সিলেক্ট করুন:</div>
+        <div class="d-flex flex-column gap-1.5" id="quick_status_list">
+            @if(isset($orderstatus) && $orderstatus->count() > 0)
+                @foreach($orderstatus as $s)
+                    <button type="button" class="btn btn-sm btn-outline-primary text-start d-flex align-items-center justify-content-between py-1.5 px-2.5 quick-status-opt-btn" data-status-id="{{ $s->id }}" data-status-name="{{ $s->name }}" style="border-radius: 6px; font-size: 12.5px;">
+                        <span><i class="far fa-check-circle me-1.5 opacity-50"></i> {{ $s->name }}</span>
+                        <span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>
+                    </button>
+                @endforeach
+            @else
+                <div class="text-muted small text-center py-2">কোন স্ট্যাটাস পাওয়া যায়নি</div>
+            @endif
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1109,6 +1146,78 @@ $(document).ready(function(){
         });
         
         return false;
+    });
+
+    // ── Single Order Quick Status Modal Popup ──
+    $(document).on('click', '.quick-change-status-btn', function (e) {
+        e.preventDefault();
+        var orderId = $(this).data('order-id');
+        var currentStatus = $(this).data('current-status');
+        var invoice = $(this).data('invoice');
+
+        $('#quick_status_order_id').val(orderId);
+        $('#quickStatusModalTitle').html('<i class="fas fa-flag me-1"></i> স্ট্যাটাস #' + invoice);
+
+        // Highlight current status button
+        $('#quick_status_list .quick-status-opt-btn').each(function () {
+            var sId = $(this).data('status-id');
+            var sName = $(this).data('status-name');
+            $(this).prop('disabled', false).html('<span><i class="far fa-check-circle me-1.5 opacity-50"></i> ' + sName + '</span><span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>');
+
+            if (String(sId) === String(currentStatus)) {
+                $(this).addClass('btn-primary text-white').removeClass('btn-outline-primary');
+                $(this).find('.current-tag').removeClass('d-none');
+            } else {
+                $(this).removeClass('btn-primary text-white').addClass('btn-outline-primary');
+                $(this).find('.current-tag').addClass('d-none');
+            }
+        });
+
+        $('#quickSingleStatusModal').modal('show');
+    });
+
+    $(document).on('click', '.quick-status-opt-btn', function (e) {
+        e.preventDefault();
+        var orderId = $('#quick_status_order_id').val();
+        var statusId = $(this).data('status-id');
+        var statusName = $(this).data('status-name');
+        var $btn = $(this);
+
+        if (!orderId || !statusId) return;
+
+        $('#quick_status_list .quick-status-opt-btn').prop('disabled', true);
+        $btn.html('<i class="fas fa-spinner fa-spin me-1"></i> আপডেট হচ্ছে...');
+
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('admin.order.status') }}",
+            data: {
+                order_status: statusId,
+                order_ids: [orderId]
+            },
+            success: function (res) {
+                if (res && res.status === 'success') {
+                    toastr.success(res.message || 'স্ট্যাটাস আপডেট সফল হয়েছে');
+                    $('#quickSingleStatusModal').modal('hide');
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    toastr.error((res && res.message) ? res.message : 'স্ট্যাটাস পরিবর্তন ব্যর্থ');
+                    $('#quick_status_list .quick-status-opt-btn').prop('disabled', false);
+                    $btn.html('<span><i class="far fa-check-circle me-1.5 opacity-50"></i> ' + statusName + '</span>');
+                }
+            },
+            error: function (xhr) {
+                var msg = 'সার্ভার ত্রুটি, অনুগ্রহ করে আবার চেষ্টা করুন';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                toastr.error(msg);
+                $('#quick_status_list .quick-status-opt-btn').prop('disabled', false);
+                $btn.html('<span><i class="far fa-check-circle me-1.5 opacity-50"></i> ' + statusName + '</span>');
+            }
+        });
     });
 
     // order delete (bulk)
