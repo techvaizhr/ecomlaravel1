@@ -1,4 +1,5 @@
 {
+    "name": "ecomlaravel1",
     "private": true,
     "scripts": {
         "dev": "vite",
