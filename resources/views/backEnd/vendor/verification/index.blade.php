@@ -1,227 +1,395 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Vendor Verification Requests')
+@section('title', 'Vendor KYC Verification Requests')
 
 @section('css')
 <style>
-    /* --- Modern Card --- */
-    .card-modern {
-        border: none;
+    /* Header Card */
+    .verification-header-card {
+        background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4f46e5 100%);
+        border-radius: 16px;
+        padding: 24px;
+        color: #ffffff;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+    }
+    .metric-badge-box {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        background: #fff;
+        padding: 12px 18px;
+        text-align: center;
+        min-width: 110px;
+    }
+    .metric-badge-box h3 {
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 2px;
+    }
+    .metric-badge-box span {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
     }
 
-    /* --- Filter Section --- */
-    .filter-box {
-        background: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 1.25rem;
-        border-radius: 12px 12px 0 0;
+    /* Filter Card */
+    .filter-card-modern {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        padding: 18px 22px;
+    }
+    .form-label-modern {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
     }
     .form-control-modern, .form-select-modern {
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 0.6rem 1rem;
-        font-size: 0.875rem;
-        background-color: #fff;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 8px 12px;
+        font-size: 13.5px;
+        color: #0f172a;
+        transition: all 0.2s;
     }
     .form-control-modern:focus, .form-select-modern:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        outline: none;
     }
 
-    /* --- Table Styling --- */
-    .table-modern th {
-        background-color: #fff;
-        color: #64748b;
-        font-size: 0.75rem;
+    /* Table Styling */
+    .table-card-modern {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+    }
+    .table-modern thead th {
+        background: #f8fafc;
+        color: #475569;
         font-weight: 700;
+        font-size: 11.5px;
         text-transform: uppercase;
-        padding: 1rem;
-        border-bottom: 2px solid #f1f5f9;
+        letter-spacing: 0.5px;
+        border-bottom: 1.5px solid #e2e8f0;
+        padding: 13px 16px;
         white-space: nowrap;
     }
-    .table-modern td {
-        vertical-align: middle;
-        padding: 1rem;
-        font-size: 0.875rem;
-        color: #334155;
+    .table-modern tbody td {
+        padding: 13px 16px;
         border-bottom: 1px solid #f1f5f9;
+        font-size: 13.5px;
+        vertical-align: middle;
+        color: #1e293b;
     }
-    .table-modern tr:hover td { background-color: #f8fafc; }
+    .table-modern tbody tr:hover {
+        background: #fafcff;
+    }
 
-    /* --- Status Badges --- */
-    .badge-soft {
-        padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
-        display: inline-flex; align-items: center; gap: 5px;
+    /* Doc Thumbnail */
+    .doc-thumb-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        cursor: pointer;
+        transition: transform 0.2s;
     }
-    .badge-approved { background: #dcfce7; color: #166534; }
-    .badge-rejected { background: #fee2e2; color: #991b1b; }
-    .badge-pending { background: #fef3c7; color: #92400e; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .doc-thumb-box:hover { transform: scale(1.1); }
+    .doc-thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* --- Action Buttons --- */
-    .btn-icon {
-        width: 32px; height: 32px;
-        display: inline-flex; align-items: center; justify-content: center;
-        border-radius: 8px; transition: all 0.2s; border: none; background: #e0e7ff; color: #4338ca;
+    /* Action Circle Buttons */
+    .action-circle-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: #f1f5f9;
+        color: #475569;
+        transition: all 0.2s;
+        text-decoration: none;
+        font-size: 13px;
     }
-    .btn-icon:hover { transform: translateY(-2px); background: #4338ca; color: #fff; }
+    .action-circle-btn:hover { transform: translateY(-2px); }
+    .btn-action-view:hover { background: #e0f2fe; color: #0284c7; }
+    .btn-action-approve:hover { background: #dcfce7; color: #15803d; }
+    .btn-action-reject:hover { background: #fee2e2; color: #dc2626; }
 </style>
 @endsection
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid py-3">
 
-    {{-- PAGE HEADER --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="shield" class="text-primary me-2"></i> Verification Requests
-            </h4>
-            <p class="text-muted small mb-0">Review and manage vendor KYC verifications.</p>
+    {{-- HEADER CARD --}}
+    <div class="verification-header-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h4 class="text-white mb-1 fw-bold">
+                    <i class="fe-shield me-2"></i> Vendor KYC Verification Requests
+                </h4>
+                <p class="mb-0 text-white-50 font-size-13">
+                    Review submitted NID cards, trade licenses, and merchant identities.
+                </p>
+            </div>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <div class="metric-badge-box">
+                    <h3>{{ $stats['total'] }}</h3>
+                    <span>Total</span>
+                </div>
+                <div class="metric-badge-box" style="background: rgba(234, 179, 8, 0.3);">
+                    <h3>{{ $stats['pending'] }}</h3>
+                    <span>Pending</span>
+                </div>
+                <div class="metric-badge-box">
+                    <h3>{{ $stats['approved'] }}</h3>
+                    <span>Approved</span>
+                </div>
+                <div class="metric-badge-box">
+                    <h3>{{ $stats['rejected'] }}</h3>
+                    <span>Rejected</span>
+                </div>
+                <a href="{{ route('admin.vendors.index') }}" class="btn btn-outline-light rounded-pill px-3 shadow-sm font-size-13 fw-bold">
+                    <i class="fe-arrow-left me-1"></i> All Vendors
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="card card-modern">
-        
-        {{-- FILTERS --}}
-        <div class="filter-box">
-            <div class="row g-3">
-                
-                {{-- Status Filter --}}
-                <div class="col-md-4">
-                    <form method="GET" action="{{ route('admin.vendor.verification.index') }}">
-                        <div class="input-group">
-                            <select name="status" class="form-select form-select-modern">
-                                <option value="">Filter by Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Requests</option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved Vendors</option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected Vendors</option>
-                            </select>
-                            <button type="submit" class="btn btn-dark"><i data-feather="filter" style="width: 14px;"></i></button>
-                        </div>
-                    </form>
+    {{-- FILTER FORM --}}
+    <div class="filter-card-modern">
+        <form method="GET" action="{{ route('admin.vendor.verification.index') }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label-modern">Search Vendor</label>
+                    <input type="text" name="keyword" class="form-control form-control-modern" 
+                           placeholder="Shop name, owner, phone, email..." value="{{ request('keyword') }}">
                 </div>
-
-                {{-- Search --}}
-                <div class="col-md-5 ms-auto">
-                    <form method="GET" action="{{ route('admin.vendor.verification.index') }}">
-                        <input type="hidden" name="status" value="{{ request('status') }}">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i data-feather="search" style="width: 16px;"></i></span>
-                            <input type="text" name="keyword" class="form-control form-control-modern border-start-0" 
-                                   placeholder="Search shop, owner, email..." value="{{ request('keyword') }}">
-                            <button type="submit" class="btn btn-primary fw-bold">Search</button>
-                            @if(request('keyword') || request('status'))
-                                <a href="{{ route('admin.vendor.verification.index') }}" class="btn btn-light border" title="Reset">
-                                    <i data-feather="refresh-cw" style="width: 14px;"></i>
-                                </a>
-                            @endif
-                        </div>
-                    </form>
+                <div class="col-md-2">
+                    <label class="form-label-modern">Status</label>
+                    <select name="status" class="form-select form-select-modern">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending Requests</option>
+                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label-modern">Date From</label>
+                    <input type="date" name="date_from" class="form-control form-control-modern" value="{{ request('date_from') }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label-modern">Date To</label>
+                    <input type="date" name="date_to" class="form-control form-control-modern" value="{{ request('date_to') }}">
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label-modern">Per Page</label>
+                    <select name="per_page" class="form-select form-select-modern">
+                        <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
+                        <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="all" {{ request('per_page') === 'all' ? 'selected' : '' }}>All</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="d-flex gap-1">
+                        <button type="submit" class="btn btn-primary rounded-3 w-100 fw-bold font-size-13 py-2">
+                            <i class="fe-filter me-1"></i> Filter
+                        </button>
+                        @if(request()->anyFilled(['keyword', 'status', 'date_from', 'date_to', 'per_page']))
+                            <a href="{{ route('admin.vendor.verification.index') }}" class="btn btn-light border rounded-3 px-3 py-2" title="Reset Filters">
+                                <i class="fe-rotate-ccw"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
+    </div>
 
-        {{-- TABLE --}}
+    {{-- TABLE --}}
+    <div class="table-card-modern">
         <div class="table-responsive">
-            <table class="table table-modern mb-0">
+            <table class="table table-modern align-middle">
                 <thead>
                     <tr>
-                        <th width="5%">#</th>
-                        <th width="25%">Shop & Owner</th>
-                        <th width="20%">Contact Info</th>
-                        <th width="15%">Documents</th>
-                        <th width="15%">Request Date</th>
-                        <th width="10%">Status</th>
-                        <th width="10%" class="text-end">Action</th>
+                        <th style="width: 50px;">#</th>
+                        <th>Shop & Owner</th>
+                        <th>Contact Details</th>
+                        <th>Documents</th>
+                        <th>Submitted At</th>
+                        <th>KYC Status</th>
+                        <th class="text-end" style="width: 140px;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($vendors as $key => $vendor)
-                        <tr>
-                            <td class="text-muted">{{ $loop->iteration }}</td>
-                            
-                            {{-- Vendor Info --}}
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-light text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center me-3 border" 
-                                         style="width: 40px; height: 40px; font-size: 14px;">
-                                        {{ substr($vendor->shop_name, 0, 1) }}
+                    @forelse($vendors as $vendor)
+                    <tr>
+                        <td class="text-muted fw-semibold">
+                            {{ $loop->iteration + ($vendors->currentPage() - 1) * $vendors->perPage() }}
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark font-size-14">{{ $vendor->shop_name }}</div>
+                            <span class="text-muted font-size-12">Owner: {{ $vendor->owner_name }} (ID: #{{ $vendor->id }})</span>
+                        </td>
+                        <td>
+                            <div class="text-dark font-size-13"><i class="fe-phone me-1 text-muted"></i> {{ $vendor->phone }}</div>
+                            <div class="text-muted font-size-12"><i class="fe-mail me-1 text-muted"></i> {{ $vendor->email }}</div>
+                        </td>
+                        <td>
+                            <div class="d-inline-flex gap-1">
+                                @if($vendor->voter_id_front)
+                                    <div class="doc-thumb-box" title="Voter ID Front" onclick="window.open('{{ asset($vendor->voter_id_front) }}', '_blank')">
+                                        <img src="{{ asset($vendor->voter_id_front) }}" alt="NID Front">
                                     </div>
-                                    <div>
-                                        <div class="fw-bold text-dark">{{ $vendor->shop_name }}</div>
-                                        <div class="small text-muted">Owner: {{ $vendor->owner_name }}</div>
+                                @endif
+                                @if($vendor->voter_id_back)
+                                    <div class="doc-thumb-box" title="Voter ID Back" onclick="window.open('{{ asset($vendor->voter_id_back) }}', '_blank')">
+                                        <img src="{{ asset($vendor->voter_id_back) }}" alt="NID Back">
                                     </div>
-                                </div>
-                            </td>
-
-                            {{-- Contact --}}
-                            <td>
-                                <div class="d-flex flex-column small">
-                                    <span class="text-dark mb-1"><i data-feather="mail" style="width: 12px;" class="text-muted me-1"></i> {{ $vendor->email }}</span>
-                                    <span class="text-dark"><i data-feather="phone" style="width: 12px;" class="text-muted me-1"></i> {{ $vendor->phone }}</span>
-                                </div>
-                            </td>
-
-                            {{-- Documents Status --}}
-                            <td>
-                                @if($vendor->voter_id_front || $vendor->voter_id_back || $vendor->self_image)
-                                    <span class="badge bg-light text-dark border">
-                                        <i data-feather="file-text" style="width: 12px;" class="me-1"></i> Files Attached
-                                    </span>
-                                @else
-                                    <span class="badge bg-light text-muted border">
-                                        <i data-feather="alert-circle" style="width: 12px;" class="me-1"></i> Missing
-                                    </span>
                                 @endif
-                            </td>
-
-                            {{-- Request Date --}}
-                            <td class="text-muted small">
-                                @if($vendor->verified_at && $vendor->verification_status != 'pending')
-                                    <div class="fw-bold">Verified On:</div>
-                                    {{ is_object($vendor->verified_at) ? $vendor->verified_at->format('d M, Y') : \Carbon\Carbon::parse($vendor->verified_at)->format('d M, Y') }}
-                                @else
-                                    <div class="fw-bold">Requested:</div>
-                                    {{ $vendor->created_at->format('d M, Y') }}
+                                @if($vendor->self_image)
+                                    <div class="doc-thumb-box" title="Owner Photo" onclick="window.open('{{ asset($vendor->self_image) }}', '_blank')">
+                                        <img src="{{ asset($vendor->self_image) }}" alt="Selfie">
+                                    </div>
                                 @endif
-                            </td>
-
-                            {{-- Status --}}
-                            <td>
-                                @if($vendor->verification_status == 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span> Approved</span>
-                                @elseif($vendor->verification_status == 'rejected')
-                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span> Rejected</span>
-                                @else
-                                    <span class="badge-soft badge-pending"><span class="status-dot"></span> Pending</span>
+                                @if(!$vendor->voter_id_front && !$vendor->voter_id_back && !$vendor->self_image)
+                                    <span class="text-muted font-size-12 fst-italic">No Docs</span>
                                 @endif
-                            </td>
-
-                            {{-- Actions --}}
-                            <td class="text-end">
-                                <a href="{{ route('admin.vendor.verification.show', $vendor->id) }}" class="btn-icon" title="View Details">
-                                    <i data-feather="eye" style="width: 14px;"></i>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-dark font-size-13">{{ $vendor->created_at ? $vendor->created_at->format('d M, Y') : 'N/A' }}</div>
+                            <span class="text-muted font-size-11">{{ $vendor->created_at ? $vendor->created_at->format('h:i A') : '' }}</span>
+                        </td>
+                        <td>
+                            @if($vendor->verification_status === 'approved')
+                                <span class="badge bg-soft-success text-success px-2 py-1 rounded-pill font-size-12 fw-bold">
+                                    <i class="fe-check-circle me-1"></i> Approved
+                                </span>
+                            @elseif($vendor->verification_status === 'rejected')
+                                <span class="badge bg-soft-danger text-danger px-2 py-1 rounded-pill font-size-12 fw-bold">
+                                    <i class="fe-x-circle me-1"></i> Rejected
+                                </span>
+                            @else
+                                <span class="badge bg-warning text-dark px-2 py-1 rounded-pill font-size-12 fw-bold">
+                                    <i class="fe-clock me-1"></i> Pending Review
+                                </span>
+                            @endif
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <a href="{{ route('admin.vendor.verification.show', $vendor->id) }}" class="action-circle-btn btn-action-view" title="Inspect Full KYC Details">
+                                    <i class="fe-eye"></i>
                                 </a>
-                            </td>
-                        </tr>
-                    @endforeach
+                                @if($vendor->verification_status !== 'approved')
+                                    <button type="button" class="action-circle-btn btn-action-approve" title="Quick Approve" data-bs-toggle="modal" data-bs-target="#modalApprove{{ $vendor->id }}">
+                                        <i class="fe-check"></i>
+                                    </button>
+                                @endif
+                                @if($vendor->verification_status !== 'rejected')
+                                    <button type="button" class="action-circle-btn btn-action-reject" title="Quick Reject" data-bs-toggle="modal" data-bs-target="#modalReject{{ $vendor->id }}">
+                                        <i class="fe-x"></i>
+                                    </button>
+                                @endif
+                            </div>
+
+                            {{-- Approve Modal --}}
+                            <div class="modal fade text-start" id="modalApprove{{ $vendor->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow">
+                                        <form action="{{ route('admin.vendor.verification.approve', $vendor->id) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title fw-bold"><i class="fe-check-circle me-1"></i> Approve KYC for {{ $vendor->shop_name }}</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <p class="text-muted font-size-13 mb-3">
+                                                    Are you sure you want to verify and approve this vendor account? Verified vendors receive a verified badge and store credibility.
+                                                </p>
+                                                <div class="mb-3">
+                                                    <label class="form-label font-size-13 fw-semibold">Admin Note (Optional)</label>
+                                                    <textarea name="admin_note" class="form-control" rows="3" placeholder="Optional approval remark..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer bg-light">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-success fw-semibold">Confirm Approval</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Reject Modal --}}
+                            <div class="modal fade text-start" id="modalReject{{ $vendor->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow">
+                                        <form action="{{ route('admin.vendor.verification.reject', $vendor->id) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title fw-bold"><i class="fe-x-circle me-1"></i> Reject KYC for {{ $vendor->shop_name }}</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label font-size-13 fw-semibold">Reason for Rejection <span class="text-danger">*</span></label>
+                                                    <textarea name="rejection_reason" class="form-control" rows="3" required placeholder="e.g. Unclear NID card image, missing trade license..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer bg-light">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger fw-semibold">Reject Request</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fe-shield font-size-36 d-block mb-2 text-slate-300"></i>
+                            <p class="mb-0 font-size-14 fw-semibold">No KYC verification requests found.</p>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
-        {{-- PAGINATION --}}
-        <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $vendors->firstItem() }}</strong> to <strong>{{ $vendors->lastItem() }}</strong> of <strong>{{ $vendors->total() }}</strong> requests
-            </small>
+        @if($vendors->hasPages() || $vendors->total() > 0)
+        <div class="p-3 bg-light border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="text-muted font-size-13">
+                Showing <strong>{{ $vendors->firstItem() ?? 0 }}</strong> to <strong>{{ $vendors->lastItem() ?? 0 }}</strong> of <strong>{{ $vendors->total() }}</strong> Requests
+            </div>
             <div>
                 {{ $vendors->links('pagination::bootstrap-4') }}
             </div>
         </div>
-
+        @endif
     </div>
 </div>
 @endsection

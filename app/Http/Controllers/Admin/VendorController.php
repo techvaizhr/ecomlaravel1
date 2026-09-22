@@ -15,31 +15,79 @@ use Illuminate\Support\Arr;
 class VendorController extends Controller
 {
     /**
-     * Display a listing of vendors.
+     * Display a listing of vendors with comprehensive filtering, sorting, and pagination.
      */
     public function index(Request $request)
     {
-        $query = Vendor::with('wallet', 'products');
+        $query = Vendor::with(['wallet'])->withCount('products');
         
-        if ($request->keyword) {
-            $query->where(function($q) use ($request) {
-                $q->where('shop_name', 'like', '%' . $request->keyword . '%')
-                  ->orWhere('owner_name', 'like', '%' . $request->keyword . '%')
-                  ->orWhere('email', 'like', '%' . $request->keyword . '%')
-                  ->orWhere('phone', 'like', '%' . $request->keyword . '%');
+        // Keyword Search (Shop Name, Owner Name, Email, Phone)
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('shop_name', 'like', "%{$keyword}%")
+                  ->orWhere('owner_name', 'like', "%{$keyword}%")
+                  ->orWhere('email', 'like', "%{$keyword}%")
+                  ->orWhere('phone', 'like', "%{$keyword}%");
             });
         }
-        
-        $vendors = $query->latest()->paginate(20)->withQueryString();
+
+        // Status Filter
+        if ($request->filled('status')) {
+            $query->where('status', (int)$request->status);
+        }
+
+        // Verification Status Filter
+        if ($request->filled('verification_status')) {
+            if ($request->verification_status === 'pending') {
+                $query->where(function ($q) {
+                    $q->whereNull('verification_status')
+                      ->orWhere('verification_status', 'pending')
+                      ->orWhereNotIn('verification_status', ['approved', 'rejected']);
+                });
+            } else {
+                $query->where('verification_status', $request->verification_status);
+            }
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'latest');
+        switch ($sortBy) {
+            case 'oldest':
+                $query->oldest('id');
+                break;
+            case 'products_high':
+                $query->orderByDesc('products_count');
+                break;
+            case 'name_asc':
+                $query->orderBy('shop_name', 'asc');
+                break;
+            default:
+                $query->latest('id');
+                break;
+        }
+
+        // Per-page logic
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(Vendor::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $vendors = $query->paginate($perPage)->withQueryString();
 
         $stats = [
             'total'    => Vendor::count(),
             'active'   => Vendor::where('status', 1)->count(),
+            'inactive' => Vendor::where('status', 0)->count(),
             'verified' => Vendor::where('verification_status', 'approved')->count(),
             'pending'  => Vendor::where(function ($q) {
                 $q->whereNull('verification_status')
+                    ->orWhere('verification_status', 'pending')
                     ->orWhereNotIn('verification_status', ['approved', 'rejected']);
             })->count(),
+            'rejected' => Vendor::where('verification_status', 'rejected')->count(),
         ];
 
         return view('backEnd.vendor.index', compact('vendors', 'stats'));
