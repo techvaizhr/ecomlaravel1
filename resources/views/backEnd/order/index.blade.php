@@ -720,10 +720,46 @@ $(document).ready(function(){
         });
     });
 
+    // ── Bulk Actions Bar Dynamic Visibility ──
+    function updateBulkActionVisibility() {
+        var count = $('input.checkbox:checked').length;
+        var $wrapper = $('#bulkActionsWrapper');
+        var $countSpan = $('#selectedOrdersCount');
+        if ($countSpan.length) {
+            $countSpan.text(count);
+        }
+        if (count > 0) {
+            if ($wrapper.is(':hidden')) {
+                $wrapper.stop(true, true).slideDown(200);
+            }
+        } else {
+            if ($wrapper.is(':visible')) {
+                $wrapper.stop(true, true).slideUp(150);
+            }
+        }
+    }
+
     // checkall
-    $(".checkall").on('change',function(){
-      $(".checkbox").prop('checked',$(this).is(":checked"));
+    $(document).on('change', '.checkall', function(){
+        $(".checkbox").prop('checked', $(this).is(":checked"));
+        updateBulkActionVisibility();
     });
+
+    // individual checkbox
+    $(document).on('change', '.checkbox', function(){
+        if (!$(this).is(':checked')) {
+            $('.checkall').prop('checked', false);
+        } else {
+            var totalBoxes = $('.checkbox').length;
+            var checkedBoxes = $('.checkbox:checked').length;
+            if (totalBoxes > 0 && totalBoxes === checkedBoxes) {
+                $('.checkall').prop('checked', true);
+            }
+        }
+        updateBulkActionVisibility();
+    });
+
+    updateBulkActionVisibility();
 
     // ── অর্ডার কুইক ভিউ মডাল ──
     function oqvShowModal() {
