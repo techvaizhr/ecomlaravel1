@@ -61,6 +61,45 @@
       .subpanel-nested-menu li a.active svg {
         stroke: {{ $brandPrimary }} !important;
       }
+
+      /* 🔔 Modern Notification Dropdown Styles */
+      .noti-dropdown-custom {
+        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.18), 0 0 1px 1px rgba(0, 0, 0, 0.05) !important;
+        animation: notiFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      @keyframes notiFadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .noti-item-row {
+        transition: background-color 0.15s ease, padding-left 0.15s ease;
+        background-color: #ffffff;
+      }
+      .noti-item-row:hover {
+        background-color: #f8fafc;
+        padding-left: 18px !important;
+      }
+      .noti-item-row:last-child {
+        border-bottom: none !important;
+      }
+      .noti-scroll-custom::-webkit-scrollbar {
+        width: 5px;
+      }
+      .noti-scroll-custom::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      .noti-scroll-custom::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      .noti-pulse-badge {
+        animation: notiBadgePulse 2s infinite;
+      }
+      @keyframes notiBadgePulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.18); box-shadow: 0 0 10px rgba(239, 68, 68, 0.7); }
+        100% { transform: scale(1); }
+      }
     </style>
     <!-- Page Level CSS -->
     @yield('css')
@@ -885,46 +924,83 @@
             </li>
             @endif
 
+            {{-- 🔔 REDESIGNED MODERN NOTIFICATION DROPDOWN --}}
             <li class="dropdown notification-list topbar-dropdown">
-              <a class="nav-link dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+              <a class="nav-link dropdown-toggle waves-effect waves-light position-relative noti-bell-link" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" title="নতুন অর্ডার নোটিফিকেশন">
                 <i class="fe-bell noti-icon"></i>
-                <span class="badge bg-danger rounded-circle noti-icon-badge">{{$neworder}}</span>
+                @if($neworder > 0)
+                  <span class="badge bg-danger rounded-circle noti-icon-badge noti-pulse-badge">{{ $neworder > 99 ? '99+' : $neworder }}</span>
+                @endif
               </a>
-              <div class="dropdown-menu dropdown-menu-end dropdown-lg">
-                <!-- item-->
-                <div class="dropdown-item noti-title">
-                  <h5 class="m-0">
-                    <span class="float-end">
-                      <a href="{{route('admin.orders',['slug'=>'pending'])}}" class="text-dark">
-                        <small>View All</small>
-                      </a>
-                    </span>
-                    Orders
-                  </h5>
-                </div>
-
-                <div class="noti-scroll" data-simplebar>
-                  @foreach($pendingorder as $porder)
-                  <!-- item-->
-                  <a href="{{route('admin.orders',['slug'=>'pending'])}}" class="dropdown-item notify-item active">
-                    <div class="notify-icon">
-                      <img src="{{asset($porder->customer?$porder->customer->image:'')}}" class="img-fluid rounded-circle" alt="" />
+              <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0 rounded-4 overflow-hidden noti-dropdown-custom" style="width: 360px; max-width: calc(100vw - 24px); z-index: 1055;">
+                {{-- Header Card --}}
+                <div class="p-3 text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, {{ $brandPrimary }} 0%, #0f172a 100%);">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="avatar-xs rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center text-white" style="width: 34px; height: 34px;">
+                      <i class="fe-bell" style="font-size: 15px;"></i>
                     </div>
-                    <p class="notify-details">{{$porder->customer?$porder->customer->name:''}}</p>
-                    <p class="text-muted mb-0 user-msg">
-                      <small>Invoice : {{$porder->invoice_id}}</small>
-                    </p>
-                  </a>
-                  @endforeach
-
-                  <!-- item-->
+                    <div>
+                      <h6 class="mb-0 fw-bold text-white" style="font-size: 14px;">নতুন অর্ডার নোটিফিকেশন</h6>
+                      <small class="text-white-50" style="font-size: 11px;">{{ $neworder }} টি পেন্ডিং অর্ডার অপেক্ষমাণ</small>
+                    </div>
+                  </div>
+                  @if($neworder > 0)
+                    <span class="badge bg-danger rounded-pill px-2 py-1" style="font-size: 11px;">{{ $neworder }} টি নতুন</span>
+                  @else
+                    <span class="badge bg-success rounded-pill px-2 py-1" style="font-size: 11px;">সব প্রসেসড</span>
+                  @endif
                 </div>
 
-                <!-- All-->
-                <a href="{{route('admin.orders',['slug'=>'pending'])}}" class="dropdown-item text-center text-primary notify-item notify-all">
-                  View all
-                  <i class="fe-arrow-right"></i>
-                </a>
+                {{-- Notification List --}}
+                <div class="noti-scroll-custom" style="max-height: 340px; overflow-y: auto;">
+                  @forelse($pendingorder as $porder)
+                    <a href="{{ route('admin.order.invoice', ['invoice_id' => $porder->invoice_id]) }}" class="d-flex align-items-center gap-3 p-3 border-bottom text-decoration-none noti-item-row">
+                      <div class="flex-shrink-0">
+                        @if($porder->customer && !empty($porder->customer->image) && file_exists(public_path($porder->customer->image)))
+                          <img src="{{ asset($porder->customer->image) }}" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover;" alt="customer" />
+                        @else
+                          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px; background: rgba(79, 70, 229, 0.1); color: {{ $brandPrimary }}; border: 1px solid rgba(79, 70, 229, 0.2); font-size: 14px;">
+                            {{ mb_substr($porder->customer ? $porder->customer->name : 'অর্ডার', 0, 1) }}
+                          </div>
+                        @endif
+                      </div>
+                      <div class="flex-grow-1 overflow-hidden">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                          <span class="fw-bold text-dark text-truncate" style="max-width: 160px; font-size: 13px;">
+                            {{ $porder->customer ? $porder->customer->name : 'গেস্ট কাস্টমার' }}
+                          </span>
+                          <span class="fw-bold text-success" style="font-size: 12.5px;">
+                            ৳{{ number_format($porder->amount) }}
+                          </span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between text-muted" style="font-size: 11.5px;">
+                          <span class="font-monospace text-secondary">
+                            <i class="fe-file-text me-1"></i>#{{ $porder->invoice_id }}
+                          </span>
+                          <span>
+                            <i class="fe-clock me-1"></i>{{ $porder->created_at ? $porder->created_at->diffForHumans(null, true) : 'এখন' }}
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  @empty
+                    <div class="p-4 text-center">
+                      <div class="avatar-md rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: #f1f5f9; color: #94a3b8;">
+                        <i class="fe-bell-off" style="font-size: 22px;"></i>
+                      </div>
+                      <h6 class="fw-semibold text-dark mb-1" style="font-size: 13px;">কোনো পেন্ডিং অর্ডার নেই</h6>
+                      <p class="text-muted mb-0" style="font-size: 11.5px;">নতুন অর্ডার আসলে এখানে সঙ্গে সঙ্গে দেখতে পাবেন।</p>
+                    </div>
+                  @endforelse
+                </div>
+
+                {{-- Footer Action Bar --}}
+                <div class="p-2 bg-light border-top text-center">
+                  <a href="{{ route('admin.orders', ['slug' => 'pending']) }}" class="btn btn-sm btn-link text-primary fw-semibold text-decoration-none d-flex align-items-center justify-content-center gap-1 w-100 py-1">
+                    <span>সকল পেন্ডিং অর্ডার দেখুন</span>
+                    <i class="fe-arrow-right fs-12"></i>
+                  </a>
+                </div>
               </div>
             </li>
 
