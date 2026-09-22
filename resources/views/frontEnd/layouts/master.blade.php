@@ -2381,7 +2381,7 @@ section.slider-section {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
+    background: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
     color: #ffffff;
     padding: 12px 10px 10px;
     border-radius: 16px 0 0 16px;
@@ -2398,7 +2398,8 @@ section.slider-section {
 }
 .floating-cart-widget:hover .floating-cart-pill {
     box-shadow: -6px 8px 25px rgba(0, 0, 0, 0.28);
-    background: linear-gradient(135deg, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 0%, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 100%);
+    background: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
+    filter: brightness(0.92);
 }
 .floating-cart-icon-wrap {
     position: relative;
@@ -2509,7 +2510,7 @@ section.slider-section {
 
 /* Header */
 .sidebar-cart-header {
-    background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
+    background: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
     color: #ffffff;
     flex-shrink: 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -2742,7 +2743,7 @@ section.slider-section {
     width: 76px;
     height: 76px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(255, 102, 0, 0.1) 100%);
+    background: rgba(0, 0, 0, 0.04);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2778,18 +2779,19 @@ section.slider-section {
     align-items: center;
     gap: 6px;
     padding: 10px 24px;
-    background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
+    background: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
     color: #ffffff !important;
     border-radius: 25px;
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: all 0.25s ease;
 }
 .sidebar-cart-shop-now-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+    filter: brightness(0.92);
 }
 
 /* Footer (Compact & Tight) */
@@ -2828,19 +2830,20 @@ section.slider-section {
     gap: 8px;
     width: 100%;
     padding: 11px 16px;
-    background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
+    background: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
     color: #ffffff !important;
     text-decoration: none;
     font-size: 14.5px;
     font-weight: 700;
     border-radius: 10px;
-    box-shadow: 0 4px 14px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
     transition: all 0.25s ease;
     letter-spacing: 0.2px;
 }
 .sidebar-cart-btn-checkout:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    filter: brightness(0.92);
 }
 .sidebar-cart-btn-continue {
     background: transparent;
