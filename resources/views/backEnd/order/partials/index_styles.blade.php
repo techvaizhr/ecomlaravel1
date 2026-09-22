@@ -233,6 +233,33 @@
         background: #fef3c7;
         color: #b45309;
     }
+    .order-action-dropdown {
+        min-width: 160px;
+        padding: 4px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+    .order-action-dropdown .dropdown-item {
+        padding: 5px 12px;
+        font-size: 12px;
+        line-height: 1.25;
+        gap: 7px;
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+    }
+    .order-action-dropdown .dropdown-item i {
+        width: 15px;
+        font-size: 11px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .order-action-dropdown .dropdown-divider {
+        margin: 3px 0;
+    }
     .oi-scroll-hint { font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
     .oi-paginate .pagination { flex-wrap: wrap; justify-content: center; gap: 4px; margin-bottom: 0; }
     .oi-paginate .page-link { border-radius: 8px; min-width: 38px; text-align: center; }
