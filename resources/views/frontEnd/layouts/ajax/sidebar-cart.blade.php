@@ -6,7 +6,7 @@
     $secondaryColor = optional($generalsetting)->secodery_color ?? '#ff6600';
 @endphp
 
-{{-- 🛍️ Mini Cart Drawer Header --}}
+{{-- 🛍️ Mini Cart Drawer Header (Compact) --}}
 <div class="sidebar-cart-header">
     <div class="sidebar-cart-header-main">
         <div class="sidebar-cart-header-title">
@@ -14,23 +14,16 @@
                 <i class="fa-solid fa-bag-shopping"></i>
             </div>
             <div class="sidebar-cart-header-text">
-                <h3>আপনার শপিং ব্যাগ</h3>
-                <span class="sidebar-cart-item-count">মোট <strong>{{ $count }}</strong> টি পণ্য</span>
+                <h3>আপনার শপিং ব্যাগ ({{ $count }})</h3>
             </div>
         </div>
         <button type="button" class="sidebar-cart-close" onclick="closeSidebarCart()" aria-label="বন্ধ করুন" title="বন্ধ করুন">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>
-    @if($count > 0)
-    <div class="sidebar-cart-delivery-tip">
-        <i class="fa-solid fa-truck-fast"></i>
-        <span>সারাদেশে দ্রুত হোম ডেলিভারি ও ক্যাশ অন ডেলিভারি সুবিধা</span>
-    </div>
-    @endif
 </div>
 
-{{-- 🛒 Mini Cart Drawer Items Body --}}
+{{-- 🛒 Mini Cart Drawer Items Body (Maximized Height) --}}
 <div class="sidebar-cart-body">
     @if($count > 0)
         <div class="sidebar-cart-items-list">
@@ -44,9 +37,9 @@
                 <div class="sidebar-cart-item-info">
                     <div class="sidebar-cart-item-top">
                         <a href="{{ route('product', $value->options->slug ?? '#') }}" class="sidebar-cart-item-name" title="{{ $value->name }}">
-                            {{ Str::limit($value->name, 42) }}
+                            {{ Str::limit($value->name, 38) }}
                         </a>
-                        <button type="button" class="sidebar-cart-item-del cart_remove" data-id="{{ $value->rowId }}" title="পণ্যটি মুছে ফেলুন" aria-label="মুছে ফেলুন">
+                        <button type="button" class="sidebar-cart-item-del cart_remove" data-id="{{ $value->rowId }}" title="মুছে ফেলুন" aria-label="মুছে ফেলুন">
                             <i class="fa-regular fa-trash-can"></i>
                         </button>
                     </div>
@@ -54,10 +47,10 @@
                     @if(!empty($value->options->product_size) || !empty($value->options->product_color))
                     <div class="sidebar-cart-item-variants">
                         @if(!empty($value->options->product_size))
-                            <span class="sidebar-cart-variant-tag"><i class="fa-solid fa-ruler-combined"></i> {{ $value->options->product_size }}</span>
+                            <span class="sidebar-cart-variant-tag">{{ $value->options->product_size }}</span>
                         @endif
                         @if(!empty($value->options->product_color))
-                            <span class="sidebar-cart-variant-tag"><i class="fa-solid fa-palette"></i> {{ $value->options->product_color }}</span>
+                            <span class="sidebar-cart-variant-tag">{{ $value->options->product_color }}</span>
                         @endif
                     </div>
                     @endif
@@ -71,11 +64,11 @@
                         </div>
 
                         <div class="sidebar-cart-qty-pill">
-                            <button type="button" class="sidebar-qty-action cart_decrement" data-id="{{ $value->rowId }}" title="পরিমাণ কমান" aria-label="কমান">
+                            <button type="button" class="sidebar-qty-action cart_decrement" data-id="{{ $value->rowId }}" title="কমান" aria-label="কমান">
                                 <i class="fa-solid fa-minus"></i>
                             </button>
                             <span class="sidebar-qty-val">{{ $value->qty }}</span>
-                            <button type="button" class="sidebar-qty-action cart_increment" data-id="{{ $value->rowId }}" title="পরিমাণ বাড়ান" aria-label=" বাড়ান">
+                            <button type="button" class="sidebar-qty-action cart_increment" data-id="{{ $value->rowId }}" title="বাড়ান" aria-label="বাড়ান">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -91,8 +84,8 @@
                     <i class="fa-solid fa-cart-arrow-down"></i>
                 </div>
             </div>
-            <h4>আপনার কার্ট বর্তমানে খালি!</h4>
-            <p>আপনার পছন্দের পণ্যগুলো কার্টে যোগ করে সহজে অর্ডার করুন।</p>
+            <h4>আপনার কার্ট খালি!</h4>
+            <p>পছন্দের পণ্য কার্টে যোগ করে সহজে অর্ডার করুন।</p>
             <a href="{{ route('shop') }}" class="sidebar-cart-shop-now-btn" onclick="closeSidebarCart()">
                 <i class="fa-solid fa-bag-shopping"></i> শপিং শুরু করুন
             </a>
@@ -100,35 +93,22 @@
     @endif
 </div>
 
-{{-- 💳 Mini Cart Drawer Footer --}}
+{{-- 💳 Mini Cart Drawer Footer (Tight & Compact) --}}
 @if($count > 0)
 <div class="sidebar-cart-footer">
     <div class="sidebar-cart-summary">
-        <div class="sidebar-cart-subtotal-row">
-            <span class="sidebar-cart-subtotal-text">সাবটোটাল</span>
-            <span class="sidebar-cart-subtotal-price">৳ {{ number_format($subtotal, 0) }}</span>
-        </div>
-        <div class="sidebar-cart-tax-hint">ডেলিভারি চার্জ চেকআউটে হিসাব করা হবে</div>
+        <span class="sidebar-cart-subtotal-text">সাবটোটাল:</span>
+        <span class="sidebar-cart-subtotal-price">৳ {{ number_format($subtotal, 0) }}</span>
     </div>
 
     <div class="sidebar-cart-actions">
         <a href="{{ route('customer.checkout') }}" class="sidebar-cart-btn-checkout">
-            <span>অর্ডার করুন (চেকআউট)</span>
+            <span>অর্ডার সম্পন্ন করুন (চেকআউট)</span>
             <i class="fa-solid fa-arrow-right-long"></i>
         </a>
-        <div class="sidebar-cart-secondary-actions">
-            <a href="{{ route('cart.show') }}" class="sidebar-cart-btn-view">
-                <i class="fa-solid fa-cart-shopping"></i> কার্ট পেজ
-            </a>
-            <button type="button" class="sidebar-cart-btn-continue" onclick="closeSidebarCart()">
-                আরও কেনাকাটা <i class="fa-solid fa-plus"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="sidebar-cart-trust-row">
-        <span><i class="fa-solid fa-shield-check"></i> ১০০% নিরাপদ চেকআউট</span>
-        <span><i class="fa-solid fa-rotate-left"></i> সহজ রিটার্ন পলিসি</span>
+        <button type="button" class="sidebar-cart-btn-continue" onclick="closeSidebarCart()">
+            আরও কেনাকাটা করুন <i class="fa-solid fa-plus"></i>
+        </button>
     </div>
 </div>
 @endif

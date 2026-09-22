@@ -2182,52 +2182,47 @@ section.slider-section {
     background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
     color: #ffffff;
     flex-shrink: 0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 .sidebar-cart-header-main {
-    padding: 16px 20px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
 }
 .sidebar-cart-header-title {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 .sidebar-cart-header-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.18);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 15px;
     color: #ffffff;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 .sidebar-cart-header-text h3 {
     margin: 0;
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 700;
     color: #ffffff;
     line-height: 1.2;
 }
-.sidebar-cart-item-count {
-    font-size: 12px;
-    opacity: 0.9;
-    color: #ffffff;
-}
 .sidebar-cart-close {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.15);
     border: none;
     color: #ffffff;
-    font-size: 18px;
+    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2238,53 +2233,40 @@ section.slider-section {
     background: rgba(255, 255, 255, 0.3);
     transform: rotate(90deg);
 }
-.sidebar-cart-delivery-tip {
-    background: rgba(0, 0, 0, 0.15);
-    padding: 8px 20px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #ffffff;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-.sidebar-cart-delivery-tip i {
-    color: #ffde59;
-}
 
 /* Body */
 .sidebar-cart-body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 16px;
+    padding: 10px 12px;
     overscroll-behavior: contain;
 }
 .sidebar-cart-items-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 .sidebar-cart-item-card {
     display: flex;
-    gap: 12px;
-    padding: 12px;
+    gap: 10px;
+    padding: 8px 10px;
     background: #ffffff;
-    border-radius: 14px;
+    border-radius: 10px;
     border: 1px solid #e8ecf1;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
     transition: all 0.2s ease;
     position: relative;
 }
 .sidebar-cart-item-card:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
     border-color: #d6dce5;
 }
 .sidebar-cart-item-img {
-    width: 72px;
-    height: 78px;
+    width: 56px;
+    height: 62px;
     flex-shrink: 0;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
     background: #f1f3f5;
     border: 1px solid #eaedf0;
@@ -2309,14 +2291,14 @@ section.slider-section {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
 }
 .sidebar-cart-item-name {
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 600;
     color: #1e293b;
     text-decoration: none;
-    line-height: 1.35;
+    line-height: 1.25;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -2331,9 +2313,9 @@ section.slider-section {
     border: none;
     color: #94a3b8;
     cursor: pointer;
-    padding: 4px 6px;
-    font-size: 14px;
-    border-radius: 6px;
+    padding: 2px 4px;
+    font-size: 13px;
+    border-radius: 4px;
     transition: all 0.2s ease;
     flex-shrink: 0;
     line-height: 1;
@@ -2345,44 +2327,37 @@ section.slider-section {
 .sidebar-cart-item-variants {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin: 4px 0;
+    gap: 4px;
+    margin: 2px 0;
 }
 .sidebar-cart-variant-tag {
-    font-size: 10.5px;
+    font-size: 10px;
     background: #f1f5f9;
     color: #475569;
-    padding: 2px 7px;
-    border-radius: 6px;
+    padding: 1px 6px;
+    border-radius: 4px;
     font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-.sidebar-cart-variant-tag i {
-    font-size: 9px;
-    color: #64748b;
 }
 .sidebar-cart-item-bottom {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 6px;
-    padding-top: 6px;
+    margin-top: 4px;
+    padding-top: 4px;
     border-top: 1px dashed #f1f5f9;
 }
 .sidebar-cart-item-pricing {
     display: flex;
     align-items: baseline;
-    gap: 6px;
+    gap: 5px;
 }
 .sidebar-cart-current-price {
-    font-size: 14.5px;
+    font-size: 13.5px;
     font-weight: 700;
     color: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
 }
 .sidebar-cart-old-price {
-    font-size: 11.5px;
+    font-size: 11px;
     color: #94a3b8;
     text-decoration: line-through;
 }
@@ -2393,19 +2368,19 @@ section.slider-section {
     align-items: center;
     background: #f8fafc;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 2px;
-    gap: 2px;
+    border-radius: 6px;
+    padding: 1px;
+    gap: 1px;
 }
 .sidebar-qty-action {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
     border: none;
     background: #ffffff;
     color: #1e293b;
-    font-size: 11px;
+    font-size: 10px;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2417,9 +2392,9 @@ section.slider-section {
     color: #ffffff;
 }
 .sidebar-qty-val {
-    min-width: 26px;
+    min-width: 22px;
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #0f172a;
 }
@@ -2427,165 +2402,130 @@ section.slider-section {
 /* Empty State */
 .sidebar-cart-empty-state {
     text-align: center;
-    padding: 60px 20px;
+    padding: 40px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 .sidebar-cart-empty-icon-box {
-    width: 90px;
-    height: 90px;
+    width: 76px;
+    height: 76px;
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(255, 102, 0, 0.1) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 .sidebar-cart-empty-icon-inner {
-    width: 64px;
-    height: 64px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 24px;
     color: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
 }
 .sidebar-cart-empty-state h4 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: #1e293b;
-    margin: 0 0 6px;
+    margin: 0 0 4px;
 }
 .sidebar-cart-empty-state p {
-    font-size: 13px;
+    font-size: 12px;
     color: #64748b;
-    margin: 0 0 20px;
-    max-width: 260px;
-    line-height: 1.5;
+    margin: 0 0 16px;
+    max-width: 240px;
+    line-height: 1.4;
 }
 .sidebar-cart-shop-now-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
+    gap: 6px;
+    padding: 10px 24px;
     background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
     color: #ffffff !important;
-    border-radius: 30px;
-    font-size: 14px;
+    border-radius: 25px;
+    font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    box-shadow: 0 4px 14px rgba(0, 123, 255, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
     transition: all 0.25s ease;
 }
 .sidebar-cart-shop-now-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.45);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
 }
 
-/* Footer */
+/* Footer (Compact & Tight) */
 .sidebar-cart-footer {
     background: #ffffff;
     border-top: 1px solid #e2e8f0;
-    padding: 18px 20px;
+    padding: 12px 14px;
     flex-shrink: 0;
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
 }
 .sidebar-cart-summary {
-    margin-bottom: 14px;
-}
-.sidebar-cart-subtotal-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 8px;
 }
 .sidebar-cart-subtotal-text {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #475569;
 }
 .sidebar-cart-subtotal-price {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 800;
     color: #0f172a;
-}
-.sidebar-cart-tax-hint {
-    font-size: 11.5px;
-    color: #94a3b8;
-    margin-top: 2px;
 }
 .sidebar-cart-actions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 .sidebar-cart-btn-checkout {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
-    padding: 14px 20px;
+    padding: 11px 16px;
     background: linear-gradient(135deg, {{ optional($generalsetting)->primary_color ?? '#007bff' }} 0%, {{ optional($generalsetting)->secodery_color ?? '#0056b3' }} 100%);
     color: #ffffff !important;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 14.5px;
     font-weight: 700;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.35);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 123, 255, 0.3);
     transition: all 0.25s ease;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
 }
 .sidebar-cart-btn-checkout:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(0, 123, 255, 0.45);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.4);
 }
-.sidebar-cart-secondary-actions {
-    display: flex;
-    gap: 8px;
-}
-.sidebar-cart-btn-view, .sidebar-cart-btn-continue {
-    flex: 1;
-    padding: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 8px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #334155 !important;
-    cursor: pointer;
-}
-.sidebar-cart-btn-view:hover, .sidebar-cart-btn-continue:hover {
-    background: #e2e8f0;
-    color: #0f172a !important;
-}
-.sidebar-cart-trust-row {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px dashed #f1f5f9;
-    font-size: 11px;
+.sidebar-cart-btn-continue {
+    background: transparent;
+    border: none;
     color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px;
+    transition: color 0.2s;
+    text-decoration: none;
 }
-.sidebar-cart-trust-row span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.sidebar-cart-trust-row i {
-    color: #10b981;
+.sidebar-cart-btn-continue:hover {
+    color: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
 }
 
 /* Fly to cart animation */
