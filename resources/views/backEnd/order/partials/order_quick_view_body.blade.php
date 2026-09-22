@@ -288,7 +288,7 @@
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 @if($item->image && $item->image->image)
-                                <img src="{{ asset($item->image->image) }}" alt="" class="oqv-product-thumb">
+                                <img src="{{ asset($item->image->image) }}" alt="{{ $item->product_name }}" class="oqv-product-thumb zoomable-product-img" data-full-img="{{ asset($item->image->image) }}" data-title="{{ $item->product_name }}" style="cursor: zoom-in;" title="বড় করে দেখতে ক্লিক করুন">
                                 @endif
                                 <div>
                                     <strong>{{ $item->product_name }}</strong>

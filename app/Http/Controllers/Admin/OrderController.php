@@ -636,6 +636,8 @@ PROMPT;
                     'customer:id,name,phone,email',
                     'user:id,name,email',
                     'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price',
+                    'orderdetails.image:id,product_id,image',
+                    'orderdetails.product:id,name',
                     'orderdetails.vendor:id,shop_name,owner_name'
                 ]);
 
@@ -662,6 +664,8 @@ PROMPT;
                     'customer:id,name,phone,email',
                     'user:id,name,email',
                     'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price',
+                    'orderdetails.image:id,product_id,image',
+                    'orderdetails.product:id,name',
                     'orderdetails.vendor:id,shop_name,owner_name'
                 ]);
 

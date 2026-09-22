@@ -1686,6 +1686,7 @@
             window.adminApplyKillSwitches = applyAdminKillSwitches;
         })();
     </script>
+    @include('backEnd.layouts.partials.image_zoom_modal')
     @auth('admin')
         @include('backEnd.layouts.partials.admin_order_live_notify')
         @include('backEnd.layouts.partials.gemini_admin_chatbot')

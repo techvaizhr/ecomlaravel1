@@ -331,7 +331,13 @@
                                 <tr>
                                     <td><span class="op-sl-badge">{{ $key + 1 }}</span></td>
                                     <td>
-                                        <img class="op-product-img" src="{{ asset($product->image->image ?? 'public/no-image.png') }}" alt="">
+                                        <img class="op-product-img zoomable-product-img" 
+                                             src="{{ asset($product->image->image ?? 'public/uploads/default/no-image.png') }}" 
+                                             data-full-img="{{ asset($product->image->image ?? 'public/uploads/default/no-image.png') }}" 
+                                             data-title="{{ $product->product_name }}" 
+                                             alt="{{ $product->product_name }}" 
+                                             style="cursor: zoom-in;" 
+                                             title="বড় করে দেখতে ক্লিক করুন">
                                     </td>
                                     <td><strong>{{ $product->product_name }}</strong></td>
                                     <td>{{ ($product->color && $product->color->name) ? $product->color->name : ($product->product_color ?: 'N/A') }}</td>

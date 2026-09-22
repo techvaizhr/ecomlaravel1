@@ -100,7 +100,89 @@
                                              @endif
                                         </td>
 
-                                        {{-- 5. Amount --}}
+                                        {{-- 5. Product (Image + 20 char Title + Collapse for multiples + Image Click Zoom) --}}
+                                        <td class="align-middle" style="min-width: 170px;">
+                                            @php
+                                                $details = $value->orderdetails ?? collect([]);
+                                                $firstItem = $details->first();
+                                                $totalItems = $details->count();
+                                                $fallbackImg = asset('public/uploads/default/no-image.png');
+                                            @endphp
+
+                                            @if($firstItem)
+                                                @php
+                                                    $firstImg = ($firstItem->image && $firstItem->image->image) 
+                                                        ? asset($firstItem->image->image) 
+                                                        : (($firstItem->product && $firstItem->product->image && $firstItem->product->image->image) 
+                                                            ? asset($firstItem->product->image->image) 
+                                                            : $fallbackImg);
+                                                    $firstName = $firstItem->product_name ?? optional($firstItem->product)->name ?? 'পণ্য';
+                                                @endphp
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <img src="{{ $firstImg }}" 
+                                                         alt="{{ $firstName }}" 
+                                                         class="rounded border zoomable-product-img flex-shrink-0" 
+                                                         data-full-img="{{ $firstImg }}"
+                                                         data-title="{{ $firstName }}"
+                                                         onerror="this.src='{{ $fallbackImg }}'"
+                                                         style="width: 34px; height: 34px; object-fit: cover; cursor: zoom-in;" 
+                                                         title="বড় করে দেখতে ক্লিক করুন">
+                                                    <div class="text-truncate" style="max-width: 140px;" title="{{ $firstName }}">
+                                                        <div class="fw-semibold text-dark" style="font-size: 12px; line-height: 1.25;">
+                                                            {{ Str::limit($firstName, 20) }}
+                                                        </div>
+                                                        <small class="text-muted" style="font-size: 11px;">পরিমাণ: <span class="fw-bold text-dark">×{{ $firstItem->qty }}</span></small>
+                                                    </div>
+                                                </div>
+
+                                                @if($totalItems > 1)
+                                                    <div class="mt-1">
+                                                        <a class="btn btn-xs btn-light border py-0 px-1 text-primary fw-semibold d-inline-flex align-items-center gap-1" 
+                                                           data-bs-toggle="collapse" 
+                                                           href="#order-products-{{ $value->id }}" 
+                                                           role="button" 
+                                                           aria-expanded="false" 
+                                                           style="font-size: 10px; border-radius: 4px;">
+                                                            <i class="fas fa-layer-group" style="font-size: 9px;"></i> +{{ $totalItems - 1 }} আরও
+                                                        </a>
+                                                    </div>
+                                                    <div class="collapse mt-2" id="order-products-{{ $value->id }}">
+                                                        <div class="d-flex flex-column gap-2 pt-1 border-top">
+                                                            @foreach($details->slice(1) as $extraItem)
+                                                                @php
+                                                                    $extraImg = ($extraItem->image && $extraItem->image->image) 
+                                                                        ? asset($extraItem->image->image) 
+                                                                        : (($extraItem->product && $extraItem->product->image && $extraItem->product->image->image) 
+                                                                            ? asset($extraItem->product->image->image) 
+                                                                            : $fallbackImg);
+                                                                    $extraName = $extraItem->product_name ?? optional($extraItem->product)->name ?? 'পণ্য';
+                                                                @endphp
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <img src="{{ $extraImg }}" 
+                                                                         alt="{{ $extraName }}" 
+                                                                         class="rounded border zoomable-product-img flex-shrink-0" 
+                                                                         data-full-img="{{ $extraImg }}"
+                                                                         data-title="{{ $extraName }}"
+                                                                         onerror="this.src='{{ $fallbackImg }}'"
+                                                                         style="width: 30px; height: 30px; object-fit: cover; cursor: zoom-in;" 
+                                                                         title="বড় করে দেখতে ক্লিক করুন">
+                                                                    <div class="text-truncate" style="max-width: 135px;" title="{{ $extraName }}">
+                                                                        <div class="fw-semibold text-dark" style="font-size: 11.5px; line-height: 1.25;">
+                                                                            {{ Str::limit($extraName, 20) }}
+                                                                        </div>
+                                                                        <small class="text-muted" style="font-size: 10.5px;">পরিমাণ: <span class="fw-bold text-dark">×{{ $extraItem->qty }}</span></small>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <span class="text-muted small">—</span>
+                                            @endif
+                                        </td>
+
+                                        {{-- 6. Amount --}}
                                         <td class="align-middle text-end text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">
                                             @php
                                                 $payment = \App\Models\Payment::where('order_id', $value->id)->first();

@@ -61,6 +61,7 @@
                             <th style="width: 110px;">ইনভয়েস</th>
                             <th style="width: 100px;">তারিখ</th>
                             <th>গ্রাহক</th>
+                            <th style="min-width: 170px;">পণ্য</th>
                             <th class="text-end text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">পরিমাণ</th>
                             <th class="text-center text-nowrap" style="width: 1%; padding-left: 8px; padding-right: 8px;">স্ট্যাটাস</th>
                             <th class="text-center text-nowrap" style="width: 1%; padding-left: 6px; padding-right: 6px;">ফ্রড চেক</th>
