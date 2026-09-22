@@ -1,321 +1,509 @@
 @extends('backEnd.layouts.master')
-@section('title','Wholesale Products')
-@section('content')
+@section('title', 'Wholesale Products')
+
+@section('css')
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 
 <style>
-    /* কাস্টম আধুনিক স্টাইল */
-    .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.75rem; }
-    .table thead { background-color: #f8f9fa; }
-    .table thead th { border-top: none; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; color: #6c757d; font-weight: 700; padding: 12px 15px; }
-    .table tbody td { vertical-align: middle; padding: 12px 15px; border-color: #f1f3f5; }
+    .ws-manage-page {
+        padding-bottom: 2.5rem;
+    }
     
-    /* ইমেজ স্টাইল */
-    .product-img { border-radius: 8px; object-fit: cover; border: 1px solid #ebedf2; transition: transform 0.2s ease; }
-    .product-img:hover { transform: scale(1.1); }
-
-    /* বাটন ও ব্যাজ স্টাইল */
-    .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; transition: 0.3s; border: none; }
-    .btn-edit { background: #e3f2fd; color: #2196f3; }
-    .btn-edit:hover { background: #2196f3; color: #fff; }
-    .btn-delete { background: #ffebee; color: #f44336; }
-    .btn-delete:hover { background: #f44336; color: #fff; }
-    .btn-status-toggle { background: #f1f3f5; color: #495057; }
-    .btn-status-toggle:hover { background: #dee2e6; }
-    .btn-status-active { background: #e8f5e9; color: #2e7d32; }
-    .btn-status-active:hover { background: #2e7d32; color: #fff; }
-
-    /* সফট ব্যাজ কালার */
-    .badge-soft-primary { background-color: #e1f5fe; color: #039be5; }
-    .badge-soft-success { background-color: #e8f5e9; color: #2e7d32; }
-    .badge-soft-warning { background-color: #fff3e0; color: #ef6c00; }
-    .badge-soft-danger { background-color: #ffebee; color: #c62828; }
-    .badge-soft-info { background-color: #e0f7fa; color: #00838f; }
-    .badge-soft-secondary { background-color: #f1f3f5; color: #495057; }
-
-    .action2-btn { list-style: none; padding: 0; margin: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+    /* Header Card */
+    .ws-header-card {
+        background: linear-gradient(135deg, #059669 0%, #10b981 50%, #0d9488 100%);
+        border-radius: 16px;
+        padding: 22px 26px;
+        color: #fff;
+        margin-bottom: 22px;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+    }
     
-    /* নাম এবং টেক্সট স্টাইল */
-    .product-title { font-size: 14px; font-weight: 600; color: #343a40; margin: 0; }
-    .text-small { font-size: 11px; }
+    /* Stat Cards */
+    .ws-stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .ws-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    .ws-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .ws-stat-icon.emerald { background: #ecfdf5; color: #10b981; }
+    .ws-stat-icon.teal { background: #ccfbf1; color: #0d9488; }
+    .ws-stat-icon.blue { background: #eff6ff; color: #2563eb; }
+
+    /* Filter Card */
+    .filter-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+        margin-bottom: 20px;
+        padding: 18px 20px;
+    }
+
+    /* Main Table Card */
+    .ws-table-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+    }
+    .ws-toolbar {
+        padding: 14px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .ws-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 700;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1.5px solid #e2e8f0;
+        padding: 12px 14px;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    .ws-table tbody td {
+        padding: 12px 14px;
+        vertical-align: middle;
+        color: #1e293b;
+        font-size: 13.5px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .ws-table tbody tr:hover td {
+        background: #f0fdf4;
+    }
+
+    /* Product Thumbnail */
+    .product-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        background: #f8fafc;
+    }
+
+    /* Tier Price Badges */
+    .tier-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #ecfdf5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+        border-radius: 6px;
+        margin: 1px;
+    }
+
+    /* 3-Dot Dropdown Menu */
+    .btn-3dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .btn-3dot:hover, .btn-3dot[aria-expanded="true"] {
+        background: #059669;
+        border-color: #059669;
+        color: #fff;
+        transform: scale(1.05);
+    }
+    .dropdown-menu-prod {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+        padding: 6px;
+        min-width: 175px;
+    }
+    .dropdown-menu-prod .dropdown-item {
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.15s;
+    }
+    .dropdown-menu-prod .dropdown-item:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+    .dropdown-menu-prod .dropdown-item.text-danger:hover {
+        background: #fef2f2;
+        color: #dc2626 !important;
+    }
 </style>
+@endsection
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Wholesale Products</h4>
-                <div class="page-title-right">
-                    <a href="{{route('products.create')}}" class="btn btn-danger rounded-pill shadow-sm">
-                        <i class="fe-plus me-1"></i> Add New Product
-                    </a>
+@section('content')
+<div class="container-fluid pt-3 ws-manage-page">
+    
+    {{-- Header Banner --}}
+    <div class="ws-header-card d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h3 class="mb-1 fw-bold text-white"><i class="fe-layers me-2"></i> Wholesale Products Hub</h3>
+            <p class="mb-0 text-white-50" style="font-size:14px;">পাইকারি মূল্যের টায়ার এবং বাল্ক অর্ডার বিক্রয়যোগ্য পণ্যসমূহ পরিচালনা করুন।</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('products.create') }}" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-success shadow-sm">
+                <i class="fe-plus-circle me-1"></i> Add Wholesale Product
+            </a>
+        </div>
+    </div>
+
+    {{-- Stat Cards --}}
+    @php
+        $totalWholesale = $data->total();
+    @endphp
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="ws-stat-card">
+                <div class="ws-stat-icon emerald"><i class="fe-layers"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">Total Wholesale Items</div>
+                    <h4 class="mb-0 fw-bold">{{ $totalWholesale }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="ws-stat-card">
+                <div class="ws-stat-icon teal"><i class="fe-check-circle"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">Active Products</div>
+                    <h4 class="mb-0 fw-bold text-success">{{ $data->where('status', 1)->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="ws-stat-card">
+                <div class="ws-stat-icon blue"><i class="fe-tag"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">Categories Represented</div>
+                    <h4 class="mb-0 fw-bold text-primary">{{ $data->pluck('category_id')->filter()->unique()->count() }}</h4>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    
-                    <div class="row mb-3 align-items-center">
-                        <div class="col-lg-8 col-md-7">
-                            <ul class="action2-btn">
-                                <li>
-                                    <button data-url="{{ route('products.update_deals') }}" data-status="1" class="btn btn-sm btn-outline-success rounded-pill hotdeal_update">
-                                        <i class="fe-thumbs-up me-1"></i> Set Deal
-                                    </button>
-                                </li>
-                                <li>
-                                    <button data-url="{{ route('products.update_deals') }}" data-status="0" class="btn btn-sm btn-outline-danger rounded-pill hotdeal_update">
-                                        <i class="fe-thumbs-down me-1"></i> Remove Deal
-                                    </button>
-                                </li>
-                                <div class="vr mx-1 d-none d-lg-block"></div>
-                                <li>
-                                    <button data-url="{{ route('products.update_status') }}" data-status="1" class="btn btn-sm btn-primary rounded-pill update_status">
-                                        <i class="fe-check me-1"></i> Active Selected
-                                    </button>
-                                </li>
-                                <li>
-                                    <button data-url="{{ route('products.update_status') }}" data-status="0" class="btn btn-sm btn-light border rounded-pill update_status">
-                                        <i class="fe-x me-1"></i> Inactive Selected
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="col-lg-4 col-md-5 mt-2 mt-md-0">
-                            <form method="GET" action="{{ route('admin.products.wholesale') }}">
-                                <div class="row g-2">
-                                    <div class="col-12">
-                                        <div class="input-group">
-                                            <input type="text" name="keyword" class="form-control form-control-sm border-end-0" placeholder="Search by name..." value="{{ request('keyword') }}">
-                                            <button class="btn btn-sm btn-info border-start-0 px-3" type="submit">
-                                                <i class="fe-search"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    @if($categories && $categories->count() > 0)
-                                    <div class="col-12">
-                                        <select name="category_id" class="form-control form-control-sm" onchange="this.form.submit()">
-                                            <option value="">All Categories</option>
-                                            @foreach($categories as $category)
-                                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                                                    {{ $category->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    @endif
-                                    <div class="col-12">
-                                        <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
-                                            <option value="">All Status</option>
-                                            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
-                                            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+    {{-- Filter Bar --}}
+    <div class="filter-card">
+        <form method="GET" action="{{ route('admin.products.wholesale') }}" id="filterForm">
+            <div class="row g-2 align-items-end">
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Search Product / Barcode</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light"><i class="fe-search"></i></span>
+                        <input type="text" name="keyword" class="form-control" placeholder="Search by name, barcode..." value="{{ request('keyword') }}">
                     </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 40px;">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="checkAll">
-                                        </div>
-                                    </th>
-                                    <th>Image</th>
-                                    <th>Product Name</th>
-                                    <th>Category</th>
-                                    <th>Vendor</th>
-                                    <th>Wholesale Tiers</th>
-                                    <th>Price</th>
-                                    <th>Stock</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($data as $product)
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input product-checkbox" type="checkbox" value="{{ $product->id }}" name="product_ids[]">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <img src="{{ asset($product->image ? $product->image->image : 'public/uploads/default/no-image.png') }}" 
-                                             alt="{{ $product->name }}" 
-                                             class="product-img" 
-                                             style="width: 50px; height: 50px;">
-                                    </td>
-                                    <td>
-                                        <p class="product-title mb-1">{{ Str::limit($product->name, 40) }}</p>
-                                        <small class="text-muted text-small">SKU: {{ $product->sku ?? 'N/A' }}</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-soft-info">{{ $product->category->name ?? 'N/A' }}</span>
-                                    </td>
-                                    <td>
-                                        @if($product->vendor)
-                                            <span class="badge badge-soft-primary">{{ $product->vendor->shop_name ?? 'Vendor #' . $product->vendor_id }}</span>
-                                        @else
-                                            <span class="badge badge-soft-secondary">Inhouse</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($product->wholesalePrices && $product->wholesalePrices->count() > 0)
-                                            <span class="badge badge-soft-success">{{ $product->wholesalePrices->count() }} Tier(s)</span>
-                                        @else
-                                            <span class="badge badge-soft-warning">No Tiers</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <strong class="text-primary">৳{{ number_format($product->new_price, 2) }}</strong>
-                                        @if($product->old_price && $product->old_price > $product->new_price)
-                                            <br><small class="text-muted text-decoration-line-through">৳{{ number_format($product->old_price, 2) }}</small>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge {{ $product->stock > 0 ? 'badge-soft-success' : 'badge-soft-danger' }}">
-                                            {{ $product->stock ?? 0 }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge {{ $product->status == 1 ? 'badge-soft-success' : 'badge-soft-danger' }}">
-                                            {{ $product->status == 1 ? 'Active' : 'Inactive' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex gap-1">
-                                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-action btn-edit" title="View">
-                                                <i class="fe-eye"></i>
-                                            </a>
-                                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-action btn-edit" title="Edit">
-                                                <i class="fe-edit"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="10" class="text-center py-4">
-                                        <div class="text-muted">
-                                            <i class="fe-package" style="font-size: 48px; opacity: 0.3;"></i>
-                                            <p class="mt-2 mb-0">No wholesale products found</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if($data->hasPages())
-                    <div class="d-flex justify-content-center mt-3">
-                        {{ $data->links() }}
-                    </div>
-                    @endif
                 </div>
+
+                @if(isset($categories) && $categories->count() > 0)
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Category</label>
+                    <select name="category_id" class="form-select form-select-sm select2">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Status</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">All Status</option>
+                        <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                </div>
+
+                {{-- Global Smart Date Filter Integration --}}
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Date Created</label>
+                    @include('backEnd.layouts.partials.smart_date_filter')
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Per Page</label>
+                    <select name="per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page', 25) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-success flex-fill rounded-3" style="background:#059669;border-color:#059669;">
+                        <i class="fe-filter me-1"></i> Filter
+                    </button>
+                    <a href="{{ route('admin.products.wholesale') }}" class="btn btn-sm btn-outline-secondary rounded-3" title="Reset">
+                        <i class="fe-rotate-ccw"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- Main Table Card --}}
+    <div class="ws-table-card">
+        {{-- Bulk Actions Toolbar --}}
+        <div class="ws-toolbar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="small fw-bold text-muted me-1">Bulk Actions:</span>
+                <button type="button" data-url="{{ route('products.update_status') }}" data-status="1" class="btn btn-xs btn-outline-success rounded-pill px-2.5 update_status">
+                    <i class="fe-check me-1"></i> Active
+                </button>
+                <button type="button" data-url="{{ route('products.update_status') }}" data-status="0" class="btn btn-xs btn-outline-danger rounded-pill px-2.5 update_status">
+                    <i class="fe-x me-1"></i> Inactive
+                </button>
+                <button type="button" data-url="{{ route('products.update_deals') }}" data-status="1" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 hotdeal_update">
+                    <i class="fe-tag me-1"></i> Set Hot Deal
+                </button>
+                <button type="button" data-url="{{ route('products.update_deals') }}" data-status="0" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 hotdeal_update">
+                    <i class="fe-x-circle me-1"></i> Remove Deal
+                </button>
+            </div>
+            
+            <div class="small text-muted fw-semibold">
+                Showing {{ $data->firstItem() ?? 0 }} - {{ $data->lastItem() ?? 0 }} of {{ $data->total() }} Wholesale Products
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table ws-table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 38px;">
+                            <div class="form-check mb-0">
+                                <input type="checkbox" class="form-check-input checkall" id="parentCheck">
+                            </div>
+                        </th>
+                        <th style="width: 50px;">SL</th>
+                        <th style="width: 65px;">Image</th>
+                        <th>Product Details</th>
+                        <th>Category</th>
+                        <th>Wholesale Tiers</th>
+                        <th>Base Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 80px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($data as $key => $product)
+                    <tr>
+                        <td>
+                            <div class="form-check mb-0">
+                                <input type="checkbox" class="form-check-input checkbox" value="{{ $product->id }}">
+                            </div>
+                        </td>
+                        <td class="fw-bold text-muted">{{ $data->firstItem() + $key }}</td>
+                        <td>
+                            <img src="{{ asset($product->image ? $product->image->image : 'public/uploads/default/no-image.png') }}" class="product-img" alt="">
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark" style="max-width:250px;">
+                                <a href="{{ route('products.edit', $product->id) }}" class="text-dark text-decoration-none">
+                                    {{ Str::limit($product->name, 45) }}
+                                </a>
+                            </div>
+                            <small class="text-muted" style="font-family:monospace;font-size:11px;">
+                                Vendor: {{ $product->vendor ? $product->vendor->shop_name : 'Inhouse' }}
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge bg-soft-secondary text-secondary rounded-pill px-2.5 py-1">
+                                {{ $product->category ? $product->category->name : 'Uncategorized' }}
+                            </span>
+                        </td>
+                        <td>
+                            @if($product->wholesalePrices && $product->wholesalePrices->count() > 0)
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach($product->wholesalePrices->take(2) as $tier)
+                                        <span class="tier-badge" title="Min Qty: {{ $tier->min_quantity }}">
+                                            {{ $tier->min_quantity }}+ pcs: ৳{{ number_format($tier->wholesale_price, 2) }}
+                                        </span>
+                                    @endforeach
+                                    @if($product->wholesalePrices->count() > 2)
+                                        <span class="badge bg-light text-muted border" style="font-size:10px;">+{{ $product->wholesalePrices->count() - 2 }} more</span>
+                                    @endif
+                                </div>
+                            @else
+                                <span class="text-muted small">No Tiers Configured</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">৳{{ number_format($product->new_price, 2) }}</div>
+                            @if($product->old_price)
+                                <small class="text-muted text-decoration-line-through">৳{{ number_format($product->old_price, 2) }}</small>
+                            @endif
+                        </td>
+                        <td>
+                            @if($product->stock <= 0)
+                                <span class="badge bg-soft-danger text-danger rounded-pill px-2.5 py-1 fw-bold">Out of Stock</span>
+                            @else
+                                <span class="badge bg-soft-success text-success rounded-pill px-2.5 py-1 fw-bold">{{ $product->stock }} in stock</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($product->status == 1)
+                                <span class="badge bg-soft-success text-success px-2.5 py-1 rounded-pill fw-bold" style="font-size:11px;">Active</span>
+                            @else
+                                <span class="badge bg-soft-danger text-danger px-2.5 py-1 rounded-pill fw-bold" style="font-size:11px;">Inactive</span>
+                            @endif
+                        </td>
+
+                        {{-- 3-Dot Action Dropdown --}}
+                        <td class="text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-3dot" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">
+                                    <i class="fe-more-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-prod">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('products.edit', $product->id) }}">
+                                            <i class="fe-edit-2 text-primary"></i> Edit Product & Tiers
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        @if($product->status == 1)
+                                            <form method="post" action="{{ route('products.inactive') }}" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" value="{{ $product->id }}" name="hidden_id">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fe-eye-off text-warning"></i> Deactivate
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form method="post" action="{{ route('products.active') }}" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" value="{{ $product->id }}" name="hidden_id">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fe-check-circle text-success"></i> Activate
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form method="post" action="{{ route('products.destroy') }}" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" value="{{ $product->id }}" name="hidden_id">
+                                            <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                <i class="fe-trash-2"></i> Delete Product
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            <i class="fe-layers d-block mb-2 text-success" style="font-size:2rem;opacity:.5;"></i>
+                            কোনো হোলসেল পণ্য পাওয়া যায়নি। ফিল্টার পরিবর্তন করুন বা নতুন পণ্য যোগ করুন।
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Pagination Foot --}}
+        <div class="p-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span class="text-muted small">
+                Showing {{ $data->firstItem() ?? 0 }} to {{ $data->lastItem() ?? 0 }} of {{ $data->total() }} entries
+            </span>
+            <div class="mb-0">
+                {{ $data->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </div>
 </div>
+@endsection
 
+@section('script')
+<script src="{{asset('public/backEnd')}}/assets/libs/select2/js/select2.min.js"></script>
 <script>
-    // Check All functionality
-    document.getElementById('checkAll')?.addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.product-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
-    });
+    $(document).ready(function() {
+        $('.select2').select2({ width: '100%' });
 
-    // Update Status functionality
-    document.querySelectorAll('.update_status').forEach(button => {
-        button.addEventListener('click', function() {
-            const selectedIds = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => cb.value);
-            if (selectedIds.length === 0) {
-                alert('Please select at least one product');
+        $(".checkall").on('change', function() {
+            $(".checkbox").prop('checked', $(this).is(":checked"));
+        });
+
+        $(document).on('click', '.update_status, .hotdeal_update', function() {
+            var url = $(this).attr('data-url');
+            var status = $(this).attr('data-status');
+            var product_ids = [];
+            $(".checkbox:checked").each(function() {
+                product_ids.push($(this).val());
+            });
+
+            if (product_ids.length === 0) {
+                toastr.warning("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন!");
                 return;
             }
 
-            const url = this.getAttribute('data-url');
-            const status = this.getAttribute('data-status');
-
-            if (confirm(`Are you sure you want to ${status == 1 ? 'activate' : 'deactivate'} selected products?`)) {
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        product_ids: selectedIds,
-                        status: status
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Something went wrong');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Something went wrong');
-                });
-            }
-        });
-    });
-
-    // Hot Deal Update functionality
-    document.querySelectorAll('.hotdeal_update').forEach(button => {
-        button.addEventListener('click', function() {
-            const selectedIds = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => cb.value);
-            if (selectedIds.length === 0) {
-                alert('Please select at least one product');
-                return;
-            }
-
-            const url = this.getAttribute('data-url');
-            const status = this.getAttribute('data-status');
-
-            if (confirm(`Are you sure you want to ${status == 1 ? 'set' : 'remove'} hot deal for selected products?`)) {
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        product_ids: selectedIds,
-                        status: status
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Something went wrong');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Something went wrong');
-                });
-            }
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    product_ids: product_ids,
+                    status: status
+                },
+                success: function(res) {
+                    toastr.success(res.message || "Updated successfully!");
+                    setTimeout(function() { location.reload(); }, 600);
+                }
+            });
         });
     });
 </script>
-
 @endsection

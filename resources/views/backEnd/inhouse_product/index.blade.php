@@ -3,274 +3,328 @@
 
 @section('css')
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+
 <style>
-    .pm-manage {
-        --pm-border: #e5e7eb;
-        --pm-bg: #f8fafc;
-        --pm-text: #111827;
-        --pm-muted: #6b7280;
-        --pm-accent: #2563eb;
-        font-size: 14px;
-        color: var(--pm-text);
-        padding-bottom: 2rem;
+    .prod-manage-page {
+        padding-bottom: 2.5rem;
     }
-    .pm-manage .pm-shell {
-        background: var(--pm-bg);
-        margin: -0.75rem -12px 0;
-        padding: 1.25rem 1rem 2rem;
-        min-height: calc(100vh - 110px);
+    
+    /* Header Card */
+    .prod-header-card {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+        border-radius: 16px;
+        padding: 22px 26px;
+        color: #fff;
+        margin-bottom: 22px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
     }
-    .pm-manage .pm-head {
+    
+    /* Stat Cards */
+    .prod-stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
         display: flex;
-        flex-wrap: wrap;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 1.25rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--pm-border);
-    }
-    .pm-manage .pm-head h1 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin: 0 0 0.25rem;
-        letter-spacing: -0.02em;
-    }
-    .pm-manage .pm-head p {
-        margin: 0;
-        font-size: 13px;
-        color: var(--pm-muted);
-    }
-    .pm-manage .pm-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-    .pm-manage .btn-pm {
-        font-size: 13px;
-        font-weight: 600;
-        padding: 0.45rem 0.95rem;
-        border-radius: 8px;
-        border: 1px solid transparent;
-        display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
-    .pm-manage .btn-pm-outline {
-        background: #fff;
-        border-color: var(--pm-border);
-        color: #374151;
+    .prod-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
     }
-    .pm-manage .btn-pm-outline:hover {
-        border-color: #d1d5db;
-        background: #fafafa;
-        color: #111827;
-    }
-    .pm-manage .btn-pm-primary {
-        background: var(--pm-accent);
-        border-color: var(--pm-accent);
-        color: #fff;
-    }
-    .pm-manage .btn-pm-primary:hover {
-        background: #1d4ed8;
-        border-color: #1d4ed8;
-        color: #fff;
-    }
-    .pm-manage .pm-card {
-        background: #fff;
-        border: 1px solid var(--pm-border);
+    .prod-stat-icon {
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .prod-stat-icon.indigo { background: #eef2ff; color: #4f46e5; }
+    .prod-stat-icon.emerald { background: #ecfdf5; color: #10b981; }
+    .prod-stat-icon.rose { background: #fff1f2; color: #f43f5e; }
+
+    /* Filter Card */
+    .filter-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+        margin-bottom: 20px;
+        padding: 18px 20px;
+    }
+
+    /* Main Table Card */
+    .prod-table-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
         overflow: hidden;
     }
-    .pm-manage .pm-toolbar {
+    .prod-toolbar {
+        padding: 14px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid var(--pm-border);
-        background: #fafafa;
-    }
-    .pm-manage .pm-bulk {
-        display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        align-items: center;
-        list-style: none;
-        padding: 0;
-        margin: 0;
+        gap: 12px;
     }
-    .pm-manage .pm-bulk .btn-pm { padding: 0.35rem 0.75rem; font-size: 12px; font-weight: 600; }
-    .pm-manage .pm-search .input-group { max-width: 280px; }
-    .pm-manage .pm-search .form-control {
-        border-color: var(--pm-border);
-        font-size: 13px;
-        border-radius: 8px 0 0 8px;
-    }
-    .pm-manage .pm-search .btn {
-        border-radius: 0 8px 8px 0;
-        border-color: var(--pm-border);
-        background: #fff;
-        color: var(--pm-muted);
-    }
-    .pm-manage .pm-search .btn:hover {
-        background: #f3f4f6;
-        color: var(--pm-text);
-    }
-    .pm-manage .table-responsive { padding: 0 1rem 1rem; }
-    .pm-manage .pm-table { margin-bottom: 0; font-size: 13px; }
-    .pm-manage .pm-table thead th {
-        font-size: 11px;
+    .prod-table thead th {
+        background: #f8fafc;
+        color: #475569;
         font-weight: 700;
+        font-size: 11.5px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
-        color: var(--pm-muted);
-        border-bottom: 1px solid var(--pm-border);
-        background: #fff;
-        padding: 12px 10px;
+        border-bottom: 1.5px solid #e2e8f0;
+        padding: 12px 14px;
         white-space: nowrap;
         vertical-align: middle;
     }
-    .pm-manage .pm-table tbody td {
-        padding: 12px 10px;
+    .prod-table tbody td {
+        padding: 12px 14px;
         vertical-align: middle;
-        border-color: #f3f4f6;
+        color: #1e293b;
+        font-size: 13.5px;
+        border-bottom: 1px solid #f1f5f9;
     }
-    .pm-manage .pm-table tbody tr:hover { background: #fafafa; }
-    .pm-manage .product-img {
-        border-radius: 8px;
+    .prod-table tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    /* Product Thumbnail */
+    .prod-thumb {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
         object-fit: cover;
-        border: 1px solid var(--pm-border);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        background: #f8fafc;
     }
-    .pm-manage .btn-action {
+
+    /* 3-Dot Dropdown Menu */
+    .btn-3dot {
         width: 34px;
         height: 34px;
+        border-radius: 50%;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .btn-3dot:hover, .btn-3dot[aria-expanded="true"] {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        color: #fff;
+        transform: scale(1.05);
+    }
+    .dropdown-menu-prod {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+        padding: 6px;
+        min-width: 175px;
+    }
+    .dropdown-menu-prod .dropdown-item {
         border-radius: 8px;
-        transition: background 0.15s, color 0.15s;
-        border: 1px solid var(--pm-border);
-        background: #fff;
-        color: #4b5563;
-    }
-    .pm-manage .btn-edit {
-        border-color: #bfdbfe;
-        background: #eff6ff;
-        color: var(--pm-accent);
-    }
-    .pm-manage .btn-edit:hover {
-        background: var(--pm-accent);
-        border-color: var(--pm-accent);
-        color: #fff;
-    }
-    .pm-manage .btn-delete {
-        border-color: #fecaca;
-        background: #fef2f2;
-        color: #dc2626;
-    }
-    .pm-manage .btn-delete:hover {
-        background: #dc2626;
-        border-color: #dc2626;
-        color: #fff;
-    }
-    .pm-manage .btn-status-toggle { border-color: var(--pm-border); background: #fff; }
-    .pm-manage .btn-status-toggle:hover { background: #f3f4f6; }
-    .pm-manage .btn-status-active {
-        border-color: #bbf7d0;
-        background: #ecfdf5;
-        color: #047857;
-    }
-    .pm-manage .btn-status-active:hover {
-        background: #047857;
-        border-color: #047857;
-        color: #fff;
-    }
-    .pm-manage .badge-soft-primary { background: #eff6ff; color: #1d4ed8; font-weight: 600; }
-    .pm-manage .badge-soft-success { background: #ecfdf5; color: #047857; font-weight: 600; }
-    .pm-manage .badge-soft-warning { background: #fffbeb; color: #b45309; font-weight: 600; }
-    .pm-manage .badge-soft-danger { background: #fef2f2; color: #b91c1c; font-weight: 600; }
-    .pm-manage .badge-soft-info { background: #ecfeff; color: #0e7490; font-weight: 600; }
-    .pm-manage .badge-soft-light { background: #f9fafb; color: #6b7280; }
-    .pm-manage .pm-foot {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem 1.25rem;
-        border-top: 1px solid var(--pm-border);
-        background: #fafafa;
+        padding: 7px 12px;
         font-size: 13px;
-        color: var(--pm-muted);
+        font-weight: 500;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.15s;
+    }
+    .dropdown-menu-prod .dropdown-item:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+    .dropdown-menu-prod .dropdown-item.text-danger:hover {
+        background: #fef2f2;
+        color: #dc2626 !important;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="container-fluid pm-manage">
-<div class="pm-shell">
-
-    <header class="pm-head">
+<div class="container-fluid pt-3 prod-manage-page">
+    
+    {{-- Header Banner --}}
+    <div class="prod-header-card d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
-            <h1>ইনহাউস পণ্য লাইব্রেরি</h1>
-            <p>শুধু অ্যাডমিনের নিজস্ব তালিকা — বাল্ক অ্যাকশন ও অনুসন্ধান একই ব্যবস্থাপনা টুলবার।</p>
+            <h3 class="mb-1 fw-bold text-white"><i class="fe-package me-2"></i> Inhouse Products</h3>
+            <p class="mb-0 text-white-50" style="font-size:14px;">নিজের স্টক এবং সরাসরি নিজস্ব ইনহাউজ পণ্যসমূহ পরিচালনা করুন।</p>
         </div>
-        <div class="pm-actions">
-            <a href="{{ route('products.create') }}" class="btn btn-pm btn-pm-primary text-decoration-none">
-                <i class="fe-plus"></i> নতুন পণ্য
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('products.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" style="background:#4f46e5;border-color:#4f46e5;">
+                <i class="fe-plus-circle me-1"></i> Add New Product
             </a>
         </div>
-    </header>
+    </div>
 
-    <div class="pm-card">
-        <div class="pm-toolbar">
-            <ul class="pm-bulk">
-                <li>
-                    <button type="button" data-url="{{ route('products.update_deals') }}" data-status="1" class="btn btn-pm btn-pm-outline hotdeal_update">
-                        <i class="fe-tag"></i> ডিল সেট
-                    </button>
-                </li>
-                <li>
-                    <button type="button" data-url="{{ route('products.update_deals') }}" data-status="0" class="btn btn-pm btn-pm-outline hotdeal_update">
-                        <i class="fe-x-circle"></i> ডিল সরান
-                    </button>
-                </li>
-                <li class="align-self-stretch border-start ps-3 ms-1 d-none d-md-block"></li>
-                <li>
-                    <button type="button" data-url="{{ route('products.update_status') }}" data-status="1" class="btn btn-pm btn-pm-primary update_status">
-                        <i class="fe-check"></i> নির্বাচিত সক্রিয়
-                    </button>
-                </li>
-                <li>
-                    <button type="button" data-url="{{ route('products.update_status') }}" data-status="0" class="btn btn-pm btn-pm-outline update_status">
-                        <i class="fe-x"></i> নির্বাচিত নিষ্ক্রিয়
-                    </button>
-                </li>
-            </ul>
-            <form method="GET" action="{{ route('inhouse.products.index') }}" class="pm-search">
-                <div class="input-group input-group-sm">
-                    <input type="text" name="keyword" class="form-control" placeholder="নাম খুঁজুন…" value="{{ request('keyword') }}">
-                    <button class="btn" type="submit" title="খুঁজুন"><i class="fe-search"></i></button>
+    {{-- Stat Cards --}}
+    @php
+        $totalInhouse = $data->total();
+    @endphp
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="prod-stat-card">
+                <div class="prod-stat-icon indigo"><i class="fe-package"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">Total Inhouse Items</div>
+                    <h4 class="mb-0 fw-bold">{{ $totalInhouse }}</h4>
                 </div>
-            </form>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="prod-stat-card">
+                <div class="prod-stat-icon emerald"><i class="fe-check-circle"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">In-Stock Products</div>
+                    <h4 class="mb-0 fw-bold text-success">{{ $data->where('stock', '>', 0)->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="prod-stat-card">
+                <div class="prod-stat-icon rose"><i class="fe-alert-triangle"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">Out of Stock Alert</div>
+                    <h4 class="mb-0 fw-bold text-danger">{{ $data->where('stock', '<=', 0)->count() }} <small class="text-muted" style="font-size:12px;">(on page)</small></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Comprehensive Filter Bar --}}
+    <div class="filter-card">
+        <form method="GET" action="{{ route('inhouse.products.index') }}" id="filterForm">
+            <div class="row g-2 align-items-end">
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Search Product / Barcode</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light"><i class="fe-search"></i></span>
+                        <input type="text" name="keyword" class="form-control" placeholder="Product name, barcode, ID..." value="{{ request('keyword') }}">
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Category</label>
+                    <select name="category_id" class="form-select form-select-sm select2">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Status</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">All Status</option>
+                        <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Stock Status</label>
+                    <select name="stock_status" class="form-select form-select-sm">
+                        <option value="">All Stock</option>
+                        <option value="in_stock" {{ request('stock_status') === 'in_stock' ? 'selected' : '' }}>In Stock (>5)</option>
+                        <option value="low_stock" {{ request('stock_status') === 'low_stock' ? 'selected' : '' }}>Low Stock (1-5)</option>
+                        <option value="out_of_stock" {{ request('stock_status') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock (0)</option>
+                    </select>
+                </div>
+
+                {{-- Global Smart Date Filter Integration --}}
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Date Created</label>
+                    @include('backEnd.layouts.partials.smart_date_filter')
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Per Page</label>
+                    <select name="per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page', 25) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary flex-fill rounded-3">
+                        <i class="fe-filter me-1"></i> Filter
+                    </button>
+                    <a href="{{ route('inhouse.products.index') }}" class="btn btn-sm btn-outline-secondary rounded-3" title="Reset Filters">
+                        <i class="fe-rotate-ccw"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- Main Products Table Card --}}
+    <div class="prod-table-card">
+        {{-- Bulk Actions Toolbar --}}
+        <div class="prod-toolbar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="small fw-bold text-muted me-1">Bulk Actions:</span>
+                <button type="button" data-url="{{ route('products.update_status') }}" data-status="1" class="btn btn-xs btn-outline-success rounded-pill px-2.5 update_status">
+                    <i class="fe-check me-1"></i> Active
+                </button>
+                <button type="button" data-url="{{ route('products.update_status') }}" data-status="0" class="btn btn-xs btn-outline-danger rounded-pill px-2.5 update_status">
+                    <i class="fe-x me-1"></i> Inactive
+                </button>
+                <button type="button" data-url="{{ route('products.update_deals') }}" data-status="1" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 hotdeal_update">
+                    <i class="fe-tag me-1"></i> Set Hot Deal
+                </button>
+                <button type="button" data-url="{{ route('products.update_deals') }}" data-status="0" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 hotdeal_update">
+                    <i class="fe-x-circle me-1"></i> Remove Deal
+                </button>
+            </div>
+            
+            <div class="small text-muted fw-semibold">
+                Showing {{ $data->firstItem() ?? 0 }} - {{ $data->lastItem() ?? 0 }} of {{ $data->total() }} Products
+            </div>
         </div>
 
         <div class="table-responsive">
-            <table class="table pm-table mb-0">
+            <table class="table prod-table mb-0">
                 <thead>
                     <tr>
-                        <th style="width:42px;">
+                        <th style="width: 38px;">
                             <div class="form-check mb-0">
                                 <input type="checkbox" class="form-check-input checkall" id="parentCheck">
                             </div>
                         </th>
-                        <th>#</th>
-                        <th>ছবি</th>
-                        <th style="min-width:200px;">পণ্য</th>
-                        <th>ক্যাটাগরি</th>
-                        <th>মূল্য ও স্টক</th>
-                        <th>ফিচার</th>
-                        <th>স্ট্যাটাস</th>
-                        <th class="text-center">অ্যাকশন</th>
+                        <th style="width: 50px;">SL</th>
+                        <th style="width: 65px;">Image</th>
+                        <th>Product Details</th>
+                        <th>Category</th>
+                        <th>Pricing</th>
+                        <th>Stock Status</th>
+                        <th>Flags</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 80px;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -281,80 +335,119 @@
                                 <input type="checkbox" class="form-check-input checkbox" value="{{ $value->id }}">
                             </div>
                         </td>
-                        <td>{{ $data->firstItem() + $key }}</td>
+                        <td class="fw-bold text-muted">{{ $data->firstItem() + $key }}</td>
                         <td>
-                            <img src="{{ asset($value->image ? $value->image->image : 'storage/uploads/placeholder.png') }}"
-                                 class="product-img" alt="" width="52" height="52">
+                            <img src="{{ asset($value->image ? $value->image->image : 'public/uploads/default/no-image.png') }}" class="prod-thumb" alt="">
                         </td>
                         <td>
-                            <div class="fw-semibold text-dark">{{ Str::limit($value->name, 42) }}</div>
-                            @php
-                                $isDigital = (isset($value->is_digital) && $value->is_digital) || (isset($value->product_type) && $value->product_type === 'digital');
-                            @endphp
-                            <span class="badge {{ $isDigital ? 'badge-soft-primary' : 'badge-soft-info' }} mt-1" style="font-size:10px;">
-                                {{ $isDigital ? 'ডিজিটাল' : 'ফিজিক্যাল' }}
+                            <div class="fw-bold text-dark" style="max-width:260px;">
+                                <a href="{{ route('products.edit', $value->id) }}" class="text-dark text-decoration-none">
+                                    {{ Str::limit($value->name, 45) }}
+                                </a>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 mt-1">
+                                <span class="badge {{ $value->product_type === 'digital' ? 'bg-soft-purple text-purple' : 'bg-soft-info text-info' }}" style="font-size:10px;">
+                                    {{ $value->product_type === 'digital' ? '💾 Digital' : '📦 Physical' }}
+                                </span>
+                                @if($value->pro_barcode)
+                                    <small class="text-muted" style="font-family:monospace;font-size:11px;">#{{ $value->pro_barcode }}</small>
+                                @endif
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-soft-secondary text-secondary rounded-pill px-2.5 py-1">
+                                {{ $value->category ? $value->category->name : 'Uncategorized' }}
                             </span>
                         </td>
                         <td>
-                            <div class="text-muted small fw-semibold">{{ $value->category ? $value->category->name : 'ক্যাটাগরি নেই' }}</div>
+                            <div class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</div>
+                            @if($value->old_price && $value->old_price > $value->new_price)
+                                <small class="text-muted text-decoration-line-through">৳{{ number_format($value->old_price, 2) }}</small>
+                            @endif
                         </td>
                         <td>
-                            <div class="fw-semibold">৳{{ number_format($value->new_price, 2) }}</div>
-                            <div class="small text-muted">
-                                স্টক: <span class="{{ $value->stock <= 5 ? 'text-danger fw-bold' : '' }}">{{ $value->stock }}</span>
-                            </div>
+                            @if($value->stock <= 0)
+                                <span class="badge bg-soft-danger text-danger rounded-pill px-2.5 py-1 fw-bold">Out of Stock</span>
+                            @elseif($value->stock <= 5)
+                                <span class="badge bg-soft-warning text-warning rounded-pill px-2.5 py-1 fw-bold">Low: {{ $value->stock }}</span>
+                            @else
+                                <span class="badge bg-soft-success text-success rounded-pill px-2.5 py-1 fw-bold">{{ $value->stock }} in stock</span>
+                            @endif
                         </td>
                         <td>
                             <div class="d-flex flex-column gap-1">
                                 @if($value->topsale == 1)
-                                    <span class="badge badge-soft-warning" style="font-size:10px;"><i class="fe-zap"></i> হট ডিল</span>
+                                    <span class="badge bg-soft-danger text-danger" style="font-size:10px;">🔥 Hot Deal</span>
                                 @endif
                                 @if($value->feature_product == 1)
-                                    <span class="badge badge-soft-success" style="font-size:10px;"><i class="fe-star"></i> ফিচার্ড</span>
-                                @endif
-                                @if($value->topsale != 1 && $value->feature_product != 1)
-                                    <span class="small text-muted">—</span>
+                                    <span class="badge bg-soft-primary text-primary" style="font-size:10px;">⭐ Featured</span>
                                 @endif
                             </div>
                         </td>
                         <td>
                             @if($value->status == 1)
-                                <span class="badge badge-soft-success">সক্রিয়</span>
+                                <span class="badge bg-soft-success text-success px-2.5 py-1 rounded-pill fw-bold" style="font-size:11px;">Active</span>
                             @else
-                                <span class="badge badge-soft-danger">নিষ্ক্রিয়</span>
+                                <span class="badge bg-soft-danger text-danger px-2.5 py-1 rounded-pill fw-bold" style="font-size:11px;">Inactive</span>
                             @endif
                         </td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-1 flex-wrap">
-                                @if($value->status == 1)
-                                    <form method="post" action="{{ route('products.inactive') }}" class="d-inline">
-                                        @csrf
-                                        <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                        <button type="submit" class="change-confirm btn-action btn-status-toggle" title="নিষ্ক্রিয়"><i class="fe-thumbs-down"></i></button>
-                                    </form>
-                                @else
-                                    <form method="post" action="{{ route('products.active') }}" class="d-inline">
-                                        @csrf
-                                        <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                        <button type="submit" class="change-confirm btn-action btn-status-active" title="সক্রিয়"><i class="fe-thumbs-up"></i></button>
-                                    </form>
-                                @endif
 
-                                <a href="{{ route('products.edit', $value->id) }}" class="btn-action btn-edit" title="এডিট"><i class="fe-edit"></i></a>
-
-                                <form method="post" action="{{ route('products.destroy') }}" class="d-inline">
-                                    @csrf
-                                    <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                    <button type="submit" class="delete-confirm btn-action btn-delete" title="মুছুন"><i class="fe-trash-2"></i></button>
-                                </form>
+                        {{-- 3-Dot Action Dropdown --}}
+                        <td class="text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-3dot" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">
+                                    <i class="fe-more-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-prod">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('inhouse.products.show', $value->id) }}">
+                                            <i class="fe-eye text-info"></i> View Details
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('products.edit', $value->id) }}">
+                                            <i class="fe-edit-2 text-primary"></i> Edit Product
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        @if($value->status == 1)
+                                            <form method="post" action="{{ route('products.inactive') }}" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" value="{{ $value->id }}" name="hidden_id">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fe-eye-off text-warning"></i> Deactivate
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form method="post" action="{{ route('products.active') }}" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" value="{{ $value->id }}" name="hidden_id">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fe-check-circle text-success"></i> Activate
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form method="post" action="{{ route('products.destroy') }}" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" value="{{ $value->id }}" name="hidden_id">
+                                            <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                <i class="fe-trash-2"></i> Delete Product
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center py-5 text-muted">
-                            <i class="fe-package d-block mb-2" style="font-size:1.75rem;opacity:.5;"></i>
-                            কোনো ইনহাউস পণ্য পাওয়া যায়নি।
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            <i class="fe-package d-block mb-2" style="font-size:2rem;opacity:.4;"></i>
+                            কোনো ইনহাউজ পণ্য পাওয়া যায়নি। ফিল্টার পরিবর্তন করুন বা নতুন পণ্য যোগ করুন।
                         </td>
                     </tr>
                     @endforelse
@@ -362,80 +455,58 @@
             </table>
         </div>
 
-        <div class="pm-foot">
-            <span>
-                @if($data->total() > 0)
-                    {{ $data->firstItem() }} থেকে {{ $data->lastItem() }} — মোট {{ $data->total() }} টি
-                @else
-                    কোনো ফল নেই
-                @endif
+        {{-- Pagination Foot --}}
+        <div class="p-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span class="text-muted small">
+                Showing {{ $data->firstItem() ?? 0 }} to {{ $data->lastItem() ?? 0 }} of {{ $data->total() }} entries
             </span>
-            <div class="custom-paginate mb-0">
+            <div class="mb-0">
                 {{ $data->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </div>
-
-</div>
 </div>
 @endsection
 
 @section('script')
+<script src="{{asset('public/backEnd')}}/assets/libs/select2/js/select2.min.js"></script>
 <script>
-$(function(){
-    $('.checkall').on('change', function(){
-        $('.checkbox').prop('checked', $(this).is(':checked'));
-    });
+    $(document).ready(function() {
+        $('.select2').select2({ width: '100%' });
 
-    function getCheckedIds() {
-        return $('input.checkbox:checked').map(function(){ return $(this).val(); }).get();
-    }
-
-    function sendBulkRequest(url, status) {
-        var ids = getCheckedIds();
-        if (ids.length === 0) {
-            if (typeof toastr !== 'undefined') {
-                toastr.error('কমপক্ষে একটি পণ্য নির্বাচন করুন।');
-            } else {
-                alert('কমপক্ষে একটি পণ্য নির্বাচন করুন।');
-            }
-            return;
-        }
-
-        var token = $('meta[name="csrf-token"]').attr('content');
-
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: JSON.stringify({ product_ids: ids, status: status }),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            headers: { 'X-CSRF-TOKEN': token },
-            success: function(res){
-                if (res.status === 'success') {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success(res.message);
-                    }
-                    setTimeout(function(){ location.reload(); }, 800);
-                } else if (typeof toastr !== 'undefined') {
-                    toastr.error(res.message || 'ব্যর্থ');
-                }
-            },
-            error: function(xhr){
-                var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'সার্ভার এরর';
-                if (typeof toastr !== 'undefined') { toastr.error(msg); } else { alert(msg); }
-            }
+        // Select All Checkbox
+        $(".checkall").on('change', function() {
+            $(".checkbox").prop('checked', $(this).is(":checked"));
         });
-    }
 
-    $(document).on('click', '.hotdeal_update, .update_status', function(e){
-        e.preventDefault();
-        var url = $(this).data('url');
-        var status = $(this).data('status');
-        if (url) {
-            sendBulkRequest(url, status);
-        }
+        // Bulk status update
+        $(document).on('click', '.update_status, .hotdeal_update', function() {
+            var url = $(this).attr('data-url');
+            var status = $(this).attr('data-status');
+            var product_ids = [];
+            $(".checkbox:checked").each(function() {
+                product_ids.push($(this).val());
+            });
+
+            if (product_ids.length === 0) {
+                toastr.warning("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন!");
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    product_ids: product_ids,
+                    status: status
+                },
+                success: function(res) {
+                    toastr.success(res.message || "Updated successfully!");
+                    setTimeout(function() { location.reload(); }, 600);
+                }
+            });
+        });
     });
-});
 </script>
 @endsection

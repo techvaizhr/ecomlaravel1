@@ -1,290 +1,383 @@
 @extends('backEnd.layouts.master')
-@section('title','Pending Products')
+@section('title', 'Pending Products Approval')
 
 @section('css')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+
 <style>
-    /* Professional Card */
-    .card {
-        border: none;
-        box-shadow: 0 0 20px rgba(18, 38, 63, 0.03);
-        border-radius: 12px;
-        overflow: hidden;
+    .pending-manage-page {
+        padding-bottom: 2.5rem;
     }
-    .card-header {
-        background-color: #fff;
-        border-bottom: 1px solid #f1f5f7;
-        padding: 20px 25px;
+    
+    /* Header Card */
+    .pending-header-card {
+        background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #ea580c 100%);
+        border-radius: 16px;
+        padding: 22px 26px;
+        color: #fff;
+        margin-bottom: 22px;
+        box-shadow: 0 10px 25px rgba(217, 119, 6, 0.25);
     }
-
-    /* Table Styles */
-    .table thead th {
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 11px;
-        letter-spacing: 0.5px;
-        color: #8391a2;
-        background: #f9fbfd;
-        border-bottom: 1px solid #eef2f7;
-        padding: 12px 15px;
-    }
-    .table tbody td {
-        vertical-align: middle;
-        padding: 15px;
-        border-bottom: 1px solid #f1f5f7;
-        color: #313b5e;
-    }
-    .table-hover tbody tr:hover {
-        background-color: #fafbfd;
-    }
-
-    /* Product & Vendor Identity */
-    .product-box {
+    
+    /* Stat Cards */
+    .pending-stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
+    .pending-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    .pending-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .pending-stat-icon.amber { background: #fffbeb; color: #d97706; }
+    .pending-stat-icon.blue { background: #eff6ff; color: #2563eb; }
+
+    /* Filter Card */
+    .filter-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+        margin-bottom: 20px;
+        padding: 18px 20px;
+    }
+
+    /* Main Table Card */
+    .pending-table-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+    }
+    .pending-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 700;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1.5px solid #e2e8f0;
+        padding: 12px 14px;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    .pending-table tbody td {
+        padding: 12px 14px;
+        vertical-align: middle;
+        color: #1e293b;
+        font-size: 13.5px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .pending-table tbody tr:hover td {
+        background: #fffbeb;
+    }
+
+    /* Product Thumbnail */
     .product-img {
         width: 48px;
         height: 48px;
-        border-radius: 8px;
+        border-radius: 10px;
         object-fit: cover;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        border: 1px solid #f1f5f7;
-    }
-    .product-info h6 {
-        margin: 0;
-        font-size: 14px;
-        font-weight: 600;
-        color: #343a40;
-    }
-    .product-info small {
-        color: #98a6ad;
-        font-size: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        background: #f8fafc;
     }
 
-    /* Soft Badges */
-    .badge-soft-primary { background-color: rgba(114, 124, 245, 0.18); color: #727cf5; }
-    .badge-soft-success { background-color: rgba(10, 207, 151, 0.18); color: #0acf97; }
-    .badge-soft-warning { background-color: rgba(255, 188, 0, 0.18); color: #ffbc00; }
-    .badge-soft-info { background-color: rgba(57, 175, 209, 0.18); color: #39afd1; }
-    .badge-soft-secondary { background-color: rgba(108, 117, 125, 0.18); color: #6c757d; }
-    .badge-pill { padding: 5px 10px; border-radius: 50rem; font-weight: 500; font-size: 11px; }
-
-    /* Action Buttons */
-    .btn-action-group {
+    /* 3-Dot Dropdown Menu */
+    .btn-3dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .btn-3dot:hover, .btn-3dot[aria-expanded="true"] {
+        background: #d97706;
+        border-color: #d97706;
+        color: #fff;
+        transform: scale(1.05);
+    }
+    .dropdown-menu-prod {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+        padding: 6px;
+        min-width: 175px;
+    }
+    .dropdown-menu-prod .dropdown-item {
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
         display: flex;
-        gap: 5px;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.15s;
     }
-    .btn-approve {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        transition: 0.2s;
+    .dropdown-menu-prod .dropdown-item:hover {
+        background: #f1f5f9;
+        color: #0f172a;
     }
-    .btn-approve:hover { background-color: #2e7d32; color: #fff; }
-    
-    .btn-reject {
-        background-color: #ffebee;
-        color: #c62828;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        transition: 0.2s;
-    }
-    .btn-reject:hover { background-color: #c62828; color: #fff; }
-
-    .btn-icon {
-        width: 30px; height: 30px;
-        display: inline-flex; align-items: center; justify-content: center;
-        border-radius: 50%; color: #6c757d; transition: all 0.2s;
-        border: 1px solid transparent; background: transparent;
-    }
-    .btn-icon:hover { background-color: #eef2f7; color: #727cf5; }
-
-    /* Search Input */
-    .form-control-sm { border-radius: 6px; padding: 8px 12px; font-size: 13px; }
 </style>
 @endsection
 
 @section('content')
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<div class="container-fluid">
+<div class="container-fluid pt-3 pending-manage-page">
     
-    <div class="row mb-3 mt-3">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Pending Approvals</h4>
-            <a href="{{route('products.index')}}" class="btn btn-secondary rounded-pill shadow-sm px-4">
-                <i class="fe-arrow-left me-1"></i> Back to Products
+    {{-- Header Banner --}}
+    <div class="pending-header-card d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h3 class="mb-1 fw-bold text-white"><i class="fe-clock me-2"></i> Pending Product Approvals</h3>
+            <p class="mb-0 text-white-50" style="font-size:14px;">ভেন্ডরদের আপলোড করা পণ্য যাচাই-বাছাই ও দ্রুত অনুমোদন/বাতিল করুন।</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('products.index') }}" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-dark shadow-sm">
+                <i class="fe-arrow-left me-1"></i> All Vendor Products
             </a>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="text-muted mb-0 text-uppercase font-size-13">Waiting for Approval</h5>
-                    
-                    <form class="d-flex" method="GET" action="{{ route('products.pending') }}">
-                        <div class="input-group input-group-sm" style="width: 250px;">
-                            <span class="input-group-text bg-light border-end-0"><i class="fe-search"></i></span>
-                            <input type="text" name="keyword" class="form-control border-start-0 ps-0" placeholder="Search pending..." value="{{ request('keyword') }}">
-                        </div>
-                    </form>
+    {{-- Stat Cards --}}
+    @php
+        $totalPending = $data->total();
+    @endphp
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-sm-6">
+            <div class="pending-stat-card">
+                <div class="pending-stat-icon amber"><i class="fe-clock"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">Waiting for Approval</div>
+                    <h4 class="mb-0 fw-bold text-warning">{{ $totalPending }}</h4>
                 </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px;">SL</th>
-                                <th style="width: 30%;">Product Details</th>
-                                <th>Vendor Info</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th>Status</th>
-                                <th class="text-end" style="width: 200px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($data as $key=>$value)
-                            <tr>
-                                <td>{{ $data->firstItem() + $key }}</td>
-                                
-                                <td>
-                                    <div class="product-box">
-                                        <img src="{{ asset($value->image ? $value->image->image : 'storage/uploads/placeholder.png') }}" class="product-img" alt="Product">
-                                        <div class="product-info">
-                                            <h6 class="text-truncate" style="max-width: 250px;" title="{{$value->name}}">{{$value->name}}</h6>
-                                            @php
-                                                $isDigital = isset($value->is_digital) ? (bool)$value->is_digital : ($value->product_type === 'digital');
-                                            @endphp
-                                            <small class="text-muted">Type: 
-                                                <span class="{{ $isDigital ? 'text-primary' : 'text-info' }}">
-                                                    {{ $isDigital ? 'Digital' : 'Physical' }}
-                                                </span>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    @if($value->vendor)
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-xs me-2">
-                                                <span class="avatar-title rounded-circle bg-soft-info text-info font-size-12">
-                                                    {{ substr($value->vendor->shop_name, 0, 1) }}
-                                                </span>
-                                            </div>
-                                            <span class="font-size-13 fw-medium">{{ $value->vendor->shop_name }}</span>
-                                        </div>
-                                    @else
-                                        <span class="badge badge-soft-secondary">Admin Product</span>
-                                    @endif
-                                </td>
-
-                                <td>{{$value->category ? $value->category->name : 'N/A'}}</td>
-
-                                <td class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</td>
-
-                                <td>
-                                    @if($value->stock > 0)
-                                        <span class="badge badge-soft-success">{{$value->stock}}</span>
-                                    @else
-                                        <span class="badge badge-soft-danger">Out of Stock</span>
-                                    @endif
-                                </td>
-
-                                <td>
-                                    <span class="badge badge-pill badge-soft-warning">
-                                        <i class="fe-clock me-1"></i> Pending
-                                    </span>
-                                </td>
-
-                                <td class="text-end">
-                                    <div class="d-flex justify-content-end align-items-center gap-2">
-                                        {{-- Edit Link --}}
-                                        <a href="{{route('products.edit',$value->id)}}" class="btn-icon" title="View Details">
-                                            <i class="fe-eye"></i>
-                                        </a>
-
-                                        {{-- Approve Button --}}
-                                        <form method="POST" action="{{ route('products.approve') }}" class="d-inline">
-                                            @csrf
-                                            <input type="hidden" name="id" value="{{ $value->id }}">
-                                            <button type="submit" class="btn-approve" onclick="return confirm('Are you sure you want to approve this product?')">
-                                                <i class="fe-check me-1"></i> Approve
-                                            </button>
-                                        </form>
-
-                                        {{-- Reject Button (Trigger Modal) --}}
-                                        <button type="button" class="btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $value->id }}">
-                                            <i class="fe-x me-1"></i> Reject
-                                        </button>
-                                    </div>
-
-                                    <div class="modal fade" id="rejectModal{{ $value->id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title text-danger"><i class="fe-alert-triangle me-2"></i>Reject Product</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <form method="POST" action="{{ route('products.reject') }}">
-                                                    @csrf
-                                                    <div class="modal-body text-start">
-                                                        <input type="hidden" name="id" value="{{ $value->id }}">
-                                                        <p class="mb-2">Are you sure you want to reject <strong>{{ $value->name }}</strong>?</p>
-                                                        
-                                                        <div class="form-group mt-3">
-                                                            <label class="form-label small fw-bold">Rejection Reason (Optional)</label>
-                                                            <textarea name="rejection_reason" class="form-control" rows="3" placeholder="Explain why the product is rejected..."></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer bg-light">
-                                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-sm btn-danger">Confirm Rejection</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-5">
-                                    <div class="text-center">
-                                        <img src="{{ asset('public/backEnd/assets/images/no-data.png') }}" style="height: 80px; opacity: 0.6; margin-bottom: 15px;" alt="">
-                                        <h5 class="text-muted">No pending approvals!</h5>
-                                        <p class="text-muted mb-0">All products have been processed.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-6">
+            <div class="pending-stat-card">
+                <div class="pending-stat-icon blue"><i class="fe-users"></i></div>
+                <div>
+                    <div class="text-muted small fw-semibold">Active Vendors on Page</div>
+                    <h4 class="mb-0 fw-bold text-primary">{{ $data->pluck('vendor_id')->filter()->unique()->count() }}</h4>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="card-footer bg-white border-top-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted small">
-                            Showing {{ $data->firstItem() }} to {{ $data->lastItem() }} of {{ $data->total() }} results
-                        </div>
-                        <div class="custom-paginate">
-                            {{$data->links('pagination::bootstrap-4')}}
-                        </div>
+    {{-- Filter Bar --}}
+    <div class="filter-card">
+        <form method="GET" action="{{ route('products.pending') }}" id="filterForm">
+            <div class="row g-2 align-items-end">
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Search Product / Barcode</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light"><i class="fe-search"></i></span>
+                        <input type="text" name="keyword" class="form-control" placeholder="Search by name, barcode..." value="{{ request('keyword') }}">
                     </div>
                 </div>
 
-            </div> </div></div>
+                @if(isset($categories) && $categories->count() > 0)
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Category</label>
+                    <select name="category_id" class="form-select form-select-sm select2">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
+                {{-- Global Smart Date Filter Integration --}}
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Submission Date</label>
+                    @include('backEnd.layouts.partials.smart_date_filter')
+                </div>
+
+                <div class="col-lg-1 col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Per Page</label>
+                    <select name="per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page', 25) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-warning text-dark fw-bold flex-fill rounded-3">
+                        <i class="fe-filter me-1"></i> Filter
+                    </button>
+                    <a href="{{ route('products.pending') }}" class="btn btn-sm btn-outline-secondary rounded-3" title="Reset">
+                        <i class="fe-rotate-ccw"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- Main Table Card --}}
+    <div class="pending-table-card">
+        <div class="table-responsive">
+            <table class="table pending-table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">SL</th>
+                        <th style="width: 65px;">Image</th>
+                        <th>Product Details</th>
+                        <th>Vendor / Shop</th>
+                        <th>Category</th>
+                        <th>Price & Stock</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 140px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($data as $key => $value)
+                    <tr>
+                        <td class="fw-bold text-muted">{{ $data->firstItem() + $key }}</td>
+                        <td>
+                            <img src="{{ asset($value->image ? $value->image->image : 'public/uploads/default/no-image.png') }}" class="product-img" alt="">
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark" style="max-width:240px;">
+                                <a href="{{ route('products.edit', $value->id) }}" class="text-dark text-decoration-none">
+                                    {{ Str::limit($value->name, 45) }}
+                                </a>
+                            </div>
+                            <span class="badge {{ $value->product_type === 'digital' ? 'bg-soft-purple text-purple' : 'bg-soft-info text-info' }} mt-1" style="font-size:10px;">
+                                {{ $value->product_type === 'digital' ? '💾 Digital' : '📦 Physical' }}
+                            </span>
+                        </td>
+                        <td>
+                            @if($value->vendor)
+                                <div class="fw-bold text-dark"><i class="fe-user text-primary me-1"></i>{{ $value->vendor->shop_name ?? $value->vendor->name }}</div>
+                                <small class="text-muted">Vendor ID: #{{ $value->vendor->id }}</small>
+                            @else
+                                <span class="badge bg-soft-secondary text-secondary">Inhouse / Admin</span>
+                            @endif
+                        </td>
+                        <td>
+                            <span class="badge bg-soft-secondary text-secondary rounded-pill px-2.5 py-1">
+                                {{ $value->category ? $value->category->name : 'Uncategorized' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</div>
+                            <small class="text-muted">Stock: {{ $value->stock }}</small>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">{{ $value->created_at ? $value->created_at->format('d M, Y') : 'N/A' }}</div>
+                            <small class="text-muted">{{ $value->created_at ? $value->created_at->format('h:i A') : '' }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-soft-warning text-warning px-2.5 py-1 rounded-pill fw-bold" style="font-size:11px;">
+                                <i class="fe-clock me-1"></i> Pending
+                            </span>
+                        </td>
+
+                        {{-- 3-Dot Action Dropdown with Quick Approve & Reject --}}
+                        <td class="text-end">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                {{-- Quick Approve Button --}}
+                                <form method="post" action="{{ route('products.approve') }}" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{ $value->id }}">
+                                    <button type="submit" class="btn btn-xs btn-outline-success rounded-pill px-2" title="Quick Approve">
+                                        <i class="fe-check"></i>
+                                    </button>
+                                </form>
+
+                                {{-- Quick Reject Button --}}
+                                <form method="post" action="{{ route('products.reject') }}" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{ $value->id }}">
+                                    <button type="submit" class="btn btn-xs btn-outline-danger rounded-pill px-2" title="Reject">
+                                        <i class="fe-x"></i>
+                                    </button>
+                                </form>
+
+                                {{-- 3-Dot Menu --}}
+                                <div class="dropdown">
+                                    <button class="btn btn-3dot" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More Options">
+                                        <i class="fe-more-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-prod">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('products.edit', $value->id) }}">
+                                                <i class="fe-edit-2 text-primary"></i> Review & Edit
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <form method="post" action="{{ route('products.destroy') }}" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" value="{{ $value->id }}" name="hidden_id">
+                                                <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                    <i class="fe-trash-2"></i> Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <i class="fe-check-circle d-block mb-2 text-success" style="font-size:2rem;opacity:.5;"></i>
+                            কোনো পেন্ডিং পণ্য নেই! সব পণ্য অনুমোদিত আছে।
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Pagination Foot --}}
+        <div class="p-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span class="text-muted small">
+                Showing {{ $data->firstItem() ?? 0 }} to {{ $data->lastItem() ?? 0 }} of {{ $data->total() }} entries
+            </span>
+            <div class="mb-0">
+                {{ $data->links('pagination::bootstrap-4') }}
+            </div>
+        </div>
+    </div>
 </div>
+@endsection
+
+@section('script')
+<script src="{{asset('public/backEnd')}}/assets/libs/select2/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({ width: '100%' });
+    });
+</script>
 @endsection
