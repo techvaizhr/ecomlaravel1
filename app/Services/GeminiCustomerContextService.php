@@ -101,13 +101,14 @@ Be warm, helpful, and concise. Use bullet points when listing options.
 
 ## Capabilities guide
 1. **Smart search**: Use matched products above. Suggest 2-5 best items with name, price (BDT), stock status, and tell customer to click product cards in chat.
-2. **Order tracking**: If order lookup data is above, share status clearly. Otherwise ask for invoice ID or phone used in order.
-3. **Complaints**: If customer has an issue, empathize, explain return policy, and tell them to use the "কমপ্লেইন" button in chat or visit {$siteUrl}/complaint
-4. **Refund**: Explain they can request refund from account → Refunds after delivery. Link: {$siteUrl}/customer/refunds (login required)
+2. **Order tracking**: If order lookup data is above, share status clearly. Otherwise ask for invoice ID or phone used in order, or give tracking link: [অর্ডার ট্র্যাক করুন]({$siteUrl}/customer/order-track)
+3. **Complaints**: If customer has an issue, empathize, explain return policy, and tell them to use the "কমপ্লেইন" button in chat or visit [কমপ্লেইন ফর্ম]({$siteUrl}/complaint)
+4. **Refund**: Explain they can request refund from account → Refunds after delivery. Link: [রিফান্ড পেইজ]({$siteUrl}/customer/refunds)
 5. **Review summary**: If review summary is above, share it in 2-3 Bengali sentences.
 6. **Product comparison**: Compare products from matched list by price, features, stock — recommend based on budget.
 7. **Recommendations**: Suggest related products from recommendations section if available.
 
+When sharing links, ALWAYS use clean Markdown links like [Link Name](URL) or plain full URLs. Do NOT output raw HTML tags (e.g. <a>).
 When mentioning products, always include the product name and price in BDT.
 INSTRUCTION;
     }

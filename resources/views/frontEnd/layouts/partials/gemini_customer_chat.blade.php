@@ -16,49 +16,53 @@
     right: 20px;
     bottom: 75px;
     z-index: 99990;
-    width: 58px;
-    height: 58px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
     background: linear-gradient(135deg, #059669 0%, #10b981 100%);
     color: #ffffff;
-    box-shadow: 0 10px 28px rgba(5, 150, 105, 0.45);
+    box-shadow: 0 8px 24px rgba(5, 150, 105, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
 }
 #gcc-toggle:hover {
     transform: scale(1.08) translateY(-2px);
-    box-shadow: 0 14px 34px rgba(5, 150, 105, 0.55);
+    box-shadow: 0 12px 30px rgba(5, 150, 105, 0.55);
 }
 #gcc-toggle.open {
     opacity: 0;
     pointer-events: none;
     transform: scale(0.85);
 }
-#gcc-toggle .gcc-toggle-icon {
+#gcc-toggle svg {
     width: 26px;
     height: 26px;
     display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* CHAT MODAL / PANEL */
 #gcc-panel {
     position: fixed;
     right: 20px;
-    bottom: 145px;
+    bottom: 140px;
     z-index: 99989;
-    width: 390px;
+    width: 380px;
     max-width: calc(100vw - 24px);
-    height: 540px;
+    height: 520px;
     max-height: calc(100vh - 160px);
     background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -77,23 +81,22 @@
 #gcc-header {
     background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
     color: #ffffff;
-    padding: 16px 18px;
+    padding: 14px 16px;
     flex-shrink: 0;
 }
 #gcc-header h5 {
     color: #ffffff !important;
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: -0.01em;
 }
 #gcc-header .gcc-header-sub {
     color: #a7f3d0 !important;
-    margin: 4px 0 0;
-    font-size: 11.5px;
+    margin: 3px 0 0;
+    font-size: 11px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 .gcc-online-dot {
     width: 7px;
@@ -110,27 +113,33 @@
     gap: 8px;
 }
 .gcc-header-icon-wrap {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.15);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.16);
     backdrop-filter: blur(6px);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
     flex-shrink: 0;
 }
+.gcc-header-icon-wrap svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
 #gcc-close {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
     border: none;
     color: #ffffff;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
     line-height: 1;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -141,30 +150,34 @@
     background: rgba(255, 255, 255, 0.25);
 }
 
-/* QUICK ACTION CHIPS */
+/* 2x2 TIGHT GRID QUICK ACTION CHIPS */
 #gcc-chips {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 6px;
-    padding: 10px 14px;
+    padding: 8px 12px;
     background: #f0fdf4;
     border-bottom: 1px solid #dcfce7;
-    scrollbar-width: none;
+    flex-shrink: 0;
 }
-#gcc-chips::-webkit-scrollbar { display: none; }
 #gcc-chips button {
     border: 1px solid #a7f3d0;
     background: #ffffff;
     color: #065f46;
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 11.5px;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
+    text-align: center;
     white-space: nowrap;
-    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
 }
 #gcc-chips button:hover {
     background: #059669;
@@ -176,14 +189,14 @@
 #gcc-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 14px;
     background: #f8fafc;
     scroll-behavior: smooth;
 }
 .gcc-msg {
     display: flex;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     animation: gccSlide 0.2s ease-out;
 }
 @keyframes gccSlide {
@@ -193,15 +206,22 @@
 .gcc-msg.user { flex-direction: row-reverse; }
 
 .gcc-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     color: #ffffff;
+}
+.gcc-avatar svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
 }
 .gcc-msg.user .gcc-avatar {
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
@@ -211,14 +231,14 @@
 }
 
 .gcc-bubble {
-    max-width: 82%;
-    padding: 10px 14px;
-    border-radius: 15px;
-    font-size: 13px;
-    line-height: 1.55;
+    max-width: 84%;
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-size: 12.5px;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
 }
 .gcc-msg.user .gcc-bubble {
     background: linear-gradient(135deg, #059669, #10b981);
@@ -253,82 +273,82 @@
 .gcc-products {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     margin-top: 8px;
-    max-width: 90%;
+    max-width: 92%;
 }
 .gcc-product-card {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 8px 10px;
+    border-radius: 10px;
+    padding: 6px 8px;
     text-decoration: none !important;
     color: inherit;
     transition: all 0.2s ease;
 }
 .gcc-product-card:hover {
     border-color: #10b981;
-    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.12);
+    box-shadow: 0 3px 10px rgba(5, 150, 105, 0.12);
     transform: translateY(-1px);
     color: inherit;
 }
 .gcc-product-card img {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 6px;
     flex-shrink: 0;
     border: 1px solid #f1f5f9;
 }
 .gcc-product-card .gcc-pname {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 600;
     color: #1e293b;
-    margin: 0 0 3px;
+    margin: 0 0 2px;
     line-height: 1.3;
 }
 .gcc-product-card .gcc-pprice {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #059669;
     margin: 0;
 }
 .gcc-product-card .gcc-pstock {
-    font-size: 10.5px;
+    font-size: 10px;
     color: #64748b;
-    margin: 2px 0 0;
+    margin: 1px 0 0;
 }
 
 /* TYPING INDICATOR */
 #gcc-typing {
     display: none;
-    padding: 4px 16px 8px;
-    font-size: 12px;
+    padding: 4px 14px 6px;
+    font-size: 11.5px;
     color: #059669;
     font-weight: 600;
     background: #f8fafc;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 #gcc-typing.show { display: flex; }
 
 /* INPUT BOX */
 #gcc-input-wrap {
-    padding: 12px 14px;
+    padding: 10px 12px;
     border-top: 1px solid #e2e8f0;
     background: #ffffff;
     flex-shrink: 0;
 }
 #gcc-form {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: flex-end;
     background: #f8fafc;
     border: 1.5px solid #cbd5e1;
-    border-radius: 14px;
-    padding: 6px 8px 6px 12px;
+    border-radius: 12px;
+    padding: 5px 6px 5px 10px;
     transition: all 0.2s ease;
 }
 #gcc-form:focus-within {
@@ -341,33 +361,40 @@
     resize: none;
     border: none;
     background: transparent;
-    font-size: 13px;
-    max-height: 90px;
-    min-height: 28px;
+    font-size: 12.5px;
+    max-height: 80px;
+    min-height: 26px;
     outline: none;
     color: #1e293b;
-    padding: 4px 0;
+    padding: 3px 0;
     line-height: 1.4;
 }
 #gcc-send {
     background: linear-gradient(135deg, #059669, #10b981);
     border: none;
     color: #ffffff;
-    border-radius: 10px;
-    padding: 6px 14px;
+    border-radius: 8px;
+    padding: 5px 12px;
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 12px;
     cursor: pointer;
     flex-shrink: 0;
-    height: 32px;
+    height: 30px;
     display: inline-flex;
     align-items: center;
     gap: 4px;
     transition: all 0.2s ease;
 }
+#gcc-send svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
 #gcc-send:hover:not(:disabled) {
     transform: scale(1.03);
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    box-shadow: 0 3px 10px rgba(5, 150, 105, 0.3);
 }
 #gcc-send:disabled {
     opacity: 0.55;
@@ -382,30 +409,30 @@
     background: #ffffff;
     z-index: 5;
     flex-direction: column;
-    padding: 18px;
+    padding: 16px;
     overflow-y: auto;
 }
 #gcc-complaint-panel.show { display: flex; }
 #gcc-complaint-panel h6 {
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     color: #1e293b;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 #gcc-complaint-panel label {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 600;
     color: #475569;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     display: block;
 }
 #gcc-complaint-panel input, #gcc-complaint-panel textarea {
     width: 100%;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 13px;
-    margin-bottom: 10px;
+    padding: 7px 9px;
+    font-size: 12.5px;
+    margin-bottom: 8px;
     outline: none;
 }
 #gcc-complaint-panel input:focus, #gcc-complaint-panel textarea:focus {
@@ -414,14 +441,14 @@
 #gcc-complaint-actions {
     display: flex;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 6px;
 }
 #gcc-complaint-actions button {
     flex: 1;
-    padding: 9px;
-    border-radius: 10px;
+    padding: 8px;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12.5px;
     cursor: pointer;
     border: none;
 }
@@ -429,8 +456,8 @@
 #gcc-complaint-cancel { background: #f1f5f9; color: #475569; }
 
 @media (max-width: 480px) {
-    #gcc-panel { right: 12px; bottom: 130px; width: calc(100vw - 24px); height: 68vh; }
-    #gcc-toggle { right: 16px; bottom: 70px; width: 52px; height: 52px; }
+    #gcc-panel { right: 12px; bottom: 125px; width: calc(100vw - 24px); height: 66vh; }
+    #gcc-toggle { right: 16px; bottom: 65px; width: 48px; height: 48px; }
 }
 </style>
 
@@ -438,9 +465,9 @@
     <div id="gcc-panel">
         <div id="gcc-header">
             <div id="gcc-header-top">
-                <div style="display:flex;align-items:center;gap:12px;">
+                <div style="display:flex;align-items:center;gap:10px;">
                     <div class="gcc-header-icon-wrap" aria-hidden="true">
-                        <i class="fas fa-headset"></i>
+                        <svg viewBox="0 0 24 24"><path d="M3 11h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3v-5z"/><path d="M21 11h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2v-5z"/><path d="M3 18v-6a9 9 0 0 1 18 0v6"/></svg>
                     </div>
                     <div>
                         <h5>লাইভ সহায়তা</h5>
@@ -451,6 +478,7 @@
             </div>
         </div>
 
+        {{-- 2x2 TIGHT GRID CHIPS --}}
         <div id="gcc-chips">
             <button type="button" data-q="৫০০০ টাকার মধ্যে ভালো প্রোডাক্ট দেখান">🔍 প্রোডাক্ট সার্চ</button>
             <button type="button" data-q="আমার অর্ডার ট্র্যাক করতে চাই">📦 অর্ডার ট্র্যাক</button>
@@ -459,12 +487,17 @@
         </div>
 
         <div id="gcc-messages"></div>
-        <div id="gcc-typing"><i class="fas fa-spinner fa-spin"></i> উত্তর তৈরি হচ্ছে...</div>
+        <div id="gcc-typing">
+            <svg style="width:14px;height:14px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+            <span>উত্তর তৈরি হচ্ছে...</span>
+        </div>
 
         <div id="gcc-input-wrap">
             <form id="gcc-form">
                 <textarea id="gcc-input" rows="1" placeholder="যেকোনো প্রশ্ন লিখুন..." maxlength="2000"></textarea>
-                <button type="submit" id="gcc-send"><i class="fas fa-paper-plane"></i></button>
+                <button type="submit" id="gcc-send" aria-label="Send">
+                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
             </form>
         </div>
 
@@ -485,8 +518,11 @@
         </div>
     </div>
 
+    {{-- CLEAN CRISP SVG TOGGLE BUTTON --}}
     <button type="button" id="gcc-toggle" title="লাইভ সহায়তা" aria-label="Open live chat">
-        <i class="fas fa-comments"></i>
+        <svg viewBox="0 0 24 24">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
     </button>
 </div>
 
@@ -511,35 +547,47 @@
     var isOpen = false;
     var welcomed = history.length > 0;
 
+    var botSvg = '<svg viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>';
+    var userSvg = '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    var extLinkSvg = '<svg style="width:11px;height:11px;display:inline-block;vertical-align:middle;margin-left:2px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+
     function esc(t) {
         var d = document.createElement('div');
         d.textContent = t;
         return d.innerHTML;
     }
 
-    // Convert markdown links & raw URLs into safe clickable links with target="_blank"
-    function formatChatLinks(text) {
-        if (!text) return '';
-        var safe = esc(text);
+    // ⭐ Bulletproof URL & Markdown Link Formatter with Placeholders to prevent corrupted HTML
+    function formatChatLinks(rawText) {
+        if (!rawText) return '';
+        var div = document.createElement('div');
+        div.textContent = rawText;
+        var text = div.innerHTML;
 
-        // 1. Markdown style: [Label](url)
-        safe = safe.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+|\/[^\s\)]+)\)/gi, function(match, label, url) {
-            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + label + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        var links = [];
+
+        // 1. Markdown Links [label](url)
+        text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)\"\'<>]+|\/[^\s\)\"\'<>]+)\)/gi, function(match, label, url) {
+            var idx = links.length;
+            links.push('<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + label + ' ' + extLinkSvg + '</a>');
+            return '___GCC_LINK_' + idx + '___';
         });
 
-        // 2. Raw absolute URLs (http:// or https://)
-        safe = safe.replace(/(?<!href=["'])(https?:\/\/[^\s<]+)/gi, function(url) {
-            var cleanUrl = url.replace(/[.,;!?]+$/, '');
-            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        // 2. Full absolute URLs (http:// or https://)
+        text = text.replace(/(https?:\/\/[^\s<>"']+)/gi, function(url) {
+            var cleanUrl = url.replace(/[.,;:!?)]+$/, '');
+            var trail = url.slice(cleanUrl.length);
+            var idx = links.length;
+            links.push('<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' ' + extLinkSvg + '</a>' + trail);
+            return '___GCC_LINK_' + idx + '___';
         });
 
-        // 3. Internal store paths (e.g. /order-track/...)
-        safe = safe.replace(/(?<!href=["'])(?<!\/)(\/(?:order-track|customer|product|shop|track|complaint)[^\s<]*)/gi, function(url) {
-            var cleanUrl = url.replace(/[.,;!?]+$/, '');
-            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
-        });
+        // 3. Restore links
+        for (var i = 0; i < links.length; i++) {
+            text = text.replace('___GCC_LINK_' + i + '___', links[i]);
+        }
 
-        return safe;
+        return text;
     }
 
     function renderProducts(products) {
@@ -558,7 +606,7 @@
     function appendBubble(role, text, products, scroll) {
         var div = document.createElement('div');
         div.className = 'gcc-msg ' + (role === 'user' ? 'user' : 'bot');
-        var avatar = role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        var avatar = role === 'user' ? userSvg : botSvg;
         var extra = role === 'bot' && products ? renderProducts(products) : '';
         div.innerHTML = '<div class="gcc-avatar">' + avatar + '</div><div><div class="gcc-bubble">' + formatChatLinks(text) + '</div>' + extra + '</div>';
         messages.appendChild(div);
@@ -651,7 +699,7 @@
 
     input.addEventListener('input', function () {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 90) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 80) + 'px';
     });
 
     document.querySelectorAll('#gcc-chips [data-q]').forEach(function (btn) {
