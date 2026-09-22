@@ -657,13 +657,7 @@
                       <li><a href="{{ route('products.create') }}" class="{{ request()->routeIs('products.create') ? 'active' : '' }}"><i data-feather="plus-circle"></i> Add Product</a></li>
                       @endcan
                       @can('category-list')
-                      <li><a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Categories</a></li>
-                      @endcan
-                      @can('subcategory-list')
-                      <li><a href="{{ route('subcategories.index') }}" class="{{ request()->routeIs('subcategories.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Subcategories</a></li>
-                      @endcan
-                      @can('childcategory-list')
-                      <li><a href="{{ route('childcategories.index') }}" class="{{ request()->routeIs('childcategories.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Childcategories</a></li>
+                      <li><a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*', 'subcategories.*', 'childcategories.*') ? 'active' : '' }}"><i data-feather="grid"></i> Categories</a></li>
                       @endcan
                       @canany(['brand-list', 'brand-create', 'brand-edit'])
                       <li><a href="{{ route('brands.index') }}" class="{{ request()->routeIs('brands.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Brands</a></li>

@@ -30,8 +30,7 @@ class SubcategoryController extends Controller
 
     public function index(Request $request)
     {
-        $data = Subcategory::orderBy('id','DESC')->with('category')->get();
-        return view('backEnd.subcategory.index',compact('data'));
+        return redirect()->to(route('categories.index') . '#tab-subcategories');
     }
     public function create()
     {

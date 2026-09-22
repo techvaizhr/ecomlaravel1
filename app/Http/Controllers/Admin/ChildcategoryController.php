@@ -31,8 +31,7 @@ class ChildcategoryController extends Controller
 
     public function index(Request $request)
     {
-        $data = Childcategory::orderBy('id','DESC')->with('subcategory')->get();
-        return view('backEnd.childcategory.index', compact('data'));
+        return redirect()->to(route('categories.index') . '#tab-childcategories');
     }
     public function create()
     {
