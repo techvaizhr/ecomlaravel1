@@ -169,21 +169,9 @@
 
           <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
             <li>
-              <button class="button-menu-mobile waves-effect waves-light" id="sidebar-toggle-btn" title="Toggle Sidebar">
+              <button class="button-menu-mobile waves-effect waves-light" id="sidebar-toggle-btn" type="button" title="Toggle Sidebar">
                 <i class="fe-menu"></i>
               </button>
-            </li>
-
-            <li>
-              <!-- Mobile menu toggle (Horizontal Layout)-->
-              <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
-                <div class="lines">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-              </a>
-              <!-- End mobile menu toggle-->
             </li>
 
             <li class="dropdown d-none d-xl-block">

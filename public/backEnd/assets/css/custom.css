@@ -333,11 +333,11 @@ input.invdiscount {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     width: 100%;
-    padding: 10px 0;
+    padding: 8px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 3px;
     scrollbar-width: none !important; /* Firefox */
     -ms-overflow-style: none !important; /* IE and Edge */
 }
@@ -349,9 +349,9 @@ input.invdiscount {
 
 .rail-item {
     position: relative;
-    width: 46px;
-    height: 46px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 9px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -363,8 +363,8 @@ input.invdiscount {
     flex-shrink: 0;
 }
 .rail-item svg {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
     stroke-width: 1.9;
     transition: transform 0.2s;
 }
@@ -704,12 +704,26 @@ input.invdiscount {
         z-index: 1050 !important;
         display: flex !important;
         width: var(--two-col-total-width) !important;
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        max-width: 90vw !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 10px 0 35px rgba(0,0,0,0.6) !important;
     }
     body.sidebar-mobile-open .two-column-sidebar {
         transform: translateX(0) !important;
+    }
+    .two-column-sidebar .sidebar-icon-rail {
+        display: flex !important;
+        width: var(--rail-width) !important;
+        flex-shrink: 0 !important;
+        height: 100% !important;
+    }
+    .two-column-sidebar .sidebar-subpanel {
+        display: flex !important;
+        width: calc(100% - var(--rail-width)) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        height: 100% !important;
     }
     .two-column-backdrop {
         position: fixed;
@@ -718,10 +732,12 @@ input.invdiscount {
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
         z-index: 1040;
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
     }
     body.sidebar-mobile-open .two-column-backdrop {
         opacity: 1;
