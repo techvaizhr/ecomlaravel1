@@ -29,10 +29,14 @@
                                 @endforeach
                             </select>
                             <select name="per_page" class="form-select order-per-page-select flex-shrink-0" aria-label="প্রতি পেজে" onchange="this.form.submit()" style="width: auto; min-width: 105px;" title="প্রতি পেজে অর্ডারের সংখ্যা">
-                                @php $currentPerPage = admin_per_page(10, 'admin_order_per_page'); @endphp
+                                @php 
+                                    $sessionPerVal = session('admin_order_per_page', session('admin_per_page', 10));
+                                    $reqPerVal = request('per_page', $sessionPerVal);
+                                @endphp
                                 @foreach([10, 20, 50, 100, 200, 500] as $opt)
-                                    <option value="{{ $opt }}" {{ $currentPerPage == $opt ? 'selected' : '' }}>{{ $opt }} ভিউ</option>
+                                    <option value="{{ $opt }}" {{ (string)$reqPerVal === (string)$opt ? 'selected' : '' }}>{{ $opt }} ভিউ</option>
                                 @endforeach
+                                <option value="all" {{ (string)$reqPerVal === 'all' || (int)$reqPerVal >= 5000 ? 'selected' : '' }}>সকল ভিউ</option>
                             </select>
                             <button type="submit" class="btn oi-btn-primary flex-shrink-0"><i class="fas fa-search me-1"></i> খুঁজুন</button>
                         </div>
