@@ -63,7 +63,7 @@
                             <th>গ্রাহক</th>
                             <th>পরিমাণ</th>
                             <th>স্ট্যাটাস</th>
-                            <th>ফ্রড চেক</th>
+                            <th class="text-center px-1" style="width: 80px;">ফ্রড চেক</th>
                             <th class="text-end pe-3" style="width: 40px;"><i class="fas fa-ellipsis-v"></i></th>
                         </tr>
                     </thead>

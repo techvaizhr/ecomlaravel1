@@ -119,21 +119,21 @@
                                             <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11.5px; font-weight: 600;">{{ $value->status ? $value->status->name : '—' }}</span>
                                         </td>
 
-                                        {{-- 8. Fraud Check --}}
-                                        <td class="align-middle text-nowrap">
+                                        {{-- 8. Fraud Check (Tight & Compact) --}}
+                                        <td class="align-middle text-center text-nowrap px-1" style="width: 80px;">
                                             @if(is_null($value->fraud_rate))
                                                 <a href="javascript:void(0);" 
-                                                class="btn btn-sm fraud-check"
-                                                data-mobile="{{ $value->shipping ? $value->shipping->phone : '' }}"
-                                                style="background:#fb8709; color:#fff; padding:4px 10px; border-radius:6px; font-size:12px;">
-                                                চেকিং
-                                            </a>
+                                                   class="btn btn-xs fraud-check"
+                                                   data-mobile="{{ $value->shipping ? $value->shipping->phone : '' }}"
+                                                   style="background:#fb8709; color:#fff; padding: 2.5px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600; line-height: 1.2;">
+                                                    যাচাই
+                                                </a>
                                             @else
                                                 <a href="javascript:void(0);" 
-                                                   class="btn btn-sm fraud-check {{ $value->fraud_rate >= 80 ? 'btn-success' : 'btn-danger' }}"
+                                                   class="btn btn-xs fraud-check {{ $value->fraud_rate >= 80 ? 'btn-success' : 'btn-danger' }}"
                                                    data-mobile="{{ $value->shipping ? $value->shipping->phone : '' }}"
                                                    data-id="{{ $value->id }}"
-                                                   style="padding:4px 10px; border-radius:6px; font-size:12px;">
+                                                   style="padding: 2.5px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600; line-height: 1.2;">
                                                     {{ $value->fraud_rate }}% {{ $value->fraud_rate >= 80 ? 'নিরাপদ' : 'ঝুঁকি' }}
                                                 </a>
                                             @endif
