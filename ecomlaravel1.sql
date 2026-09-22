@@ -1678,7 +1678,7 @@ CREATE TABLE `gemini_ai_settings` (
 --
 
 INSERT INTO `gemini_ai_settings` (`id`, `api_key`, `model`, `timeout`, `status`, `customer_chat_enabled`, `customer_chat_welcome`, `created_at`, `updated_at`) VALUES
-(1, 'YOUR_GEMINI_API_KEY', 'gemini-2.5-flash', 60, 1, 1, NULL, '2026-06-28 16:32:44', '2026-06-28 16:55:05');
+(1, 'AQ.Ab8RN6L0Bz89Dy2-9BKPWzCwKwLWUdaq_a3mrop2qp10eYUMSg', 'gemini-2.5-flash', 60, 1, 1, NULL, '2026-06-28 16:32:44', '2026-06-28 16:55:05');
 
 -- --------------------------------------------------------
 
