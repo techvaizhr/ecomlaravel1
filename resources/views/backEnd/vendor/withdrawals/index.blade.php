@@ -281,7 +281,14 @@
                                     <div class="fw-semibold text-dark">{{ $row->account_name }}</div>
                                 @endif
                                 @if($row->account_number)
-                                    <div class="text-muted font-monospace font-size-12">{{ $row->account_number }}</div>
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        <span class="text-dark font-monospace font-size-12 fw-bold">{{ $row->account_number }}</span>
+                                        <button type="button" class="btn btn-sm btn-light border p-0 d-inline-flex align-items-center justify-content-center" 
+                                                onclick="copyToClipboard('{{ $row->account_number }}', this)" 
+                                                title="Copy Account Number" style="width: 22px; height: 22px; border-radius: 4px;">
+                                            <i class="fe-copy font-size-11 text-muted"></i>
+                                        </button>
+                                    </div>
                                 @endif
                                 @if($row->note)
                                     <div class="text-muted fst-italic font-size-11 mt-1">"{{ Str::limit($row->note, 30) }}"</div>
@@ -416,4 +423,34 @@
         @endif
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+    function copyToClipboard(text, btn) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function() {
+            if (typeof toastr !== 'undefined') {
+                toastr.success('Account number copied: ' + text);
+            }
+            var icon = btn.querySelector('i');
+            if (icon) {
+                icon.className = 'fe-check text-success font-size-11';
+                setTimeout(function() {
+                    icon.className = 'fe-copy font-size-11 text-muted';
+                }, 2000);
+            }
+        }).catch(function() {
+            var temp = document.createElement('input');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            if (typeof toastr !== 'undefined') {
+                toastr.success('Account number copied: ' + text);
+            }
+        });
+    }
+</script>
 @endsection

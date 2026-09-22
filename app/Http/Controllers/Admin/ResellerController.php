@@ -13,42 +13,86 @@ use Illuminate\Support\Facades\Hash;
 class ResellerController extends Controller
 {
     /**
-     * Display a listing of resellers.
+     * Display a listing of resellers with multi-criteria filters, per-page selection, and stats.
      */
     public function index(Request $request)
     {
-        $query = User::where(function ($q) {
+        $resellerScope = function ($q) {
             $q->where('role', 'reseller')
-                ->orWhereHas('roles', function ($r) {
-                    $r->where('name', 'reseller');
-                });
-        });
+              ->orWhereHas('roles', function ($r) {
+                  $r->where('name', 'reseller');
+              });
+        };
 
-        if ($request->keyword) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->keyword . '%')
-                    ->orWhere('shop_name', 'like', '%' . $request->keyword . '%')
-                    ->orWhere('email', 'like', '%' . $request->keyword . '%');
+        $query = User::where($resellerScope);
+
+        // Keyword Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('shop_name', 'like', "%{$keyword}%")
+                  ->orWhere('email', 'like', "%{$keyword}%")
+                  ->orWhere('phone', 'like', "%{$keyword}%");
             });
         }
 
-        $resellers = $query->latest()->paginate(20)->withQueryString();
+        // Status Filter
+        if ($request->filled('status')) {
+            $query->where('status', (int)$request->status);
+        }
 
-        $resellerScope = function ($q) {
-            $q->where('role', 'reseller')
-                ->orWhereHas('roles', function ($r) {
-                    $r->where('name', 'reseller');
+        // Verification Status Filter
+        if ($request->filled('verification_status')) {
+            if ($request->verification_status === 'pending') {
+                $query->where(function ($q) {
+                    $q->whereNull('verification_status')
+                      ->orWhere('verification_status', 'pending')
+                      ->orWhereNotIn('verification_status', ['approved', 'rejected']);
                 });
-        };
+            } else {
+                $query->where('verification_status', $request->verification_status);
+            }
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'latest');
+        switch ($sortBy) {
+            case 'oldest':
+                $query->oldest('id');
+                break;
+            case 'balance_high':
+                $query->orderByDesc('wallet_balance');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            default:
+                $query->latest('id');
+                break;
+        }
+
+        // Per page
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(User::where($resellerScope)->count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $resellers = $query->paginate($perPage)->withQueryString();
 
         $stats = [
             'total'    => User::where($resellerScope)->count(),
             'active'   => User::where($resellerScope)->where('status', 1)->count(),
+            'inactive' => User::where($resellerScope)->where('status', 0)->count(),
             'verified' => User::where($resellerScope)->where('verification_status', 'approved')->count(),
             'pending'  => User::where($resellerScope)->where(function ($q) {
                 $q->whereNull('verification_status')
+                    ->orWhere('verification_status', 'pending')
                     ->orWhereNotIn('verification_status', ['approved', 'rejected']);
             })->count(),
+            'rejected' => User::where($resellerScope)->where('verification_status', 'rejected')->count(),
         ];
 
         return view('backEnd.reseller.index', compact('resellers', 'stats'));
