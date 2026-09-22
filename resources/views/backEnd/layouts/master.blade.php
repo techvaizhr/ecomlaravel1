@@ -225,12 +225,6 @@
       <div class="left-side-menu two-column-sidebar" id="two-column-sidebar">
         <!-- 1. LEFT ICON RAIL (Always visible on desktop & in collapsed mode) -->
         <div class="sidebar-icon-rail">
-          <div class="icon-rail-header">
-            <a href="{{ url('admin/dashboard') }}" class="rail-logo" title="{{ isset($generalsetting->name) ? $generalsetting->name : 'Dashboard' }}">
-              <img src="{{ asset(isset($generalsetting->favicon) && $generalsetting->favicon ? $generalsetting->favicon : (isset($generalsetting->white_logo) && $generalsetting->white_logo ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png')) }}" alt="Logo" class="rail-brand-logo" />
-            </a>
-          </div>
-
           <div class="icon-rail-nav">
             <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-main' ? 'active' : '' }}" data-section="section-main" title="Main Menu" data-bs-toggle="tooltip" data-bs-placement="right">
               <i data-feather="grid"></i>
@@ -297,23 +291,6 @@
 
         <!-- 2. SUBMENU PANEL (Collapsible) -->
         <div class="sidebar-subpanel" id="sidebar-subpanel">
-          <div class="subpanel-header">
-            <div class="store-branding">
-              <a href="{{ url('admin/dashboard') }}" class="store-name-link">
-                <div class="store-avatar">
-                  <img src="{{ asset(isset($generalsetting->white_logo) && $generalsetting->white_logo ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png') }}" alt="Logo" />
-                </div>
-                <div class="store-info">
-                  <h6 class="store-title">{{ isset($generalsetting->name) ? $generalsetting->name : 'ecomlaravel1' }}</h6>
-                  <span class="store-subtitle">Shop Management</span>
-                </div>
-              </a>
-            </div>
-            <button type="button" class="subpanel-toggle-btn" id="sidebar-collapse-btn" title="Collapse Sidebar">
-              <i data-feather="sidebar"></i>
-            </button>
-          </div>
-
           <!-- Quick Jump Search -->
           <div class="subpanel-search">
             <div class="search-wrap">
