@@ -1254,18 +1254,259 @@ body.dark-mode .card-body {
 }
 
 /* 13. Pagination */
-[data-theme="dark"] .page-link {
+[data-theme="dark"] .page-link, body.dark-mode .page-link {
     background-color: #182343 !important;
     border-color: #1e2d52 !important;
     color: #cbd5e1 !important;
 }
-[data-theme="dark"] .page-item.active .page-link {
+[data-theme="dark"] .page-item.active .page-link, body.dark-mode .page-item.active .page-link {
     background-color: #4f46e5 !important;
     border-color: #4f46e5 !important;
     color: #ffffff !important;
 }
-[data-theme="dark"] .page-item.disabled .page-link {
+[data-theme="dark"] .page-item.disabled .page-link, body.dark-mode .page-item.disabled .page-link {
     background-color: #0f172a !important;
     border-color: #1e2d52 !important;
     color: #64748b !important;
+}
+
+/* 14. Smart Date Filter & Dropdowns */
+[data-theme="dark"] .smart-date-btn,
+body.dark-mode .smart-date-btn {
+    background: #0f172a !important;
+    background-color: #0f172a !important;
+    border-color: #2d3f6d !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .smart-date-btn:hover,
+body.dark-mode .smart-date-btn:hover {
+    background: #182343 !important;
+    border-color: #6366f1 !important;
+}
+[data-theme="dark"] .smart-date-dropdown,
+body.dark-mode .smart-date-dropdown {
+    background-color: #131d38 !important;
+    border: 1px solid #1e2d52 !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .smart-date-dropdown .bg-light,
+body.dark-mode .smart-date-dropdown .bg-light {
+    background-color: #182343 !important;
+    border-color: #1e2d52 !important;
+}
+[data-theme="dark"] .smart-date-dropdown .dropdown-item,
+body.dark-mode .smart-date-dropdown .dropdown-item {
+    color: #cbd5e1 !important;
+}
+[data-theme="dark"] .smart-date-dropdown .dropdown-item:hover,
+body.dark-mode .smart-date-dropdown .dropdown-item:hover {
+    background-color: #1e2d52 !important;
+    color: #ffffff !important;
+}
+[data-theme="dark"] .smart-date-dropdown .dropdown-item.active,
+body.dark-mode .smart-date-dropdown .dropdown-item.active {
+    background-color: #4f46e5 !important;
+    color: #ffffff !important;
+}
+
+/* 15. Filter Cards, Stat Cards & Report Elements */
+[data-theme="dark"] .filter-card,
+body.dark-mode .filter-card,
+[data-theme="dark"] .stat-card,
+body.dark-mode .stat-card {
+    background: #131d38 !important;
+    background-color: #131d38 !important;
+    border-color: #1e2d52 !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .stat-label,
+body.dark-mode .stat-label,
+[data-theme="dark"] .form-label-custom,
+body.dark-mode .form-label-custom {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] .stat-value,
+body.dark-mode .stat-value {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .bg-light-primary,
+body.dark-mode .bg-light-primary {
+    background: rgba(99, 102, 241, 0.2) !important;
+    color: #818cf8 !important;
+}
+[data-theme="dark"] .bg-light-success,
+body.dark-mode .bg-light-success {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #34d399 !important;
+}
+[data-theme="dark"] .bg-light-warning,
+body.dark-mode .bg-light-warning {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+}
+[data-theme="dark"] .bg-light-info,
+body.dark-mode .bg-light-info {
+    background: rgba(14, 165, 233, 0.2) !important;
+    color: #38bdf8 !important;
+}
+
+/* 16. Input Groups & Form Addons */
+[data-theme="dark"] .input-group-text,
+body.dark-mode .input-group-text,
+[data-theme="dark"] .input-group-text.bg-white,
+body.dark-mode .input-group-text.bg-white {
+    background-color: #182343 !important;
+    background: #182343 !important;
+    border-color: #2d3f6d !important;
+    color: #cbd5e1 !important;
+}
+[data-theme="dark"] .form-control.bg-white,
+body.dark-mode .form-control.bg-white {
+    background-color: #0f172a !important;
+    background: #0f172a !important;
+    border-color: #2d3f6d !important;
+    color: #f8fafc !important;
+}
+
+/* 17. Badges, Chips & Special Elements */
+[data-theme="dark"] .coupon-badge,
+body.dark-mode .coupon-badge {
+    background: #182343 !important;
+    border-color: #6366f1 !important;
+    color: #818cf8 !important;
+}
+[data-theme="dark"] .coupon-badge:hover,
+body.dark-mode .coupon-badge:hover {
+    background: #1e2d52 !important;
+    border-color: #818cf8 !important;
+}
+[data-theme="dark"] .type-fixed,
+body.dark-mode .type-fixed {
+    background: rgba(14, 165, 233, 0.2) !important;
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .type-percent,
+body.dark-mode .type-percent {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+}
+[data-theme="dark"] .badge-soft.badge-active,
+body.dark-mode .badge-soft.badge-active {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #34d399 !important;
+}
+[data-theme="dark"] .badge-soft.badge-inactive,
+body.dark-mode .badge-soft.badge-inactive {
+    background: #182343 !important;
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] .badge-soft.badge-expired,
+body.dark-mode .badge-soft.badge-expired {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #f87171 !important;
+}
+[data-theme="dark"] .badge.bg-light.text-dark,
+body.dark-mode .badge.bg-light.text-dark {
+    background-color: #182343 !important;
+    border-color: #2d3f6d !important;
+    color: #cbd5e1 !important;
+}
+[data-theme="dark"] .badge.bg-light.text-primary,
+body.dark-mode .badge.bg-light.text-primary {
+    background-color: #182343 !important;
+    border-color: #2d3f6d !important;
+    color: #60a5fa !important;
+}
+
+/* 18. Gemini AI Floating Chatbot */
+[data-theme="dark"] #gemini-admin-widget #gaw-panel,
+body.dark-mode #gemini-admin-widget #gaw-panel {
+    background: #131d38 !important;
+    box-shadow: -10px 0 50px rgba(0, 0, 0, 0.6) !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-messages,
+body.dark-mode #gemini-admin-widget #gaw-messages {
+    background: #0b1329 !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-messages .gaw-msg.bot .gaw-bubble,
+body.dark-mode #gemini-admin-widget #gaw-messages .gaw-msg.bot .gaw-bubble {
+    background: #182343 !important;
+    border-color: #1e2d52 !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-empty strong,
+body.dark-mode #gemini-admin-widget #gaw-empty strong {
+    color: #ffffff !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-empty p,
+body.dark-mode #gemini-admin-widget #gaw-empty p {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-suggestions button,
+body.dark-mode #gemini-admin-widget #gaw-suggestions button {
+    background: #182343 !important;
+    border-color: #1e2d52 !important;
+    color: #cbd5e1 !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-suggestions button:hover,
+body.dark-mode #gemini-admin-widget #gaw-suggestions button:hover {
+    background: #1e2d52 !important;
+    color: #818cf8 !important;
+    border-color: #6366f1 !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-typing,
+body.dark-mode #gemini-admin-widget #gaw-typing {
+    background: #0b1329 !important;
+    color: #818cf8 !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-input-wrap,
+body.dark-mode #gemini-admin-widget #gaw-input-wrap {
+    background: #131d38 !important;
+    border-top-color: #1e2d52 !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-input-form,
+body.dark-mode #gemini-admin-widget #gaw-input-form {
+    background: #0f172a !important;
+    border-color: #2d3f6d !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-input-form:focus-within,
+body.dark-mode #gemini-admin-widget #gaw-input-form:focus-within {
+    background: #0f172a !important;
+    border-color: #6366f1 !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-input,
+body.dark-mode #gemini-admin-widget #gaw-input {
+    color: #f8fafc !important;
+}
+[data-theme="dark"] #gemini-admin-widget #gaw-input::placeholder,
+body.dark-mode #gemini-admin-widget #gaw-input::placeholder {
+    color: #64748b !important;
+}
+
+/* 19. Summernote & Rich Text Editors */
+[data-theme="dark"] .note-editor.note-frame,
+body.dark-mode .note-editor.note-frame {
+    border-color: #2d3f6d !important;
+    background-color: #0f172a !important;
+}
+[data-theme="dark"] .note-toolbar,
+body.dark-mode .note-toolbar {
+    background-color: #182343 !important;
+    border-bottom-color: #2d3f6d !important;
+}
+[data-theme="dark"] .note-btn,
+body.dark-mode .note-btn {
+    background-color: #131d38 !important;
+    border-color: #2d3f6d !important;
+    color: #cbd5e1 !important;
+}
+[data-theme="dark"] .note-editable,
+body.dark-mode .note-editable {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .note-statusbar,
+body.dark-mode .note-statusbar {
+    background-color: #182343 !important;
+    border-top-color: #2d3f6d !important;
 }
