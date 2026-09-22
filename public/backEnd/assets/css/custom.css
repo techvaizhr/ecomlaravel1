@@ -318,27 +318,25 @@ body.sidebar-collapsed[data-sidebar-size="condensed"] .content-page {
     justify-content: center;
     width: 100%;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 6px;
 }
 
-.rail-logo-badge {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #10b981, #059669);
+.rail-logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    width: 100%;
+    height: 100%;
+}
+.rail-brand-logo {
+    max-height: 42px;
+    max-width: 52px;
+    object-fit: contain;
+    border-radius: 6px;
     transition: transform 0.2s;
 }
-.rail-logo-badge svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2.2;
-}
-.rail-logo:hover .rail-logo-badge {
-    transform: scale(1.05);
+.rail-logo:hover .rail-brand-logo {
+    transform: scale(1.06);
 }
 
 .icon-rail-nav {
@@ -410,6 +408,13 @@ body.sidebar-collapsed[data-sidebar-size="condensed"] .content-page {
     display: flex;
     justify-content: center;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.rail-logout-btn:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #ef4444 !important;
+}
+.rail-logout-btn:hover svg {
+    stroke: #ef4444 !important;
 }
 
 /* 2. Submenu Panel */
@@ -629,12 +634,21 @@ body.sidebar-collapsed[data-sidebar-size="condensed"] .content-page {
 /* Sub-collapsible inside Pane */
 .subpanel-menu .menu-arrow {
     margin-left: auto;
-    width: 5.5px;
-    height: 5.5px;
+    width: 6px;
+    height: 6px;
     border-right: 1.5px solid currentColor;
     border-bottom: 1.5px solid currentColor;
     transform: rotate(-45deg);
     transition: transform 0.2s ease;
+    display: inline-block !important;
+    line-height: 1;
+    font-size: 0 !important;
+    flex-shrink: 0;
+}
+.subpanel-menu .menu-arrow:before,
+.subpanel-menu .menu-arrow:after {
+    content: none !important;
+    display: none !important;
 }
 .subpanel-menu a[aria-expanded="true"] .menu-arrow {
     transform: rotate(45deg);

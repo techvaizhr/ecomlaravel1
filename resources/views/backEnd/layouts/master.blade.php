@@ -226,8 +226,8 @@
         <!-- 1. LEFT ICON RAIL (Always visible on desktop & in collapsed mode) -->
         <div class="sidebar-icon-rail">
           <div class="icon-rail-header">
-            <a href="{{ url('admin/dashboard') }}" class="rail-logo" title="Dashboard">
-              <span class="rail-logo-badge"><i data-feather="grid"></i></span>
+            <a href="{{ url('admin/dashboard') }}" class="rail-logo" title="{{ isset($generalsetting->name) ? $generalsetting->name : 'Dashboard' }}">
+              <img src="{{ asset(isset($generalsetting->favicon) && $generalsetting->favicon ? $generalsetting->favicon : (isset($generalsetting->white_logo) && $generalsetting->white_logo ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png')) }}" alt="Logo" class="rail-brand-logo" />
             </a>
           </div>
 
@@ -286,9 +286,12 @@
           </div>
 
           <div class="icon-rail-footer">
-            <a href="{{ route('home') }}" target="_blank" class="rail-item" title="Visit Website" data-bs-toggle="tooltip" data-bs-placement="right">
-              <i data-feather="globe"></i>
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rail-logout-form').submit();" class="rail-item rail-logout-btn" title="Logout" data-bs-toggle="tooltip" data-bs-placement="right">
+              <i data-feather="log-out"></i>
             </a>
+            <form id="rail-logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+              @csrf
+            </form>
           </div>
         </div>
 
