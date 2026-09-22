@@ -631,7 +631,7 @@ PROMPT;
 
             $query = Order::query();
         } else {
-            $order_status = OrderStatus::where('slug', $slug)->first();
+            $order_status = OrderStatus::where('slug', $slug)->withCount('orders')->first();
             if (!$order_status) {
                 abort(404, 'Order status not found');
             }
@@ -655,14 +655,14 @@ PROMPT;
         $show_data = $this->applyTrafficSourceFilter($query, $request)
             ->latest('id')
             ->with([
-                'shipping:id,order_id,name,phone,address,division_id,district_id,upazila_id,area',
-                'status:id,name,slug',
-                'customer:id,name,phone,email',
-                'user:id,name,email',
-                'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price,product_discount,product_size,product_color',
-                'orderdetails.image:id,product_id,image',
-                'orderdetails.product:id,name',
-                'orderdetails.vendor:id,shop_name,owner_name'
+                'shipping',
+                'status',
+                'customer',
+                'user',
+                'orderdetails.image',
+                'orderdetails.product',
+                'orderdetails.color',
+                'orderdetails.size',
             ])
             ->paginate($perPage)
             ->withQueryString();
@@ -697,7 +697,7 @@ PROMPT;
                     ])->get($baseUrl . '/aladdin/api/v1/city-list');
                     
                     return $response->json() ?? [];
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     \Log::error('Pathao cities fetch failed', ['error' => $e->getMessage()]);
                     return [];
                 }
@@ -715,7 +715,7 @@ PROMPT;
                     ])->get($baseUrl . '/aladdin/api/v1/stores');
                     
                     return $response2->json() ?? [];
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     \Log::error('Pathao stores fetch failed', ['error' => $e->getMessage()]);
                     return [];
                 }
@@ -739,7 +739,7 @@ PROMPT;
                     $redxService = new RedXService();
                     $areasResult = $redxService->getAreas();
                     return $areasResult && isset($areasResult['areas']) ? $areasResult['areas'] : [];
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     \Log::error('RedX areas fetch failed', ['error' => $e->getMessage()]);
                     return [];
                 }
@@ -750,7 +750,7 @@ PROMPT;
                     $redxService = new RedXService();
                     $storesResult = $redxService->getPickupStores();
                     return $storesResult && isset($storesResult['pickup_stores']) ? $storesResult['pickup_stores'] : [];
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     \Log::error('RedX stores fetch failed', ['error' => $e->getMessage()]);
                     return [];
                 }
@@ -792,15 +792,14 @@ PROMPT;
     {
         $order = Order::with([
             'shipping',
-            'status:id,name,slug',
-            'customer:id,name,phone,email,image',
-            'user:id,name,email',
+            'status',
+            'customer',
+            'user',
             'payment',
-            'orderdetails.product:id,name,is_digital,vendor_id',
-            'orderdetails.vendor:id,shop_name,owner_name',
+            'orderdetails.product',
             'orderdetails.image',
-            'orderdetails.color:id,colorName,color',
-            'orderdetails.size:id,sizeName',
+            'orderdetails.color',
+            'orderdetails.size',
         ])->findOrFail($id);
 
         $blockedIps = Cache::remember('blocked_ips', 300, function () {
