@@ -178,18 +178,58 @@ class MediaController extends Controller
      */
     public function destroy(Request $request)
     {
+        $id = $request->get('id');
         $filePath = $request->get('file_path');
-        if (!$filePath) {
-            return response()->json(['success' => false, 'message' => 'ফাইল পাথ পাওয়া যায়নি।'], 400);
+
+        if (!$id && !$filePath) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'ফাইল পাথ বা আইডি পাওয়া যায়নি।'], 400);
+            }
+            Toastr::error('ফাইল পাথ বা আইডি পাওয়া যায়নি।', 'ত্রুটি');
+            return redirect()->back();
         }
 
-        $deleted = $this->deleteSecurely($filePath);
+        $media = null;
+        if ($id && Schema::hasTable('media')) {
+            $media = Media::find($id);
+        }
+        if (!$media && $filePath && Schema::hasTable('media')) {
+            $cleanRelative = str_replace('\\', '/', trim($filePath));
+            $cleanRelative = ltrim($cleanRelative, '/');
+            $basename = basename($cleanRelative);
 
-        if ($deleted) {
-            if (Schema::hasTable('media')) {
-                Media::where('file_path', $filePath)->delete();
-            }
+            $media = Media::where('file_path', $cleanRelative)
+                ->orWhere('file_path', 'public/' . $cleanRelative)
+                ->orWhere('file_path', 'uploads/' . ltrim($cleanRelative, 'public/uploads/'))
+                ->orWhere('file_name', $basename)
+                ->first();
+        }
 
+        $pathToDelete = $media ? $media->file_path : $filePath;
+
+        // 1. Delete from disk
+        $diskDeleted = false;
+        if ($pathToDelete) {
+            $diskDeleted = $this->deleteSecurely($pathToDelete);
+        }
+
+        // 2. Delete from database
+        $dbDeleted = false;
+        if ($media) {
+            $media->delete();
+            $dbDeleted = true;
+        } elseif ($filePath && Schema::hasTable('media')) {
+            $clean = str_replace('\\', '/', trim($filePath));
+            $basename = basename($clean);
+            $deletedCount = Media::where('file_path', $clean)
+                ->orWhere('file_path', 'public/' . ltrim($clean, '/'))
+                ->orWhere('file_name', $basename)
+                ->delete();
+            $dbDeleted = $deletedCount > 0;
+        }
+
+        // If either deleted from disk or deleted from database (or both), count as success
+        if ($diskDeleted || $dbDeleted) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'ফাইলটি সফলভাবে ডিলিট করা হয়েছে।']);
             }
@@ -210,7 +250,9 @@ class MediaController extends Controller
     public function bulkDestroy(Request $request)
     {
         $files = $request->get('files', []);
-        if (!is_array($files) || empty($files)) {
+        $ids = $request->get('ids', []);
+
+        if (empty($files) && empty($ids)) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'কোনো ফাইল সিলেক্ট করা হয়নি।'], 400);
             }
@@ -218,29 +260,56 @@ class MediaController extends Controller
             return redirect()->back();
         }
 
-        $deletedPaths = [];
-        foreach ($files as $file) {
-            if ($this->deleteSecurely($file)) {
-                $deletedPaths[] = $file;
+        $deletedCount = 0;
+
+        // Process by IDs
+        if (!empty($ids) && Schema::hasTable('media')) {
+            $mediaItems = Media::whereIn('id', $ids)->get();
+            foreach ($mediaItems as $item) {
+                $this->deleteSecurely($item->file_path);
+                $item->delete();
+                $deletedCount++;
             }
         }
 
-        if (count($deletedPaths) > 0 && Schema::hasTable('media')) {
-            Media::whereIn('file_path', $deletedPaths)->delete();
+        // Process any files passed by file_path
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                $diskDeleted = $this->deleteSecurely($file);
+                $dbDeleted = false;
+                if (Schema::hasTable('media')) {
+                    $clean = str_replace('\\', '/', trim($file));
+                    $basename = basename($clean);
+                    $count = Media::where('file_path', $clean)
+                        ->orWhere('file_path', 'public/' . ltrim($clean, '/'))
+                        ->orWhere('file_name', $basename)
+                        ->delete();
+                    $dbDeleted = $count > 0;
+                }
+                if ($diskDeleted || $dbDeleted) {
+                    $deletedCount++;
+                }
+            }
         }
 
-        $count = count($deletedPaths);
-        $message = "সফলভাবে {$count} টি ইমেজ ডিলিট করা হয়েছে।";
+        $message = $deletedCount > 0 
+            ? "সফলভাবে {$deletedCount} টি ইমেজ ডিলিট করা হয়েছে।"
+            : "কোনো ফাইল ডিলিট করা সম্ভব হয়নি।";
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
-                'success' => true,
-                'count'   => $count,
+                'success' => $deletedCount > 0,
+                'count'   => $deletedCount,
                 'message' => $message,
             ]);
         }
 
-        Toastr::success($message, 'সফল');
+        if ($deletedCount > 0) {
+            Toastr::success($message, 'সফল');
+        } else {
+            Toastr::warning($message, 'সতর্কতা');
+        }
+
         return redirect()->back();
     }
 
@@ -249,6 +318,22 @@ class MediaController extends Controller
      */
     public function sync(Request $request)
     {
+        // 1. Clean up dead records where physical file no longer exists
+        if (Schema::hasTable('media')) {
+            $allMedia = Media::all();
+            foreach ($allMedia as $item) {
+                $p = $item->file_path;
+                $under = str_replace(['public/uploads/', 'uploads/'], 'uploads/', $p);
+                $exists = file_exists(base_path('public/' . $under)) ||
+                          file_exists(public_path($under)) ||
+                          file_exists(base_path($under));
+                if (!$exists) {
+                    $item->delete();
+                }
+            }
+        }
+
+        // 2. Index all files from filesystem
         $count = $this->performFastFilesystemSync();
 
         Toastr::success("মিডিয়া লাইব্রেরি সফলভাবে সিঙ্ক সম্পন্ন হয়েছে! মোট {$count} টি ইমেজ ডাটাবেজে ইনডেক্স করা হয়েছে।", 'সুপার ফাস্ট');
@@ -266,15 +351,15 @@ class MediaController extends Controller
 
         $baseDir = base_path('public/uploads');
         if (!File::exists($baseDir)) {
+            $baseDir = public_path('uploads');
+        }
+        if (!File::exists($baseDir)) {
             File::makeDirectory($baseDir, 0755, true);
             return 0;
         }
 
         $allowedExtensions = ['webp', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'avif'];
         $allFiles = File::allFiles($baseDir);
-
-        $rootPath = str_replace('\\', '/', base_path()) . '/';
-        $baseUploadsPath = str_replace('\\', '/', $baseDir) . '/';
 
         $records = [];
         $existingPaths = Media::pluck('file_path')->flip()->toArray();
@@ -287,15 +372,27 @@ class MediaController extends Controller
             }
 
             $realPath = str_replace('\\', '/', $file->getRealPath());
-            $relativePath = str_replace($rootPath, '', $realPath);
+
+            // Normalize relative path so it ALWAYS starts with 'public/uploads/'
+            $pos = strpos($realPath, '/uploads/');
+            if ($pos !== false) {
+                $relativePath = 'public' . substr($realPath, $pos);
+            } else {
+                $posPublic = strpos($realPath, 'public/uploads/');
+                if ($posPublic !== false) {
+                    $relativePath = substr($realPath, $posPublic);
+                } else {
+                    $relativePath = 'public/uploads/' . $file->getFilename();
+                }
+            }
 
             // Skip if already in database
             if (isset($existingPaths[$relativePath])) {
                 continue;
             }
 
-            $relativeUnderUploads = str_replace($baseUploadsPath, '', $realPath);
-            $parts = explode('/', $relativeUnderUploads);
+            $underUploads = str_replace(['public/uploads/', 'uploads/'], '', $relativePath);
+            $parts = explode('/', $underUploads);
             $folderName = count($parts) > 1 ? $parts[0] : 'root';
             $subfolderName = count($parts) > 2 ? $parts[1] : null;
 
@@ -335,34 +432,58 @@ class MediaController extends Controller
     }
 
     /**
-     * Verify path against directory traversal and delete file securely.
+     * Verify path against directory traversal and delete file securely from disk.
      */
     private function deleteSecurely(string $rawPath): bool
     {
         $cleanPath = str_replace('\\', '/', trim($rawPath));
 
         // Prevent directory traversal exploits
-        if (str_contains($cleanPath, '..') || str_contains($cleanPath, ':') || str_contains($cleanPath, "\0")) {
+        if (str_contains($cleanPath, '..') || str_contains($cleanPath, "\0")) {
             return false;
         }
 
-        // Must strictly reside inside public/uploads or uploads
-        if (!str_starts_with($cleanPath, 'public/uploads/') && !str_starts_with($cleanPath, 'uploads/')) {
-            return false;
+        $cleanPath = ltrim($cleanPath, '/');
+
+        // If URL passed, parse out the path
+        if (str_contains($cleanPath, '://')) {
+            $parsed = parse_url($cleanPath, PHP_URL_PATH);
+            $cleanPath = ltrim($parsed ?? '', '/');
         }
 
-        $fullPath = base_path($cleanPath);
-        if (File::exists($fullPath) && !File::isDirectory($fullPath)) {
-            return @unlink($fullPath);
+        // Find the 'uploads/' segment
+        if (str_starts_with($cleanPath, 'public/uploads/')) {
+            $underUploads = substr($cleanPath, 7); // 'uploads/...'
+        } elseif (str_starts_with($cleanPath, 'uploads/')) {
+            $underUploads = $cleanPath;
+        } else {
+            $pos = strpos($cleanPath, 'uploads/');
+            if ($pos !== false) {
+                $underUploads = substr($cleanPath, $pos);
+            } else {
+                $underUploads = 'uploads/' . basename($cleanPath);
+            }
         }
 
-        // Also check public_path fallback
-        $publicPath = public_path(str_replace('public/', '', $cleanPath));
-        if (File::exists($publicPath) && !File::isDirectory($publicPath)) {
-            return @unlink($publicPath);
+        // Test all possible candidate paths on disk
+        $candidates = [
+            base_path('public/' . $underUploads),
+            public_path($underUploads),
+            base_path($underUploads),
+            public_path('public/' . $underUploads),
+        ];
+
+        $deleted = false;
+        foreach ($candidates as $filePath) {
+            $filePath = str_replace('\\', '/', $filePath);
+            if (file_exists($filePath) && !is_dir($filePath)) {
+                if (@unlink($filePath)) {
+                    $deleted = true;
+                }
+            }
         }
 
-        return false;
+        return $deleted;
     }
 
     /**

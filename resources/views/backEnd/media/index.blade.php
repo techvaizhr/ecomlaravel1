@@ -141,6 +141,7 @@
                             <div class="form-check m-0">
                                 <input type="checkbox" class="form-check-input media-checkbox" 
                                        value="{{ $media['path'] }}" 
+                                       data-id="{{ $media['id'] ?? '' }}" 
                                        onchange="updateSelectionState()">
                             </div>
                             <span class="media-ext-badge">{{ $media['extension'] }}</span>
@@ -181,7 +182,7 @@
                                 <button type="button" class="btn-media-act btn-media-preview" onclick="openMediaPreview({{ json_encode($media) }})" title="বিস্তারিত ও প্রিভিউ">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button type="button" class="btn-media-act btn-media-del" onclick="confirmSingleDelete('{{ $media['path'] }}', '{{ $media['name'] }}')" title="ডিলিট করুন">
+                                <button type="button" class="btn-media-act btn-media-del" onclick="confirmSingleDelete('{{ $media['path'] }}', '{{ $media['name'] }}', '{{ $media['id'] ?? '' }}')" title="ডিলিট করুন">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
@@ -216,6 +217,7 @@
                                 <td class="text-center">
                                     <input type="checkbox" class="form-check-input media-checkbox list-checkbox" 
                                            value="{{ $media['path'] }}" 
+                                           data-id="{{ $media['id'] ?? '' }}" 
                                            onchange="updateSelectionState()">
                                 </td>
                                 <td>
@@ -247,7 +249,7 @@
                                         <button type="button" class="btn btn-light border text-info" onclick="openMediaPreview({{ json_encode($media) }})" title="প্রিভিউ">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button type="button" class="btn btn-light border text-danger" onclick="confirmSingleDelete('{{ $media['path'] }}', '{{ $media['name'] }}')" title="ডিলিট">
+                                        <button type="button" class="btn btn-light border text-danger" onclick="confirmSingleDelete('{{ $media['path'] }}', '{{ $media['name'] }}', '{{ $media['id'] ?? '' }}')" title="ডিলিট">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -414,6 +416,7 @@
 {{-- Single Delete Hidden Form --}}
 <form id="singleDeleteForm" action="{{ route('admin.media.destroy') }}" method="POST" style="display: none;">
     @csrf
+    <input type="hidden" name="id" id="singleDeleteId">
     <input type="hidden" name="file_path" id="singleDeleteFilePath">
 </form>
 
@@ -761,7 +764,7 @@
         document.getElementById('previewModalDeleteBtn').onclick = function() {
             var modal = bootstrap.Modal.getInstance(document.getElementById('mediaPreviewModal'));
             if (modal) modal.hide();
-            confirmSingleDelete(media.path, media.name);
+            confirmSingleDelete(media.path, media.name, media.id);
         };
 
         var myModal = new bootstrap.Modal(document.getElementById('mediaPreviewModal'));
@@ -769,9 +772,10 @@
     }
 
     // Single Delete
-    function confirmSingleDelete(path, name) {
+    function confirmSingleDelete(path, name, id) {
         if (confirm('আপনি কি নিশ্চিত যে "' + name + '" ইমেজটি স্থায়ীভাবে ডিলিট করতে চান?')) {
-            document.getElementById('singleDeleteFilePath').value = path;
+            document.getElementById('singleDeleteFilePath').value = path || '';
+            document.getElementById('singleDeleteId').value = id || '';
             document.getElementById('singleDeleteForm').submit();
         }
     }
@@ -855,11 +859,21 @@
             var container = document.getElementById('bulkDeleteInputs');
             container.innerHTML = '';
             selected.forEach(function(cb) {
-                var input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'files[]';
-                input.value = cb.value;
-                container.appendChild(input);
+                if (cb.value) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'files[]';
+                    input.value = cb.value;
+                    container.appendChild(input);
+                }
+                var idVal = cb.getAttribute('data-id');
+                if (idVal) {
+                    var inputId = document.createElement('input');
+                    inputId.type = 'hidden';
+                    inputId.name = 'ids[]';
+                    inputId.value = idVal;
+                    container.appendChild(inputId);
+                }
             });
             document.getElementById('bulkDeleteForm').submit();
         }
