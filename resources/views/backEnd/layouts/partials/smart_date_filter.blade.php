@@ -45,13 +45,13 @@
     <input type="hidden" name="{{ $endKey }}" id="{{ $uniqueId }}_end" value="{{ $selectedEnd }}">
 
     {{-- Trigger Input Button --}}
-    <div class="input-group">
-        <button type="button" class="btn btn-white border bg-white text-start d-flex align-items-center justify-content-between w-100 smart-date-btn px-3 py-2" id="{{ $uniqueId }}_btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="border-radius: 8px; font-size: 0.88rem; color: #334155; height: 38px;">
+    <div class="dropdown w-100">
+        <button type="button" class="btn btn-white border bg-white text-start d-flex align-items-center justify-content-between w-100 smart-date-btn px-2 py-1" id="{{ $uniqueId }}_btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="border-radius: 7px; font-size: 13px; color: #1e293b; height: 36px; border-color: #cbd5e1 !important;">
             <span class="d-flex align-items-center text-truncate me-1">
                 <i class="far fa-calendar-alt text-primary me-2 flex-shrink-0"></i>
-                <span class="fw-semibold text-truncate" id="{{ $uniqueId }}_label">{{ $displayLabel }}</span>
+                <span class="fw-semibold text-truncate" id="{{ $uniqueId }}_label" style="font-size: 13px;">{{ $displayLabel }}</span>
             </span>
-            <i class="fas fa-chevron-down text-muted small ms-1 flex-shrink-0" style="font-size: 0.7rem;"></i>
+            <i class="fas fa-chevron-down text-muted small ms-1 flex-shrink-0" style="font-size: 0.65rem;"></i>
         </button>
 
         {{-- Dropdown Menu --}}
