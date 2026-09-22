@@ -28,13 +28,121 @@
 <meta property="og:url" content="{{ route('product', $details->slug) }}" />
 <meta property="og:image" content="{{ $metaImage }}" />
 <meta property="og:description" content="{{ $metaDescription }}" />
-<meta property="og:site_name" content="gomobd.com" />
-@endpush
+<meta property="og:site_name" content="{{ $generalsetting->name ?? 'gomobd.com' }}" />
 
+{{-- 🧭 Google Schema.org BreadcrumbList for Rich SEO Results --}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "হোম",
+      "item": "{{ url('/') }}"
+    }
+    @if ($details->category)
+    ,{
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ $details->category->name }}",
+      "item": "{{ url('/category/' . $details->category->slug) }}"
+    }
+    @endif
+    @if ($details->subcategory)
+    ,{
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ $details->subcategory->subcategoryName }}",
+      "item": "{{ url('/category/' . $details->category->slug) }}"
+    }
+    @endif
+    ,{
+      "@type": "ListItem",
+      "position": {{ $details->subcategory ? 4 : ($details->category ? 3 : 2) }},
+      "name": "{{ $details->name }}",
+      "item": "{{ route('product', $details->slug) }}"
+    }
+  ]
+}
+</script>
+@endpush
 
 @push('css')
 <link rel="stylesheet" href="{{ asset('public/frontEnd/css/zoomsl.css') }}">
 <style>
+/* 🎯 Attention-Grabbing Shake / Vibration for "অর্ডার করুন" Button */
+@keyframes orderBtnShake {
+    0%, 100% {
+        transform: translateX(0) scale(1);
+    }
+    5%, 15% {
+        transform: translateX(-4px) rotate(-1.5deg) scale(1.02);
+    }
+    10%, 20% {
+        transform: translateX(4px) rotate(1.5deg) scale(1.02);
+    }
+    25% {
+        transform: translateX(-2px) scale(1.01);
+    }
+    30% {
+        transform: translateX(2px) scale(1.01);
+    }
+    35% {
+        transform: translateX(0) scale(1);
+    }
+}
+
+.order_now_btn, 
+.order_now_btn_m,
+.order-btn {
+    animation: orderBtnShake 2.5s infinite ease-in-out !important;
+    box-shadow: 0 4px 14px {{ optional($generalsetting)->primary_color ?? '#e11d48' }}66 !important;
+    position: relative !important;
+}
+
+.order_now_btn:hover, 
+.order_now_btn_m:hover,
+.order-btn:hover {
+    animation: none !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 6px 20px {{ optional($generalsetting)->primary_color ?? '#e11d48' }}99 !important;
+}
+
+/* 🎨 Matching Border for Color Swatches (same as Size & Variant) */
+.pro-color .selector-item_label {
+    min-width: 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 8px !important;
+    border: 2px solid #cbd5e1 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    position: relative !important;
+}
+.pro-color .selector-item_label:hover {
+    border-color: #64748b !important;
+    transform: scale(1.06) !important;
+}
+.pro-color .selector-item_radio:checked + .selector-item_label {
+    border-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    outline: 2px solid {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    outline-offset: 2px !important;
+    transform: scale(1.08) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+}
+.pro-color .selector-item_label span img {
+    width: 14px !important;
+    height: 14px !important;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)) !important;
+}
+
 /* ✅ Scoped Review Section */
 .gomobd-review-section {
     font-family: 'Poppins', sans-serif;
@@ -194,23 +302,6 @@
                 {{-- RIGHT: Product Info --}}
                 <div class="col-sm-6 col-12">
                     <div class="details_right">
-
-                        {{-- Breadcrumb --}}
-                        <div class="breadcrumb">
-                            <ul>
-                                <li><a href="{{ url('/') }}">Home</a></li>
-                                <li><span>/</span></li>
-                                <li><a href="{{ url('/category/' . $details->category->slug) }}">{{ $details->category->name }}</a></li>
-                                @if ($details->subcategory)
-                                    <li><span>/</span></li>
-                                    <li><a href="#">{{ $details->subcategory->subcategoryName }}</a></li>
-                                @endif
-                                @if ($details->childcategory)
-                                    <li><span>/</span></li>
-                                    <li><a href="#">{{ $details->childcategory->childcategoryName }}</a></li>
-                                @endif
-                            </ul>
-                        </div>
 
                         <div class="product">
                             <div class="product-cart">

@@ -5299,6 +5299,39 @@ form.sort-form .form-select {
     color: {{$generalsetting->primary_color}};
 }
 
+/* 🎨 Matching Border for Color Swatches (same as Size & Variant) */
+.pro-color .selector-item_label {
+    min-width: 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1 !important;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    position: relative;
+}
+.pro-color .selector-item_label:hover {
+    border-color: #64748b !important;
+    transform: scale(1.06);
+}
+.pro-color .selector-item_radio:checked + .selector-item_label {
+    border-color: {{$generalsetting->primary_color}} !important;
+    outline: 2px solid {{$generalsetting->primary_color}} !important;
+    outline-offset: 2px !important;
+    transform: scale(1.08);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+}
+.pro-color .selector-item_label span img {
+    width: 14px !important;
+    height: 14px !important;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
 /* Qty + buttons */
 .qty-cart {
     display: flex;
@@ -5350,6 +5383,28 @@ form.sort-form .form-select {
     color: #fff !important;
 }
 
+/* 🎯 Attention-Grabbing Shake / Vibration for "অর্ডার করুন" Button */
+@keyframes orderBtnShake {
+    0%, 100% {
+        transform: translateX(0) scale(1);
+    }
+    5%, 15% {
+        transform: translateX(-4px) rotate(-1.5deg) scale(1.02);
+    }
+    10%, 20% {
+        transform: translateX(4px) rotate(1.5deg) scale(1.02);
+    }
+    25% {
+        transform: translateX(-2px) scale(1.01);
+    }
+    30% {
+        transform: translateX(2px) scale(1.01);
+    }
+    35% {
+        transform: translateX(0) scale(1);
+    }
+}
+
 .order_now_btn {
     flex: 1 1 auto;
     height: 46px;
@@ -5366,6 +5421,14 @@ form.sort-form .form-select {
     width: auto !important;
     margin-left: 0 !important;
     margin-top: 0 !important;
+    animation: orderBtnShake 2.5s infinite ease-in-out !important;
+    box-shadow: 0 4px 14px {{$generalsetting->primary_color}}66 !important;
+    position: relative !important;
+}
+.order_now_btn:hover {
+    animation: none !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 6px 20px {{$generalsetting->primary_color}}99 !important;
 }
 
 .call_now_btn {
