@@ -2462,34 +2462,6 @@ PROMPT;
         return response()->json($cartinfo);
     }
 
-    public function cart_price_discount_update(Request $request)
-    {
-        $rowId = $request->id;
-        $cartItem = Cart::instance('pos_shopping')->content()->where('rowId', $rowId)->first();
-        if (! $cartItem && $request->product_id) {
-            $cartItem = Cart::instance('pos_shopping')->content()->firstWhere('id', $request->product_id);
-            if ($cartItem) {
-                $rowId = $cartItem->rowId;
-            }
-        }
-
-        if (! $cartItem) {
-            return response()->json(['error' => 'Cart item not found'], 404);
-        }
-
-        $newPrice = (float) $request->input('price', $cartItem->price);
-        $newDiscount = max(0, (float) $request->input('discount', 0));
-
-        $cartinfo = Cart::instance('pos_shopping')->update($rowId, [
-            'price'   => $newPrice,
-            'options' => $this->posCartOptions($cartItem, [
-                'product_discount' => $newDiscount,
-            ]),
-        ]);
-
-        return response()->json($cartinfo);
-    }
-
     public function cart_update(Request $request)
     {
         Log::channel('single')->info('[POS cart_update] Request', [
