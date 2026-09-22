@@ -52,6 +52,12 @@
       }
       .subpanel-nested-menu li a.active {
         color: {{ $brandPrimary }} !important;
+        font-weight: 700 !important;
+        background: {{ $brandPrimary }}18 !important;
+        border-radius: 6px !important;
+      }
+      .subpanel-nested-menu li a.active svg {
+        stroke: {{ $brandPrimary }} !important;
       }
     </style>
     <!-- Head js -->
@@ -597,10 +603,10 @@
                   </a>
                   <div class="collapse {{ request()->routeIs('admin.refunds.*') ? 'show' : '' }}" id="sub-refunds">
                     <ul class="subpanel-nested-menu">
-                      <li><a href="{{ route('admin.refunds.index') }}" class="{{ request()->routeIs('admin.refunds.*') && !request('status') ? 'active' : '' }}"><i data-feather="list"></i> All Refunds</a></li>
-                      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}" class="{{ request('status') === 'pending' ? 'active' : '' }}"><i data-feather="clock"></i> Pending Refunds</a></li>
-                      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}" class="{{ request('status') === 'approved' ? 'active' : '' }}"><i data-feather="check-circle"></i> Approved Refunds</a></li>
-                      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}" class="{{ request('status') === 'processed' ? 'active' : '' }}"><i data-feather="check"></i> Processed Refunds</a></li>
+                      <li><a href="{{ route('admin.refunds.index') }}" class="{{ request()->routeIs('admin.refunds.index') && !request()->filled('status') ? 'active' : '' }}"><i data-feather="list"></i> All Refunds</a></li>
+                      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}" class="{{ request()->routeIs('admin.refunds.*') && request('status') === 'pending' ? 'active' : '' }}"><i data-feather="clock"></i> Pending Refunds</a></li>
+                      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}" class="{{ request()->routeIs('admin.refunds.*') && request('status') === 'approved' ? 'active' : '' }}"><i data-feather="check-circle"></i> Approved Refunds</a></li>
+                      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}" class="{{ request()->routeIs('admin.refunds.*') && request('status') === 'processed' ? 'active' : '' }}"><i data-feather="check"></i> Processed Refunds</a></li>
                     </ul>
                   </div>
                 </li>
