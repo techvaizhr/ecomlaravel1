@@ -176,6 +176,23 @@
     border-bottom-left-radius: 3px;
 }
 
+/* CLICKABLE LINKS */
+.gaw-chat-link {
+    color: #4f46e5 !important;
+    text-decoration: underline !important;
+    font-weight: 600 !important;
+    word-break: break-all;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.gaw-chat-link:hover {
+    color: #4338ca !important;
+}
+#gaw-messages .gaw-msg.user .gaw-chat-link {
+    color: #e0e7ff !important;
+}
+
 /* EMPTY STATE */
 #gaw-empty {
     text-align: center;
@@ -392,6 +409,30 @@
         return d.innerHTML;
     }
 
+    function formatChatLinks(text) {
+        if (!text) return '';
+        var safe = escapeHtml(text);
+
+        // Markdown links: [Title](url)
+        safe = safe.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+|\/[^\s\)]+)\)/gi, function(match, label, url) {
+            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="gaw-chat-link" onclick="event.stopPropagation();">' + label + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        // Raw URLs
+        safe = safe.replace(/(?<!href=["'])(https?:\/\/[^\s<]+)/gi, function(url) {
+            var cleanUrl = url.replace(/[.,;!?]+$/, '');
+            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gaw-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        // Relative internal links
+        safe = safe.replace(/(?<!href=["'])(?<!\/)(\/(?:admin|order|product|customer)[^\s<]*)/gi, function(url) {
+            var cleanUrl = url.replace(/[.,;!?]+$/, '');
+            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gaw-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        return safe;
+    }
+
     function renderHistory() {
         messages.innerHTML = '';
         if (!history.length) {
@@ -411,7 +452,7 @@
         history.forEach(function (m) {
             appendBubble(m.role === 'user' ? 'user' : 'bot', m.text, false);
         });
-        scrollBottom();
+        messages.scrollTop = messages.scrollHeight;
     }
 
     function bindSuggestions() {
@@ -431,13 +472,23 @@
         div.className = 'gaw-msg ' + (isUser ? 'user' : 'bot');
         div.innerHTML =
             '<div class="gaw-avatar"><i class="fas fa-' + (isUser ? 'user' : 'robot') + '"></i></div>' +
-            '<div class="gaw-bubble">' + escapeHtml(text) + '</div>';
+            '<div class="gaw-bubble">' + formatChatLinks(text) + '</div>';
         messages.appendChild(div);
-        if (scroll !== false) scrollBottom();
-    }
 
-    function scrollBottom() {
-        messages.scrollTop = messages.scrollHeight;
+        if (scroll !== false) {
+            if (isUser) {
+                messages.scrollTop = messages.scrollHeight;
+            } else {
+                // Smooth scroll to top of new bot message
+                setTimeout(function () {
+                    var targetTop = div.offsetTop - messages.offsetTop - 8;
+                    messages.scrollTo({
+                        top: Math.max(0, targetTop),
+                        behavior: 'smooth'
+                    });
+                }, 50);
+            }
+        }
     }
 
     function openPanel() {

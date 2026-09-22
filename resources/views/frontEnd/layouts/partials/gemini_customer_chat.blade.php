@@ -10,130 +10,427 @@
 #gcc-widget { font-family: inherit; }
 #gcc-widget * { box-sizing: border-box; }
 
+/* FLOATING TRIGGER BUTTON */
 #gcc-toggle {
-    position: fixed; right: 20px; bottom: 75px; z-index: 99990;
-    width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer;
-    background: #1a9a5c;
-    color: #fff; box-shadow: 0 8px 28px rgba(26,154,92,.45);
-    display: flex; align-items: center; justify-content: center;
-    transition: transform .2s, box-shadow .2s, opacity .2s;
+    position: fixed;
+    right: 20px;
+    bottom: 75px;
+    z-index: 99990;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 28px rgba(5, 150, 105, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
 }
-#gcc-toggle:hover { transform: scale(1.06); box-shadow: 0 10px 32px rgba(26,154,92,.5); }
-#gcc-toggle.open { opacity: 0; pointer-events: none; transform: scale(.9); }
-#gcc-toggle .gcc-toggle-icon { width: 28px; height: 28px; display: block; }
+#gcc-toggle:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 14px 34px rgba(5, 150, 105, 0.55);
+}
+#gcc-toggle.open {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.85);
+}
+#gcc-toggle .gcc-toggle-icon {
+    width: 26px;
+    height: 26px;
+    display: block;
+}
 
-.gcc-headset-icon { width: 22px; height: 22px; display: block; }
-.gcc-header-icon-wrap {
-    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-    background: #1a9a5c; color: #fff;
-    display: flex; align-items: center; justify-content: center;
+/* CHAT MODAL / PANEL */
+#gcc-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 145px;
+    z-index: 99989;
+    width: 390px;
+    max-width: calc(100vw - 24px);
+    height: 540px;
+    max-height: calc(100vh - 160px);
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.92) translateY(24px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#gcc-panel.open {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* HEADER */
+#gcc-header {
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+    color: #ffffff;
+    padding: 16px 18px;
+    flex-shrink: 0;
+}
+#gcc-header h5 {
+    color: #ffffff !important;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+#gcc-header .gcc-header-sub {
+    color: #a7f3d0 !important;
+    margin: 4px 0 0;
+    font-size: 11.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 .gcc-online-dot {
-    width: 8px; height: 8px; border-radius: 50%; background: #22c55e;
-    display: inline-block; margin-right: 6px;
-    box-shadow: 0 0 0 3px rgba(34,197,94,.25);
-    animation: gcc-pulse 2s infinite;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+    display: inline-block;
 }
-@keyframes gcc-pulse {
-    0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,.25); }
-    50% { box-shadow: 0 0 0 6px rgba(34,197,94,.12); }
+#gcc-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
 }
-
-#gcc-panel {
-    position: fixed; right: 20px; bottom: 145px; z-index: 99989;
-    width: 380px; max-width: calc(100vw - 24px); height: 520px; max-height: calc(100vh - 160px);
-    background: #fff; border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(15,23,42,.2);
-    display: flex; flex-direction: column; overflow: hidden;
-    transform: scale(.9) translateY(20px); opacity: 0; pointer-events: none;
-    transition: all .28s cubic-bezier(.4,0,.2,1);
+.gcc-header-icon-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
 }
-#gcc-panel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: auto; }
-
-#gcc-header {
-    background: #fff; color: #1e293b; padding: 14px 16px; flex-shrink: 0;
-    border-bottom: 1px solid #e2e8f0;
-}
-#gcc-header h5 { color: #0f172a !important; margin: 0; font-size: 16px; font-weight: 700; }
-#gcc-header .gcc-header-sub { color: #64748b !important; margin: 4px 0 0; font-size: 12px; display: flex; align-items: center; }
-#gcc-header-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 #gcc-close {
-    background: #f1f5f9; border: none; color: #64748b; font-size: 18px; cursor: pointer;
-    line-height: 1; padding: 6px 10px; border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+#gcc-close:hover {
+    background: rgba(255, 255, 255, 0.25);
 }
 
-#gcc-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px; background: #f0fdf4; border-bottom: 1px solid #dcfce7; }
+/* QUICK ACTION CHIPS */
+#gcc-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 10px 14px;
+    background: #f0fdf4;
+    border-bottom: 1px solid #dcfce7;
+    scrollbar-width: none;
+}
+#gcc-chips::-webkit-scrollbar { display: none; }
 #gcc-chips button {
-    border: 1px solid #86efac; background: #fff; color: #166534;
-    border-radius: 999px; padding: 5px 10px; font-size: 11px; cursor: pointer;
+    border: 1px solid #a7f3d0;
+    background: #ffffff;
+    color: #065f46;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+#gcc-chips button:hover {
+    background: #059669;
+    color: #ffffff;
+    border-color: #059669;
 }
 
-#gcc-messages { flex: 1; overflow-y: auto; padding: 14px; background: #f8fafc; }
-.gcc-msg { display: flex; gap: 8px; margin-bottom: 12px; }
+/* MESSAGES LIST */
+#gcc-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f8fafc;
+    scroll-behavior: smooth;
+}
+.gcc-msg {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    animation: gccSlide 0.2s ease-out;
+}
+@keyframes gccSlide {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 .gcc-msg.user { flex-direction: row-reverse; }
+
 .gcc-avatar {
-    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #ffffff;
 }
-.gcc-msg.user .gcc-avatar { background: #6366f1; color: #fff; }
+.gcc-msg.user .gcc-avatar {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
 .gcc-msg.bot .gcc-avatar {
-    background: #1a9a5c; color: #fff; width: 32px; height: 32px;
+    background: linear-gradient(135deg, #059669, #10b981);
 }
+
 .gcc-bubble {
-    max-width: 82%; padding: 10px 12px; border-radius: 14px;
-    font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+    max-width: 82%;
+    padding: 10px 14px;
+    border-radius: 15px;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
-.gcc-msg.user .gcc-bubble { background: #6366f1; color: #fff; border-bottom-right-radius: 4px; }
-.gcc-msg.bot .gcc-bubble { background: #fff; border: 1px solid #e2e8f0; color: #1e293b; border-bottom-left-radius: 4px; }
+.gcc-msg.user .gcc-bubble {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #ffffff;
+    border-bottom-right-radius: 3px;
+}
+.gcc-msg.bot .gcc-bubble {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    border-bottom-left-radius: 3px;
+}
 
-.gcc-products { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; max-width: 88%; }
+/* CLICKABLE LINKS IN CHAT */
+.gcc-chat-link {
+    color: #0284c7 !important;
+    text-decoration: underline !important;
+    font-weight: 600 !important;
+    word-break: break-all;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.gcc-chat-link:hover {
+    color: #0369a1 !important;
+}
+.gcc-msg.user .gcc-chat-link {
+    color: #ecfdf5 !important;
+}
+
+/* PRODUCT RECOMMENDATION CARDS */
+.gcc-products {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    max-width: 90%;
+}
 .gcc-product-card {
-    display: flex; gap: 10px; background: #fff; border: 1px solid #e2e8f0;
-    border-radius: 12px; padding: 8px; text-decoration: none; color: inherit;
-    transition: box-shadow .2s;
+    display: flex;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 8px 10px;
+    text-decoration: none !important;
+    color: inherit;
+    transition: all 0.2s ease;
 }
-.gcc-product-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); color: inherit; }
-.gcc-product-card img { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-.gcc-product-card .gcc-pname { font-size: 12px; font-weight: 600; color: #1e293b; margin: 0 0 3px; }
-.gcc-product-card .gcc-pprice { font-size: 13px; font-weight: 700; color: #059669; margin: 0; }
-.gcc-product-card .gcc-pstock { font-size: 10px; color: #64748b; margin: 2px 0 0; }
+.gcc-product-card:hover {
+    border-color: #10b981;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.12);
+    transform: translateY(-1px);
+    color: inherit;
+}
+.gcc-product-card img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    border: 1px solid #f1f5f9;
+}
+.gcc-product-card .gcc-pname {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 3px;
+    line-height: 1.3;
+}
+.gcc-product-card .gcc-pprice {
+    font-size: 13px;
+    font-weight: 700;
+    color: #059669;
+    margin: 0;
+}
+.gcc-product-card .gcc-pstock {
+    font-size: 10.5px;
+    color: #64748b;
+    margin: 2px 0 0;
+}
 
-#gcc-typing { display: none; padding: 0 14px 8px; font-size: 12px; color: #64748b; }
-#gcc-typing.show { display: block; }
+/* TYPING INDICATOR */
+#gcc-typing {
+    display: none;
+    padding: 4px 16px 8px;
+    font-size: 12px;
+    color: #059669;
+    font-weight: 600;
+    background: #f8fafc;
+    align-items: center;
+    gap: 6px;
+}
+#gcc-typing.show { display: flex; }
 
-#gcc-input-wrap { padding: 10px 12px; border-top: 1px solid #e2e8f0; background: #fff; }
-#gcc-form { display: flex; gap: 8px; align-items: flex-end; }
+/* INPUT BOX */
+#gcc-input-wrap {
+    padding: 12px 14px;
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+#gcc-form {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 6px 8px 6px 12px;
+    transition: all 0.2s ease;
+}
+#gcc-form:focus-within {
+    background: #ffffff;
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
 #gcc-input {
-    flex: 1; resize: none; border: 1px solid #e2e8f0; border-radius: 12px;
-    padding: 10px 12px; font-size: 13px; max-height: 90px; min-height: 40px;
+    flex: 1;
+    resize: none;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    max-height: 90px;
+    min-height: 28px;
+    outline: none;
+    color: #1e293b;
+    padding: 4px 0;
+    line-height: 1.4;
 }
 #gcc-send {
     background: linear-gradient(135deg, #059669, #10b981);
-    border: none; color: #fff; border-radius: 12px; padding: 10px 14px;
-    font-weight: 600; font-size: 13px; cursor: pointer;
+    border: none;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
 }
-#gcc-send:disabled { opacity: .6; cursor: not-allowed; }
+#gcc-send:hover:not(:disabled) {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+#gcc-send:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
 
+/* COMPLAINT MODAL PANEL */
 #gcc-complaint-panel {
-    display: none; position: absolute; inset: 0; background: #fff; z-index: 5;
-    flex-direction: column; padding: 16px; overflow-y: auto;
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    z-index: 5;
+    flex-direction: column;
+    padding: 18px;
+    overflow-y: auto;
 }
 #gcc-complaint-panel.show { display: flex; }
-#gcc-complaint-panel h6 { font-weight: 700; margin-bottom: 12px; }
-#gcc-complaint-panel label { font-size: 12px; font-weight: 600; color: #475569; }
-#gcc-complaint-panel input, #gcc-complaint-panel textarea {
-    width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-bottom: 10px;
+#gcc-complaint-panel h6 {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1e293b;
+    margin-bottom: 12px;
 }
-#gcc-complaint-actions { display: flex; gap: 8px; margin-top: 8px; }
-#gcc-complaint-actions button { flex: 1; padding: 10px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; }
+#gcc-complaint-panel label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 4px;
+    display: block;
+}
+#gcc-complaint-panel input, #gcc-complaint-panel textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    outline: none;
+}
+#gcc-complaint-panel input:focus, #gcc-complaint-panel textarea:focus {
+    border-color: #059669;
+}
+#gcc-complaint-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+#gcc-complaint-actions button {
+    flex: 1;
+    padding: 9px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+}
 #gcc-complaint-submit { background: #059669; color: #fff; }
 #gcc-complaint-cancel { background: #f1f5f9; color: #475569; }
 
 @media (max-width: 480px) {
-    #gcc-panel { right: 12px; bottom: 130px; width: calc(100vw - 24px); height: 65vh; }
-    #gcc-toggle { right: 16px; bottom: 70px; width: 54px; height: 54px; }
-    #gcc-toggle .gcc-toggle-icon { width: 26px; height: 26px; }
+    #gcc-panel { right: 12px; bottom: 130px; width: calc(100vw - 24px); height: 68vh; }
+    #gcc-toggle { right: 16px; bottom: 70px; width: 52px; height: 52px; }
 }
 </style>
 
@@ -143,15 +440,11 @@
             <div id="gcc-header-top">
                 <div style="display:flex;align-items:center;gap:12px;">
                     <div class="gcc-header-icon-wrap" aria-hidden="true">
-                        <svg class="gcc-headset-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 11h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3v-5z"/>
-                            <path d="M21 11h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2v-5z"/>
-                            <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-                        </svg>
+                        <i class="fas fa-headset"></i>
                     </div>
                     <div>
                         <h5>লাইভ সহায়তা</h5>
-                        <p class="gcc-header-sub"><span class="gcc-online-dot"></span>অনলাইন সাহায্য চাইলে ক্লিক করুন</p>
+                        <p class="gcc-header-sub"><span class="gcc-online-dot"></span> অনলাইন আছেন · প্রশ্ন করুন</p>
                     </div>
                 </div>
                 <button type="button" id="gcc-close" aria-label="Close">✕</button>
@@ -159,19 +452,19 @@
         </div>
 
         <div id="gcc-chips">
-            <button type="button" data-q="৫০০০ টাকার মধ্যে ভালো প্রোডাক্ট দেখান">🔍 প্রোডাক্ট খুঁজুন</button>
+            <button type="button" data-q="৫০০০ টাকার মধ্যে ভালো প্রোডাক্ট দেখান">🔍 প্রোডাক্ট সার্চ</button>
             <button type="button" data-q="আমার অর্ডার ট্র্যাক করতে চাই">📦 অর্ডার ট্র্যাক</button>
             <button type="button" id="gcc-open-complaint">📝 কমপ্লেইন</button>
-            <button type="button" data-q="রিফান্ড কিভাবে করব?">💰 রিফান্ড</button>
+            <button type="button" data-q="রিটার্ন ও রিফান্ড পলিসি কী?">💰 রিফান্ড গাইড</button>
         </div>
 
         <div id="gcc-messages"></div>
-        <div id="gcc-typing">ভাবছে...</div>
+        <div id="gcc-typing"><i class="fas fa-spinner fa-spin"></i> উত্তর তৈরি হচ্ছে...</div>
 
         <div id="gcc-input-wrap">
             <form id="gcc-form">
-                <textarea id="gcc-input" rows="1" placeholder="মেসেজ লিখুন..." maxlength="2000"></textarea>
-                <button type="submit" id="gcc-send">➤</button>
+                <textarea id="gcc-input" rows="1" placeholder="যেকোনো প্রশ্ন লিখুন..." maxlength="2000"></textarea>
+                <button type="submit" id="gcc-send"><i class="fas fa-paper-plane"></i></button>
             </form>
         </div>
 
@@ -181,10 +474,10 @@
             <input type="text" id="gcc-c-name" value="{{ $gccCustomer->name ?? '' }}" maxlength="255">
             <label>মোবাইল *</label>
             <input type="text" id="gcc-c-phone" value="{{ $gccCustomer->phone ?? '' }}" maxlength="20">
-            <label>অর্ডার/ইনভয়েস (ঐচ্ছিক)</label>
+            <label>অর্ডার / ইনভয়েস নং (ঐচ্ছিক)</label>
             <input type="text" id="gcc-c-order" maxlength="50">
-            <label>বিস্তারিত *</label>
-            <textarea id="gcc-c-desc" rows="4" maxlength="5000" placeholder="সমস্যাটি লিখুন..."></textarea>
+            <label>সমস্যার বিস্তারিত *</label>
+            <textarea id="gcc-c-desc" rows="4" maxlength="5000" placeholder="সমস্যাটি বিস্তারিত লিখুন..."></textarea>
             <div id="gcc-complaint-actions">
                 <button type="button" class="gcc-complaint-cancel" id="gcc-complaint-cancel">বাতিল</button>
                 <button type="button" class="gcc-complaint-submit" id="gcc-complaint-submit">জমা দিন</button>
@@ -193,10 +486,7 @@
     </div>
 
     <button type="button" id="gcc-toggle" title="লাইভ সহায়তা" aria-label="Open live chat">
-        <svg class="gcc-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
-        </svg>
+        <i class="fas fa-comments"></i>
     </button>
 </div>
 
@@ -210,7 +500,6 @@
         complaint: @json(route('customer.gemini_chat.complaint')),
         csrf: @json(csrf_token())
     };
-    var chatSvg = '<svg class="gcc-toggle-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>';
 
     var panel = document.getElementById('gcc-panel');
     var toggle = document.getElementById('gcc-toggle');
@@ -222,13 +511,42 @@
     var isOpen = false;
     var welcomed = history.length > 0;
 
-    function esc(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+    function esc(t) {
+        var d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+    }
+
+    // Convert markdown links & raw URLs into safe clickable links with target="_blank"
+    function formatChatLinks(text) {
+        if (!text) return '';
+        var safe = esc(text);
+
+        // 1. Markdown style: [Label](url)
+        safe = safe.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+|\/[^\s\)]+)\)/gi, function(match, label, url) {
+            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + label + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        // 2. Raw absolute URLs (http:// or https://)
+        safe = safe.replace(/(?<!href=["'])(https?:\/\/[^\s<]+)/gi, function(url) {
+            var cleanUrl = url.replace(/[.,;!?]+$/, '');
+            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        // 3. Internal store paths (e.g. /order-track/...)
+        safe = safe.replace(/(?<!href=["'])(?<!\/)(\/(?:order-track|customer|product|shop|track|complaint)[^\s<]*)/gi, function(url) {
+            var cleanUrl = url.replace(/[.,;!?]+$/, '');
+            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gcc-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        return safe;
+    }
 
     function renderProducts(products) {
         if (!products || !products.length) return '';
         var html = '<div class="gcc-products">';
         products.slice(0, 5).forEach(function (p) {
-            html += '<a class="gcc-product-card" href="' + esc(p.url) + '" target="_blank">';
+            html += '<a class="gcc-product-card" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">';
             if (p.image) html += '<img src="' + esc(p.image) + '" alt="">';
             html += '<div><p class="gcc-pname">' + esc(p.name) + '</p>';
             html += '<p class="gcc-pprice">৳' + esc(String(p.price)) + '</p>';
@@ -240,11 +558,25 @@
     function appendBubble(role, text, products, scroll) {
         var div = document.createElement('div');
         div.className = 'gcc-msg ' + (role === 'user' ? 'user' : 'bot');
-        var avatar = role === 'user' ? '👤' : chatSvg;
+        var avatar = role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
         var extra = role === 'bot' && products ? renderProducts(products) : '';
-        div.innerHTML = '<div class="gcc-avatar">' + avatar + '</div><div><div class="gcc-bubble">' + esc(text) + '</div>' + extra + '</div>';
+        div.innerHTML = '<div class="gcc-avatar">' + avatar + '</div><div><div class="gcc-bubble">' + formatChatLinks(text) + '</div>' + extra + '</div>';
         messages.appendChild(div);
-        if (scroll !== false) messages.scrollTop = messages.scrollHeight;
+
+        if (scroll !== false) {
+            if (role === 'user') {
+                messages.scrollTop = messages.scrollHeight;
+            } else {
+                // ⭐ SMART SCROLL: Align to top of the new AI response so user reads from the beginning!
+                setTimeout(function () {
+                    var targetTop = div.offsetTop - messages.offsetTop - 8;
+                    messages.scrollTo({
+                        top: Math.max(0, targetTop),
+                        behavior: 'smooth'
+                    });
+                }, 50);
+            }
+        }
     }
 
     function renderHistory() {
@@ -280,6 +612,7 @@
         appendBubble('user', text);
         history.push({ role: 'user', text: text });
         input.value = '';
+        input.style.height = 'auto';
         sendBtn.disabled = true;
         typing.classList.add('show');
 
@@ -294,7 +627,8 @@
                 appendBubble('bot', res.data.reply, res.data.products || []);
                 history.push({ role: 'model', text: res.data.reply, products: res.data.products });
             } else {
-                appendBubble('bot', '⚠️ ' + ((res.data && res.data.message) ? res.data.message : 'ব্যর্থ হয়েছে'));
+                var err = (res.data && res.data.message) ? res.data.message : 'ব্যর্থ হয়েছে';
+                appendBubble('bot', '⚠️ ' + err);
                 history.pop();
             }
         })
@@ -313,6 +647,11 @@
     form.addEventListener('submit', function (e) { e.preventDefault(); sendMessage(input.value); });
     input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.dispatchEvent(new Event('submit')); }
+    });
+
+    input.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 90) + 'px';
     });
 
     document.querySelectorAll('#gcc-chips [data-q]').forEach(function (btn) {

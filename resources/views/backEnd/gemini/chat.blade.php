@@ -317,6 +317,23 @@
     padding: 0 4px;
 }
 
+/* CLICKABLE LINKS IN CHAT */
+.gemini-chat-link {
+    color: #4f46e5 !important;
+    text-decoration: underline !important;
+    font-weight: 600 !important;
+    word-break: break-all;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.gemini-chat-link:hover {
+    color: #4338ca !important;
+}
+.gemini-msg-item.user .gemini-chat-link {
+    color: #e0e7ff !important;
+}
+
 /* TYPING INDICATOR */
 .gemini-typing-box {
     display: none;
@@ -492,7 +509,7 @@
                         <i class="fas fa-{{ $msg['role'] === 'user' ? 'user' : 'robot' }}"></i>
                     </div>
                     <div class="gemini-bubble-content">
-                        <div class="gemini-bubble-box">{{ $msg['text'] }}</div>
+                        <div class="gemini-bubble-box">{!! e($msg['text']) !!}</div>
                         @if(!empty($msg['at']))
                         <div class="gemini-bubble-time">{{ $msg['at'] }}</div>
                         @endif
@@ -541,17 +558,51 @@
         return $('<div>').text(text).html();
     }
 
+    function formatChatLinks(text) {
+        if (!text) return '';
+        var safe = escapeHtml(text);
+
+        // Markdown links: [Title](url)
+        safe = safe.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+|\/[^\s\)]+)\)/gi, function(match, label, url) {
+            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="gemini-chat-link" onclick="event.stopPropagation();">' + label + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        // Raw URLs
+        safe = safe.replace(/(?<!href=["'])(https?:\/\/[^\s<]+)/gi, function(url) {
+            var cleanUrl = url.replace(/[.,;!?]+$/, '');
+            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gemini-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        // Relative internal links
+        safe = safe.replace(/(?<!href=["'])(?<!\/)(\/(?:admin|order|product|customer)[^\s<]*)/gi, function(url) {
+            var cleanUrl = url.replace(/[.,;!?]+$/, '');
+            return '<a href="' + cleanUrl + '" target="_blank" rel="noopener noreferrer" class="gemini-chat-link" onclick="event.stopPropagation();">' + cleanUrl + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>';
+        });
+
+        return safe;
+    }
+
     function appendMessage(role, text, at) {
         $('#chat-empty').remove();
         var isUser = role === 'user';
         var html = '<div class="gemini-msg-item ' + (isUser ? 'user' : 'model') + '">' +
             '<div class="gemini-bubble-avatar"><i class="fas fa-' + (isUser ? 'user' : 'robot') + '"></i></div>' +
             '<div class="gemini-bubble-content">' +
-            '<div class="gemini-bubble-box">' + escapeHtml(text) + '</div>' +
+            '<div class="gemini-bubble-box">' + formatChatLinks(text) + '</div>' +
             (at ? '<div class="gemini-bubble-time">' + escapeHtml(at) + '</div>' : '') +
             '</div></div>';
-        $messages.append(html);
-        $messages.scrollTop($messages[0].scrollHeight);
+        var $el = $(html);
+        $messages.append($el);
+
+        if (isUser) {
+            $messages.scrollTop($messages[0].scrollHeight);
+        } else {
+            // Smoothly align to top of newly received AI message
+            setTimeout(function () {
+                var elTop = $el.position().top + $messages.scrollTop() - 15;
+                $messages.animate({ scrollTop: Math.max(0, elTop) }, 300);
+            }, 50);
+        }
     }
 
     function sendMessage(text) {
