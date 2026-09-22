@@ -318,11 +318,11 @@
             </li>
 
             {{-- 🌙 DARK / LIGHT MODE TOGGLE BUTTON --}}
-            <li class="d-inline-block">
-              <button type="button" class="theme-btn-header" id="header-theme-toggle" title="Toggle Dark / Light Mode">
-                <i class="fe-moon" id="header-theme-icon-moon"></i>
-                <i class="fe-sun text-warning d-none" id="header-theme-icon-sun"></i>
-              </button>
+            <li class="dropdown d-inline-block">
+              <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" id="header-theme-toggle" href="javascript:void(0);" role="button" title="Toggle Dark / Light Mode">
+                <i class="fe-moon noti-icon" id="header-theme-icon-moon"></i>
+                <i class="fe-sun noti-icon text-warning d-none" id="header-theme-icon-sun"></i>
+              </a>
             </li>
 
             @if(isset($demoMode) && $demoMode)
