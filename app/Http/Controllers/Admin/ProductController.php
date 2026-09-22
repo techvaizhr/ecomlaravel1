@@ -802,58 +802,6 @@ class ProductController extends Controller
     }
 
     // ================================
-    // PENDING PRODUCTS (FOR APPROVAL)
-    // ================================
-    public function pending(Request $request)
-    {
-        $query = Product::where('approval_status', 'pending')
-            ->orderBy('id','DESC')
-            ->with('image','category','vendor');
-
-        if ($request->keyword) {
-            $query->where('name', 'LIKE', '%' . $request->keyword . "%");
-        }
-
-        $data = $query->paginate(10);
-        return view('backEnd.product.pending', compact('data'));
-    }
-
-    // ================================
-    // APPROVE PRODUCT
-    // ================================
-    public function approve(Request $request)
-    {
-        $product = Product::findOrFail($request->id);
-        $product->approval_status = 'approved';
-        $product->save();
-
-        Toastr::success('Product approved successfully!');
-        return redirect()->back();
-    }
-
-    // ================================
-    // REJECT PRODUCT
-    // ================================
-    public function reject(Request $request)
-    {
-        $request->validate([
-            'id' => 'required|exists:products,id',
-            'rejection_reason' => 'nullable|string|max:500',
-        ]);
-
-        $product = Product::findOrFail($request->id);
-        $product->approval_status = 'rejected';
-        $product->save();
-
-        // Store rejection reason if provided (you can add a rejection_reason column later)
-        // $product->rejection_reason = $request->rejection_reason;
-        // $product->save();
-
-        Toastr::success('Product rejected successfully!');
-        return redirect()->back();
-    }
-
-    // ================================
     // VIDEO HELPERS
     // ================================
 
