@@ -43,27 +43,53 @@
 
     .auth-header {
         text-align: center;
-        margin-bottom: 28px;
+        margin-bottom: 26px;
+        position: relative;
+    }
+
+    .auth-logo-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        width: 100%;
+        clear: both;
+    }
+
+    .auth-logo-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        max-width: 100%;
     }
 
     .auth-brand-logo {
-        max-height: 48px;
-        max-width: 180px;
+        display: block;
+        max-height: 52px;
+        max-width: 200px;
+        width: auto;
+        height: auto;
         object-fit: contain;
-        margin-bottom: 16px;
+        margin: 0 auto;
     }
 
     .auth-title {
+        clear: both;
+        display: block;
         font-size: 24px;
         font-weight: 700;
         color: #1e293b;
+        margin-top: 0;
         margin-bottom: 6px;
+        line-height: 1.35;
     }
 
     .auth-subtitle {
         font-size: 13.5px;
         color: #64748b;
         margin-bottom: 0;
+        line-height: 1.4;
     }
 
     .form-row-custom {
@@ -320,10 +346,15 @@
         
         {{-- Header Section --}}
         <div class="auth-header">
-            @if(!empty($generalsetting->white_logo))
-                <a href="{{ route('home') }}">
-                    <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name ?? 'Logo' }}" class="auth-brand-logo">
-                </a>
+            @php
+                $siteAuthLogo = !empty($generalsetting->dark_logo) ? $generalsetting->dark_logo : ($generalsetting->white_logo ?? null);
+            @endphp
+            @if(!empty($siteAuthLogo))
+                <div class="auth-logo-wrapper">
+                    <a href="{{ route('home') }}" class="auth-logo-link">
+                        <img src="{{ asset($siteAuthLogo) }}" alt="{{ $generalsetting->name ?? 'Logo' }}" class="auth-brand-logo">
+                    </a>
+                </div>
             @endif
             <h1 class="auth-title">রেজিস্ট্রেশন করুন</h1>
             <p class="auth-subtitle">আপনার প্রয়োজনীয় তথ্য দিয়ে একাউন্ট তৈরি করুন</p>
