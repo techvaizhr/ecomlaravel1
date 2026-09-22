@@ -1176,27 +1176,46 @@ li.all__category__list:hover > a i {
 /* ═══════════════════════════════════════════════════════════════
    📂 HERO BANNER LEFT CATEGORY SIDEBAR MENU
    ═══════════════════════════════════════════════════════════════ */
-.slider-section .row {
-    align-items: stretch;
+@media (min-width: 768px) {
+    .slider-section .row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        position: relative;
+    }
+    .slider-section .col-sm-3.hidetosm {
+        position: relative;
+    }
+    .slider-section .sidebar-menu,
+    .home-category-sidebar {
+        position: absolute !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 15px !important;
+        right: 0 !important;
+        width: calc(100% - 15px) !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        background: #ffffff !important;
+        border-radius: 8px !important;
+        border: 1px solid #e8ecf2 !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+        padding: 4px 6px !important;
+        margin: 0 !important;
+        display: flex;
+        flex-direction: column;
+        z-index: 95;
+        overflow-y: auto !important;
+        overflow-x: visible !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
 }
-.slider-section .sidebar-menu,
-.home-category-sidebar {
-    background: #ffffff !important;
-    border-radius: 8px !important;
-    border: 1px solid #e8ecf2 !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
-    padding: 4px 6px !important;
-    margin: 0 !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    z-index: 95;
-    overflow-y: auto !important;
-    overflow-x: visible !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+@media (max-width: 767px) {
+    .slider-section .sidebar-menu,
+    .home-category-sidebar {
+        display: none !important;
+    }
 }
 .slider-section .sidebar-menu::-webkit-scrollbar,
 .home-category-sidebar::-webkit-scrollbar,
