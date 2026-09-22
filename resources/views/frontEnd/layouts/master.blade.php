@@ -1238,52 +1238,49 @@ li.all__category__list:hover > a i {
     border-radius: 20px;
 }
 
-/* Category Navigation List */
+/* Category Navigation List (Tight & Compact) */
 .first-nav {
-    padding: 12px 10px 24px;
+    padding: 6px 8px 16px;
     margin: 0;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
 }
 
 .first-nav .parent-category {
     position: relative;
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid #f1f5f9;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.15s ease;
     background: #ffffff;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     overflow: hidden;
 }
 .first-nav .parent-category:hover,
 .first-nav .parent-category.active {
     background: #ffffff;
     border-color: #cbd5e1;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .mobile-cat-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 5px 8px;
+    padding: 2px 6px;
     width: 100%;
 }
 
 .first-nav .parent-category a.menu-category-name {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex: 1;
     min-width: 0;
-    padding: 4px 4px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 2px 0;
+    font-size: 13px;
+    font-weight: 500;
     color: #1e293b;
     text-decoration: none;
-    border-radius: 8px;
     transition: color 0.15s ease;
 }
 .first-nav .parent-category.active > .mobile-cat-row a.menu-category-name,
@@ -1292,9 +1289,9 @@ li.all__category__list:hover > a i {
 }
 
 .mobile-cat-icon-box {
-    width: 36px;
-    height: 36px;
-    border-radius: 9px;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     display: flex;
@@ -1302,7 +1299,7 @@ li.all__category__list:hover > a i {
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    padding: 2px;
 }
 .mobile-cat-icon-box img {
     width: 100%;
@@ -1310,7 +1307,7 @@ li.all__category__list:hover > a i {
     object-fit: contain;
 }
 .mobile-cat-icon-box i {
-    font-size: 14px;
+    font-size: 11px;
     color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
 }
 
@@ -1320,15 +1317,15 @@ li.all__category__list:hover > a i {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 /* Category Expand Toggle Button */
 .menu-category-toggle {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     color: #64748b;
@@ -1336,7 +1333,7 @@ li.all__category__list:hover > a i {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease;
     flex-shrink: 0;
 }
 .menu-category-toggle:hover {
@@ -1350,44 +1347,44 @@ li.all__category__list:hover > a i {
     transform: rotate(180deg);
 }
 .menu-category-toggle i {
-    font-size: 11px;
-    transition: transform 0.25s ease;
+    font-size: 9px;
+    transition: transform 0.2s ease;
 }
 
 /* Subcategories (2nd level) */
 .second-nav {
     background: #f8fafc;
-    border-top: 1px solid #eef2f6;
+    border-top: 1px solid #f1f5f9;
     margin: 0;
-    padding: 8px 10px 10px 32px;
+    padding: 3px 6px 5px 24px;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 .parent-subcategory {
     position: relative;
-    border-radius: 6px;
-    margin-bottom: 2px;
+    border-radius: 4px;
+    margin-bottom: 1px;
 }
 .mobile-subcat-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 2px;
+    padding: 1px 2px;
 }
 .parent-subcategory a.menu-subcategory-name {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex: 1;
     min-width: 0;
-    padding: 6px 8px;
-    font-size: 13px;
+    padding: 3px 4px;
+    font-size: 12px;
     font-weight: 500;
     color: #334155;
     text-decoration: none;
-    border-radius: 6px;
+    border-radius: 4px;
     transition: all 0.15s ease;
 }
 .parent-subcategory a.menu-subcategory-name:hover,
@@ -1395,8 +1392,8 @@ li.all__category__list:hover > a i {
     color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
 }
 .subcat-dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: #cbd5e1;
     flex-shrink: 0;
@@ -1408,17 +1405,17 @@ li.all__category__list:hover > a i {
 }
 
 .menu-subcategory-toggle {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: #f8fafc;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
     flex-shrink: 0;
 }
 .menu-subcategory-toggle.active {
@@ -1428,7 +1425,7 @@ li.all__category__list:hover > a i {
     transform: rotate(180deg);
 }
 .menu-subcategory-toggle i {
-    font-size: 10px;
+    font-size: 8px;
 }
 
 /* Child categories (3rd level) */
