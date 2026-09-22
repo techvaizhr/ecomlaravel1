@@ -2,319 +2,426 @@
 @section('title','Customer Login')
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
+    $primaryColor = $generalsetting->primary_color ?? '#764ba2';
+    $secondaryColor = $generalsetting->secodery_color ?? '#667eea';
 @endphp
 @section('content')
-{{-- CSS সরাসরি এখানে দেওয়া হলো যাতে কোনো এরর না হয় --}}
 <style>
-    /* মডার্ন ফন্ট ইমপোর্ট */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
-    .modern-login-section {
-        background-color: #f0f2f5;
-        min-height: 80vh;
+    .auth-page-wrapper {
+        min-height: calc(100vh - 220px);
+        background: radial-gradient(circle at 10% 20%, rgba(118, 75, 162, 0.04) 0%, rgba(240, 243, 249, 0.7) 90%);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 50px 15px;
-        font-family: 'Poppins', sans-serif;
+        padding: 40px 15px;
+        font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
     }
 
-    .login-container {
-        background: #fff;
+    .auth-card {
+        background: #ffffff;
         border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        overflow: hidden;
+        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.07), 0 0 1px 1px rgba(0, 0, 0, 0.04);
         width: 100%;
-        max-width: 950px;
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    /* বাম পাশের ডিজাইন (ইমেজ) */
-    .login-image-area {
-        width: 50%;
-        background: {{$generalsetting->primary_color}};
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 40px;
-        color: #fff;
-        text-align: center;
-    }
-
-/* বাম পাশের ডিজাইন (ইমেজ পুরোটা জুড়ে থাকবে) */
-.login-image-area {
-    width: 50%;
-    /* আপনার পছন্দের ছবিটি এখানে ব্যাকগ্রাউন্ড হিসেবে দিন */
-    background-image: url('{{ asset('public/frontEnd/images/login.avif') }}');
-    background-size: cover;   /* পুরো বক্স কাভার করবে */
-    background-position: center; /* ছবির মাঝখান দেখাবে */
-    position: relative;       /* ওভারলে-এর জন্য জরুরি */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* লেখাগুলো নিচে থাকবে */
-    padding: 40px;
-    color: #fff;
-    text-align: center;
-    /* আগের ব্যাকগ্রাউন্ড কালার বা গ্র্যাডিয়েন্ট মুছে দিন */
-}
-
-/* ছবির ওপর একটি স্বচ্ছ রঙিন আস্তরণ (Overlay) যাতে লেখা স্পষ্ট হয় */
-.login-image-area::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-/* টেক্সট যেন ওভারলে-এর উপরে থাকে */
-.login-image-area h2,
-.login-image-area p {
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2); /* লেখার নিচে হালকা ছায়া */
-}
-
-.login-image-area h2 { font-weight: 700; margin-bottom: 10px; font-size: 32px; }
-.login-image-area p { font-size: 16px; opacity: 0.95; }
-
-/* আগের .login-image-area img এর কোডটি পুরোপুরি মুছে দিন */
-
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-        100% { transform: translateY(0px); }
-    }
-
-    /* ডান পাশের ডিজাইন (ফর্ম) */
-    .login-form-area {
-        width: 50%;
-        padding: 60px 50px;
-        background: #fff;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .login-header { margin-bottom: 30px; }
-    .login-header h3 { font-weight: 700; color: #333; margin-bottom: 5px; }
-    .login-header p { color: #888; font-size: 14px; }
-
-    /* ইনপুট ফিল্ড ডিজাইন */
-    .custom-input-group {
+        max-width: 460px;
+        padding: 38px 32px;
         position: relative;
-        margin-bottom: 25px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
     }
-    .custom-input-group label {
+
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, {{ $primaryColor }}, {{ $secondaryColor }});
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .auth-brand-logo {
+        max-height: 48px;
+        max-width: 180px;
+        object-fit: contain;
+        margin-bottom: 16px;
+    }
+
+    .auth-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+        font-size: 13.5px;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    .form-group-custom {
+        margin-bottom: 18px;
+        position: relative;
+    }
+
+    .form-label-custom {
         display: block;
-        margin-bottom: 8px;
+        font-size: 13px;
         font-weight: 600;
-        color: #555;
+        color: #334155;
+        margin-bottom: 7px;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon-left {
+        position: absolute;
+        left: 14px;
+        color: #94a3b8;
         font-size: 14px;
+        pointer-events: none;
+        transition: color 0.2s ease;
     }
-    .custom-input {
+
+    .form-control-custom {
         width: 100%;
-        height: 50px;
-        padding: 10px 20px;
-        border: 2px solid #eee;
-        border-radius: 10px;
-        font-size: 15px;
-        transition: 0.3s;
-        background: #fdfdfd;
-    }
-    .custom-input:focus {
-        border-color: #764ba2;
-        background: #fff;
+        height: 48px;
+        padding: 10px 14px 10px 42px;
+        font-size: 14px;
+        color: #1e293b;
+        background-color: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.2s ease;
         outline: none;
-        box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.1);
     }
 
-    /* বাটন ডিজাইন */
-    .btn-modern-submit {
-        width: 100%;
-        height: 50px;
-        background: {{$generalsetting->secodery_color}};
+    .form-control-custom:focus {
+        background-color: #ffffff;
+        border-color: {{ $primaryColor }};
+        box-shadow: 0 0 0 4px {{ $primaryColor }}1a;
+    }
+
+    .form-control-custom:focus + .input-icon-left,
+    .input-wrapper:focus-within .input-icon-left {
+        color: {{ $primaryColor }};
+    }
+
+    .input-btn-right {
+        position: absolute;
+        right: 12px;
+        background: transparent;
         border: none;
-        border-radius: 10px;
-        color: #fff;
-        font-weight: 600;
-        font-size: 16px;
+        color: #94a3b8;
         cursor: pointer;
-        transition: 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .btn-modern-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: color 0.2s ease;
     }
 
-    /* লিংকস */
-    .forgot-pass-link {
-        text-align: right;
-        display: block;
-        margin-top: -10px;
+    .input-btn-right:hover {
+        color: #475569;
+    }
+
+    .auth-actions-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: -4px;
         margin-bottom: 20px;
         font-size: 13px;
-        color: #666;
-        text-decoration: none;
     }
-    .forgot-pass-link:hover { color: #764ba2; text-decoration: underline; }
 
-    .register-box {
-        text-align: center;
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px dashed #ddd;
+    .forgot-link {
+        color: #64748b;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
     }
-    .register-link {
-        color: {{$generalsetting->primary_color}};
+
+    .forgot-link:hover {
+        color: {{ $primaryColor }};
+        text-decoration: underline;
+    }
+
+    .btn-auth-primary {
+        width: 100%;
+        height: 48px;
+        background: linear-gradient(135deg, {{ $primaryColor }} 0%, {{ $secondaryColor }} 100%);
+        border: none;
+        border-radius: 12px;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px {{ $primaryColor }}40;
+    }
+
+    .btn-auth-primary:hover {
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 20px {{ $primaryColor }}55;
+        color: #ffffff;
+    }
+
+    .btn-auth-primary:active {
+        transform: translateY(0);
+    }
+
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 24px 0;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .auth-divider span {
+        padding: 0 12px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .auth-footer {
+        text-align: center;
+        font-size: 14px;
+        color: #64748b;
+    }
+
+    .auth-footer a {
+        color: {{ $primaryColor }};
         font-weight: 700;
         text-decoration: none;
+        margin-left: 4px;
+        transition: all 0.2s ease;
     }
 
-    /* ডেমো Use বাটন - কমলার বর্ডার */
-    .demo-use-btn {
-        border: 2px solid #fd7e14;
-        color: #fd7e14;
-        background: transparent;
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Demo Credentials Box */
+    .demo-creds-container {
+        margin-top: 20px;
+        padding: 14px 16px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+    }
+
+    .demo-creds-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .demo-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 12.5px;
+    }
+
+    .demo-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .demo-role-badge {
         font-weight: 600;
-        padding: 6px 16px;
-        border-radius: 8px;
-    }
-    .demo-use-btn:hover {
-        background: #fd7e14;
-        color: #fff;
-        border-color: #fd7e14;
+        color: #334155;
+        display: inline-block;
+        min-width: 90px;
     }
 
-    /* মোবাইল রেসপন্সিভ */
-    @media (max-width: 768px) {
-        .login-image-area { display: none; } /* মোবাইলে ছবি হাইড */
-        .login-form-area { width: 100%; padding: 40px 20px; }
+    .demo-btn-use {
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 600;
+        border-radius: 6px;
+        border: 1px solid {{ $primaryColor }};
+        background: transparent;
+        color: {{ $primaryColor }};
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .demo-btn-use:hover {
+        background: {{ $primaryColor }};
+        color: #fff;
+    }
+
+    @media (max-width: 576px) {
+        .auth-card {
+            padding: 28px 20px;
+            border-radius: 16px;
+        }
     }
 </style>
 
-<section class="modern-login-section">
-    <div class="container d-flex justify-content-center">
-        <div class="login-container">
-            
-            {{-- বাম পাশ: ছবি --}}
-<div class="login-image-area">
-    {{-- এখানে আর কোনো <img> ট্যাগ থাকবে না --}}
-    <h2>Welcome Back!</h2>
-    <p><span style="color: white;">আপনার অ্যাকাউন্টে লগিন করে নিরাপদ কেনাকাটা করুন।</span></p>
-</div>
+<div class="auth-page-wrapper">
+    <div class="auth-card">
+        
+        {{-- Header Section --}}
+        <div class="auth-header">
+            @if(!empty($generalsetting->white_logo))
+                <a href="{{ route('home') }}">
+                    <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name ?? 'Logo' }}" class="auth-brand-logo">
+                </a>
+            @endif
+            <h1 class="auth-title">লগইন করুন</h1>
+            <p class="auth-subtitle">আপনার একাউন্টে প্রবেশ করতে তথ্য দিন</p>
+        </div>
 
-            {{-- ডান পাশ: ফর্ম --}}
-            <div class="login-form-area">
-                <div class="login-header">
-                    <h3>কাস্টমার লগিন 👋</h3>
-                    <p>আপনার ফোন নাম্বার এবং পাসওয়ার্ড দিন</p>
+        {{-- Login Form --}}
+        <form action="{{ route('customer.signin') }}" method="POST" data-parsley-validate="">
+            @csrf
+
+            {{-- Phone / Email Input --}}
+            <div class="form-group-custom">
+                <label for="login" class="form-label-custom">মোবাইল নাম্বার বা ইমেইল</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user-circle input-icon-left"></i>
+                    <input type="text" 
+                           id="login" 
+                           name="login" 
+                           class="form-control-custom @error('login') is-invalid @enderror" 
+                           value="{{ old('login') }}" 
+                           placeholder="017xxxxxxxx অথবা ইমেইল" 
+                           required 
+                           autofocus>
                 </div>
-
-                {{-- আপনার অরিজিনাল ফর্ম অ্যাকশন এবং মেথড --}}
-                <form action="{{route('customer.signin')}}" method="POST" data-parsley-validate="">
-                    @csrf
-                    
-                    {{-- ফোন নাম্বার --}}
-                    <div class="custom-input-group">
-                        <label for="login">মোবাইল নাম্বার বা ইমেইল</label>
-                        <input type="text" id="login" 
-                               class="custom-input @error('login') is-invalid @enderror" 
-                               name="login" value="{{ old('login') }}" 
-                               placeholder="017xxxxxxxx অথবা email@example.com" required>
-                        @error('login')
-                            <span class="text-danger small mt-1 d-block">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    {{-- পাসওয়ার্ড --}}
-                    <div class="custom-input-group">
-                        <label for="password">পাসওয়ার্ড</label>
-                        <div style="position: relative;">
-                            <input type="password" id="password" 
-                                   class="custom-input @error('password') is-invalid @enderror" 
-                                   name="password" placeholder="********" required>
-                            {{-- পাসওয়ার্ড দেখার আইকন (অপশনাল) --}}
-                            <span onclick="showPass()" style="position: absolute; right: 15px; top: 15px; cursor: pointer; color: #999;">
-                                <i class="fa fa-eye"></i>
-                            </span>
-                        </div>
-                        @error('password')
-                            <span class="text-danger small mt-1 d-block">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    {{-- ফরগট পাসওয়ার্ড --}}
-                    <a href="{{route('customer.forgot.password')}}" class="forgot-pass-link">
-                        <i class="fa-solid fa-unlock"></i> পাসওয়ার্ড ভুলে গেছেন?
-                    </a>
-
-                    {{-- সাবমিট --}}
-                    <div class="form-group mb-3">
-                        <button class="btn-modern-submit"> লগিন করুন </button>
-                    </div>
-
-                </form>
-
-                @if(isset($demoMode) && $demoMode)
-                <div class="mt-4 pt-3 border-top">
-                    <div class="mb-2">
-                        <small class="d-block mb-1 text-muted">রিসেলার ইউজার</small>
-                        <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
-                            <input type="text" class="form-control form-control-sm bg-light" value="01631843149" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
-                            <input type="text" class="form-control form-control-sm bg-light" value="12345678" readonly style="width:100px;border:1px solid #ddd;">
-                            <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01631843149','12345678')">Use</button>
-                        </div>
-                    </div>
-                    <div>
-                        <small class="d-block mb-1 text-muted">ভেন্ড্রর ইউজার</small>
-                        <div class="d-flex gap-2 align-items-center flex-wrap">
-                            <input type="text" class="form-control form-control-sm bg-light" value="01870829343" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
-                            <input type="text" class="form-control form-control-sm bg-light" value="123456789" readonly style="width:100px;border:1px solid #ddd;">
-                            <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01870829343','123456789')">Use</button>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                {{-- রেজিস্ট্রেশন --}}
-                <div class="register-box">
-                    <p class="mb-1 text-muted">একাউন্ট না থাকলে?</p>
-                    <a href="{{route('customer.register')}}" class="register-link">
-                        <i data-feather="edit-3"></i> রেজিস্ট্রেশন করুন
-                    </a>
-                </div>
+                @error('login')
+                    <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+                @enderror
             </div>
 
-        </div>
-    </div>
-</section>
+            {{-- Password Input --}}
+            <div class="form-group-custom">
+                <label for="password" class="form-label-custom">পাসওয়ার্ড</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon-left"></i>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control-custom @error('password') is-invalid @enderror" 
+                           placeholder="••••••••" 
+                           required>
+                    <button type="button" class="input-btn-right" onclick="togglePasswordVisibility()" aria-label="Toggle password">
+                        <i class="fas fa-eye" id="password_toggle_icon"></i>
+                    </button>
+                </div>
+                @error('password')
+                    <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+                @enderror
+            </div>
 
-{{-- পাসওয়ার্ড শো করার ছোট স্ক্রিপ্ট --}}
+            {{-- Actions Row (Forgot Password) --}}
+            <div class="auth-actions-row">
+                <div></div>
+                <a href="{{ route('customer.forgot.password') }}" class="forgot-link">
+                    পাসওয়ার্ড ভুলে গেছেন?
+                </a>
+            </div>
+
+            {{-- Submit Button --}}
+            <button type="submit" class="btn-auth-primary">
+                <span>লগইন করুন</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        {{-- Demo Credentials if active --}}
+        @if(isset($demoMode) && $demoMode)
+        <div class="demo-creds-container">
+            <div class="demo-creds-title">
+                <i class="fas fa-shield-alt"></i> টেস্ট একাউন্ট ক্রেডেনশিয়াল
+            </div>
+            <div class="demo-row">
+                <span class="demo-role-badge"><i class="fas fa-briefcase text-muted mr-1"></i> রিসেলার</span>
+                <span class="text-muted font-monospace">01631843149</span>
+                <button type="button" class="demo-btn-use" onclick="fillDemoCreds('01631843149','12345678')">ব্যবহার করুন</button>
+            </div>
+            <div class="demo-row">
+                <span class="demo-role-badge"><i class="fas fa-store text-muted mr-1"></i> ভেন্ডর</span>
+                <span class="text-muted font-monospace">01870829343</span>
+                <button type="button" class="demo-btn-use" onclick="fillDemoCreds('01870829343','123456789')">ব্যবহার করুন</button>
+            </div>
+        </div>
+        @endif
+
+        {{-- Divider --}}
+        <div class="auth-divider">
+            <span>অথবা</span>
+        </div>
+
+        {{-- Register Link --}}
+        <div class="auth-footer">
+            একাউন্ট তৈরি করা নেই? 
+            <a href="{{ route('customer.register') }}">রেজিস্ট্রেশন করুন</a>
+        </div>
+
+    </div>
+</div>
+
 <script>
+    function togglePasswordVisibility() {
+        var input = document.getElementById("password");
+        var icon = document.getElementById("password_toggle_icon");
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+
     function fillDemoCreds(login, pass) {
         document.getElementById('login').value = login;
         document.getElementById('password').value = pass;
     }
-    function showPass() {
-        var x = document.getElementById("password");
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
-        }
-    }
 </script>
-
 @endsection
 
 @push('script')
-<script src="{{asset('public/frontEnd/')}}/js/parsley.min.js"></script>
-<script src="{{asset('public/frontEnd/')}}/js/form-validation.init.js"></script>
+<script src="{{ asset('public/frontEnd/js/parsley.min.js') }}"></script>
+<script src="{{ asset('public/frontEnd/js/form-validation.init.js') }}"></script>
 @endpush

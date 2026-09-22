@@ -11,6 +11,7 @@ use Image;
 use File;
 use DB;
 use Hash;
+use App\Support\ImageOptimizer;
 class UserController extends Controller
 {
     public function index(Request $request)
@@ -94,22 +95,10 @@ class UserController extends Controller
             'password' => 'required|same:confirm-password',
             'roles' => 'required'
         ]);
-        // image with intervention 
-        $image = $request->file('image');
-        $name =  time().'-'.$image->getClientOriginalName();
-        $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-        $name = strtolower(preg_replace('/\s+/', '-', $name));
-        $uploadpath = 'public/uploads/users/';
-        $imageUrl = $uploadpath.$name; 
-        $img=Image::make($image->getRealPath());
-        $img->encode('webp', 90);
-        $width = 100;
-        $height = 100;
-        $img->height() > $img->width() ? $width=null : $height=null;
-        $img->resize($width, $height, function ($constraint) {
-            $constraint->aspectRatio();
-        });
-        $img->save($imageUrl);
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $imageUrl = ImageOptimizer::storeProfile($request->file('image'), 'public/uploads/users/');
+        }
 
         $input = $request->all();
         $input['password'] = Hash::make($input['password']);
@@ -152,26 +141,14 @@ class UserController extends Controller
         }
 
         // new image
-        $image = $request->file('image');
-        if($image){
-            // image with intervention 
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/users/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 100;
-            $height = 100;
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-            $input['image'] = $imageUrl;
-            File::delete($update_data->image);
-        }else{
+        if ($request->hasFile('image')) {
+            $input['image'] = ImageOptimizer::storeProfile($request->file('image'), 'public/uploads/users/');
+            if (!empty($update_data->image) && file_exists(base_path($update_data->image))) {
+                @unlink(base_path($update_data->image));
+            } elseif (!empty($update_data->image)) {
+                File::delete($update_data->image);
+            }
+        } else {
             $input['image'] = $update_data->image;
         }
         $input['status'] = $request->status?1:0;

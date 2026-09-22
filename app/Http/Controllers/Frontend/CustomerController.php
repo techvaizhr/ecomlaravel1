@@ -26,6 +26,7 @@ use App\Models\GeneralSetting;
 use App\Models\IncompleteOrder;
 use App\Models\Product;          // স্টক কমানোর জন্য
 use App\Models\DigitalDownload;  // ⭐ ডিজিটাল ডাউনলোড মডেল
+use App\Support\ImageOptimizer;
 
 use Session;
 use Hash;
@@ -266,60 +267,15 @@ class CustomerController extends Controller
             $selfImagePath = null;
 
             if ($request->hasFile('voter_id_front')) {
-                $frontImage = $request->file('voter_id_front');
-                $frontName = time() . '-voter-front-' . uniqid() . '.webp';
-                $frontPath = 'public/uploads/reseller/verification/';
-                
-                if (!File::exists($frontPath)) {
-                    File::makeDirectory($frontPath, 0755, true);
-                }
-
-                $img = Image::make($frontImage->getRealPath());
-                $img->encode('webp', 90);
-                $img->resize(800, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $img->save($frontPath . $frontName);
-                $voterFrontPath = $frontPath . $frontName;
+                $voterFrontPath = ImageOptimizer::storeProfile($request->file('voter_id_front'), 'public/uploads/reseller/verification/');
             }
 
             if ($request->hasFile('voter_id_back')) {
-                $backImage = $request->file('voter_id_back');
-                $backName = time() . '-voter-back-' . uniqid() . '.webp';
-                $backPath = 'public/uploads/reseller/verification/';
-                
-                if (!File::exists($backPath)) {
-                    File::makeDirectory($backPath, 0755, true);
-                }
-
-                $img = Image::make($backImage->getRealPath());
-                $img->encode('webp', 90);
-                $img->resize(800, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $img->save($backPath . $backName);
-                $voterBackPath = $backPath . $backName;
+                $voterBackPath = ImageOptimizer::storeProfile($request->file('voter_id_back'), 'public/uploads/reseller/verification/');
             }
 
             if ($request->hasFile('self_image')) {
-                $selfImage = $request->file('self_image');
-                $selfName = time() . '-self-' . uniqid() . '.webp';
-                $selfPath = 'public/uploads/reseller/verification/';
-                
-                if (!File::exists($selfPath)) {
-                    File::makeDirectory($selfPath, 0755, true);
-                }
-
-                $img = Image::make($selfImage->getRealPath());
-                $img->encode('webp', 90);
-                $img->resize(600, 600, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $img->save($selfPath . $selfName);
-                $selfImagePath = $selfPath . $selfName;
+                $selfImagePath = ImageOptimizer::storeProfile($request->file('self_image'), 'public/uploads/reseller/verification/');
             }
 
             // Create user account with reseller role
@@ -389,12 +345,12 @@ class CustomerController extends Controller
             // Upload files if provided
             $logoPath = null;
             if ($request->hasFile('logo')) {
-                $logoPath = $request->file('logo')->store('uploads/vendor/logo', 'public');
+                $logoPath = ImageOptimizer::storeLogo($request->file('logo'), 'public/uploads/vendor/logo/');
             }
 
             $bannerPath = null;
             if ($request->hasFile('banner')) {
-                $bannerPath = $request->file('banner')->store('uploads/vendor/banner', 'public');
+                $bannerPath = ImageOptimizer::storeBanner($request->file('banner'), 'public/uploads/vendor/banner/');
             }
 
             // Create vendor record first
@@ -1282,38 +1238,7 @@ public function order_save(Request $request)
                     }
                 }
 
-                $name =  time().'-'.$image->getClientOriginalName();
-                $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-                $name = strtolower(Str::slug($name));
-                
-                // Directory path with public/ prefix
-                $uploadpath = 'public/uploads/customer/';
-                $uploadFullPath = public_path($uploadpath);
-                
-                // Create directory if not exists
-                if (!file_exists($uploadFullPath)) {
-                    \Illuminate\Support\Facades\File::makeDirectory($uploadFullPath, 0755, true);
-                }
-                
-                // Full path for saving
-                $imageUrl = $uploadFullPath . $name;
-                
-                // Process and save image
-                $img = Image::make($image->getRealPath());
-                $img->encode('webp', 90);
-                $img->resize(300, 300, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $img->save($imageUrl);
-                
-                // Verify image was saved
-                if (!file_exists($imageUrl)) {
-                    throw new \Exception('Image file was not saved successfully');
-                }
-                
-                // Save path in database (with public/ prefix for asset() helper)
-                $imageUrl = $uploadpath . $name;
+                $imageUrl = ImageOptimizer::storeProfile($image, 'public/uploads/customer/');
             } catch (\Exception $e) {
                 Toastr::error('Image upload failed: ' . $e->getMessage(), 'Error!');
                 return redirect()->back()->withInput();

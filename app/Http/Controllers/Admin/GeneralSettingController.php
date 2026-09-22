@@ -10,6 +10,8 @@ use Toastr;
 use Image;
 use File;
 use DB;
+use App\Support\ImageOptimizer;
+
 class GeneralSettingController extends Controller
 {
     function __construct()
@@ -53,72 +55,17 @@ class GeneralSettingController extends Controller
             'status' => 'required',
         ]);
 
-        // image with intervention 
-        $image = $request->file('white_logo');
-        $name =  time().'-'.$image->getClientOriginalName();
-        $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-        $name = strtolower(preg_replace('/\s+/', '-', $name));
-        $uploadpath = 'public/uploads/settings/';
-        $imageUrl = $uploadpath.$name; 
-        $img=Image::make($image->getRealPath());
-        $img->encode('webp', 90);
-        $width = '';
-        $height = '';
-        $img->height() > $img->width() ? $width=null : $height=null;
-        $img->resize($width, $height);
-        $img->save($imageUrl);
-
-        // dark logo
-        $image2 = $request->file('dark_logo');
-        $name2 =  time().'-'.$image2->getClientOriginalName();
-        $name2 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name2);
-        $name2 = strtolower(preg_replace('/\s+/', '-', $name2));
-        $uploadpath2 = 'public/uploads/settings/';
-        $image2Url = $uploadpath2.$name2; 
-        $img2=Image::make($image2->getRealPath());
-        $img2->encode('webp', 90);
-        $width2 = '';
-        $height2 = '';
-        $img2->height() > $img2->width() ? $width2=null : $height2=null;
-        $img2->resize($width2, $height2);
-        $img2->save($image2Url);
-
-        // OG Baner
-        $image4 = $request->file('og_baner');
-        $name4 =  time().'-'.$image4->getClientOriginalName();
-        $name4 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name4);
-        $name4 = strtolower(preg_replace('/\s+/', '-', $name4));
-        $uploadpath4 = 'public/uploads/settings/';
-        $image4Url = $uploadpath4.$name4; 
-        $img4=Image::make($image4->getRealPath());
-        $img4->encode('webp', 90);
-        $width4 = '';
-        $height4 = '';
-        $img4->height() > $img4->width() ? $width4=null : $height4=null;
-        $img4->resize($width4, $height4);
-        $img4->save($image4Url);
-
-
-        // image with intervention 
-        $image3 = $request->file('favicon');
-        $name3 =  time().'-'.$image3->getClientOriginalName();
-        $name3 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.png',$name3);
-        $name3 = strtolower(preg_replace('/\s+/', '-', $name3));
-        $uploadpath3 = 'public/uploads/settings/';
-        $image3Url = $uploadpath3.$name3; 
-        $img3=Image::make($image3->getRealPath());
-        //$img3->encode('webp', 90);
-        $width3 = 256;
-        $height3 = 256;
-        //$img3->height() > $img3->width() ? $width3=null : $height3=null;
-        //$img3->resize($width3, $height3);
-        $img3->save($image3Url);
+        // Process logos & banners with secure ImageOptimizer (WebP & size constraints)
+        $imageUrl = ImageOptimizer::storeLogo($request->file('white_logo'), 'public/uploads/settings/');
+        $image2Url = ImageOptimizer::storeLogo($request->file('dark_logo'), 'public/uploads/settings/');
+        $image4Url = ImageOptimizer::storeBanner($request->file('og_baner'), 'public/uploads/settings/');
+        $image3Url = ImageOptimizer::store($request->file('favicon'), 'public/uploads/settings/', null, 50, 128, 128);
 
         $input = $request->all();
         $input['white_logo'] = $imageUrl;
         $input['dark_logo'] = $image2Url;
         $input['favicon'] = $image3Url;
-		 $input['og_baner'] = $image4Url;
+        $input['og_baner'] = $image4Url;
         
         $input['vendor_enabled'] = $request->has('vendor_enabled') ? 1 : 0;
         $input['reseller_enabled'] = $request->has('reseller_enabled') ? 1 : 0;
@@ -152,91 +99,43 @@ class GeneralSettingController extends Controller
         ]);
         $update_data = GeneralSetting::find($request->id);
         $input = $request->all();
-        // new white logo
-        $image = $request->file('white_logo');
-        if($image){
-            // image with intervention 
-            $image = $request->file('white_logo');
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/settings/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = '';
-            $height = '';
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height);
-            $img->save($imageUrl);
-            $input['white_logo'] = $imageUrl;
-        }else{
+        // new white logo (<= 100 KB WebP)
+        if ($request->hasFile('white_logo')) {
+            $input['white_logo'] = ImageOptimizer::storeLogo($request->file('white_logo'), 'public/uploads/settings/');
+            if ($update_data->white_logo && file_exists(public_path($update_data->white_logo))) {
+                @unlink(public_path($update_data->white_logo));
+            }
+        } else {
             $input['white_logo'] = $update_data->white_logo;
         }
-        // new dark logo
-        $image2 = $request->file('dark_logo');
-        if($image2){
-            // image with intervention 
-            $image2 = $request->file('dark_logo');
-            $name2 =  time().'-'.$image2->getClientOriginalName();
-            $name2 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name2);
-            $name2 = strtolower(preg_replace('/\s+/', '-', $name2));
-            $uploadpath2 = 'public/uploads/settings/';
-            $image2Url = $uploadpath2.$name2; 
-            $img2=Image::make($image2->getRealPath());
-            $img2->encode('webp', 90);
-            $width2 = '';
-            $height2 = '';
-            $img2->height() > $img2->width() ? $width2=null : $height2=null;
-            $img2->resize($width2, $height2);
-            $img2->save($image2Url);
-            $input['dark_logo'] = $image2Url;
-        }else{
+
+        // new dark logo (<= 100 KB WebP)
+        if ($request->hasFile('dark_logo')) {
+            $input['dark_logo'] = ImageOptimizer::storeLogo($request->file('dark_logo'), 'public/uploads/settings/');
+            if ($update_data->dark_logo && file_exists(public_path($update_data->dark_logo))) {
+                @unlink(public_path($update_data->dark_logo));
+            }
+        } else {
             $input['dark_logo'] = $update_data->dark_logo;
         }
 
-			// new OG image
-        $image4 = $request->file('og_baner');
-        if($image4){
-            $image4 = $request->file('og_baner');
-            $name4 =  time().'-'.$image4->getClientOriginalName();
-            $name4 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name4);
-            $name4 = strtolower(preg_replace('/\s+/', '-', $name4));
-            $uploadpath4 = 'public/uploads/settings/';
-            $image4Url = $uploadpath4.$name4; 
-            $img4=Image::make($image4->getRealPath());
-            $img4->encode('webp', 90);
-            $width4 = 1440;
-            $height4 = 793;
-            $img4->height() > $img4->width() ? $width4=null : $height4=null;
-            $img4->resize($width4, $height4);
-            $img4->save($image4Url);
-            $input['og_baner'] = $image4Url;
-        }else{
+        // new OG banner (<= 300 KB WebP)
+        if ($request->hasFile('og_baner')) {
+            $input['og_baner'] = ImageOptimizer::storeBanner($request->file('og_baner'), 'public/uploads/settings/');
+            if ($update_data->og_baner && file_exists(public_path($update_data->og_baner))) {
+                @unlink(public_path($update_data->og_baner));
+            }
+        } else {
             $input['og_baner'] = $update_data->og_baner;
         }
 
-
-
-
-        // new favicon image
-        $image3 = $request->file('favicon');
-        if($image3){
-            $image3 = $request->file('favicon');
-            $name3 =  time().'-'.$image3->getClientOriginalName();
-            $name3 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name3);
-            $name3 = strtolower(preg_replace('/\s+/', '-', $name3));
-            $uploadpath3 = 'public/uploads/settings/';
-            $image3Url = $uploadpath3.$name3; 
-            $img3=Image::make($image3->getRealPath());
-            $img3->encode('webp', 90);
-            $width3 = 32;
-            $height3 = 32;
-            //$img3->height() > $img3->width() ? $width3=null : $height3=null;
-            $img3->resize($width3, $height3);
-            $img3->save($image3Url);
-            $input['favicon'] = $image3Url;
-        }else{
+        // new favicon image (<= 50 KB WebP)
+        if ($request->hasFile('favicon')) {
+            $input['favicon'] = ImageOptimizer::store($request->file('favicon'), 'public/uploads/settings/', null, 50, 128, 128);
+            if ($update_data->favicon && file_exists(public_path($update_data->favicon))) {
+                @unlink(public_path($update_data->favicon));
+            }
+        } else {
             $input['favicon'] = $update_data->favicon;
         }
         $input['status'] = 1;

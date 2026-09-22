@@ -123,7 +123,7 @@ class VendorController extends Controller
         
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            $input['logo'] = ImageOptimizer::store($request->file('logo'), 'public/uploads/vendor/logo/');
+            $input['logo'] = ImageOptimizer::storeLogo($request->file('logo'), 'public/uploads/vendor/logo/');
             if ($vendor->logo && File::exists($vendor->logo)) {
                 File::delete($vendor->logo);
             }
@@ -132,7 +132,7 @@ class VendorController extends Controller
         }
 
         if ($request->hasFile('banner')) {
-            $input['banner'] = ImageOptimizer::store($request->file('banner'), 'public/uploads/vendor/banner/');
+            $input['banner'] = ImageOptimizer::storeBanner($request->file('banner'), 'public/uploads/vendor/banner/');
             if ($vendor->banner && File::exists($vendor->banner)) {
                 File::delete($vendor->banner);
             }

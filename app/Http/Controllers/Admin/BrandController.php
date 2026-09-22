@@ -30,7 +30,7 @@ class BrandController extends Controller
 
         $imageUrl = null;
         if ($request->hasFile('image')) {
-            $imageUrl = ImageOptimizer::store($request->file('image'), 'public/uploads/brand/');
+            $imageUrl = ImageOptimizer::storeLogo($request->file('image'), 'public/uploads/brand/');
         }
 
         $input = $request->all();
@@ -55,7 +55,7 @@ class BrandController extends Controller
         $update_data = Brand::find($request->id);
         $input = $request->all();
         if ($request->hasFile('image')) {
-            $input['image'] = ImageOptimizer::store($request->file('image'), 'public/uploads/brand/');
+            $input['image'] = ImageOptimizer::storeLogo($request->file('image'), 'public/uploads/brand/');
             File::delete($update_data->image);
         } else {
             $input['image'] = $update_data->image;

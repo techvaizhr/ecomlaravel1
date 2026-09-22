@@ -70,7 +70,7 @@ class BannerController extends Controller
             'status' => 'required',
         ]);
 
-        $fileUrl = ImageOptimizer::store($request->file('image'), 'public/uploads/banner/');
+        $fileUrl = ImageOptimizer::storeBanner($request->file('image'), 'public/uploads/banner/');
 
         $input = $request->all();
         $input['status'] = $request->status?1:0;
@@ -95,7 +95,7 @@ class BannerController extends Controller
         $update_data = Banner::find($request->id);
         $input = $request->all();
         if($request->hasFile('image')){
-            $input['image'] = ImageOptimizer::store($request->file('image'), 'public/uploads/banner/');
+            $input['image'] = ImageOptimizer::storeBanner($request->file('image'), 'public/uploads/banner/');
             File::delete($update_data->image);
         }else{
             $input['image'] = $update_data->image;
