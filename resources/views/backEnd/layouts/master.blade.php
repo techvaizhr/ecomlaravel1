@@ -931,9 +931,8 @@
             {{-- 👤 REDESIGNED MODERN PROFILE DROPDOWN --}}
             <li class="dropdown notification-list topbar-dropdown">
               <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light d-flex align-items-center" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                <div class="position-relative">
+                <div>
                   <img src="{{asset(Auth::guard('admin')->user()->image ? Auth::guard('admin')->user()->image : 'public/backEnd/assets/images/users/user-1.jpg')}}" alt="user-image" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);" />
-                  <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle" style="width: 8px; height: 8px;" title="Online"></span>
                 </div>
                 <span class="pro-user-name ms-2 fw-semibold text-white d-none d-sm-inline-block">
                   {{ Auth::guard('admin')->user()->name }} <i class="mdi mdi-chevron-down"></i>
@@ -943,9 +942,8 @@
                 {{-- Header Card --}}
                 <div class="p-3 text-white" style="background: linear-gradient(135deg, {{ $brandPrimary }} 0%, #0f172a 100%);">
                   <div class="d-flex align-items-center gap-3">
-                    <div class="position-relative flex-shrink-0">
+                    <div class="flex-shrink-0">
                       <img src="{{asset(Auth::guard('admin')->user()->image ? Auth::guard('admin')->user()->image : 'public/backEnd/assets/images/users/user-1.jpg')}}" alt="user" class="rounded-circle border border-2 border-white shadow-sm" style="width: 46px; height: 46px; object-fit: cover;" />
-                      <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle" style="width: 10px; height: 10px;"></span>
                     </div>
                     <div class="overflow-hidden">
                       <h6 class="mb-0 fw-bold text-white text-truncate">{{ Auth::guard('admin')->user()->name }}</h6>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{{ $landing->title ?? '' }} - {{ $landing->tagline ?? '' }}">
-    <title>{{ $landing->title ?? 'রিসেলার স্টোর' }} | {{ config('app.name', 'Creative Design') }}</title>
+    <title>{{ $landing->title ?? 'রিসেলার স্টোর' }} | {{ config('app.name', 'Tech Vai') }}</title>
     @if(!empty($landing->favicon))
     <link rel="icon" type="{{ str_ends_with($landing->favicon, '.ico') ? 'image/x-icon' : 'image/png' }}" href="{{ asset($landing->favicon) }}">
     @endif
@@ -342,7 +342,7 @@
         <div class="bg-slate-950 border-t border-white/5">
             <div class="container mx-auto px-4 py-5">
                 <p class="text-center text-sm text-gray-500">
-                    &copy; {{ date('Y') }} {{ $landing->title }}. Powered by <span class="text-gray-400">{{ config('app.name', 'Creative Design') }}</span>.
+                    &copy; {{ date('Y') }} {{ $landing->title }}. Powered by <span class="text-gray-400">{{ config('app.name', 'Tech Vai') }}</span>.
                 </p>
             </div>
         </div>

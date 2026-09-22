@@ -150,7 +150,7 @@
         </div>
 
         <p class="text-center text-muted mt-4 small">
-            Powered by <strong>Creative Design SMS Gateway</strong>
+            Powered by <strong>Tech Vai SMS Gateway</strong>
         </p>
     </div>
 </div>

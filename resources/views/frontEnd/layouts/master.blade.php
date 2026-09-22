@@ -734,8 +734,8 @@
             <span class="footer-v2__copy-sep">|</span>
             <span class="footer-v2__designer">
                 Designed by
-                <a href="https://www.creativedesign.com.bd" target="_blank" rel="noopener" class="footer-v2__designer-link">
-                    <img src="/public/uploads/creativedesign.png" alt="CD"> Creative Design
+                <a href="#" class="footer-v2__designer-link">
+                    Tech Vai
                 </a>
             </span>
         </div>
