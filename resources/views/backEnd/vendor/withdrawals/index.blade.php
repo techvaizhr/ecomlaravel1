@@ -198,9 +198,9 @@
                         <option value="bank" {{ request('payout_method') === 'bank' ? 'selected' : '' }}>Bank Transfer</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label-modern">Date From</label>
-                    <input type="date" name="date_from" class="form-control form-control-modern" value="{{ request('date_from') }}">
+                <div class="col-md-3">
+                    <label class="form-label-modern">Date Filter</label>
+                    @include('backEnd.layouts.partials.smart_date_filter', ['startKey' => 'date_from', 'endKey' => 'date_to'])
                 </div>
                 <div class="col-md-1">
                     <label class="form-label-modern">Per Page</label>

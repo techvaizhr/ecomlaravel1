@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
     <!-- custom css -->
     <link href="{{asset('public/backEnd/')}}/assets/css/custom.css" rel="stylesheet" type="text/css" />
+    <!-- flatpickr css -->
+    <link href="{{asset('public/backEnd/')}}/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
     @php
         $brandPrimary = (isset($generalsetting) && !empty($generalsetting->primary_color)) ? $generalsetting->primary_color : '#10b981';
         $brandSecondary = (isset($generalsetting) && !empty($generalsetting->secodery_color)) ? $generalsetting->secodery_color : '#3b82f6';
@@ -1728,6 +1730,8 @@
         @include('backEnd.layouts.partials.admin_order_live_notify')
         @include('backEnd.layouts.partials.gemini_admin_chatbot')
     @endauth
+    <!-- flatpickr js -->
+    <script src="{{asset('public/backEnd/assets/libs/flatpickr/flatpickr.min.js')}}"></script>
     @yield('script')
   </body>
 </html>

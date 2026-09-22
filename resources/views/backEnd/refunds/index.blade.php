@@ -428,19 +428,19 @@
     {{-- 3. Advanced Filter Toolbar --}}
     <div class="rf-filter-card">
         <form method="GET" action="{{ route('admin.refunds.index') }}" id="refundFilterForm">
-            <div class="row g-3 align-items-end">
+            <div class="row g-2 align-items-end">
                 {{-- Search --}}
-                <div class="col-lg-3 col-md-6">
-                    <label class="rf-form-label">Search Refund / Invoice / Customer</label>
+                <div class="col-xl-3 col-lg-3 col-md-6 col-12">
+                    <label class="rf-form-label">Search</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
                         <input type="text" name="keyword" class="rf-form-control border-start-0 ps-0"
                                placeholder="Refund ID, Phone, Invoice #..." value="{{ request('keyword') }}">
                     </div>
                 </div>
 
                 {{-- Status --}}
-                <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="col-xl-2 col-lg-2 col-md-3 col-6">
                     <label class="rf-form-label">Status</label>
                     <select name="status" class="rf-form-select">
                         <option value="">All Statuses</option>
@@ -452,47 +452,45 @@
                 </div>
 
                 {{-- Refund Method --}}
-                <div class="col-lg-2 col-md-4 col-sm-6">
-                    <label class="rf-form-label">Payment Method</label>
+                <div class="col-xl-2 col-lg-2 col-md-3 col-6">
+                    <label class="rf-form-label">Method</label>
                     <select name="refund_method" class="rf-form-select">
                         <option value="">All Methods</option>
                         <option value="bkash" {{ request('refund_method') == 'bkash' ? 'selected' : '' }}>bKash</option>
                         <option value="nagad" {{ request('refund_method') == 'nagad' ? 'selected' : '' }}>Nagad</option>
-                        <option value="bank" {{ request('refund_method') == 'bank' ? 'selected' : '' }}>Bank Transfer</option>
-                        <option value="manual" {{ request('refund_method') == 'manual' ? 'selected' : '' }}>Manual / Cash</option>
-                        <option value="original_payment" {{ request('refund_method') == 'original_payment' ? 'selected' : '' }}>Original Gateway</option>
+                        <option value="bank" {{ request('refund_method') == 'bank' ? 'selected' : '' }}>Bank</option>
+                        <option value="manual" {{ request('refund_method') == 'manual' ? 'selected' : '' }}>Manual</option>
+                        <option value="original_payment" {{ request('refund_method') == 'original_payment' ? 'selected' : '' }}>Original</option>
                     </select>
                 </div>
 
-                {{-- Date Range --}}
-                <div class="col-lg-3 col-md-6">
-                    <label class="rf-form-label">Date Range</label>
-                    <div class="input-group">
-                        <input type="date" name="start_date" class="rf-form-control" value="{{ request('start_date') }}" title="Start Date">
-                        <span class="input-group-text bg-light">to</span>
-                        <input type="date" name="end_date" class="rf-form-control" value="{{ request('end_date') }}" title="End Date">
-                    </div>
+                {{-- Smart Global Date Range Filter --}}
+                <div class="col-xl-3 col-lg-3 col-md-6 col-12">
+                    <label class="rf-form-label">Date Filter</label>
+                    @include('backEnd.layouts.partials.smart_date_filter')
                 </div>
 
                 {{-- Per Page & Actions --}}
-                <div class="col-lg-2 col-md-6 d-flex gap-2">
-                    <div style="min-width: 75px;">
-                        <label class="rf-form-label">Per Page</label>
-                        <select name="per_page" class="rf-form-select" onchange="document.getElementById('refundFilterForm').submit();">
-                            @foreach([10, 15, 25, 50, 100, 200] as $size)
-                                <option value="{{ $size }}" {{ (request('per_page', $perPage ?? 15) == $size) ? 'selected' : '' }}>{{ $size }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex-grow-1">
-                        <label class="rf-form-label d-block">&nbsp;</label>
-                        <div class="d-flex gap-1">
-                            <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold rounded-3 py-2" title="Filter Results">
-                                <i class="fas fa-filter me-1"></i> Filter
-                            </button>
-                            <a href="{{ route('admin.refunds.index') }}" class="btn btn-light btn-sm border rounded-3 py-2 px-3" title="Reset Filters">
-                                <i class="fas fa-undo"></i>
-                            </a>
+                <div class="col-xl-2 col-lg-2 col-md-6 col-12">
+                    <div class="d-flex align-items-end gap-1">
+                        <div style="width: 70px;">
+                            <label class="rf-form-label">Per Page</label>
+                            <select name="per_page" class="rf-form-select px-2" onchange="document.getElementById('refundFilterForm').submit();">
+                                @foreach([10, 15, 25, 50, 100, 200] as $size)
+                                    <option value="{{ $size }}" {{ (request('per_page', $perPage ?? 15) == $size) ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex-grow-1">
+                            <label class="rf-form-label d-none d-md-block">&nbsp;</label>
+                            <div class="d-flex gap-1">
+                                <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold" style="height: 38px; border-radius: 8px;" title="Filter Results">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <a href="{{ route('admin.refunds.index') }}" class="btn btn-light btn-sm border d-flex align-items-center justify-content-center" style="height: 38px; width: 38px; border-radius: 8px;" title="Reset Filters">
+                                    <i class="fas fa-undo"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

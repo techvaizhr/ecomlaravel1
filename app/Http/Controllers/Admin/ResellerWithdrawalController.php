@@ -45,13 +45,8 @@ class ResellerWithdrawalController extends Controller
             });
         }
 
-        // Date Range
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
+        // Date Filter (Presets + Custom Range)
+        apply_date_filter($query, $request);
 
         // Default: Pending first, then latest
         if (!$request->filled('status')) {

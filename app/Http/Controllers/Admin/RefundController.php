@@ -59,19 +59,11 @@ class RefundController extends Controller
             });
         }
 
-        // Filter by date range
-        if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
-        }
+        // Apply Smart Global Date Filter (presets + custom ranges)
+        apply_date_filter($query, $request);
 
         // Dynamic per page
-        $perPage = (int) $request->get('per_page', 15);
-        if (!in_array($perPage, [10, 15, 25, 50, 100, 200])) {
-            $perPage = 15;
-        }
+        $perPage = admin_per_page(15, 'admin_refunds_per_page');
 
         $data = $query->latest()->paginate($perPage)->withQueryString();
 
