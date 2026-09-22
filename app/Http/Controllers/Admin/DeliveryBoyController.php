@@ -13,11 +13,45 @@ use Illuminate\Support\Facades\Hash;
 
 class DeliveryBoyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $rows = DeliveryBoy::query()->orderByDesc('id')->paginate(20);
+        $query = DeliveryBoy::query();
 
-        return view('backEnd.delivery_boys.index', compact('rows'));
+        // Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%{$keyword}%")
+                    ->orWhere('phone', 'LIKE', "%{$keyword}%")
+                    ->orWhere('email', 'LIKE', "%{$keyword}%");
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status') && $request->status !== '') {
+            $query->where('status', (int)$request->status);
+        }
+
+        $query->latest('id');
+
+        // Per page
+        $perPage = $request->get('per_page', 15);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(DeliveryBoy::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $rows = $query->paginate($perPage)->withQueryString();
+
+        $stats = [
+            'total_count'    => DeliveryBoy::count(),
+            'active_count'   => DeliveryBoy::where('status', 1)->count(),
+            'inactive_count' => DeliveryBoy::where('status', 0)->count(),
+            'total_balance'  => DeliveryBoy::sum('wallet_balance'),
+        ];
+
+        return view('backEnd.delivery_boys.index', compact('rows', 'stats'));
     }
 
     public function create()
@@ -52,7 +86,7 @@ class DeliveryBoyController extends Controller
         }
         DeliveryBoy::create($payload);
 
-        Toastr::success('Delivery person created');
+        Toastr::success('Delivery person created successfully', 'Success');
         return redirect()->route('admin.delivery-boys.index');
     }
 
@@ -103,7 +137,7 @@ class DeliveryBoyController extends Controller
         }
         $row->save();
 
-        Toastr::success('Updated');
+        Toastr::success('Delivery person updated successfully', 'Success');
         return redirect()->route('admin.delivery-boys.index');
     }
 
@@ -142,15 +176,74 @@ class DeliveryBoyController extends Controller
             'Salary '.$request->salary_month.($request->note ? ' — '.$request->note : '')
         );
 
-        Toastr::success('Salary credited to wallet');
+        Toastr::success('Salary credited to wallet', 'Success');
         return redirect()->back();
     }
 
-    public function withdrawals()
+    public function withdrawals(Request $request)
     {
-        $rows = DeliveryBoyWithdrawal::with('deliveryBoy')->orderByDesc('id')->paginate(30);
+        $query = DeliveryBoyWithdrawal::with('deliveryBoy');
 
-        return view('backEnd.delivery_boys.withdrawals', compact('rows'));
+        // Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('payout_number', 'LIKE', "%{$keyword}%")
+                    ->orWhere('payout_method', 'LIKE', "%{$keyword}%")
+                    ->orWhereHas('deliveryBoy', function ($bq) use ($keyword) {
+                        $bq->where('name', 'LIKE', "%{$keyword}%")
+                            ->orWhere('phone', 'LIKE', "%{$keyword}%");
+                    });
+            });
+        }
+
+        // Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Method
+        if ($request->filled('payout_method')) {
+            $query->where('payout_method', $request->payout_method);
+        }
+
+        // Date range
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $query->latest('id');
+
+        // Per page
+        $perPage = $request->get('per_page', 15);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(DeliveryBoyWithdrawal::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $rows = $query->paginate($perPage)->withQueryString();
+
+        $adminFundBalance = 0;
+        if (class_exists('\App\Helpers\FundHelper')) {
+            $adminFundBalance = \App\Helpers\FundHelper::balance();
+        }
+
+        $stats = [
+            'total_count'     => DeliveryBoyWithdrawal::count(),
+            'total_amount'    => DeliveryBoyWithdrawal::sum('amount'),
+            'pending_count'   => DeliveryBoyWithdrawal::where('status', 'pending')->count(),
+            'pending_amount'  => DeliveryBoyWithdrawal::where('status', 'pending')->sum('amount'),
+            'approved_count'  => DeliveryBoyWithdrawal::where('status', 'approved')->count(),
+            'approved_amount' => DeliveryBoyWithdrawal::where('status', 'approved')->sum('amount'),
+            'rejected_count'  => DeliveryBoyWithdrawal::where('status', 'rejected')->count(),
+            'fund_balance'    => $adminFundBalance,
+        ];
+
+        return view('backEnd.delivery_boys.withdrawals', compact('rows', 'stats'));
     }
 
     public function approveWithdrawal(Request $request, DeliveryBoyWalletService $wallet)
@@ -159,20 +252,50 @@ class DeliveryBoyController extends Controller
             'id'         => 'required|exists:delivery_boy_withdrawals,id',
             'admin_note' => 'nullable|string|max:500',
         ]);
-        $w = DeliveryBoyWithdrawal::findOrFail($request->id);
+        $w = DeliveryBoyWithdrawal::with('deliveryBoy')->findOrFail($request->id);
         if ($w->status !== 'pending') {
-            Toastr::error('Already processed');
+            Toastr::error('Withdrawal has already been processed.', 'Error');
             return redirect()->back();
         }
+
+        // Check admin fund balance
+        if (class_exists('\App\Helpers\FundHelper')) {
+            $adminFundBalance = \App\Helpers\FundHelper::balance();
+            if ($adminFundBalance < $w->amount) {
+                Toastr::error('Insufficient admin fund balance. Current balance: ৳' . number_format($adminFundBalance, 2), 'Error');
+                return redirect()->back();
+            }
+        }
+
+        // Check rider wallet balance
+        if ($w->deliveryBoy && $w->deliveryBoy->wallet_balance < $w->amount) {
+            Toastr::error('Rider has insufficient wallet balance for this withdrawal.', 'Error');
+            return redirect()->back();
+        }
+
         if ($request->has('admin_note')) {
             $w->admin_note = $request->admin_note;
             $w->save();
         }
+
         try {
             $wallet->approveWithdrawal($w);
-            Toastr::success('Withdrawal approved & deducted from wallet');
+
+            // Record fund transaction
+            if (class_exists('\App\Models\FundTransaction')) {
+                \App\Models\FundTransaction::create([
+                    'direction'  => 'out',
+                    'source'     => 'rider_withdrawal',
+                    'source_id'  => $w->id,
+                    'amount'     => $w->amount,
+                    'note'       => 'Payout for rider ' . ($w->deliveryBoy->name ?? 'ID: ' . $w->delivery_boy_id) . ' (' . ucfirst($w->payout_method) . ': ' . $w->payout_number . ')',
+                    'created_by' => auth()->id(),
+                ]);
+            }
+
+            Toastr::success('Withdrawal approved and deducted from rider wallet & admin fund.', 'Success');
         } catch (\Throwable $e) {
-            Toastr::error($e->getMessage());
+            Toastr::error($e->getMessage(), 'Error');
         }
 
         return redirect()->back();
@@ -180,9 +303,13 @@ class DeliveryBoyController extends Controller
 
     public function rejectWithdrawal(Request $request)
     {
-        $request->validate(['id' => 'required|exists:delivery_boy_withdrawals,id']);
+        $request->validate([
+            'id'         => 'required|exists:delivery_boy_withdrawals,id',
+            'admin_note' => 'nullable|string|max:500',
+        ]);
         $w = DeliveryBoyWithdrawal::findOrFail($request->id);
         if ($w->status !== 'pending') {
+            Toastr::error('Withdrawal has already been processed.', 'Error');
             return redirect()->back();
         }
         $w->status = 'rejected';
@@ -190,8 +317,8 @@ class DeliveryBoyController extends Controller
         $w->processed_by = auth()->id();
         $w->admin_note = $request->input('admin_note');
         $w->save();
-        Toastr::info('Rejected');
 
+        Toastr::info('Withdrawal request rejected.', 'Info');
         return redirect()->back();
     }
 }

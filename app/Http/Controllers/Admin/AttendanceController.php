@@ -19,31 +19,55 @@ class AttendanceController extends Controller
     {
         $query = EmployeeAttendance::with('employee', 'markedBy')->orderBy('attendance_date', 'DESC');
 
+        // Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->whereHas('employee', function($eq) use ($keyword) {
+                $eq->where('name', 'LIKE', '%' . $keyword . '%')
+                   ->orWhere('employee_id', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+
         // Filter by employee
-        if ($request->employee_id) {
+        if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);
         }
 
         // Filter by date
-        if ($request->date) {
+        if ($request->filled('date')) {
             $query->whereDate('attendance_date', $request->date);
         }
 
         // Filter by month
-        if ($request->month) {
+        if ($request->filled('month')) {
             $query->whereMonth('attendance_date', Carbon::parse($request->month)->month)
                   ->whereYear('attendance_date', Carbon::parse($request->month)->year);
         }
 
         // Filter by status
-        if ($request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $attendances = $query->paginate(30);
+        // Per page
+        $perPage = $request->get('per_page', 30);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(EmployeeAttendance::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $attendances = $query->paginate($perPage)->withQueryString();
         $employees = Employee::where('status', 'active')->orderBy('name')->get();
 
-        return view('backEnd.attendances.index', compact('attendances', 'employees'));
+        $stats = [
+            'total_count'    => EmployeeAttendance::count(),
+            'present_count'  => EmployeeAttendance::where('status', 'present')->count(),
+            'absent_count'   => EmployeeAttendance::where('status', 'absent')->count(),
+            'late_half_count'=> EmployeeAttendance::whereIn('status', ['late', 'half_day'])->count(),
+        ];
+
+        return view('backEnd.attendances.index', compact('attendances', 'employees', 'stats'));
     }
 
     /**

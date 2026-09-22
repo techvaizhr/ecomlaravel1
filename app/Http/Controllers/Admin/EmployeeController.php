@@ -22,29 +22,53 @@ class EmployeeController extends Controller
         $query = Employee::with('user', 'createdBy')->orderBy('id', 'DESC');
 
         // Search
-        if ($request->keyword) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'LIKE', '%' . $request->keyword . '%')
-                  ->orWhere('email', 'LIKE', '%' . $request->keyword . '%')
-                  ->orWhere('employee_id', 'LIKE', '%' . $request->keyword . '%')
-                  ->orWhere('phone', 'LIKE', '%' . $request->keyword . '%');
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('email', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('employee_id', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('phone', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('nid', 'LIKE', '%' . $keyword . '%');
             });
         }
 
         // Filter by status
-        if ($request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Filter by department
-        if ($request->department) {
+        if ($request->filled('department')) {
             $query->where('department', $request->department);
         }
 
-        $employees = $query->paginate(20);
-        $departments = Employee::distinct()->whereNotNull('department')->pluck('department');
+        // Filter by designation
+        if ($request->filled('designation')) {
+            $query->where('designation', $request->designation);
+        }
 
-        return view('backEnd.employees.index', compact('employees', 'departments'));
+        // Per page
+        $perPage = $request->get('per_page', 15);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(Employee::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $employees = $query->paginate($perPage)->withQueryString();
+        $departments = Employee::distinct()->whereNotNull('department')->where('department', '!=', '')->pluck('department');
+        $designations = Employee::distinct()->whereNotNull('designation')->where('designation', '!=', '')->pluck('designation');
+
+        $stats = [
+            'total_count'       => Employee::count(),
+            'active_count'      => Employee::where('status', 'active')->count(),
+            'inactive_count'    => Employee::where('status', 'inactive')->count(),
+            'terminated_count'  => Employee::where('status', 'terminated')->count(),
+            'total_payroll'     => Employee::where('status', 'active')->sum('basic_salary'),
+        ];
+
+        return view('backEnd.employees.index', compact('employees', 'departments', 'designations', 'stats'));
     }
 
     /**

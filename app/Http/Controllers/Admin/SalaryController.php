@@ -22,25 +22,49 @@ class SalaryController extends Controller
     {
         $query = EmployeeSalary::with('employee', 'calculatedBy')->orderBy('salary_month', 'DESC');
 
+        // Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->whereHas('employee', function($eq) use ($keyword) {
+                $eq->where('name', 'LIKE', '%' . $keyword . '%')
+                   ->orWhere('employee_id', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+
         // Filter by employee
-        if ($request->employee_id) {
+        if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);
         }
 
         // Filter by month
-        if ($request->month) {
+        if ($request->filled('month')) {
             $query->where('salary_month', $request->month);
         }
 
         // Filter by status
-        if ($request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $salaries = $query->paginate(20);
+        // Per page
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(EmployeeSalary::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $salaries = $query->paginate($perPage)->withQueryString();
         $employees = Employee::where('status', 'active')->orderBy('name')->get();
 
-        return view('backEnd.salaries.index', compact('salaries', 'employees'));
+        $stats = [
+            'total_count'    => EmployeeSalary::count(),
+            'total_amount'   => EmployeeSalary::sum('net_salary'),
+            'paid_amount'    => EmployeeSalary::where('status', 'paid')->sum('net_salary'),
+            'pending_amount' => EmployeeSalary::where('status', '!=', 'paid')->sum('net_salary'),
+        ];
+
+        return view('backEnd.salaries.index', compact('salaries', 'employees', 'stats'));
     }
 
     /**

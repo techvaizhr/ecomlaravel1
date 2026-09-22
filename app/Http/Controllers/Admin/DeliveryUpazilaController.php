@@ -18,16 +18,38 @@ class DeliveryUpazilaController extends Controller
         $this->middleware('permission:shipping-delete', ['only' => ['destroy']]);
     }
 
-    public function index($district)
+    public function index(Request $request, $district)
     {
         $district  = DeliveryDistrict::with('division')->findOrFail($district);
-        $show_data = DeliveryUpazila::query()
-            ->where('district_id', $district->id)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
+        $query = DeliveryUpazila::query()->where('district_id', $district->id);
 
-        return view('backEnd.delivery.upazila_index', compact('district', 'show_data'));
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where('name', 'LIKE', "%{$keyword}%");
+        }
+
+        if ($request->filled('status') && $request->status !== '') {
+            $query->where('status', (int)$request->status);
+        }
+
+        $query->orderBy('sort_order')->orderBy('name');
+
+        $perPage = $request->get('per_page', 15);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max($query->count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $show_data = $query->paginate($perPage)->withQueryString();
+
+        $stats = [
+            'total'    => DeliveryUpazila::where('district_id', $district->id)->count(),
+            'active'   => DeliveryUpazila::where('district_id', $district->id)->where('status', 1)->count(),
+            'inactive' => DeliveryUpazila::where('district_id', $district->id)->where('status', 0)->count(),
+        ];
+
+        return view('backEnd.delivery.upazila_index', compact('district', 'show_data', 'stats'));
     }
 
     public function create($district)

@@ -18,16 +18,38 @@ class DeliveryDistrictController extends Controller
         $this->middleware('permission:shipping-delete', ['only' => ['destroy']]);
     }
 
-    public function index($division)
+    public function index(Request $request, $division)
     {
         $division  = DeliveryDivision::findOrFail($division);
-        $show_data = DeliveryDistrict::query()
-            ->where('division_id', $division->id)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
+        $query = DeliveryDistrict::query()->where('division_id', $division->id);
 
-        return view('backEnd.delivery.district_index', compact('division', 'show_data'));
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where('name', 'LIKE', "%{$keyword}%");
+        }
+
+        if ($request->filled('status') && $request->status !== '') {
+            $query->where('status', (int)$request->status);
+        }
+
+        $query->orderBy('sort_order')->orderBy('name');
+
+        $perPage = $request->get('per_page', 15);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max($query->count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $show_data = $query->paginate($perPage)->withQueryString();
+
+        $stats = [
+            'total'    => DeliveryDistrict::where('division_id', $division->id)->count(),
+            'active'   => DeliveryDistrict::where('division_id', $division->id)->where('status', 1)->count(),
+            'inactive' => DeliveryDistrict::where('division_id', $division->id)->where('status', 0)->count(),
+        ];
+
+        return view('backEnd.delivery.district_index', compact('division', 'show_data', 'stats'));
     }
 
     public function create($division)

@@ -20,25 +20,59 @@ class SalaryPaymentController extends Controller
     {
         $query = EmployeeSalaryPayment::with('employee', 'salary', 'paidBy')->orderBy('payment_date', 'DESC');
 
+        // Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('transaction_id', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('account_number', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('bank_name', 'LIKE', '%' . $keyword . '%')
+                  ->orWhereHas('employee', function($eq) use ($keyword) {
+                      $eq->where('name', 'LIKE', '%' . $keyword . '%')
+                         ->orWhere('employee_id', 'LIKE', '%' . $keyword . '%');
+                  });
+            });
+        }
+
         // Filter by employee
-        if ($request->employee_id) {
+        if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);
         }
 
         // Filter by month
-        if ($request->month) {
+        if ($request->filled('month')) {
             $query->where('payment_month', $request->month);
         }
 
+        // Filter by method
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
         // Filter by status
-        if ($request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $payments = $query->paginate(20);
+        // Per page
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(EmployeeSalaryPayment::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $payments = $query->paginate($perPage)->withQueryString();
         $employees = Employee::where('status', 'active')->orderBy('name')->get();
 
-        return view('backEnd.salary_payments.index', compact('payments', 'employees'));
+        $stats = [
+            'total_count'    => EmployeeSalaryPayment::count(),
+            'total_amount'   => EmployeeSalaryPayment::where('status', 'paid')->sum('amount'),
+            'bank_amount'    => EmployeeSalaryPayment::where('status', 'paid')->where('payment_method', 'bank_transfer')->sum('amount'),
+            'mfs_amount'     => EmployeeSalaryPayment::where('status', 'paid')->whereIn('payment_method', ['bkash', 'nagad', 'rocket'])->sum('amount'),
+        ];
+
+        return view('backEnd.salary_payments.index', compact('payments', 'employees', 'stats'));
     }
 
     /**

@@ -19,25 +19,50 @@ class LeaveController extends Controller
     {
         $query = EmployeeLeave::with('employee', 'approvedBy', 'createdBy')->orderBy('created_at', 'DESC');
 
+        // Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->whereHas('employee', function($eq) use ($keyword) {
+                $eq->where('name', 'LIKE', '%' . $keyword . '%')
+                   ->orWhere('employee_id', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+
         // Filter by employee
-        if ($request->employee_id) {
+        if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);
         }
 
         // Filter by status
-        if ($request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Filter by leave type
-        if ($request->leave_type) {
+        if ($request->filled('leave_type')) {
             $query->where('leave_type', $request->leave_type);
         }
 
-        $leaves = $query->paginate(20);
+        // Per page
+        $perPage = $request->get('per_page', 15);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(EmployeeLeave::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $leaves = $query->paginate($perPage)->withQueryString();
         $employees = Employee::where('status', 'active')->orderBy('name')->get();
 
-        return view('backEnd.leaves.index', compact('leaves', 'employees'));
+        $stats = [
+            'total_count'    => EmployeeLeave::count(),
+            'pending_count'  => EmployeeLeave::where('status', 'pending')->count(),
+            'approved_count' => EmployeeLeave::where('status', 'approved')->count(),
+            'approved_days'  => EmployeeLeave::where('status', 'approved')->sum('total_days'),
+            'rejected_count' => EmployeeLeave::where('status', 'rejected')->count(),
+        ];
+
+        return view('backEnd.leaves.index', compact('leaves', 'employees', 'stats'));
     }
 
     /**

@@ -19,25 +19,55 @@ class BonusController extends Controller
     {
         $query = EmployeeBonus::with('employee', 'approvedBy', 'createdBy')->orderBy('created_at', 'DESC');
 
+        // Search
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('bonus_type', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('reason', 'LIKE', '%' . $keyword . '%')
+                  ->orWhereHas('employee', function($eq) use ($keyword) {
+                      $eq->where('name', 'LIKE', '%' . $keyword . '%')
+                         ->orWhere('employee_id', 'LIKE', '%' . $keyword . '%');
+                  });
+            });
+        }
+
         // Filter by employee
-        if ($request->employee_id) {
+        if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);
         }
 
         // Filter by status
-        if ($request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Filter by bonus type
-        if ($request->bonus_type) {
+        if ($request->filled('bonus_type')) {
             $query->where('bonus_type', $request->bonus_type);
         }
 
-        $bonuses = $query->paginate(20);
-        $employees = Employee::where('status', 'active')->orderBy('name')->get();
+        // Per page
+        $perPage = $request->get('per_page', 20);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(EmployeeBonus::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
 
-        return view('backEnd.bonuses.index', compact('bonuses', 'employees'));
+        $bonuses = $query->paginate($perPage)->withQueryString();
+        $employees = Employee::where('status', 'active')->orderBy('name')->get();
+        $bonusTypes = EmployeeBonus::distinct()->whereNotNull('bonus_type')->where('bonus_type', '!=', '')->pluck('bonus_type');
+
+        $stats = [
+            'total_count'    => EmployeeBonus::count(),
+            'total_amount'   => EmployeeBonus::sum('amount'),
+            'pending_count'  => EmployeeBonus::where('status', 'pending')->count(),
+            'approved_count' => EmployeeBonus::where('status', 'approved')->count(),
+            'paid_amount'    => EmployeeBonus::where('status', 'paid')->sum('amount'),
+        ];
+
+        return view('backEnd.bonuses.index', compact('bonuses', 'employees', 'bonusTypes', 'stats'));
     }
 
     /**
@@ -74,7 +104,7 @@ class BonusController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        Toastr::success('Bonus created successfully!');
+        Toastr::success('Bonus created successfully!', 'Success');
         return redirect()->route('admin.bonuses.index');
     }
 
@@ -91,7 +121,7 @@ class BonusController extends Controller
             'approved_at' => now(),
         ]);
 
-        Toastr::success('Bonus approved successfully!');
+        Toastr::success('Bonus approved successfully!', 'Success');
         return back();
     }
 
@@ -103,30 +133,41 @@ class BonusController extends Controller
         $bonus = EmployeeBonus::with('employee')->findOrFail($id);
 
         if ($bonus->status !== 'approved') {
-            Toastr::error('Bonus must be approved before payment!');
+            Toastr::error('Bonus must be approved before payment!', 'Error');
             return back();
         }
 
         if ($bonus->status === 'paid') {
-            Toastr::error('Bonus already paid!');
+            Toastr::error('Bonus already paid!', 'Error');
             return back();
         }
 
+        // Check fund balance
+        if (class_exists('\App\Helpers\FundHelper')) {
+            $fundBalance = \App\Helpers\FundHelper::balance();
+            if ($fundBalance < $bonus->amount) {
+                Toastr::error('Insufficient fund balance! Current balance: ৳' . number_format($fundBalance, 2), 'Error');
+                return back();
+            }
+        }
+
         // Deduct from fund
-        FundTransaction::create([
-            'direction' => 'out',
-            'source' => 'employee_bonus',
-            'source_id' => $bonus->id,
-            'amount' => $bonus->amount,
-            'note' => 'Bonus payment for ' . $bonus->employee->name . ' - ' . $bonus->bonus_type . ' - Amount: ৳' . number_format($bonus->amount, 2),
-            'created_by' => Auth::id(),
-        ]);
+        if (class_exists('\App\Models\FundTransaction')) {
+            FundTransaction::create([
+                'direction' => 'out',
+                'source' => 'employee_bonus',
+                'source_id' => $bonus->id,
+                'amount' => $bonus->amount,
+                'note' => 'Bonus payment for ' . ($bonus->employee->name ?? 'Employee') . ' - ' . $bonus->bonus_type . ' - Amount: ৳' . number_format($bonus->amount, 2),
+                'created_by' => Auth::id(),
+            ]);
+        }
 
         $bonus->update([
             'status' => 'paid',
         ]);
 
-        Toastr::success('Bonus paid successfully! Amount deducted from fund.');
+        Toastr::success('Bonus paid successfully! Amount deducted from fund.', 'Success');
         return back();
     }
 

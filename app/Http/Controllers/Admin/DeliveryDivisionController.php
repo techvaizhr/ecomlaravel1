@@ -17,11 +17,37 @@ class DeliveryDivisionController extends Controller
         $this->middleware('permission:shipping-delete', ['only' => ['destroy']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $show_data = DeliveryDivision::query()->orderBy('sort_order')->orderBy('name')->get();
+        $query = DeliveryDivision::query();
 
-        return view('backEnd.delivery.division_index', compact('show_data'));
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where('name', 'LIKE', "%{$keyword}%");
+        }
+
+        if ($request->filled('status') && $request->status !== '') {
+            $query->where('status', (int)$request->status);
+        }
+
+        $query->orderBy('sort_order')->orderBy('name');
+
+        $perPage = $request->get('per_page', 15);
+        if ($perPage === 'all' || $perPage == -1) {
+            $perPage = max(DeliveryDivision::count(), 1);
+        } else {
+            $perPage = max((int)$perPage, 10);
+        }
+
+        $show_data = $query->paginate($perPage)->withQueryString();
+
+        $stats = [
+            'total'    => DeliveryDivision::count(),
+            'active'   => DeliveryDivision::where('status', 1)->count(),
+            'inactive' => DeliveryDivision::where('status', 0)->count(),
+        ];
+
+        return view('backEnd.delivery.division_index', compact('show_data', 'stats'));
     }
 
     public function create()

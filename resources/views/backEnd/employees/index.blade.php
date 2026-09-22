@@ -1,82 +1,78 @@
 @extends('backEnd.layouts.master')
-@section('title','Employee Management')
+@section('title', 'Employee Management')
 
 @section('css')
 <style>
-    /* --- Modern Variables --- */
-    :root {
-        --primary-color: #4f46e5;
-        --secondary-text: #64748b;
-        --border-color: #e2e8f0;
+    .metric-card {
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        background: #fff;
+        border: 1px solid #edf2f7;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    .metric-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+    .metric-icon.blue { background: #e0f2fe; color: #0284c7; }
+    .metric-icon.green { background: #dcfce7; color: #16a34a; }
+    .metric-icon.purple { background: #f3e8ff; color: #9333ea; }
+    .metric-icon.amber { background: #fef3c7; color: #d97706; }
 
-    /* --- Card Styles --- */
     .card-modern {
         border: none;
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         background: #fff;
+        overflow: hidden;
     }
-    
-    /* --- Filter Section --- */
-    .filter-container {
-        background: #f8fafc;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-    .form-control-clean, .form-select-clean {
-        background: #fff;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        padding: 0.6rem 1rem;
-    }
-    .form-control-clean:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-
-    /* --- Table Styling --- */
-    .table-responsive { overflow-x: auto; }
-    .employee-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-    .employee-table th {
-        background: #f1f5f9;
-        color: var(--secondary-text);
+    .table-modern th {
+        background-color: #f8fafc;
+        color: #475569;
         font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        letter-spacing: 0.5px;
+        letter-spacing: 0.04em;
+        padding: 1rem 1.25rem;
+        border-bottom: 2px solid #edf2f7;
+        white-space: nowrap;
     }
-    .employee-table td {
-        padding: 1rem 1.5rem;
+    .table-modern td {
         vertical-align: middle;
-        border-bottom: 1px solid var(--border-color);
-        background: #fff;
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
     }
-    .employee-table tr:hover td { background: #fafafa; }
-    .employee-table tr:last-child td { border-bottom: none; }
-
-    /* --- Avatar & User Info --- */
-    .user-card { display: flex; align-items: center; gap: 12px; }
+    .table-modern tr:hover td { background-color: #fbfcfe; }
     .user-avatar {
         width: 40px; height: 40px;
-        border-radius: 50%;
-        background: #e0e7ff;
-        color: #4338ca;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        color: #fff;
         display: flex; align-items: center; justify-content: center;
         font-weight: 700; font-size: 14px;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        flex-shrink: 0;
+        box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25);
     }
-    .user-info h6 { margin: 0; font-size: 0.9rem; font-weight: 600; color: #1e293b; }
-    .user-info span { font-size: 0.75rem; color: #64748b; }
     .emp-id-badge {
         font-size: 0.7rem; background: #f1f5f9; color: #475569;
         padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px;
     }
-
-    /* --- Status Badges --- */
     .status-badge {
         padding: 5px 12px;
         border-radius: 20px;
@@ -88,18 +84,6 @@
     .status-inactive { background: #fef3c7; color: #92400e; }
     .status-terminated { background: #fee2e2; color: #991b1b; }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    /* --- Action Buttons --- */
-    .btn-icon {
-        width: 32px; height: 32px;
-        display: inline-flex; align-items: center; justify-content: center;
-        border-radius: 8px; transition: all 0.2s;
-        border: 1px solid transparent;
-    }
-    .btn-icon:hover { transform: translateY(-2px); border-color: var(--border-color); }
-    .btn-view { color: #0ea5e9; background: #e0f2fe; }
-    .btn-edit { color: #6366f1; background: #e0e7ff; }
-    .btn-delete { color: #ef4444; background: #fee2e2; }
 </style>
 @endsection
 
@@ -107,32 +91,84 @@
 <div class="container-fluid py-4">
 
     {{-- PAGE HEADER --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="users" class="text-primary me-2"></i> Employee Management
+            <h4 class="mb-1 fw-bold text-dark d-flex align-items-center">
+                <i data-feather="users" class="text-primary me-2" style="width:26px;height:26px;"></i> Employee Directory
             </h4>
-            <p class="text-muted small mb-0">Manage all your employees, departments, and payroll info.</p>
+            <p class="text-muted small mb-0">Manage employees, departmental designations, profiles, and basic salary info.</p>
         </div>
-        <a href="{{ route('admin.employees.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus" class="me-1" style="width: 16px;"></i> Add New Employee
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('admin.attendances.index') }}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i data-feather="clock" class="me-1" style="width:16px;height:16px;"></i> Attendance
+            </a>
+            <a href="{{ route('admin.employees.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i data-feather="plus" class="me-1" style="width:16px;height:16px;"></i> Add Employee
+            </a>
+        </div>
     </div>
 
-    <div class="card-modern">
-        
-        {{-- FILTERS --}}
-        <div class="p-4 border-bottom">
+    <!-- Live Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-sm-6">
+            <div class="metric-card">
+                <div class="metric-icon blue">
+                    <i data-feather="users" style="width:22px;height:22px;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Total Employees</div>
+                    <h3 class="mb-0 fw-bold text-dark">{{ number_format($stats['total_count'] ?? 0) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+            <div class="metric-card">
+                <div class="metric-icon green">
+                    <i data-feather="user-check" style="width:22px;height:22px;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Active Staff</div>
+                    <h3 class="mb-0 fw-bold text-success">{{ number_format($stats['active_count'] ?? 0) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+            <div class="metric-card">
+                <div class="metric-icon amber">
+                    <i data-feather="user-x" style="width:22px;height:22px;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Inactive / Left</div>
+                    <h3 class="mb-0 fw-bold text-secondary">{{ number_format(($stats['inactive_count'] ?? 0) + ($stats['terminated_count'] ?? 0)) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+            <div class="metric-card">
+                <div class="metric-icon purple">
+                    <i data-feather="dollar-sign" style="width:22px;height:22px;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Monthly Payroll Base</div>
+                    <h3 class="mb-0 fw-bold text-primary">৳{{ number_format($stats['total_payroll'] ?? 0, 2) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="card card-modern mb-4">
+        <div class="card-body p-3">
             <form method="GET" action="{{ route('admin.employees.index') }}">
-                <div class="row g-3">
-                    <div class="col-md-4">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-3">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0 text-muted"><i data-feather="search" style="width:16px;"></i></span>
-                            <input type="text" name="keyword" class="form-control form-control-clean border-start-0 ps-0" placeholder="Search by name, email or ID..." value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" class="form-control border-start-0 ps-0" placeholder="Name, email, phone or ID..." value="{{ request('keyword') }}">
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <select name="department" class="form-select form-select-clean">
+                        <select name="department" class="form-select">
                             <option value="">All Departments</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept }}" {{ request('department') == $dept ? 'selected' : '' }}>{{ $dept }}</option>
@@ -140,129 +176,160 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select name="status" class="form-select form-select-clean">
-                            <option value="">All Status</option>
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                             <option value="terminated" {{ request('status') == 'terminated' ? 'selected' : '' }}>Terminated</option>
                         </select>
                     </div>
-                    <div class="col-md-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark px-4 flex-grow-1">Filter</button>
-                        <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-3" title="Reset">
-                            <i data-feather="refresh-cw" style="width:16px;"></i>
-                        </a>
+                    <div class="col-md-2">
+                        <select name="per_page" class="form-select">
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 / page</option>
+                            <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15 / page</option>
+                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 / page</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / page</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 / page</option>
+                            <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>All Records</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i data-feather="filter" class="me-1" style="width:16px;"></i> Filter
+                        </button>
+                        @if(request()->anyFilled(['keyword', 'department', 'status', 'designation', 'per_page']))
+                            <a href="{{ route('admin.employees.index') }}" class="btn btn-outline-secondary" title="Reset Filters">
+                                <i data-feather="refresh-cw" style="width:16px;"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </form>
         </div>
+    </div>
 
-        {{-- TABLE --}}
-        <div class="table-responsive">
-            <table class="employee-table">
-                <thead>
-                    <tr>
-                        <th width="30%">Employee Details</th>
-                        <th width="20%">Role & Dept</th>
-                        <th width="15%">Contact</th>
-                        <th width="15%">Salary</th>
-                        <th width="10%">Status</th>
-                        <th width="10%" class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($employees as $employee)
+    <!-- Data Table Card -->
+    <div class="card card-modern">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-modern mb-0">
+                    <thead>
                         <tr>
-                            {{-- Name & Avatar --}}
-                            <td>
-                                <div class="user-card">
-                                    <div class="user-avatar">
-                                        {{ substr($employee->name, 0, 1) }}
-                                    </div>
-                                    <div class="user-info">
-                                        <h6>
-                                            {{ $employee->name }}
-                                            <span class="emp-id-badge">#{{ $employee->employee_id }}</span>
-                                        </h6>
-                                        <span>{{ $employee->email }}</span>
-                                    </div>
-                                </div>
-                            </td>
-
-                            {{-- Role --}}
-                            <td>
-                                <div class="d-flex flex-column">
-                                    <span class="fw-bold text-dark fs-6">{{ $employee->designation ?? 'N/A' }}</span>
-                                    <span class="text-muted small"><i data-feather="briefcase" style="width:10px;" class="me-1"></i> {{ $employee->department ?? 'General' }}</span>
-                                </div>
-                            </td>
-
-                            {{-- Contact --}}
-                            <td>
-                                <span class="text-muted small fw-medium">
-                                    {{ $employee->phone ?? 'N/A' }}
-                                </span>
-                            </td>
-
-                            {{-- Salary --}}
-                            <td>
-                                <span class="fw-bold text-dark">৳{{ number_format($employee->basic_salary, 2) }}</span>
-                                <div class="text-muted" style="font-size: 10px;">Basic</div>
-                            </td>
-
-                            {{-- Status --}}
-                            <td>
-                                @if($employee->status == 'active')
-                                    <span class="status-badge status-active"><span class="status-dot"></span> Active</span>
-                                @elseif($employee->status == 'inactive')
-                                    <span class="status-badge status-inactive"><span class="status-dot"></span> Inactive</span>
-                                @else
-                                    <span class="status-badge status-terminated"><span class="status-dot"></span> Terminated</span>
-                                @endif
-                            </td>
-
-                            {{-- Actions --}}
-                            <td class="text-end">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('admin.employees.show', $employee->id) }}" class="btn-icon btn-view" title="View Details">
-                                        <i data-feather="eye" style="width: 16px;"></i>
-                                    </a>
-                                    <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn-icon btn-edit" title="Edit Info">
-                                        <i data-feather="edit-2" style="width: 16px;"></i>
-                                    </a>
-                                    <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this employee?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" title="Delete">
-                                            <i data-feather="trash-2" style="width: 16px;"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                            <th width="5%">#</th>
+                            <th width="28%">Employee Details</th>
+                            <th width="20%">Role & Department</th>
+                            <th width="15%">Contact</th>
+                            <th width="12%">Basic Salary</th>
+                            <th width="10%">Status</th>
+                            <th width="10%" class="text-end">Actions</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No Employees Found</p>
-                                <small class="text-muted">Try adjusting your search or filters.</small>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        {{-- PAGINATION --}}
-        <div class="p-4 border-top d-flex justify-content-between align-items-center">
-            <small class="text-muted">
-                Showing <strong>{{ $employees->firstItem() }}</strong> to <strong>{{ $employees->lastItem() }}</strong> of <strong>{{ $employees->total() }}</strong> results
-            </small>
-            <div>
-                {{ $employees->links('pagination::bootstrap-4') }}
+                    </thead>
+                    <tbody>
+                        @forelse($employees as $key => $employee)
+                            <tr>
+                                <td class="text-muted small">{{ $employees->firstItem() ? $employees->firstItem() + $key : $key + 1 }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3">
+                                            {{ strtoupper(substr($employee->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">
+                                                {{ $employee->name }}
+                                                @if($employee->employee_id)
+                                                    <span class="emp-id-badge">#{{ $employee->employee_id }}</span>
+                                                @endif
+                                            </div>
+                                            <span class="text-muted small">{{ $employee->email }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-dark d-block">{{ $employee->designation ?? 'N/A' }}</span>
+                                    <span class="text-muted small"><i data-feather="briefcase" style="width:12px;height:12px;" class="me-1"></i>{{ $employee->department ?? 'General' }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-dark font-monospace small d-block">{{ $employee->phone ?? '—' }}</span>
+                                    @if($employee->joining_date)
+                                        <span class="text-muted" style="font-size: 0.75rem;">Joined: {{ date('d M, Y', strtotime($employee->joining_date)) }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark fs-6">৳{{ number_format($employee->basic_salary, 2) }}</span>
+                                </td>
+                                <td>
+                                    @if($employee->status == 'active')
+                                        <span class="status-badge status-active"><span class="status-dot"></span> Active</span>
+                                    @elseif($employee->status == 'inactive')
+                                        <span class="status-badge status-inactive"><span class="status-dot"></span> Inactive</span>
+                                    @else
+                                        <span class="status-badge status-terminated"><span class="status-dot"></span> Terminated</span>
+                                    @endif
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1 justify-content-end">
+                                        <a href="{{ route('admin.employees.show', $employee->id) }}" class="btn btn-sm btn-outline-info rounded-pill px-2" title="View Details">
+                                            <i data-feather="eye" style="width: 14px; height: 14px;"></i>
+                                        </a>
+                                        <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn btn-sm btn-primary rounded-pill px-2" title="Edit Info">
+                                            <i data-feather="edit-2" style="width: 14px; height: 14px;"></i>
+                                        </a>
+                                        <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" class="d-inline delete-employee-form">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Delete">
+                                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i data-feather="inbox" class="mb-2 opacity-50" style="width:40px;height:40px;"></i>
+                                    <p class="mb-0">No employees found matching your criteria.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        </div>
 
+            @if($employees->hasPages())
+                <div class="card-footer bg-white border-top py-3 d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        Showing {{ $employees->firstItem() }} to {{ $employees->lastItem() }} of {{ $employees->total() }} employees
+                    </div>
+                    <div>
+                        {{ $employees->links() }}
+                    </div>
+                </div>
+            @endif
+        </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.querySelectorAll('.delete-employee-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will delete the employee record!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Yes, delete it!'
+        }).then(function(r) {
+            if (r.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
 @endsection
