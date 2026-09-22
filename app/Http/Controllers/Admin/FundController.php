@@ -20,16 +20,40 @@ class FundController extends Controller
     {
         $query = FundTransaction::orderBy('created_at', 'desc');
 
-        if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
-        }
-        if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('note', 'LIKE', "%{$keyword}%")
+                  ->orWhere('source', 'LIKE', "%{$keyword}%")
+                  ->orWhere('id', $keyword)
+                  ->orWhere('amount', 'LIKE', "%{$keyword}%");
+            });
         }
 
-        $transactions = $query->with('logs')->paginate(20)->withQueryString();
+        if ($request->filled('direction')) {
+            $query->where('direction', $request->direction);
+        }
 
-        // Compute totals more efficiently with a single query each (or you can combine into one)
+        if ($request->filled('source')) {
+            $query->where('source', $request->source);
+        }
+
+        // Global Smart Date Filter Integration
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'created_at');
+        } elseif ($request->filled('from_date') || $request->filled('to_date')) {
+            if ($request->filled('from_date')) {
+                $query->whereDate('created_at', '>=', $request->from_date);
+            }
+            if ($request->filled('to_date')) {
+                $query->whereDate('created_at', '<=', $request->to_date);
+            }
+        }
+
+        $per_page = $request->get('per_page', 25);
+        $transactions = $query->with('logs')->paginate($per_page)->withQueryString();
+
+        // Compute totals
         $total_in  = FundTransaction::where('direction', 'in')->sum('amount');
         $total_out = FundTransaction::where('direction', 'out')->sum('amount');
         $balance   = $total_in - $total_out;
@@ -47,6 +71,8 @@ class FundController extends Controller
             ->whereMonth('created_at', $currentMonth)
             ->sum('amount');
 
+        $sources = FundTransaction::select('source')->whereNotNull('source')->where('source', '!=', '')->distinct()->pluck('source');
+
         return view('backEnd.fund.index', compact(
             'balance',
             'transactions',
@@ -55,7 +81,8 @@ class FundController extends Controller
             'yearlyAdded',
             'monthlyAdded',
             'currentYear',
-            'currentMonth'
+            'currentMonth',
+            'sources'
         ));
     }
 

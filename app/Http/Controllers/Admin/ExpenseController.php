@@ -46,7 +46,7 @@ class ExpenseController extends Controller
         return $total_in - $total_out;
     }
     // ✅ List + Summary
-    public function index()
+    public function index(Request $request)
     {
         // ফান্ড ব্যালেন্স
         $total_in  = FundTransaction::where('direction', 'in')->sum('amount');
@@ -68,10 +68,39 @@ class ExpenseController extends Controller
         // আজকের খরচ
         $todayExpense = Expense::whereDate('expense_date', $today)->sum('amount');
 
-        // হিস্টরি
-        $expenses = Expense::orderBy('expense_date', 'desc')
-                        ->orderBy('id', 'desc')
-                        ->paginate(20);
+        // হিস্টরি কুয়েরি
+        $query = Expense::orderBy('expense_date', 'desc')->orderBy('id', 'desc');
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('title', 'LIKE', "%{$keyword}%")
+                  ->orWhere('note', 'LIKE', "%{$keyword}%")
+                  ->orWhere('category', 'LIKE', "%{$keyword}%")
+                  ->orWhere('amount', 'LIKE', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Global Smart Date Filter Integration
+        if (function_exists('apply_date_filter')) {
+            apply_date_filter($query, $request, 'expense_date');
+        } elseif ($request->filled('from_date') || $request->filled('to_date')) {
+            if ($request->filled('from_date')) {
+                $query->whereDate('expense_date', '>=', $request->from_date);
+            }
+            if ($request->filled('to_date')) {
+                $query->whereDate('expense_date', '<=', $request->to_date);
+            }
+        }
+
+        $per_page = $request->get('per_page', 25);
+        $expenses = $query->paginate($per_page)->withQueryString();
+
+        $categories = Expense::select('category')->whereNotNull('category')->where('category', '!=', '')->distinct()->pluck('category');
 
         return view('backEnd.expenses.index', compact(
             'balance',
@@ -80,7 +109,8 @@ class ExpenseController extends Controller
             'yearlyExpense',
             'monthlyExpense',
             'todayExpense',
-            'expenses'
+            'expenses',
+            'categories'
         ));
     }
 
