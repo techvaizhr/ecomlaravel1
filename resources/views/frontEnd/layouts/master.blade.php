@@ -986,38 +986,42 @@ li.all__category__list:hover > a i {
     align-items: center;
     justify-content: center;
 }
-/* 📱 MODERN & BEAUTIFUL MOBILE SIDE MENU (DRAWER) */
+/* 📱 ULTRA-MODERN & BEAUTIFUL MOBILE SIDE MENU (DRAWER) */
 .mobile-menu {
     position: fixed;
     top: 0;
-    left: -320px;
-    width: 300px;
-    max-width: 85vw;
+    left: 0;
+    width: 320px;
+    max-width: 86vw;
     height: 100vh;
+    height: 100dvh;
     background: #ffffff;
     z-index: 999999;
-    box-shadow: 10px 0 45px rgba(15, 23, 42, 0.22);
+    box-shadow: 12px 0 45px rgba(15, 23, 42, 0.25);
     display: flex;
     flex-direction: column;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
+    font-family: inherit;
 }
 .mobile-menu.active {
-    left: 0;
+    transform: translateX(0);
 }
 
 /* Header */
-.mobile-menu-logo {
+.mobile-menu-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 18px;
+    padding: 14px 16px;
     background: #ffffff;
     border-bottom: 1px solid #f1f5f9;
     flex-shrink: 0;
 }
 .mobile-menu-logo .logo-image img {
-    height: 38px;
+    height: 36px;
+    max-width: 150px;
     width: auto;
     object-fit: contain;
 }
@@ -1025,223 +1029,410 @@ li.all__category__list:hover > a i {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: #f1f5f9;
+    background: #f8fafc;
     color: #475569;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     border: 1px solid #e2e8f0;
+    font-size: 15px;
 }
 .mobile-menu-close:hover,
 .mobile-menu-close:active {
     background: #fee2e2;
     color: #ef4444;
+    border-color: #fecaca;
     transform: rotate(90deg);
+}
+
+/* Category Title Banner */
+.mobile-menu-cat-title {
+    padding: 10px 16px 8px;
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+.mobile-menu-cat-title-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mobile-menu-cat-title-text i {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+.mobile-menu-cat-badge {
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }}18;
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
 }
 
 /* Category Navigation List */
 .first-nav {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 0;
+    padding: 8px 10px;
     margin: 0;
     list-style: none;
     -webkit-overflow-scrolling: touch;
 }
+.first-nav::-webkit-scrollbar {
+    width: 4px;
+}
+.first-nav::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
 .first-nav .parent-category {
     position: relative;
-    border-bottom: 1px solid #f8fafc;
-    transition: background 0.15s ease;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    background: #ffffff;
 }
-.first-nav .parent-category > a.menu-category-name {
+.first-nav .parent-category:hover,
+.first-nav .parent-category.active {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.mobile-cat-row {
     display: flex;
     align-items: center;
-    padding: 11px 18px;
-    padding-right: 50px;
-    font-size: 14px;
+    justify-content: space-between;
+    padding: 3px 4px;
+    width: 100%;
+}
+
+.first-nav .parent-category a.menu-category-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    padding: 7px 8px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #1e293b;
     text-decoration: none;
+    border-radius: 8px;
     transition: color 0.15s ease;
 }
-.first-nav .parent-category > a.menu-category-name:hover,
-.first-nav .parent-category.active > a.menu-category-name {
+.first-nav .parent-category.active > .mobile-cat-row a.menu-category-name,
+.first-nav .parent-category a.menu-category-name:hover {
     color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
 }
-.side_cat_img {
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
-    object-fit: cover;
-    margin-right: 12px;
+
+.mobile-cat-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    flex-shrink: 0;
-}
-.menu-category-toggle {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #94a3b8;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.mobile-cat-icon-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.mobile-cat-icon-box i {
+    font-size: 13px;
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+
+.mobile-cat-text {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Category Expand Toggle Button */
+.menu-category-toggle {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    border-radius: 50%;
-    transition: all 0.25s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
 }
 .menu-category-toggle:hover {
-    background: #f1f5f9;
+    background: #e2e8f0;
+    color: #0f172a;
 }
 .menu-category-toggle.active {
-    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    transform: translateY(-50%) rotate(180deg);
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    color: #ffffff;
+    transform: rotate(180deg);
 }
 .menu-category-toggle i {
-    font-size: 12px;
+    font-size: 11px;
     transition: transform 0.25s ease;
 }
 
 /* Subcategories (2nd level) */
 .second-nav {
-    background: #f8fafc;
-    padding: 4px 0 4px 14px;
-    margin: 0 14px 6px 14px;
-    border-left: 2.5px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }}50;
-    border-radius: 0 8px 8px 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin: 2px 6px 8px 6px;
+    padding: 6px 8px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
     list-style: none;
 }
 .parent-subcategory {
     position: relative;
+    border-radius: 6px;
+    margin-bottom: 2px;
+}
+.mobile-subcat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px;
 }
 .parent-subcategory a.menu-subcategory-name {
     display: flex;
     align-items: center;
-    padding: 8px 10px;
-    padding-right: 45px;
-    font-size: 13.5px;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    font-size: 13px;
     font-weight: 500;
     color: #334155;
     text-decoration: none;
-    transition: color 0.15s ease;
+    border-radius: 6px;
+    transition: all 0.15s ease;
 }
 .parent-subcategory a.menu-subcategory-name:hover,
-.parent-subcategory.active a.menu-subcategory-name {
+.parent-subcategory.active > .mobile-subcat-row a.menu-subcategory-name {
     color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
 }
+.subcat-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+.parent-subcategory.active .subcat-dot,
+.parent-subcategory:hover .subcat-dot {
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+
 .menu-subcategory-toggle {
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #94a3b8;
+    color: #64748b;
     cursor: pointer;
     transition: all 0.25s ease;
+    flex-shrink: 0;
 }
 .menu-subcategory-toggle.active {
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }}20;
     color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    transform: translateY(-50%) rotate(180deg);
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }}50;
+    transform: rotate(180deg);
 }
 .menu-subcategory-toggle i {
-    font-size: 11px;
+    font-size: 10px;
 }
 
 /* Child categories (3rd level) */
 .third-nav {
-    background: #f1f5f9;
-    padding: 4px 0 4px 10px;
-    margin: 0 0 4px 10px;
-    border-left: 1.5px solid #cbd5e1;
-    border-radius: 0 6px 6px 0;
+    background: #f8fafc;
+    border-left: 2.5px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    border-radius: 0 8px 8px 0;
+    margin: 4px 0 6px 14px;
+    padding: 4px 6px;
     list-style: none;
 }
 .childcategory a.menu-childcategory-name {
     display: block;
-    padding: 6px 10px;
-    font-size: 12.5px;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: 500;
     color: #64748b;
     text-decoration: none;
-    transition: color 0.15s ease;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+.childcategory a.menu-childcategory-name:hover {
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+    background: #ffffff;
+}
+
+/* Mobile Menu Footer Quick Actions */
+.mobile-menu-footer {
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.mobile-menu-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #334155 !important;
+    text-decoration: none !important;
+    font-size: 12.5px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.mobile-menu-action-btn i {
+    font-size: 14px;
+    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
+}
+.mobile-menu-action-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+/* 🔍 Mobile Search Form - Matching PC Aesthetic */
+.mobile-search {
+    background: #ffffff;
+    padding: 6px 12px 8px !important;
+    position: relative;
+    border-bottom: 1px solid #f1f5f9;
+}
+.mobile-search form.mobile-search-form {
+    display: flex !important;
+    align-items: center !important;
+    background: #ffffff !important;
+    border: 2px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
+    border-radius: 50px !important;
+    height: 42px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+.mobile-search form.mobile-search-form:focus-within {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 0 0 3px {{ optional($generalsetting)->primary_color ?? '#667eea' }}20 !important;
+}
+.mobile-search form.mobile-search-form .search-input-group {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    padding: 0 14px !important;
+}
+.mobile-search form.mobile-search-form .search-icon-left {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+.mobile-search form.mobile-search-form input.msearch_keyword {
+    flex: 1 !important;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    font-size: 13.5px !important;
+    color: #1e293b !important;
+    padding: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    float: none !important;
+}
+.mobile-search form.mobile-search-form .search-submit-btn {
+    flex-shrink: 0 !important;
+    height: 100% !important;
+    padding: 0 18px !important;
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    cursor: pointer;
+    border-radius: 0 50px 50px 0 !important;
+    float: none !important;
+    position: static !important;
+}
+.mobile-search form.mobile-search-form .search-submit-btn:hover {
+    filter: brightness(1.08);
+}
+.mobile-search form.mobile-search-form .search-submit-btn svg,
+.mobile-search form.mobile-search-form .search-submit-btn i {
+    width: 14px;
+    height: 14px;
+    stroke: #ffffff;
+    color: #ffffff;
 }
 /* ═══════════════════════════════════════════════════════════════
    📂 HERO BANNER LEFT CATEGORY SIDEBAR MENU
    ═══════════════════════════════════════════════════════════════ */
-@media (min-width: 768px) {
-    .slider-section .row {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: stretch;
-        position: relative;
-    }
-    .slider-section .col-sm-3.hidetosm {
-        position: relative;
-    }
-    .slider-section .sidebar-menu,
-    .home-category-sidebar {
-        position: absolute !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        left: 15px !important;
-        right: 0 !important;
-        width: calc(100% - 15px) !important;
-        height: 100% !important;
-        max-height: 100% !important;
-        background: #ffffff !important;
-        border-radius: 8px !important;
-        border: 1px solid #e8ecf2 !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
-        padding: 4px 6px !important;
-        margin: 0 !important;
-        display: flex;
-        flex-direction: column;
-        z-index: 95;
-        overflow-y: auto !important;
-        overflow-x: visible !important;
-        scrollbar-width: none !important;
-        -ms-overflow-style: none !important;
-    }
-}
-@media (max-width: 767px) {
-    .slider-section .sidebar-menu,
-    .home-category-sidebar {
-        display: none !important;
-    }
-}
-.slider-section .sidebar-menu::-webkit-scrollbar,
-.home-category-sidebar::-webkit-scrollbar,
-.home-cat-list::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
+.slider-section .sidebar-menu,
+.home-category-sidebar {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    border: 1px solid #e8ecf2 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+    padding: 4px 0 !important;
+    margin: 0 !important;
+    position: relative !important;
+    z-index: 99 !important;
+    overflow: visible !important;
 }
 
 .home-cat-list {
     list-style: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow-y: auto !important;
-    overflow-x: visible !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+    overflow: visible !important;
 }
 
 .home-cat-item {
-    position: relative;
-    margin: 2px 0;
+    position: relative !important;
+    margin: 0 !important;
     list-style: none !important;
 }
 
@@ -1249,11 +1440,10 @@ li.all__category__list:hover > a i {
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px !important;
+    padding: 7px 12px !important;
     color: #2d3748 !important;
     text-decoration: none !important;
-    border-radius: 8px;
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.18s ease;
     background: transparent;
     border-bottom: 1px solid #f8fafc;
 }
@@ -1308,63 +1498,42 @@ li.all__category__list:hover > a i {
 /* Hover States */
 .home-cat-item:hover > .home-cat-link {
     background: #f0f7ff !important;
-    transform: translateX(4px);
+    color: {{ optional($generalsetting)->primary_color ?? '#007bff' }} !important;
 }
 .home-cat-item:hover > .home-cat-link .home-cat-name {
     color: {{ optional($generalsetting)->primary_color ?? '#007bff' }} !important;
     font-weight: 600;
 }
-.home-cat-item:hover > .home-cat-link .side_cat_img {
-    transform: scale(1.15);
-}
 .home-cat-item:hover > .home-cat-link .home-cat-arrow {
-    color: {{ optional($generalsetting)->primary_color ?? '#007bff' }};
+    color: {{ optional($generalsetting)->primary_color ?? '#007bff' }} !important;
     transform: translateX(2px);
 }
 
 /* Submenu Flyout (Level 2) */
 .home-cat-submenu {
-    position: absolute;
+    position: absolute !important;
     left: 100% !important;
-    top: -6px !important;
-    right: auto !important;
-    width: 240px !important;
+    top: 0 !important;
+    width: 230px !important;
+    min-width: 220px !important;
     background: #ffffff !important;
-    border-radius: 12px !important;
+    border-radius: 8px !important;
     border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15) !important;
     list-style: none !important;
-    padding: 8px !important;
-    margin: 0 0 0 10px !important;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateX(10px);
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 1000 !important;
-    display: block !important;
-    pointer-events: none;
-}
-
-/* Invisible hover bridge */
-.home-cat-submenu::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -12px;
-    width: 14px;
-    height: 100%;
+    padding: 6px 0 !important;
+    margin: 0 !important;
+    display: none !important;
+    z-index: 9999 !important;
 }
 
 .home-cat-item:hover > .home-cat-submenu {
-    visibility: visible !important;
-    opacity: 1 !important;
-    transform: translateX(0) !important;
-    pointer-events: auto !important;
+    display: block !important;
 }
 
 .home-subcat-item {
-    position: relative;
-    margin: 2px 0;
+    position: relative !important;
+    margin: 0 !important;
     list-style: none !important;
 }
 
@@ -1372,77 +1541,62 @@ li.all__category__list:hover > a i {
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px !important;
+    padding: 8px 14px !important;
     font-size: 13px !important;
     font-weight: 500 !important;
     color: #334155 !important;
     text-decoration: none !important;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
 }
 
 .home-subcat-item:hover > .home-subcat-link {
     background: #f0f7ff !important;
     color: {{ optional($generalsetting)->primary_color ?? '#007bff' }} !important;
     font-weight: 600 !important;
-    transform: translateX(3px);
+    padding-left: 18px !important;
 }
 
 /* Childmenu Flyout (Level 3) */
 .home-cat-childmenu {
-    position: absolute;
+    position: absolute !important;
     left: 100% !important;
-    top: -6px !important;
-    right: auto !important;
-    width: 220px !important;
+    top: 0 !important;
+    width: 210px !important;
     background: #ffffff !important;
-    border-radius: 12px !important;
+    border-radius: 8px !important;
     border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15) !important;
     list-style: none !important;
-    padding: 8px !important;
-    margin: 0 0 0 10px !important;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateX(10px);
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 1001 !important;
-    display: block !important;
-    pointer-events: none;
-}
-
-.home-cat-childmenu::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -12px;
-    width: 14px;
-    height: 100%;
+    padding: 6px 0 !important;
+    margin: 0 !important;
+    display: none !important;
+    z-index: 10000 !important;
 }
 
 .home-subcat-item:hover > .home-cat-childmenu {
-    visibility: visible !important;
-    opacity: 1 !important;
-    transform: translateX(0) !important;
-    pointer-events: auto !important;
+    display: block !important;
 }
 
 .home-childcat-item {
-    margin: 2px 0;
+    margin: 0 !important;
     list-style: none !important;
 }
 
 .home-childcat-link {
     display: block !important;
-    padding: 7px 12px !important;
+    padding: 7px 14px !important;
     font-size: 12.5px !important;
     color: #475569 !important;
     text-decoration: none !important;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
 }
 
 .home-childcat-item:hover > .home-childcat-link {
+    background: #f0f7ff !important;
+    color: {{ optional($generalsetting)->primary_color ?? '#007bff' }} !important;
+    font-weight: 600 !important;
+    padding-left: 18px !important;
+}
     background: #f0f7ff !important;
     color: {{ optional($generalsetting)->primary_color ?? '#007bff' }} !important;
     font-weight: 600 !important;
@@ -1494,45 +1648,107 @@ section.slider-section {
         @endforeach
         @php $subtotal = Cart::instance('shopping')->subtotal(); @endphp
         <div class="mobile-menu">
+            <div class="mobile-menu-header">
                 <div class="mobile-menu-logo">
                     <div class="logo-image">
-                        <img src="{{asset($generalsetting->dark_logo)}}" alt="" />
-                    </div>
-                    <div class="mobile-menu-close">
-                        <i class="fa fa-times"></i>
+                        <img src="{{asset($generalsetting->dark_logo)}}" alt="{{ $generalsetting->name ?? 'Logo' }}" />
                     </div>
                 </div>
-                <ul class="first-nav">
-                    @foreach($menucategories as $scategory)
-                    <li class="parent-category">
+                <div class="mobile-menu-close" title="মেনু বন্ধ করুন">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            </div>
+
+            <div class="mobile-menu-cat-title">
+                <div class="mobile-menu-cat-title-text">
+                    <i class="fa-solid fa-shapes"></i>
+                    <span>সকল ক্যাটাগরি</span>
+                </div>
+                <span class="mobile-menu-cat-badge">{{ $menucategories->count() }} টি</span>
+            </div>
+
+            <ul class="first-nav">
+                @foreach($menucategories as $scategory)
+                <li class="parent-category">
+                    <div class="mobile-cat-row">
                         <a href="{{url('category/'.$scategory->slug)}}" class="menu-category-name">
-                            <img src="{{asset($scategory->image)}}" alt="" class="side_cat_img" />
-                            {{$scategory->name}}
+                            <div class="mobile-cat-icon-box">
+                                @if($scategory->icon)
+                                    <img src="{{ asset($scategory->icon) }}" alt="{{ $scategory->name }}" loading="lazy" />
+                                @elseif($scategory->image)
+                                    <img src="{{ asset($scategory->image) }}" alt="{{ $scategory->name }}" loading="lazy" />
+                                @else
+                                    <i class="fa-solid fa-shapes"></i>
+                                @endif
+                            </div>
+                            <span class="mobile-cat-text">{{$scategory->name}}</span>
                         </a>
-                        @if($scategory->subcategories->count() > 0)
-                        <span class="menu-category-toggle">
-                            <i class="fa fa-chevron-down"></i>
+                        @if($scategory->subcategories && $scategory->subcategories->count() > 0)
+                        <span class="menu-category-toggle" title="সাবক্যাটাগরি দেখুন">
+                            <i class="fa-solid fa-chevron-down"></i>
                         </span>
                         @endif
-                        <ul class="second-nav" style="display: none;">
-                            @foreach($scategory->subcategories as $subcategory)
-                            <li class="parent-subcategory">
-                                <a href="{{url('subcategory/'.$subcategory->slug)}}" class="menu-subcategory-name">{{$subcategory->subcategoryName}}</a>
-                                @if($subcategory->childcategories->count() > 0)
-                                <span class="menu-subcategory-toggle"><i class="fa fa-chevron-down"></i></span>
+                    </div>
+
+                    @if($scategory->subcategories && $scategory->subcategories->count() > 0)
+                    <ul class="second-nav" style="display: none;">
+                        @foreach($scategory->subcategories as $subcategory)
+                        <li class="parent-subcategory">
+                            <div class="mobile-subcat-row">
+                                <a href="{{url('subcategory/'.$subcategory->slug)}}" class="menu-subcategory-name">
+                                    <span class="subcat-dot"></span>
+                                    <span>{{$subcategory->subcategoryName}}</span>
+                                </a>
+                                @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
+                                <span class="menu-subcategory-toggle">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </span>
                                 @endif
-                                <ul class="third-nav" style="display: none;">
-                                    @foreach($subcategory->childcategories as $childcat)
-                                    <li class="childcategory"><a href="{{url('products/'.$childcat->slug)}}" class="menu-childcategory-name">{{$childcat->childcategoryName}}</a></li>
-                                    @endforeach
-                                </ul>
-                            </li>
-                            @endforeach
-                        </ul>
-                    </li>
-                    @endforeach
-                </ul>
+                            </div>
+
+                            @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
+                            <ul class="third-nav" style="display: none;">
+                                @foreach($subcategory->childcategories as $childcat)
+                                <li class="childcategory">
+                                    <a href="{{url('products/'.$childcat->slug)}}" class="menu-childcategory-name">
+                                        {{$childcat->childcategoryName}}
+                                    </a>
+                                </li>
+                                @endforeach
+                            </ul>
+                            @endif
+                        </li>
+                        @endforeach
+                    </ul>
+                    @endif
+                </li>
+                @endforeach
+            </ul>
+
+            <div class="mobile-menu-footer">
+                <a href="{{ route('customer.order_track') }}" class="mobile-menu-action-btn">
+                    <i class="fa-solid fa-truck"></i>
+                    <span>অর্ডার ট্র্যাক করুন</span>
+                </a>
+                @if(Auth::guard('customer')->check())
+                    <a href="{{ route('customer.account') }}" class="mobile-menu-action-btn">
+                        <i class="fa-solid fa-user-check"></i>
+                        <span>আমার একাউন্ট</span>
+                    </a>
+                @else
+                    <a href="{{ route('customer.login') }}" class="mobile-menu-action-btn">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>লগইন / রেজিস্টার</span>
+                    </a>
+                @endif
+                @if(!empty($contact->phone))
+                    <a href="tel:{{ $contact->phone }}" class="mobile-menu-action-btn" style="background: #ecfdf5; border-color: #a7f3d0; color: #047857 !important;">
+                        <i class="fa-solid fa-phone" style="color: #059669;"></i>
+                        <span>হটলাইন: {{ $contact->phone }}</span>
+                    </a>
+                @endif
             </div>
+        </div>
         <header id="navbar_top">
 
         @include('frontEnd.layouts.partials.breaking-news-ticker')
@@ -1548,7 +1764,7 @@ section.slider-section {
                         <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="" /></a>
                     </div>
 <div class="menu-bag">
-    <a href="{{ route('customer.checkout') }}" class="margin-shopping">
+    <a href="javascript:void(0)" onclick="openSidebarCart()" class="margin-shopping">
         <i class="fa-solid fa-cart-shopping"></i>
         <span class="mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
     </a>
@@ -1558,9 +1774,14 @@ section.slider-section {
             </div>
 
             <div class="mobile-search">
-                <form action="{{route('search')}}">
-                    <input type="text" placeholder="Search Product ... " value="" class="msearch_keyword msearch_click" name="keyword" />
-                    <button><i data-feather="search"></i></button>
+                <form action="{{route('search')}}" class="search-form-v2 mobile-search-form">
+                    <div class="search-input-group">
+                        <i class="fa fa-search search-icon-left"></i>
+                        <input type="text" placeholder="পছন্দের পণ্য খুঁজুন..." class="msearch_keyword msearch_click" name="keyword" autocomplete="off" />
+                    </div>
+                    <button type="submit" class="search-submit-btn">
+                        <span>খুঁজুন</span> <i data-feather="search"></i>
+                    </button>
                 </form>
                 <div class="search_result"></div>
             </div>
@@ -1862,7 +2083,7 @@ section.slider-section {
             </a>
         </div>
 
-        <a href="{{route('customer.checkout')}}" class="nav_item {{ Route::is('customer.checkout') ? 'active' : '' }}">
+        <a href="javascript:void(0)" onclick="openSidebarCart()" class="nav_item {{ Route::is('customer.checkout') ? 'active' : '' }}">
             <div class="icon_box">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span class="cart_badge mobilecart-qty">{{Cart::instance('shopping')->count()}}</span>
@@ -2107,45 +2328,7 @@ section.slider-section {
 
 @media (max-width: 768px) {
     .floating-cart-widget {
-        top: auto;
-        bottom: 85px;
-        right: 12px;
-        transform: none;
-    }
-    .floating-cart-widget:hover {
-        transform: scale(1.05);
-    }
-    .floating-cart-pill {
-        border-radius: 50px;
-        padding: 10px 14px;
-        flex-direction: row;
-        gap: 8px;
-        min-width: auto;
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    }
-    .floating-cart-icon-wrap {
-        margin-bottom: 0;
-        font-size: 18px;
-    }
-    .floating-cart-badge {
-        top: -6px;
-        right: -8px;
-        min-width: 18px;
-        height: 18px;
-        font-size: 10px;
-    }
-    .floating-cart-details {
-        align-items: flex-start;
-    }
-    .floating-cart-label {
-        display: none;
-    }
-    .floating-cart-total {
-        font-size: 11px;
-        margin-top: 0;
-        background: transparent;
-        padding: 0;
+        display: none !important;
     }
 }
 
@@ -3071,25 +3254,26 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         </script>
         <script>
             $(document).ready(function () {
-                $(".parent-category").each(function () {
-                    const menuCatToggle = $(this).find(".menu-category-toggle");
-                    const secondNav = $(this).find(".second-nav");
-
-                    menuCatToggle.on("click", function () {
-                        menuCatToggle.toggleClass("active");
-                        secondNav.slideToggle("fast");
-                        $(this).closest(".parent-category").toggleClass("active");
-                    });
+                $(document).on("click", ".mobile-menu .menu-category-toggle", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var $toggle = $(this);
+                    var $parent = $toggle.closest(".parent-category");
+                    var $secondNav = $parent.find("> .second-nav");
+                    $toggle.toggleClass("active");
+                    $secondNav.stop(true, true).slideToggle(220);
+                    $parent.toggleClass("active");
                 });
-                $(".parent-subcategory").each(function () {
-                    const menuSubcatToggle = $(this).find(".menu-subcategory-toggle");
-                    const thirdNav = $(this).find(".third-nav");
 
-                    menuSubcatToggle.on("click", function () {
-                        menuSubcatToggle.toggleClass("active");
-                        thirdNav.slideToggle("fast");
-                        $(this).closest(".parent-subcategory").toggleClass("active");
-                    });
+                $(document).on("click", ".mobile-menu .menu-subcategory-toggle", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var $toggle = $(this);
+                    var $parent = $toggle.closest(".parent-subcategory");
+                    var $thirdNav = $parent.find("> .third-nav");
+                    $toggle.toggleClass("active");
+                    $thirdNav.stop(true, true).slideToggle(180);
+                    $parent.toggleClass("active");
                 });
             });
         </script>

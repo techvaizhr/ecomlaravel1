@@ -455,9 +455,9 @@
 #gcc-complaint-submit { background: #059669; color: #fff; }
 #gcc-complaint-cancel { background: #f1f5f9; color: #475569; }
 
-@media (max-width: 480px) {
-    #gcc-panel { right: 10px; bottom: 70px; width: calc(100vw - 20px); height: calc(100vh - 90px); max-height: calc(100vh - 85px); }
-    #gcc-toggle { right: 16px; bottom: 65px; width: 48px; height: 48px; }
+@media (max-width: 768px) {
+    #gcc-panel { right: 10px; bottom: 75px; width: calc(100vw - 20px); height: calc(100vh - 95px); max-height: calc(100vh - 95px); border-radius: 16px; z-index: 99998; }
+    #gcc-toggle { right: 14px; bottom: 74px; width: 46px; height: 46px; z-index: 99990; }
 }
 </style>
 
