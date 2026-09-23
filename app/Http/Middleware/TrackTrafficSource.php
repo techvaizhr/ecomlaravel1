@@ -35,6 +35,13 @@ class TrackTrafficSource
             ]);
         }
 
+        if ($request->filled('fbclid')) {
+            session(['fbclid' => $request->query('fbclid')]);
+        }
+        if ($request->filled('ttclid')) {
+            session(['ttclid' => $request->query('ttclid')]);
+        }
+
         return $next($request);
     }
 

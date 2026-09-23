@@ -1158,36 +1158,12 @@ class FrontendController extends Controller
             Session::put('shipping', $select_charge->amount);
         }
 
-        // Facebook CAPI ViewContent — server-side, event_id দিয়ে Pixel-এর সাথে deduplicate হবে
-        $fb_view_content_event_id = 'vc_camp' . $campaign_data->id . '_' . time();
-        try {
-            $capiUserData = [
-                'client_ip_address' => request()->ip(),
-                'client_user_agent' => request()->userAgent(),
-            ];
-            if (isset($_COOKIE['_fbp'])) $capiUserData['fbp'] = $_COOKIE['_fbp'];
-            if (isset($_COOKIE['_fbc'])) $capiUserData['fbc'] = $_COOKIE['_fbc'];
-            app(\App\Services\FacebookCapiService::class)->sendViewContent([
-                'content_name' => strip_tags($campaign_data->name),
-                'content_ids'  => $products->pluck('id')->map(function($id) { return (string)$id; })->values()->toArray(),
-                'content_type' => 'product',
-                'value'        => (float) (optional($products->first())->new_price ?? 0),
-                'currency'     => 'BDT',
-                'num_items'    => $products->count(),
-            ], $capiUserData, [
-                'event_id'        => $fb_view_content_event_id,
-                'event_source_url' => request()->fullUrl(),
-            ]);
-        } catch (\Throwable $e) {
-            // Silently fail — page load block করবে না
-        }
-
         // Page builder দিয়ে ডিজাইন করা থাকলে আলাদা ভিউ (যদি টেমপ্লেট ফাইল থাকে)
         if (!empty($campaign_data->page_html) && view()->exists('frontEnd.layouts.pages.campaign.campaign-builder')) {
-            return view('frontEnd.layouts.pages.campaign.campaign-builder', compact('campaign_data', 'products', 'shippingcharge', 'fb_view_content_event_id', 'campaignVariants'));
+            return view('frontEnd.layouts.pages.campaign.campaign-builder', compact('campaign_data', 'products', 'shippingcharge', 'campaignVariants'));
         }
 
-        return view('frontEnd.layouts.pages.campaign.campaign', compact('campaign_data', 'products', 'shippingcharge', 'fb_view_content_event_id', 'campaignVariants'));
+        return view('frontEnd.layouts.pages.campaign.campaign', compact('campaign_data', 'products', 'shippingcharge', 'campaignVariants'));
     }
 
     public function payment_success(Request $request)

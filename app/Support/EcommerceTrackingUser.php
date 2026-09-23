@@ -143,6 +143,24 @@ class EcommerceTrackingUser
             $parts['last']  = $data['last_name'] ?? '';
         }
 
+        $req = request();
+
+        if (empty($fbp)) {
+            $fbp = $data['fbp'] ?? ($req ? ($req->cookie('_fbp') ?: ($req->cookie('fbp') ?: ($_COOKIE['_fbp'] ?? ($_COOKIE['fbp'] ?? null)))) : ($_COOKIE['_fbp'] ?? null));
+        }
+
+        if (empty($fbc)) {
+            $fbc = $data['fbc'] ?? ($req ? ($req->cookie('_fbc') ?: ($req->cookie('fbc') ?: ($_COOKIE['_fbc'] ?? ($_COOKIE['fbc'] ?? null)))) : ($_COOKIE['_fbc'] ?? null));
+            if (empty($fbc)) {
+                $fbclid = ($req ? ($req->query('fbclid') ?: $req->input('fbclid')) : null) ?: session('fbclid');
+                if ($fbclid) {
+                    $fbc = 'fb.1.' . time() . '.' . $fbclid;
+                }
+            }
+        }
+
+        $ttclid = $data['ttclid'] ?? ($req ? ($req->cookie('ttclid') ?: ($req->query('ttclid') ?: $req->input('ttclid'))) : ($_COOKIE['ttclid'] ?? null)) ?: session('ttclid');
+
         $user = array_filter([
             'email'             => $data['email'] ?? null,
             'phone'             => self::normalizePhone($data['phone'] ?? '') ?: null,
@@ -153,8 +171,9 @@ class EcommerceTrackingUser
             'external_id'       => $data['external_id'] ?? null,
             'fbp'               => $fbp,
             'fbc'               => $fbc,
-            'client_ip_address' => $data['client_ip_address'] ?? request()->ip(),
-            'client_user_agent' => $data['client_user_agent'] ?? request()->userAgent(),
+            'ttclid'            => $ttclid,
+            'client_ip_address' => $data['client_ip_address'] ?? ($req ? $req->ip() : null),
+            'client_user_agent' => $data['client_user_agent'] ?? ($req ? $req->userAgent() : null),
         ], fn ($v) => $v !== null && $v !== '');
 
         return $user;

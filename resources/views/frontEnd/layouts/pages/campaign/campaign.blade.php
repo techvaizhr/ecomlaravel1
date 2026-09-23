@@ -54,13 +54,12 @@
         <script>
             window.dataLayer = window.dataLayer || [];
             window._campaignData = {
-                id:          {{ json_encode($camp_id) }},
-                name:        {{ json_encode($camp_name) }},
-                slug:        {{ json_encode($camp_slug) }},
-                currency:    'BDT',
-                fb_event_id: {{ json_encode($fb_view_content_event_id) }}
+                id:          @json($camp_id),
+                name:        @json($camp_name),
+                slug:        @json($camp_slug),
+                currency:    'BDT'
             };
-            window._campaignProducts = {!! json_encode($camp_products) !!};
+            window._campaignProducts = @json($camp_products);
             window._campaignVariants = @json($campaignVariants ?? []);
             window._singleCampaignProductId = @json($products->isNotEmpty() ? (string) $products->first()->id : null);
 
@@ -70,8 +69,8 @@
                 page_type:     'campaign_landing',
                 page_url:      window.location.href,
                 currency:      'BDT',
-                campaign_id:   {{ json_encode($camp_id) }},
-                campaign_name: {{ json_encode($camp_name) }}
+                campaign_id:   @json($camp_id),
+                campaign_name: @json($camp_name)
             });
 
             // 2. GA4 Standard view_item (for Google Analytics 4 Ecommerce)
@@ -82,7 +81,7 @@
                 ecommerce: {
                     currency: 'BDT',
                     value: {{ $camp_value }},
-                    items: [{!! json_encode($primary_gtm_item) !!}]
+                    items: [@json($primary_gtm_item)]
                 }
             });
             @endif
@@ -91,13 +90,13 @@
             dataLayer.push({
                 event:         'campaign_page_loaded',
                 page_type:     'campaign_landing',
-                campaign_id:   {{ json_encode($camp_id) }},
-                campaign_name: {{ json_encode($camp_name) }},
+                campaign_id:   @json($camp_id),
+                campaign_name: @json($camp_name),
                 currency:      'BDT',
                 value:         {{ $camp_value }},
                 ecommerce: {
                     currency: 'BDT',
-                    items:    {!! json_encode($camp_items_gtm) !!}
+                    items:    @json($camp_items_gtm)
                 }
             });
         </script>
@@ -149,15 +148,15 @@
             @foreach($pixels as $pixel)
             fbq('init', '{{{ $pixel->code }}}');
             @endforeach
-            fbq('track', 'PageView', {}, {eventID: {{ json_encode('pv_camp'.$campaign_data->id.'_'.time()) }}});
+            fbq('track', 'PageView');
             fbq('track', 'ViewContent', {
-                content_name: {{ json_encode($camp_name) }},
-                content_ids:  {!! json_encode($products->pluck('id')->map(fn($id) => (string)$id)->values()->toArray()) !!},
+                content_name: @json($camp_name),
+                content_ids:  @json($products->pluck('id')->map(fn($id) => (string)$id)->values()->toArray()),
                 content_type: 'product',
                 value:        {{ $camp_value }},
                 currency:     'BDT',
                 num_items:    {{ $products->count() }}
-            }, {eventID: {{ json_encode($fb_view_content_event_id) }}});
+            });
         </script>
         @foreach($pixels as $pixel)
         <noscript>
@@ -187,8 +186,8 @@
             @endforeach
             ttq.page();
             ttq.track('ViewContent', {
-                content_id:   {{ json_encode($_firstProd ? (string)$_firstProd->id : $camp_id) }},
-                content_name: {{ json_encode($camp_name) }},
+                content_id:   @json($_firstProd ? (string)$_firstProd->id : $camp_id),
+                content_name: @json($camp_name),
                 content_type: 'product',
                 value:        {{ $camp_value }},
                 currency:     'BDT',
@@ -196,8 +195,8 @@
                 contents: [
                     @foreach($products as $p)
                     {
-                        content_id:   {{ json_encode((string)$p->id) }},
-                        content_name: {{ json_encode(strip_tags($p->name)) }},
+                        content_id:   @json((string)$p->id),
+                        content_name: @json(strip_tags($p->name)),
                         content_type: 'product',
                         price:        {{ (float)$p->new_price }},
                         quantity:     1
@@ -777,6 +776,22 @@
                         @csrf
                         <input type="hidden" name="payment_method" value="cod">
                         <input type="hidden" name="campaign" value="1">
+                        <input type="hidden" name="traffic_source" id="inp_ts" value="{{ old('traffic_source', session('order_traffic_source', 'direct')) }}">
+                        <input type="hidden" name="traffic_referrer" id="inp_tsr" value="{{ old('traffic_referrer', session('order_traffic_referrer', '')) }}">
+                        <script>
+                            (function () {
+                                var elTs = document.getElementById('inp_ts');
+                                var elTsr = document.getElementById('inp_tsr');
+                                if (elTs) {
+                                    var st = sessionStorage.getItem('_ts');
+                                    if (st) elTs.value = st;
+                                }
+                                if (elTsr) {
+                                    var str = sessionStorage.getItem('_tsr');
+                                    if (str) elTsr.value = str;
+                                }
+                            })();
+                        </script>
                         @include('frontEnd.layouts.partials.traffic-attribution')
                         <div class="card">
                             <div class="card-header">
@@ -1251,7 +1266,7 @@
                         ? window._campaignProducts.find(function(p){ return p.id === currentProdId; })
                         : null;
                     var prodPrice     = selProd ? selProd.price : subtotalVal;
-                    var prodName      = selProd ? selProd.name : {{ json_encode($camp_name) }};
+                    var prodName      = selProd ? selProd.name : @json($camp_name);
                     var contentIds    = currentProdId ? [currentProdId] : (window._campaignProducts ? window._campaignProducts.map(function(p){ return p.id; }) : []);
                     var icEventId     = 'ic_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
                     var leadEventId   = 'lead_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
@@ -1300,7 +1315,7 @@
                         fbq('track', 'Lead', {
                             value:        subtotalVal,
                             currency:     'BDT',
-                            content_name: {{ json_encode($camp_name) }}
+                            content_name: @json($camp_name)
                         }, {eventID: leadEventId});
                     }
 
@@ -1324,7 +1339,7 @@
                               })
                             : [{
                                 content_id:   String(currentProdId || '{{ $camp_id }}'),
-                                content_name: {{ json_encode($camp_name) }},
+                                content_name: @json($camp_name),
                                 content_type: 'product',
                                 price:        subtotalVal,
                                 quantity:     1
@@ -1352,8 +1367,8 @@
                 $('.cam_order_now').on('click', function() {
                     dataLayer.push({
                         event:         'click_order_now_button',
-                        campaign_id:   {{ json_encode($camp_id) }},
-                        campaign_name: {{ json_encode($camp_name) }}
+                        campaign_id:   @json($camp_id),
+                        campaign_name: @json($camp_name)
                     });
                 });
             });
