@@ -55,6 +55,7 @@ class FacebookCapiSettingController extends Controller
 
         // Clear cache so new settings are loaded immediately
         Cache::forget('facebook_capi_settings');
+        Cache::forget('facebook_capi_active_settings');
 
         Toastr::success('Facebook Conversion API settings updated successfully', 'Success');
 

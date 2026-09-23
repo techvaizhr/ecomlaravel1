@@ -18,9 +18,21 @@ class ServerCapiService
     public static function trackPurchase($order, array $userData = [], $payment = null, ?string $sourceUrl = null): void
     {
         try {
-            $orderDetails = $order->orderdetails ?? Order::with('orderdetails')->find($order->id)?->orderdetails ?? collect();
+            $orderDetails = ($order->relationLoaded('orderdetails') && $order->orderdetails && $order->orderdetails->isNotEmpty())
+                ? $order->orderdetails
+                : \App\Models\OrderDetails::where('order_id', $order->id)->get();
+
             $contentIds = $orderDetails->pluck('product_id')->map(fn ($id) => (string) $id)->values()->toArray();
-            $contents = $orderDetails->map(fn ($i) => [
+
+            // Meta CAPI format: id, quantity, item_price
+            $fbContents = $orderDetails->map(fn ($i) => [
+                'id'         => (string) $i->product_id,
+                'quantity'   => (int) $i->qty,
+                'item_price' => (float) $i->sale_price,
+            ])->values()->toArray();
+
+            // TikTok format: id, name, quantity, item_price
+            $ttContents = $orderDetails->map(fn ($i) => [
                 'id'         => (string) $i->product_id,
                 'name'       => (string) ($i->product_name ?? ''),
                 'quantity'   => (int) $i->qty,
@@ -39,8 +51,8 @@ class ServerCapiService
                     'value'        => $amount,
                     'order_id'     => $invoiceId,
                     'content_ids'  => $contentIds,
-                    'contents'     => $contents,
-                    'num_items'    => count($contents),
+                    'contents'     => $fbContents,
+                    'num_items'    => count($fbContents),
                     'content_type' => 'product',
                 ], $userData, [
                     'event_id'         => $eventId,
@@ -56,7 +68,7 @@ class ServerCapiService
                     'currency' => 'BDT',
                     'value'    => $amount,
                     'order_id' => $invoiceId,
-                    'contents' => $contents,
+                    'contents' => $ttContents,
                 ], $userData, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,

@@ -49,6 +49,7 @@ class PixelsController extends Controller
         $input = $request->all();
         EcomPixel::create($input);
         Cache::forget('pixels_list');
+        Cache::forget('facebook_capi_active_settings');
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('pixels.index');
     }
@@ -77,6 +78,7 @@ class PixelsController extends Controller
         $input['status'] = $request->status ? 1 : 0;
         $update_data->update($input);
         Cache::forget('pixels_list');
+        Cache::forget('facebook_capi_active_settings');
         Toastr::success('Success','Data update successfully');
         return redirect()->route('pixels.index');
     }
@@ -91,6 +93,7 @@ class PixelsController extends Controller
         $inactive->status = 0;
         $inactive->save();
         Cache::forget('pixels_list');
+        Cache::forget('facebook_capi_active_settings');
         Toastr::success('Success','Data inactive successfully');
         return redirect()->back();
     }
@@ -104,6 +107,7 @@ class PixelsController extends Controller
         $active->status = 1;
         $active->save();
         Cache::forget('pixels_list');
+        Cache::forget('facebook_capi_active_settings');
         Toastr::success('Success','Data active successfully');
         return redirect()->back();
     }
@@ -116,6 +120,7 @@ class PixelsController extends Controller
         }
         $delete_data->delete();
         Cache::forget('pixels_list');
+        Cache::forget('facebook_capi_active_settings');
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();
     }

@@ -274,10 +274,8 @@ if($order) {
                     $userData['ttclid'] = $_COOKIE['ttclid'];
                 }
                 
-                // Send Purchase event after response is sent (non-blocking)
-                register_shutdown_function(function () use ($order, $payment, $userData) {
-                    \App\Services\ServerCapiService::trackPurchase($order, $userData, $payment, request()->fullUrl());
-                });
+                // Send Purchase event reliably
+                \App\Services\ServerCapiService::trackPurchase($order, $userData, $payment, request()->fullUrl());
             } catch (\Exception $e) {
                 \Log::error('Server CAPI setup failed for order ' . $order->id . ': ' . $e->getMessage());
             }

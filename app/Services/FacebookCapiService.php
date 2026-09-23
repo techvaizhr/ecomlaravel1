@@ -24,52 +24,80 @@ class FacebookCapiService
     {
         $configs = [];
 
-        // 1. From FacebookCapiSetting (database)
+        // 1. Find default access token and test code from FacebookCapiSetting, EcomPixel, or env
+        $defaultToken = null;
+        $defaultTestCode = null;
+
         try {
-            $settings = Cache::remember('facebook_capi_active_settings', 3600, function () {
-                return FacebookCapiSetting::where('status', 1)->get();
+            $settings = Cache::remember('facebook_capi_active_settings', 1800, function () {
+                return FacebookCapiSetting::all();
             });
+
             foreach ($settings as $setting) {
-                if ($setting->pixel_id && $setting->access_token) {
-                    $configs[trim($setting->pixel_id)] = [
-                        'pixel_id'        => trim($setting->pixel_id),
-                        'access_token'    => trim($setting->access_token),
-                        'test_event_code' => $setting->test_event_code,
+                $t = trim((string)($setting->access_token ?? ''));
+                if ($t !== '' && $t !== '0' && $t !== 'your_long_lived_access_token') {
+                    $defaultToken = $t;
+                }
+                $tc = trim((string)($setting->test_event_code ?? ''));
+                if ($tc !== '') {
+                    $defaultTestCode = $tc;
+                }
+
+                $pid = trim((string)($setting->pixel_id ?? ''));
+                if ($pid !== '' && $pid !== '0' && $pid !== 'your_pixel_id' && $defaultToken && ($setting->status == 1 || is_null($setting->status))) {
+                    $configs[$pid] = [
+                        'pixel_id'        => $pid,
+                        'access_token'    => $defaultToken,
+                        'test_event_code' => $defaultTestCode,
                     ];
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            Log::error('FacebookCapi getActiveConfigs FacebookCapiSetting error: ' . $e->getMessage());
+        }
 
-        // 2. Also check if active EcomPixel records exist
+        if (!$defaultToken) {
+            $envToken = config('services.facebook.access_token') ?: env('FACEBOOK_ACCESS_TOKEN');
+            if ($envToken && $envToken !== 'your_long_lived_access_token') {
+                $defaultToken = trim($envToken);
+            }
+        }
+        if (!$defaultTestCode) {
+            $defaultTestCode = config('services.facebook.test_event_code') ?: env('FACEBOOK_TEST_EVENT_CODE');
+        }
+
+        // 2. Also check all active EcomPixel records
         try {
-            $defaultToken = !empty($configs) ? reset($configs)['access_token'] : (config('services.facebook.access_token') ?? env('FACEBOOK_ACCESS_TOKEN'));
-            $defaultTestCode = !empty($configs) ? reset($configs)['test_event_code'] : (config('services.facebook.test_event_code') ?? env('FACEBOOK_TEST_EVENT_CODE'));
-
             $ecomPixels = \App\Models\EcomPixel::where('status', 1)->get();
             foreach ($ecomPixels as $ep) {
-                $code = trim($ep->code ?? '');
-                $token = !empty($ep->access_token) ? trim($ep->access_token) : $defaultToken;
-                $testCode = !empty($ep->test_event_code) ? trim($ep->test_event_code) : $defaultTestCode;
+                $code = trim((string)($ep->code ?? ''));
+                if ($code === '' || $code === '0') {
+                    continue;
+                }
+                $epToken = !empty($ep->access_token) && $ep->access_token !== '0' ? trim($ep->access_token) : $defaultToken;
+                $epTestCode = !empty($ep->test_event_code) ? trim($ep->test_event_code) : $defaultTestCode;
 
-                if ($code && $token && !isset($configs[$code])) {
+                if ($epToken) {
                     $configs[$code] = [
                         'pixel_id'        => $code,
-                        'access_token'    => $token,
-                        'test_event_code' => $testCode,
+                        'access_token'    => $epToken,
+                        'test_event_code' => $epTestCode,
                     ];
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            Log::error('FacebookCapi getActiveConfigs EcomPixel error: ' . $e->getMessage());
+        }
 
         // 3. Fallback to env/config
         if (empty($configs)) {
-            $pixelId = config('services.facebook.pixel_id') ?? env('FACEBOOK_PIXEL_ID');
-            $token = config('services.facebook.access_token') ?? env('FACEBOOK_ACCESS_TOKEN');
-            if ($pixelId && $token) {
+            $pixelId = config('services.facebook.pixel_id') ?: env('FACEBOOK_PIXEL_ID');
+            $token = $defaultToken;
+            if ($pixelId && $token && $pixelId !== 'your_pixel_id') {
                 $configs[trim($pixelId)] = [
                     'pixel_id'        => trim($pixelId),
                     'access_token'    => trim($token),
-                    'test_event_code' => config('services.facebook.test_event_code') ?? env('FACEBOOK_TEST_EVENT_CODE'),
+                    'test_event_code' => $defaultTestCode,
                 ];
             }
         }
@@ -119,16 +147,26 @@ class FacebookCapiService
                 $eventPayload['event_id'] = $data['event_id'];
             }
 
+            // Allow test_event_code from options, query param, cookie, or session
+            $runtimeTestCode = $options['test_event_code']
+                ?? request()->query('test_event_code')
+                ?? $_COOKIE['fb_test_event_code']
+                ?? $_COOKIE['test_event_code']
+                ?? session('fb_test_event_code')
+                ?? null;
+
             $lastSuccessResponse = null;
 
             foreach ($configs as $cfg) {
+                $testCode = !empty($cfg['test_event_code']) ? $cfg['test_event_code'] : $runtimeTestCode;
+
                 $requestPayload = [
                     'data' => [$eventPayload],
                     'access_token' => $cfg['access_token'],
                 ];
 
-                if (!empty($cfg['test_event_code'])) {
-                    $requestPayload['test_event_code'] = $cfg['test_event_code'];
+                if (!empty($testCode)) {
+                    $requestPayload['test_event_code'] = $testCode;
                 }
 
                 $url = "https://graph.facebook.com/v21.0/{$cfg['pixel_id']}/events";
@@ -142,6 +180,7 @@ class FacebookCapiService
                             'event_name' => $eventName,
                             'pixel_id' => $cfg['pixel_id'],
                             'event_id' => $eventPayload['event_id'] ?? null,
+                            'has_test_code' => !empty($testCode),
                             'response' => $responseData
                         ]);
                         $lastSuccessResponse = $responseData;
@@ -150,6 +189,7 @@ class FacebookCapiService
                             'event_name' => $eventName,
                             'pixel_id' => $cfg['pixel_id'],
                             'status' => $response->status(),
+                            'has_test_code' => !empty($testCode),
                             'response' => $response->body()
                         ]);
                     }
@@ -318,9 +358,22 @@ class FacebookCapiService
         // Content type ('product' or 'product_group')
         $prepared['content_type'] = $data['content_type'] ?? 'product';
 
-        // Contents (array of content objects)
-        if (isset($data['contents'])) {
-            $prepared['contents'] = $data['contents'];
+        // Contents (array of content objects: id, quantity, item_price)
+        if (isset($data['contents']) && is_array($data['contents'])) {
+            $prepared['contents'] = array_values(array_map(function ($item) {
+                if (is_array($item)) {
+                    $clean = [
+                        'id'         => (string) ($item['id'] ?? ''),
+                        'quantity'   => (int) ($item['quantity'] ?? 1),
+                        'item_price' => (float) ($item['item_price'] ?? 0),
+                    ];
+                    if (!empty($item['delivery_category'])) {
+                        $clean['delivery_category'] = (string) $item['delivery_category'];
+                    }
+                    return $clean;
+                }
+                return $item;
+            }, $data['contents']));
         }
 
         // Content name

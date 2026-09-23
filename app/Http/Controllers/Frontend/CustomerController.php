@@ -1126,9 +1126,8 @@ public function order_save(Request $request)
                 );
                 $capiUser['ttclid'] = $_COOKIE['ttclid'] ?? $request->query('ttclid') ?? null;
 
-                register_shutdown_function(function () use ($order, $capiUser) {
-                    \App\Services\ServerCapiService::trackPurchase($order, $capiUser, null, url('customer/order-success/'.$order->id));
-                });
+                // Direct dispatch ensures CAPI network call completes reliably before redirect
+                \App\Services\ServerCapiService::trackPurchase($order, $capiUser, null, url('customer/order-success/'.$order->id));
             } catch (\Exception $e) {
                 \Log::error('Server CAPI setup failed for order '.$order->id.': '.$e->getMessage());
             }
