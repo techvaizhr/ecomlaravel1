@@ -402,35 +402,20 @@
                 @endforeach
             ];
 
-            if (categoryItems.length) {
-                window.dataLayer.push({ ecommerce: null });
-                window.dataLayer.push({
-                    event: "view_item_list",
-                    ecommerce: {
-                        item_list_id: categorySlug,
-                        item_list_name: categoryName,
-                        items: categoryItems.map(function (item) {
-                            return {
-                                item_id: item.item_id,
-                                item_name: item.item_name,
-                                index: item.index,
-                                price: item.price,
-                                item_brand: item.item_brand,
-                                item_category: item.item_category,
-                                item_list_id: item.item_list_id,
-                                item_list_name: item.item_list_name,
-                                currency: item.currency
-                            };
-                        })
-                    }
-                });
-            }
-
-            if (typeof fbq === "function") {
-                fbq("trackCustom", "ViewCategory", {
-                    content_category: categoryName,
-                    content_ids: categoryItems.map(function (i) { return i.item_id; }),
-                    currency: "BDT"
+            if (categoryItems.length && typeof window.EcomTracking !== 'undefined') {
+                window.EcomTracking.viewItemList({
+                    item_list_id: categorySlug,
+                    item_list_name: categoryName,
+                    items: categoryItems.map(function (item) {
+                        return {
+                            id: item.item_id,
+                            name: item.item_name,
+                            price: item.price,
+                            brand: item.item_brand,
+                            category: item.item_category,
+                            qty: 1
+                        };
+                    })
                 });
             }
 

@@ -120,7 +120,13 @@
         var fbclid = params.get('fbclid');
         if (fbclid) {
             var ts = Math.floor(Date.now() / 1000);
-            document.cookie = 'fbc=fb.1.' + ts + '.' + fbclid + ';path=/;max-age=' + (90 * 24 * 60 * 60) + ';SameSite=Lax';
+            var fbcVal = 'fb.1.' + ts + '.' + fbclid;
+            document.cookie = '_fbc=' + fbcVal + ';path=/;max-age=' + (90 * 24 * 60 * 60) + ';SameSite=Lax';
+            document.cookie = 'fbc=' + fbcVal + ';path=/;max-age=' + (90 * 24 * 60 * 60) + ';SameSite=Lax';
+        }
+        var ttclid = params.get('ttclid');
+        if (ttclid) {
+            document.cookie = 'ttclid=' + encodeURIComponent(ttclid) + ';path=/;max-age=' + (90 * 24 * 60 * 60) + ';SameSite=Lax';
         }
     } catch (e) {
     }

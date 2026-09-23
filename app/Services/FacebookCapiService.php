@@ -17,37 +17,67 @@ class FacebookCapiService
     /**
      * Lazy load credentials - only when needed
      */
-    protected function initialize()
+    /**
+     * Get all active Facebook CAPI configurations.
+     */
+    public function getActiveConfigs(): array
     {
-        if ($this->initialized) {
-            return;
-        }
+        $configs = [];
 
-        // Try to load from database first (with cache)
-        $dbSetting = null;
+        // 1. From FacebookCapiSetting (database)
         try {
-            $dbSetting = Cache::remember('facebook_capi_settings', 3600, function () {
-                return FacebookCapiSetting::where('status', 1)->first();
+            $settings = Cache::remember('facebook_capi_active_settings', 3600, function () {
+                return FacebookCapiSetting::where('status', 1)->get();
             });
-        } catch (\Throwable $e) {
-            // If migration not run yet or table missing, silently ignore and fallback to env/config
+            foreach ($settings as $setting) {
+                if ($setting->pixel_id && $setting->access_token) {
+                    $configs[trim($setting->pixel_id)] = [
+                        'pixel_id'        => trim($setting->pixel_id),
+                        'access_token'    => trim($setting->access_token),
+                        'test_event_code' => $setting->test_event_code,
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        // 2. Also check if active EcomPixel records exist and we have a token
+        try {
+            $defaultToken = !empty($configs) ? reset($configs)['access_token'] : (config('services.facebook.access_token') ?? env('FACEBOOK_ACCESS_TOKEN'));
+            $defaultTestCode = !empty($configs) ? reset($configs)['test_event_code'] : (config('services.facebook.test_event_code') ?? env('FACEBOOK_TEST_EVENT_CODE'));
+
+            if ($defaultToken) {
+                $ecomPixels = \App\Models\EcomPixel::where('status', 1)->get();
+                foreach ($ecomPixels as $ep) {
+                    $code = trim($ep->code);
+                    if ($code && !isset($configs[$code])) {
+                        $configs[$code] = [
+                            'pixel_id'        => $code,
+                            'access_token'    => $defaultToken,
+                            'test_event_code' => $defaultTestCode,
+                        ];
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        // 3. Fallback to env/config
+        if (empty($configs)) {
+            $pixelId = config('services.facebook.pixel_id') ?? env('FACEBOOK_PIXEL_ID');
+            $token = config('services.facebook.access_token') ?? env('FACEBOOK_ACCESS_TOKEN');
+            if ($pixelId && $token) {
+                $configs[trim($pixelId)] = [
+                    'pixel_id'        => trim($pixelId),
+                    'access_token'    => trim($token),
+                    'test_event_code' => config('services.facebook.test_event_code') ?? env('FACEBOOK_TEST_EVENT_CODE'),
+                ];
+            }
         }
 
-        if ($dbSetting) {
-            $this->accessToken = $dbSetting->access_token;
-            $this->pixelId = $dbSetting->pixel_id;
-            $this->testEventCode = $dbSetting->test_event_code;
-        } else {
-            $this->accessToken = config('services.facebook.access_token') ?? env('FACEBOOK_ACCESS_TOKEN');
-            $this->pixelId = config('services.facebook.pixel_id') ?? env('FACEBOOK_PIXEL_ID');
-            $this->testEventCode = config('services.facebook.test_event_code') ?? env('FACEBOOK_TEST_EVENT_CODE');
-        }
-
-        $this->initialized = true;
+        return array_values($configs);
     }
 
     /**
-     * Send event to Facebook Conversion API using direct HTTP request
+     * Send event to Facebook Conversion API using direct HTTP request across all active pixels
      * 
      * @param string $eventName Standard event name (Purchase, AddToCart, ViewContent, etc.)
      * @param array $data Event data (currency, value, content_ids, contents, etc.)
@@ -57,10 +87,9 @@ class FacebookCapiService
      */
     public function sendEvent($eventName, $data = [], $userData = [], $options = [])
     {
-        // Lazy initialize credentials
-        $this->initialize();
+        $configs = $this->getActiveConfigs();
 
-        if (!$this->accessToken || !$this->pixelId) {
+        if (empty($configs)) {
             Log::warning('Facebook CAPI: Missing access token or pixel ID');
             return false;
         }
@@ -89,64 +118,58 @@ class FacebookCapiService
                 $eventPayload['event_id'] = $data['event_id'];
             }
 
-            // Build request payload
-            $requestPayload = [
-                'data' => [$eventPayload],
-                'access_token' => $this->accessToken,
-            ];
+            $lastSuccessResponse = null;
 
-            // Add test event code if available
-            if ($this->testEventCode) {
-                $requestPayload['test_event_code'] = $this->testEventCode;
+            foreach ($configs as $cfg) {
+                $requestPayload = [
+                    'data' => [$eventPayload],
+                    'access_token' => $cfg['access_token'],
+                ];
+
+                if (!empty($cfg['test_event_code'])) {
+                    $requestPayload['test_event_code'] = $cfg['test_event_code'];
+                }
+
+                $url = "https://graph.facebook.com/v21.0/{$cfg['pixel_id']}/events";
+
+                try {
+                    $response = Http::timeout(5)->post($url, $requestPayload);
+
+                    if ($response->successful()) {
+                        $responseData = $response->json();
+                        Log::info('Facebook CAPI: Event sent successfully', [
+                            'event_name' => $eventName,
+                            'pixel_id' => $cfg['pixel_id'],
+                            'event_id' => $eventPayload['event_id'] ?? null,
+                            'response' => $responseData
+                        ]);
+                        $lastSuccessResponse = $responseData;
+                    } else {
+                        Log::error('Facebook CAPI: API request failed', [
+                            'event_name' => $eventName,
+                            'pixel_id' => $cfg['pixel_id'],
+                            'status' => $response->status(),
+                            'response' => $response->body()
+                        ]);
+                    }
+                } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                    Log::warning('Facebook CAPI: Request timeout/connection error (non-blocking)', [
+                        'event_name' => $eventName,
+                        'pixel_id' => $cfg['pixel_id'],
+                        'error' => $e->getMessage()
+                    ]);
+                }
             }
 
-            // Send to Facebook Conversion API (very short timeout - don't block order submission)
-            $url = "https://graph.facebook.com/v21.0/{$this->pixelId}/events";
-            
-            // Timeout: 5 seconds (runs after response via register_shutdown_function, so won't block user)
-            try {
-                $response = Http::timeout(5)->post($url, $requestPayload);
-
-                if ($response->successful()) {
-                    $responseData = $response->json();
-                    
-                    Log::info('Facebook CAPI: Event sent successfully', [
-                        'event_name' => $eventName,
-                        'pixel_id' => $this->pixelId,
-                        'response' => $responseData
-                    ]);
-
-                    return [
-                        'success' => true,
-                        'event_name' => $eventName,
-                        'response' => $responseData
-                    ];
-                } else {
-                    Log::error('Facebook CAPI: API request failed', [
-                        'event_name' => $eventName,
-                        'status' => $response->status(),
-                        'response' => $response->body()
-                    ]);
-
-                    return [
-                        'success' => false,
-                        'error' => 'API request failed',
-                        'status' => $response->status()
-                    ];
-                }
-            } catch (\Illuminate\Http\Client\ConnectionException $e) {
-                // Timeout or connection error - silently fail, don't block order
-                Log::warning('Facebook CAPI: Request timeout/connection error (non-blocking)', [
-                    'event_name' => $eventName,
-                    'error' => $e->getMessage()
-                ]);
-                
+            if ($lastSuccessResponse !== null) {
                 return [
-                    'success' => false,
-                    'error' => 'Request timeout',
-                    'message' => 'Event will be retried or skipped'
+                    'success' => true,
+                    'event_name' => $eventName,
+                    'response' => $lastSuccessResponse
                 ];
             }
+
+            return ['success' => false, 'error' => 'API request failed'];
 
         } catch (\Exception $e) {
             Log::error('Facebook CAPI: Error sending event', [

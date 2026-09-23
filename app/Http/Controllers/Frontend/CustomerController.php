@@ -1124,34 +1124,13 @@ public function order_save(Request $request)
                     $_COOKIE['_fbp'] ?? null,
                     $_COOKIE['_fbc'] ?? null
                 );
+                $capiUser['ttclid'] = $_COOKIE['ttclid'] ?? $request->query('ttclid') ?? null;
 
-                register_shutdown_function(function () use ($order, $capiUser, $request) {
-                    try {
-                        $orderDetails = $order->orderdetails ?? \App\Models\Order::with('orderdetails')->find($order->id)?->orderdetails ?? collect();
-                        $contentIds  = $orderDetails->pluck('product_id')->map(fn ($id) => (string) $id)->values()->toArray();
-                        $contents    = $orderDetails->map(fn ($i) => [
-                            'id'         => (string) $i->product_id,
-                            'quantity'   => (int) $i->qty,
-                            'item_price' => (float) $i->sale_price,
-                        ])->values()->toArray();
-                        app(\App\Services\FacebookCapiService::class)->sendEvent('Purchase', [
-                            'currency'     => 'BDT',
-                            'value'        => $order->amount,
-                            'order_id'     => $order->invoice_id ?? $order->id,
-                            'content_ids'  => $contentIds,
-                            'contents'     => $contents,
-                            'num_items'    => count($contents),
-                            'content_type' => 'product',
-                        ], $capiUser, [
-                            'event_id'         => 'purchase_'.($order->invoice_id ?? $order->id),
-                            'event_source_url' => url('customer/order-success/'.$order->id),
-                        ]);
-                    } catch (\Exception $e) {
-                        \Log::error('Facebook CAPI Purchase event failed for order '.$order->id.': '.$e->getMessage());
-                    }
+                register_shutdown_function(function () use ($order, $capiUser) {
+                    \App\Services\ServerCapiService::trackPurchase($order, $capiUser, null, url('customer/order-success/'.$order->id));
                 });
             } catch (\Exception $e) {
-                \Log::error('Facebook CAPI setup failed for order '.$order->id.': '.$e->getMessage());
+                \Log::error('Server CAPI setup failed for order '.$order->id.': '.$e->getMessage());
             }
             
             Session::forget('coupon_code');

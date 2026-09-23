@@ -186,4 +186,28 @@
         $('.sort-form').submit();
     });
 </script>
+@php
+    $brandTrackingItems = [];
+    foreach ($products as $idx => $p) {
+        $brandTrackingItems[] = [
+            'id'       => (string) $p->id,
+            'name'     => $p->name,
+            'price'    => (float) $p->new_price,
+            'category' => optional($p->category)->name,
+            'brand'    => optional($brand)->name,
+            'qty'      => 1,
+        ];
+    }
+@endphp
+<script>
+(function() {
+    if (typeof window.EcomTracking !== 'undefined') {
+        window.EcomTracking.viewItemList({
+            item_list_id: 'brand_' + {{ json_encode($brand->slug ?? 'brand') }},
+            item_list_name: {{ json_encode($brand->name ?? 'Brand Products') }},
+            items: @json($brandTrackingItems)
+        });
+    }
+})();
+</script>
 @endpush

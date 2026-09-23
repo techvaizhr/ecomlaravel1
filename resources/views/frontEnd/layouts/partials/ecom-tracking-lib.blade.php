@@ -46,7 +46,8 @@
             area: user.area || user.city || '',
             country: 'bd',
             fbp: user.fbp || getCookie('_fbp'),
-            fbc: user.fbc || getCookie('_fbc')
+            fbc: user.fbc || getCookie('_fbc') || getCookie('fbc'),
+            ttclid: user.ttclid || getCookie('ttclid')
         };
         return payload;
     }
@@ -66,18 +67,24 @@
 
     function tiktokIdentify(user) {
         var p = buildUserPayload(user);
-        if (!p || typeof w.ttq === 'undefined') return;
+        if (!p || typeof w.ttq === 'undefined' || typeof w.ttq.identify !== 'function') return;
         var id = {};
         if (p.email) id.email = p.email;
         if (p.phone) id.phone_number = p.phone;
         if (p.customer_id) id.external_id = String(p.customer_id);
-        if (Object.keys(id).length) w.ttq.identify(id);
+        if (Object.keys(id).length) {
+            try {
+                w.ttq.identify(id);
+            } catch (e) {}
+        }
     }
 
     function setPixelUser(user) {
         var fb = fbUserData(user);
         if (typeof w.fbq === 'function' && Object.keys(fb).length) {
-            w.fbq('set', 'userData', fb);
+            try {
+                w.fbq('set', 'userData', fb);
+            } catch (e) {}
         }
         tiktokIdentify(user);
     }
@@ -97,6 +104,8 @@
                 item_name: it.name || it.item_name || '',
                 price: Number(it.price || it.item_price || 0),
                 quantity: Number(it.qty || it.quantity || 1),
+                item_category: it.category || it.item_category || undefined,
+                item_brand: it.brand || it.item_brand || undefined,
                 index: i
             };
         });
@@ -133,7 +142,7 @@
 
         viewContent: function (opts) {
             opts = opts || {};
-            var items = opts.items || [opts.item];
+            var items = opts.items || (opts.item ? [opts.item] : []);
             var value = Number(opts.value || 0);
             var ga4 = lineToGa4(items);
             if (ga4.length) {
@@ -143,17 +152,83 @@
                 w.fbq('track', 'ViewContent', {
                     content_ids: ga4.map(function (i) { return i.item_id; }),
                     content_name: ga4[0].item_name,
+                    content_category: ga4[0].item_category || undefined,
                     content_type: 'product',
                     value: value,
                     currency: CURRENCY
                 });
             }
-            if (typeof w.ttq !== 'undefined' && ga4.length) {
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function' && ga4.length) {
                 w.ttq.track('ViewContent', {
                     content_type: 'product',
                     content_id: ga4[0].item_id,
+                    content_name: ga4[0].item_name,
                     value: value,
                     currency: CURRENCY,
+                    contents: lineToTtContents(items)
+                });
+            }
+        },
+
+        viewItemList: function (opts) {
+            opts = opts || {};
+            var items = opts.items || [];
+            var listName = opts.item_list_name || 'Product List';
+            var listId = opts.item_list_id || listName;
+            var ga4 = lineToGa4(items);
+
+            if (ga4.length) {
+                pushEvent('view_item_list', {
+                    ecommerce: {
+                        item_list_id: listId,
+                        item_list_name: listName,
+                        items: ga4
+                    }
+                });
+            }
+
+            if (typeof w.fbq === 'function' && ga4.length) {
+                w.fbq('trackCustom', 'ViewCategory', {
+                    content_category: listName,
+                    content_ids: ga4.map(function (i) { return i.item_id; }),
+                    currency: CURRENCY
+                });
+            }
+
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function' && ga4.length) {
+                w.ttq.track('ViewContent', {
+                    content_type: 'product_group',
+                    content_name: listName,
+                    value: Number(opts.value || 0),
+                    currency: CURRENCY,
+                    quantity: ga4.length
+                });
+            }
+        },
+
+        search: function (opts) {
+            opts = opts || {};
+            var query = String(opts.query || '').trim();
+            var items = opts.items || [];
+            var ga4 = lineToGa4(items);
+
+            pushEvent('view_search_results', {
+                search_term: query,
+                ecommerce: { items: ga4 }
+            });
+
+            if (typeof w.fbq === 'function') {
+                w.fbq('track', 'Search', {
+                    search_string: query,
+                    content_ids: ga4.map(function (i) { return i.item_id; }),
+                    content_type: 'product',
+                    currency: CURRENCY
+                });
+            }
+
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
+                w.ttq.track('Search', {
+                    query: query,
                     contents: lineToTtContents(items)
                 });
             }
@@ -170,18 +245,28 @@
                     value: value,
                     currency: CURRENCY,
                     content_ids: ga4.map(function (i) { return i.item_id; }),
+                    content_name: ga4.length ? ga4[0].item_name : undefined,
                     content_type: 'product',
                     contents: lineToFbContents(items)
                 });
             }
-            if (typeof w.ttq !== 'undefined') {
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('AddToCart', {
                     content_type: 'product',
+                    content_id: ga4.length ? ga4[0].item_id : undefined,
                     value: value,
                     currency: CURRENCY,
                     contents: lineToTtContents(items)
                 });
             }
+        },
+
+        removeFromCart: function (opts) {
+            opts = opts || {};
+            var items = opts.items || [];
+            var value = Number(opts.value || 0);
+            var ga4 = lineToGa4(items);
+            pushEvent('remove_from_cart', { ecommerce: { currency: CURRENCY, value: value, items: ga4 } });
         },
 
         viewCart: function (opts) {
@@ -198,7 +283,7 @@
                     content_ids: ga4.map(function (i) { return i.item_id; })
                 });
             }
-            if (typeof w.ttq !== 'undefined') {
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('ViewContent', {
                     content_type: 'product_group',
                     value: value,
@@ -226,8 +311,9 @@
                     coupon: opts.coupon || undefined
                 });
             }
-            if (typeof w.ttq !== 'undefined') {
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('InitiateCheckout', {
+                    content_type: 'product',
                     value: value,
                     currency: CURRENCY,
                     contents: lineToTtContents(items)
@@ -253,8 +339,9 @@
                     content_ids: ga4.map(function (i) { return i.item_id; })
                 });
             }
-            if (typeof w.ttq !== 'undefined') {
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('AddPaymentInfo', {
+                    content_type: 'product',
                     value: value,
                     currency: CURRENCY,
                     contents: lineToTtContents(items)
@@ -264,10 +351,17 @@
 
         purchase: function (opts) {
             opts = opts || {};
+            var orderId = String(opts.transaction_id || opts.order_id || '');
+            if (!orderId) return;
+
+            // Deduplication guard: prevent reload duplicate firing in browser
+            var storageKey = 'purchase_tracked_' + orderId;
+            if (localStorage.getItem(storageKey)) return;
+            localStorage.setItem(storageKey, '1');
+
             var items = opts.items || [];
             var ga4 = lineToGa4(items);
             var value = Number(opts.value || 0);
-            var orderId = String(opts.transaction_id || opts.order_id || '');
             var eventId = opts.event_id || ('purchase_' + orderId);
             var user = opts.user || null;
 
@@ -300,7 +394,7 @@
                 }, { eventID: eventId });
             }
 
-            if (typeof w.ttq !== 'undefined') {
+            if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('CompletePayment', {
                     content_type: 'product',
                     value: value,
@@ -320,9 +414,13 @@
 
     var bootUser = @json($trackingUser ?? null);
     if (bootUser) {
-        document.addEventListener('DOMContentLoaded', function () {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                EcomTracking.identify(bootUser);
+            });
+        } else {
             EcomTracking.identify(bootUser);
-        });
+        }
     }
 })(window);
 </script>

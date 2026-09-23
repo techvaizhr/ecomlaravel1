@@ -321,9 +321,12 @@ class FrontendController extends Controller
                 ? Cart::instance('shopping')->get($existingRow->rowId)
                 : Cart::instance('shopping')->content()->last();
             return response()->json([
-                'success' => true,
-                'qty'     => $line ? (int) $line->qty : $requestedQty,
-                'price'   => $line ? (float) $line->price : $finalPrice,
+                'success'      => true,
+                'qty'          => $line ? (int) $line->qty : $requestedQty,
+                'price'        => $line ? (float) $line->price : $finalPrice,
+                'product_id'   => (string) $product->id,
+                'product_name' => (string) $product->name,
+                'category'     => (string) (optional($product->category)->name ?? ''),
             ]);
         }
 

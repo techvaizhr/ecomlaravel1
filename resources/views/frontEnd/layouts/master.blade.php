@@ -1864,7 +1864,7 @@ section.slider-section {
     }
 }
 </style>
-        <script>window.dataLayer = window.dataLayer || [];</script>
+        @include('frontEnd.layouts.partials.deferred-tracking')
     </head>
     <body class="gotop">
         @foreach($gtm_code ?? [] as $gtm)
@@ -3355,6 +3355,20 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                     dataType: "json",
                     success: function (data) {
                         if (data && data.success) {
+                            if (typeof window.EcomTracking !== 'undefined') {
+                                var trackPrice = Number(data.price || 0);
+                                var trackQty = Number(data.qty || 1);
+                                window.EcomTracking.addToCart({
+                                    items: [{
+                                        id: String(data.product_id || id),
+                                        name: data.product_name || '',
+                                        price: trackPrice,
+                                        qty: trackQty,
+                                        category: data.category || ''
+                                    }],
+                                    value: trackPrice * trackQty
+                                });
+                            }
                             toastr.success('Success', 'Product add to cart successfully');
                             cart_count();
                             mobile_cart();
@@ -4526,8 +4540,6 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
     setInterval(fetchAndStart, 300000);
 })();
 </script>
-
-@include('frontEnd.layouts.partials.deferred-tracking')
 
     </body>
 </html>

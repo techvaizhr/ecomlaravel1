@@ -282,4 +282,28 @@
             $("#max_price").val($("#price-range").slider("values", 1));
         });
     </script>
+    @php
+        $shopTrackingItems = [];
+        foreach ($products as $idx => $p) {
+            $shopTrackingItems[] = [
+                'id'       => (string) $p->id,
+                'name'     => $p->name,
+                'price'    => (float) $p->new_price,
+                'category' => optional($p->category)->name,
+                'brand'    => optional($p->brand)->name,
+                'qty'      => 1,
+            ];
+        }
+    @endphp
+    <script>
+    (function() {
+        if (typeof window.EcomTracking !== 'undefined') {
+            window.EcomTracking.viewItemList({
+                item_list_id: 'shop_all',
+                item_list_name: 'Shop All Products',
+                items: @json($shopTrackingItems)
+            });
+        }
+    })();
+    </script>
 @endpush

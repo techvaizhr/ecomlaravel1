@@ -93,31 +93,16 @@ class ShurjopayControllers extends Controller
             if (isset($_COOKIE['_fbc'])) {
                 $userData['fbc'] = $_COOKIE['_fbc'];
             }
+            if (isset($_COOKIE['ttclid'])) {
+                $userData['ttclid'] = $_COOKIE['ttclid'];
+            }
             
             // Send Purchase event after response is sent (non-blocking)
             register_shutdown_function(function () use ($order, $payment, $userData) {
-                try {
-                    $orderDetails = $order->orderdetails ?? \App\Models\Order::with('orderdetails')->find($order->id)?->orderdetails ?? collect();
-                    $contentIds  = $orderDetails->pluck('product_id')->map(fn($id) => (string)$id)->values()->toArray();
-                    $contents    = $orderDetails->map(fn($i) => ['id' => (string)$i->product_id, 'quantity' => (int)$i->qty, 'item_price' => (float)$i->sale_price])->values()->toArray();
-                    app(\App\Services\FacebookCapiService::class)->sendEvent('Purchase', [
-                        'currency'     => 'BDT',
-                        'value'        => $payment->amount ?? $order->amount,
-                        'order_id'     => $order->invoice_id ?? $order->id,
-                        'content_ids'  => $contentIds,
-                        'contents'     => $contents,
-                        'num_items'    => count($contents),
-                        'content_type' => 'product',
-                    ], $userData, [
-                        'event_id'         => 'purchase_' . ($order->invoice_id ?? $order->id),
-                        'event_source_url' => request()->fullUrl(),
-                    ]);
-                } catch (\Exception $e) {
-                    \Log::error('Facebook CAPI Purchase event failed for order ' . $order->id . ': ' . $e->getMessage());
-                }
+                \App\Services\ServerCapiService::trackPurchase($order, $userData, $payment, request()->fullUrl());
             });
         } catch (\Exception $e) {
-            \Log::error('Facebook CAPI setup failed for order ' . $order->id . ': ' . $e->getMessage());
+            \Log::error('Server CAPI setup failed for order ' . $order->id . ': ' . $e->getMessage());
         }
 
         Cart::instance('shopping')->destroy(); 

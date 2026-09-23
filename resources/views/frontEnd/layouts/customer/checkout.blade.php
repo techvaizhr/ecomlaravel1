@@ -1569,7 +1569,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 {{-- GTM + Facebook + TikTok — checkout funnel --}}
 <script type="text/javascript">
-(function () {
+$(document).ready(function () {
     if (typeof window.EcomTracking === 'undefined') return;
 
     var items = @json($cartItemsForJs);
@@ -1624,6 +1624,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-})();
+});
 </script>
 @endpush

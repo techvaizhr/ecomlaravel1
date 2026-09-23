@@ -1140,29 +1140,12 @@
             });
         }
 
+        // ViewContent across GA4, Facebook, TikTok
         if (typeof window.EcomTracking !== "undefined") {
             EcomTracking.viewContent({
-                items: [{ id: productItem.item_id, name: productItem.item_name, price: productItem.price, qty: 1 }],
+                items: [{ id: productItem.item_id, name: productItem.item_name, price: productItem.price, qty: 1, category: productItem.item_category, brand: productItem.item_brand }],
                 value: productItem.price
             });
-        } else {
-            if (typeof fbq === "function") {
-                fbq("track", "ViewContent", {
-                    content_ids: [productItem.item_id],
-                    content_name: productItem.item_name,
-                    content_category: productItem.item_category,
-                    value: productItem.price,
-                    currency: "BDT"
-                });
-            }
-            if (typeof ttq !== "undefined") {
-                ttq.track("ViewContent", {
-                    content_type: "product",
-                    content_id: String(productItem.item_id),
-                    value: productItem.price,
-                    currency: "BDT"
-                });
-            }
         }
 
         // Helper: qty সহ item তৈরি
@@ -1183,91 +1166,28 @@
             };
         }
 
-        // "কার্টে যোগ করুন" -> add_to_cart + FB AddToCart
+        // "কার্টে যোগ করুন" -> add_to_cart (GA4, FB, TikTok)
         $(document).on("click", ".add_cart_btn", function () {
             var item  = buildCurrentItem();
             var value = item.price * item.quantity;
 
             if (typeof window.EcomTracking !== "undefined") {
                 EcomTracking.addToCart({
-                    items: [{ id: item.item_id, name: item.item_name, price: item.price, qty: item.quantity }],
+                    items: [{ id: item.item_id, name: item.item_name, price: item.price, qty: item.quantity, category: item.item_category, brand: item.item_brand }],
                     value: value
                 });
-            } else {
-            window.dataLayer.push({ ecommerce: null });
-            window.dataLayer.push({
-                event: "add_to_cart",
-                ecommerce: {
-                    currency: "BDT",
-                    value: value,
-                    items: [item]
-                }
-            });
-
-            if (typeof fbq === "function") {
-                fbq("track", "AddToCart", {
-                    content_ids: [item.item_id],
-                    content_name: item.item_name,
-                    value: value,
-                    currency: "BDT",
-                    contents: [
-                        { id: item.item_id, quantity: item.quantity }
-                    ]
-                });
-                if (typeof ttq !== "undefined") {
-                    ttq.track("AddToCart", {
-                        content_type: "product",
-                        value: value,
-                        currency: "BDT",
-                        contents: [{ content_id: String(item.item_id), content_name: item.item_name, quantity: item.quantity, price: item.price }]
-                    });
-                }
-            }
             }
         });
 
-        // "অর্ডার করুন" -> add_to_cart + begin_checkout + FB InitiateCheckout
+        // "অর্ডার করুন" -> add_to_cart (GA4, FB, TikTok) - Checkout page will handle InitiateCheckout
         $(document).on("click", ".order_now_btn", function () {
             var item  = buildCurrentItem();
             var value = item.price * item.quantity;
 
-            // GA4 add_to_cart
-            window.dataLayer.push({ ecommerce: null });
-            window.dataLayer.push({
-                event: "add_to_cart",
-                ecommerce: {
-                    currency: "BDT",
-                    value: value,
-                    items: [item]
-                }
-            });
-
-            // GA4 begin_checkout
-            window.dataLayer.push({
-                event: "begin_checkout",
-                ecommerce: {
-                    currency: "BDT",
-                    value: value,
-                    items: [item]
-                }
-            });
-
-            // FB Pixel
-            if (typeof fbq === "function") {
-                fbq("track", "AddToCart", {
-                    content_ids: [item.item_id],
-                    content_name: item.item_name,
-                    value: value,
-                    currency: "BDT",
-                    contents: [
-                        { id: item.item_id, quantity: item.quantity }
-                    ]
-                });
-
-                fbq("track", "InitiateCheckout", {
-                    value: value,
-                    currency: "BDT",
-                    num_items: item.quantity
+            if (typeof window.EcomTracking !== "undefined") {
+                EcomTracking.addToCart({
+                    items: [{ id: item.item_id, name: item.item_name, price: item.price, qty: item.quantity, category: item.item_category, brand: item.item_brand }],
+                    value: value
                 });
             }
         });

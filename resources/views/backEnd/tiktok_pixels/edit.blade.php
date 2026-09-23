@@ -59,6 +59,26 @@
                         </div>
 
                         <div class="form-group mb-4">
+                            <label for="access_token" class="form-label">Events API Access Token (CAPI) <small class="text-muted">(ঐচ্ছিক - সার্ভার সাইড ট্র্যাকিংয়ের জন্য)</small></label>
+                            <textarea class="form-control @error('access_token') is-invalid @enderror"
+                                      name="access_token" id="access_token" rows="3"
+                                      placeholder="TikTok Business Tools → Events → Settings → Generate Access Token">{{ old('access_token', $edit_data->access_token) }}</textarea>
+                            @error('access_token')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="test_event_code" class="form-label">Test Event Code <small class="text-muted">(ঐচ্ছিক - টেস্ট করার জন্য)</small></label>
+                            <input type="text" class="form-control @error('test_event_code') is-invalid @enderror"
+                                   name="test_event_code" value="{{ old('test_event_code', $edit_data->test_event_code) }}" id="test_event_code"
+                                   placeholder="e.g. TEST12345">
+                            @error('test_event_code')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-4">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded bg-light">
                                 <div>
                                     <label class="form-label mb-0 text-dark">Active Status</label>

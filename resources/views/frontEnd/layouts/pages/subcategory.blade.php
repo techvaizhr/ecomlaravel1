@@ -417,37 +417,20 @@
                 @endforeach
             ];
 
-            // GA4: view_item_list
-            if (listItems.length) {
-                window.dataLayer.push({ ecommerce: null });
-                window.dataLayer.push({
-                    event: "view_item_list",
-                    ecommerce: {
-                        item_list_id: listSlug,
-                        item_list_name: listName,
-                        items: listItems.map(function (item) {
-                            return {
-                                item_id: item.item_id,
-                                item_name: item.item_name,
-                                index: item.index,
-                                price: item.price,
-                                item_brand: item.item_brand,
-                                item_category: item.item_category,
-                                item_list_id: item.item_list_id,
-                                item_list_name: item.item_list_name,
-                                currency: item.currency
-                            };
-                        })
-                    }
-                });
-            }
-
-            // Facebook Pixel: ViewSubcategory (custom)
-            if (typeof fbq === "function") {
-                fbq("trackCustom", "ViewSubcategory", {
-                    content_category: listName,
-                    content_ids: listItems.map(function (i) { return i.item_id; }),
-                    currency: "BDT"
+            if (listItems.length && typeof window.EcomTracking !== 'undefined') {
+                window.EcomTracking.viewItemList({
+                    item_list_id: listSlug,
+                    item_list_name: listName,
+                    items: listItems.map(function (item) {
+                        return {
+                            id: item.item_id,
+                            name: item.item_name,
+                            price: item.price,
+                            brand: item.item_brand,
+                            category: item.item_category,
+                            qty: 1
+                        };
+                    })
                 });
             }
 

@@ -174,6 +174,30 @@
     $(".sort").change(function(){
        $('#loading').show();
        $(".sort-form").submit();
-    })
+    });
+</script>
+@php
+    $searchTrackingItems = [];
+    foreach ($products as $idx => $p) {
+        $searchTrackingItems[] = [
+            'id'       => (string) $p->id,
+            'name'     => $p->name,
+            'price'    => (float) $p->new_price,
+            'category' => optional($p->category)->name,
+            'brand'    => optional($p->brand)->name,
+            'qty'      => 1,
+        ];
+    }
+@endphp
+<script>
+(function() {
+    if (typeof window.EcomTracking !== 'undefined') {
+        var query = @json(request('keyword') ?? '');
+        window.EcomTracking.search({
+            query: query,
+            items: @json($searchTrackingItems)
+        });
+    }
+})();
 </script>
 @endpush

@@ -270,41 +270,50 @@
 @endphp
 <script>
 (function () {
-    if (typeof window.EcomTracking === 'undefined') return;
+    function firePurchase() {
+        if (typeof window.EcomTracking === 'undefined') return;
 
-    var orderId = '{{ $order->invoice_id }}';
-    var storageKey = 'purchase_fired_' + orderId;
-    if (localStorage.getItem(storageKey)) return;
-    localStorage.setItem(storageKey, '1');
+        var orderId = '{{ $order->invoice_id }}';
+        var storageKey = 'purchase_fired_' + orderId;
+        if (localStorage.getItem(storageKey)) return;
+        localStorage.setItem(storageKey, '1');
 
-    var user = @json($purchaseTrackingUser);
-    user.fbp = window.EcomTracking.getCookie('_fbp');
-    user.fbc = window.EcomTracking.getCookie('_fbc');
-    user.address = user.address || @json($order->shipping?->address ?? '');
-    user.area = user.area || user.city || @json($order->shipping?->area ?? '');
+        var user = @json($purchaseTrackingUser);
+        user.fbp = window.EcomTracking.getCookie('_fbp');
+        user.fbc = window.EcomTracking.getCookie('_fbc') || window.EcomTracking.getCookie('fbc');
+        user.ttclid = window.EcomTracking.getCookie('ttclid');
+        user.address = user.address || @json($order->shipping?->address ?? '');
+        user.area = user.area || user.city || @json($order->shipping?->area ?? '');
 
-    window.EcomTracking.purchase({
-        transaction_id: orderId,
-        order_id: orderId,
-        event_id: 'purchase_' + orderId,
-        value: parseFloat("{{ $order->amount }}") || 0,
-        shipping: parseFloat("{{ $order->shipping_charge }}") || 0,
-        tax: 0,
-        coupon: @json($order->coupon_code),
-        payment_method: @json($payment_method),
-        items: @json($purchaseItems),
-        user: user,
-        order_info: {
-            invoice_id: orderId,
-            order_id: '{{ $order->id }}',
-            payment_method: @json($payment_method),
-            payment_status: @json($payment ? $payment->payment_status : ''),
-            grand_total: parseFloat("{{ $order->amount }}") || 0,
+        window.EcomTracking.purchase({
+            transaction_id: orderId,
+            order_id: orderId,
+            event_id: 'purchase_' + orderId,
+            value: parseFloat("{{ $order->amount }}") || 0,
             shipping: parseFloat("{{ $order->shipping_charge }}") || 0,
-            discount: parseFloat("{{ $order->discount }}") || 0,
-            item_count: @json(count($purchaseItems))
-        }
-    });
+            tax: 0,
+            coupon: @json($order->coupon_code),
+            payment_method: @json($payment_method),
+            items: @json($purchaseItems),
+            user: user,
+            order_info: {
+                invoice_id: orderId,
+                order_id: '{{ $order->id }}',
+                payment_method: @json($payment_method),
+                payment_status: @json($payment ? $payment->payment_status : ''),
+                grand_total: parseFloat("{{ $order->amount }}") || 0,
+                shipping: parseFloat("{{ $order->shipping_charge }}") || 0,
+                discount: parseFloat("{{ $order->discount }}") || 0,
+                item_count: @json(count($purchaseItems))
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', firePurchase);
+    } else {
+        firePurchase();
+    }
 })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

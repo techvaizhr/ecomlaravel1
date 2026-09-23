@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('tiktok_pixels', function (Blueprint $table) {
+            if (!Schema::hasColumn('tiktok_pixels', 'access_token')) {
+                $table->text('access_token')->nullable()->after('code');
+            }
+            if (!Schema::hasColumn('tiktok_pixels', 'test_event_code')) {
+                $table->string('test_event_code')->nullable()->after('access_token');
+            }
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('tiktok_pixels', function (Blueprint $table) {
+            if (Schema::hasColumn('tiktok_pixels', 'test_event_code')) {
+                $table->dropColumn('test_event_code');
+            }
+            if (Schema::hasColumn('tiktok_pixels', 'access_token')) {
+                $table->dropColumn('access_token');
+            }
+        });
+    }
+};
