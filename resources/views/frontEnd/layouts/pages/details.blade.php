@@ -1166,21 +1166,14 @@
             };
         }
 
-        // "কার্টে যোগ করুন" -> add_to_cart (GA4, FB, TikTok)
-        $(document).on("click", ".add_cart_btn", function () {
-            var item  = buildCurrentItem();
-            var value = item.price * item.quantity;
-
-            if (typeof window.EcomTracking !== "undefined") {
-                EcomTracking.addToCart({
-                    items: [{ id: item.item_id, name: item.item_name, price: item.price, qty: item.quantity, category: item.item_category, brand: item.item_brand }],
-                    value: value
-                });
-            }
-        });
+        // Expose item builder for cart_store AJAX tracking in master layout
+        window.getCurrentDetailsItem = buildCurrentItem;
 
         // "অর্ডার করুন" -> add_to_cart (GA4, FB, TikTok) - Checkout page will handle InitiateCheckout
         $(document).on("click", ".order_now_btn", function () {
+            if (typeof sendSuccess === "function" && !sendSuccess()) {
+                return;
+            }
             var item  = buildCurrentItem();
             var value = item.price * item.quantity;
 

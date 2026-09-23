@@ -309,10 +309,16 @@
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', firePurchase);
-    } else {
+    // Fire immediately without waiting for DOMContentLoaded (since EcomTracking is initialized in <head>)
+    if (typeof window.EcomTracking !== 'undefined') {
         firePurchase();
+    } else {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', firePurchase);
+        } else {
+            firePurchase();
+        }
+        setTimeout(firePurchase, 200);
     }
 })();
 </script>

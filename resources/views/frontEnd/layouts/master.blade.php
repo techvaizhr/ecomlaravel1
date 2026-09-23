@@ -3356,15 +3356,21 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                     success: function (data) {
                         if (data && data.success) {
                             if (typeof window.EcomTracking !== 'undefined') {
-                                var trackPrice = Number(data.price || 0);
-                                var trackQty = Number(data.qty || 1);
+                                var currentItem = (typeof window.getCurrentDetailsItem === 'function') ? window.getCurrentDetailsItem() : null;
+                                var trackPrice = currentItem ? currentItem.price : Number(data.price || 0);
+                                var trackQty = currentItem ? currentItem.quantity : Number(data.qty || 1);
+                                var trackName = currentItem ? currentItem.item_name : (data.product_name || '');
+                                var trackCat = currentItem ? currentItem.item_category : (data.category || '');
+                                var trackBrand = currentItem ? currentItem.item_brand : '';
+
                                 window.EcomTracking.addToCart({
                                     items: [{
                                         id: String(data.product_id || id),
-                                        name: data.product_name || '',
+                                        name: trackName,
                                         price: trackPrice,
                                         qty: trackQty,
-                                        category: data.category || ''
+                                        category: trackCat,
+                                        brand: trackBrand
                                     }],
                                     value: trackPrice * trackQty
                                 });
