@@ -14,6 +14,9 @@
         <link rel="canonical" href="" />
         @stack('seo') 
         @stack('css')
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap">
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
         <link rel="preconnect" href="https://maxcdn.bootstrapcdn.com" crossorigin>
@@ -3153,14 +3156,11 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
             dots: false,
             autoplay: true,
             nav: true,
-            autoplayHoverPause: false,
+            autoplayHoverPause: true,
             margin: 0,
             mouseDrag: true,
-            smartSpeed: 8000,
-            autoplayTimeout: 3000,
-            animateOut: "fadeOutDown",
-            animateIn: "slideInDown",
-
+            smartSpeed: 600,
+            autoplayTimeout: 5000,
             navText: ["<i class='fa-solid fa-angle-left'></i>",
                 "<i class='fa-solid fa-angle-right'></i>"
             ],

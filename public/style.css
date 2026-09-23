@@ -1,12 +1,3 @@
-@php
-    $generalsetting = \App\Models\GeneralSetting::first();
-    $hasNewsTicker = $generalsetting
-        && (int) ($generalsetting->news_ticker_enabled ?? 0) === 1
-        && trim((string) ($generalsetting->top_headline ?? '')) !== '';
-    $contentPaddingTop = $hasNewsTicker ? '156px' : '122px';
-@endphp
-
-
 html {
     overflow-x: hidden;
     background-color: #ffffff;
@@ -369,7 +360,7 @@ body {
     .product_item .pro_btn button{
         width:100%;
         border-radius:4px;
-        background: {{$generalsetting->primary_color}};
+        background: #303d6e;
     }
 /*==== COMMON CSS START ====*/
 @font-face {
@@ -425,7 +416,7 @@ a:hover,
 a,
 a:hover,
 a:focus {
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
     text-decoration: none;
     outline-offset: 0;
     outline: 0;
@@ -507,7 +498,7 @@ svg {
 
 footer {
     padding: 0 0;
-    background: {{$generalsetting->footer_color}};
+    background: #131a22;
 }
 
 .footer-widgets {
@@ -726,7 +717,7 @@ li.Newsletter i {
     border: 1px solid;
     height: 39px;
     background: #f7f7f7;
-    border-color: {{$generalsetting->primary_color}};
+    border-color: #303d6e;
     width: 100%;
     margin: 0 auto;
     border-radius: 5px;
@@ -745,7 +736,7 @@ li.Newsletter i {
 .main-search form button {
     height: 100%;
     outline: 0;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     width: 10%;
     float: left;
 }
@@ -857,7 +848,7 @@ li.Newsletter i {
     position: absolute;
     top: -8px;
     right: -12px;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     color: #fff;
     height: 18px;
     width: 18px;
@@ -937,7 +928,7 @@ li.Newsletter i {
 }
 
 .submit-btn {
-    background: {{$generalsetting->primary_color}} !important;
+    background: #303d6e !important;
     display: block;
     width: 100%;
     border: 0;
@@ -985,7 +976,7 @@ li.Newsletter i {
 
 .go_cart,
 .go_cart:hover {
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     width: 100%;
     color: #fff;
     border-radius: 5px;
@@ -1053,7 +1044,7 @@ li.Newsletter i {
 }
 
 .menu-area {
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
 }
@@ -1122,7 +1113,7 @@ li.Newsletter i {
 }
 
 .categories ul li a:hover {
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
 }
 
 .sub-category {
@@ -1309,7 +1300,7 @@ section.slider-section {
 }
 
 .sidebar_item h2.accordion-header button.accordion-button {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: #303d6e;
     color: #fff;
     text-transform: uppercase;
     font-size: 14px;
@@ -1727,7 +1718,7 @@ section.slider-section {
 }
 
 .footer-bottom {
-    background: {{$generalsetting->copyright_color}};
+    background: #000000;
     padding: 10px 0;
 }
 
@@ -1808,13 +1799,13 @@ section.slider-section {
 .details-price {
     font-size: 24px;
     font-weight: 600;
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
     margin: 10px 0;
 }
 
 .product-code p {
     display: inline-block;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     color: #fff;
     padding: 0px 10px;
     border-top: 15px solid transparent;
@@ -1887,7 +1878,7 @@ section.slider-section {
 .order_now_btn {
     font-size: 18px;
     color: #fff;
-    background-color: {{$generalsetting->primary_color}};
+    background-color: #303d6e;
     border: 1px solid #000000;
     border-radius: 3px;
     width: 50%;
@@ -1905,16 +1896,16 @@ section.slider-section {
 .order_now_btn:hover,
 .order_now_btn:active {
     color: white !important;
-    background-color: {{$generalsetting->primary_color}} !important;
-    border-color: {{$generalsetting->primary_color}} !important;
+    background-color: #303d6e !important;
+    border-color: #303d6e !important;
     outline: 0;
     color: #fff !important;
 }
 
 .add_cart_btn {
     color: #fff;
-    background-color: {{$generalsetting->primary_color}};
-    border: 1px solid {{$generalsetting->primary_color}};
+    background-color: #303d6e;
+    border: 1px solid #303d6e;
     border-radius: 0;
     width: 50%;
     height: 45px;
@@ -2070,12 +2061,12 @@ section.slider-section {
 .details-action-box .section-head .action .details-action-btn {
     padding: 5px 20px;
     background-color: #fff;
-    border: 2px solid {{$generalsetting->primary_color}};
+    border: 2px solid #303d6e;
     border-radius: 5px;
     color: #fff;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     cursor: pointer;
 }
 
@@ -2105,7 +2096,7 @@ section.slider-section {
     line-height: 80px;
     background-color: #2748f652;
     border-radius: 50%;
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
 }
 
 p.empty-text {
@@ -2218,7 +2209,7 @@ button.details-review-button {
 
 .subcategory-filter-label input {
     position: relative;
-    border: 2px solid {{$generalsetting->primary_color}};
+    border: 2px solid #303d6e;
     border-radius: 2px;
     background: none;
     cursor: pointer;
@@ -2267,7 +2258,7 @@ p.max-price input {
 }
 
 .ui-slider-horizontal .ui-slider-range {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: #303d6e;
 }
 
 .ui-state-default,
@@ -2687,7 +2678,7 @@ li.recent_pro {
   text-align: center;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg,{{$generalsetting->primary_color}},#3b4fb5);
+  background: linear-gradient(135deg,#303d6e,#3b4fb5);
   padding: 12px 16px;
   border-radius: 8px 8px 6px 6px;
   margin: -28px -24px 20px;
@@ -2769,7 +2760,7 @@ textarea:-webkit-autofill {
 }
 
 .register-now.no-account a:hover {
-  background: {{$generalsetting->primary_color}}; 
+  background: #303d6e; 
   color: #ffffff;   
 }
 
@@ -2940,7 +2931,7 @@ textarea:-webkit-autofill {
 
 .checkout-shipping h6 {
     font-weight: 600;
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
 }
 .checkout-shipping select {
     font-size: 14px;
@@ -2987,7 +2978,7 @@ textarea:-webkit-autofill {
 }
 
 .order_place {
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     display: block;
     width: 100%;
     border-radius: 5px;
@@ -3019,7 +3010,7 @@ textarea:-webkit-autofill {
 .contact-form textarea:focus {
     border: 1px solid #ddd;
     border-radius: 0;
-    background: {{$generalsetting->primary_color}}00;
+    background: #303d6e00;
     color: #ffffff; /* typed text white */
 }
 
@@ -3509,7 +3500,7 @@ section.product-inner {
 
 .product_item:hover {
     margin-top: 4px;
-    border-color: {{$generalsetting->primary_color}};
+    border-color: #303d6e;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 .cart_btn.order_button a {
@@ -3684,7 +3675,7 @@ section.product-inner {
 }
 
 .pro_btn button {
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     color: #fff;
     width: 60%;
     padding: 6px 0px;
@@ -3696,7 +3687,7 @@ section.product-inner {
 }
 
 .cart_btn a {
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     width: 100%;
     display: block;
     height: 100%;
@@ -3753,7 +3744,7 @@ section.product-inner {
 }
 
 .success-title h2 {
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
     text-align: center;
     font-weight: 600;
     font-size: 26px;
@@ -4146,7 +4137,7 @@ form.sort-form .form-select:focus {
 
 .details_slider {
     position: relative;
-    border: 1px solid {{$generalsetting->primary_color}};
+    border: 1px solid #303d6e;
     border-radius: 5px;
 }
 
@@ -4183,7 +4174,7 @@ form.sort-form .form-select:focus {
 
 #content {
     width: 100%;
-    padding-top: {{ $contentPaddingTop }};
+    padding-top: 156px;
 }
 
 @media only screen and (min-width: 992px) {
@@ -4236,7 +4227,7 @@ form.sort-form .form-select:focus {
 a.view_more_btn {
     text-align: right;
     float: right;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     text-transform: capitalize;
     font-size: 15px;
     padding: 10px 15px;
@@ -4333,7 +4324,7 @@ ul.social_link {
 }
 
 .contact-form {
-    background: linear-gradient(135deg, {{$generalsetting->primary_color}}, #3b4fb5); /* gradient background */
+    background: linear-gradient(135deg, #303d6e, #3b4fb5); /* gradient background */
     padding: 50px;
     border-radius: 20px;
     margin-top: 12px; /* space from header */
@@ -4460,7 +4451,7 @@ ul.social_link {
 .timer_inner .syotimer-cell {
     width: 38px;
     text-align: center;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     color: #fff;
     border-radius: 5px;
     font-size: 15px;
@@ -4540,7 +4531,7 @@ ul.social_link {
     background-color: #fff;
     padding: 10px;
     width: 100%;
-    box-shadow: 0px 0px 1px {{$generalsetting->primary_color}};
+    box-shadow: 0px 0px 1px #303d6e;
 }
 
 .desc-nav-ul {
@@ -4569,7 +4560,7 @@ ul.social_link {
     margin-top: 10px;
     background: #ffffff;
     padding: 15px;
-    border: 1px solid {{$generalsetting->primary_color}};  
+    border: 1px solid #303d6e;  
     border-radius: 5px;    
     box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
 }
@@ -4621,7 +4612,7 @@ a.forget-link {
 }
 
 .cart_btn.order_button a {
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     color: #fff;
     width: 60%;
     padding: 6px 0px;
@@ -4712,7 +4703,7 @@ ul.child-category {
 }
 
 .cat_item:hover {
-    border-color: {{$generalsetting->primary_color}};
+    border-color: #303d6e;
 }
 
 .footertop_ads_inner {
@@ -4732,7 +4723,7 @@ ul.child-category {
     right: 34px !important;
     bottom: 10px !important;
     width: 40px !important;
-    background: {{$generalsetting->primary_color}} !important;
+    background: #303d6e !important;
     height: 40px !important;
     line-height: 40px !important;
     border-radius: 50% !important;
@@ -4764,7 +4755,7 @@ ul.child-category {
     background: #ffffff;
     margin:0;
     border-radius: 5px;
-    border: 1px solid {{$generalsetting->primary_color}};
+    border: 1px solid #303d6e;
     padding: 0px 5px;
 }
 
@@ -4884,7 +4875,7 @@ section.pro_details_area .product-details-content-row {
 }
 
 .details_right {
-    border: 1px solid {{$generalsetting->primary_color}};
+    border: 1px solid #303d6e;
     padding: 10px 20px 15px;
     height: auto;
     border-radius: 5px;
@@ -4945,7 +4936,7 @@ td.tfoot_bg {
     line-height: 10px;
 }
 .product-details-discount-badge span.sale-badge-text {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: #303d6e;
     border-radius: 50%;
     width: 45px;
     height: 45px;
@@ -4982,7 +4973,7 @@ td.tfoot_bg {
 
 li.all__category__list {
     padding: 1px 0px 0px 9px;
-    background: {{$generalsetting->secodery_color}};
+    background: #ff0000;
     width: 289px;
     font-size: 19px;
     font-weight: 400;
@@ -4998,7 +4989,7 @@ li.all__category__list {
     transition: all 0.3s ease;
     width: 290px;
     border-radius: 0px;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
 }
 li.all__category__list:hover .side__bar{
     opacity: 1;
@@ -5017,11 +5008,11 @@ li.all__category__list:hover .side__bar{
 .side__barsub{
     width: 290px;
     border-radius: 0px;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
 }.side__barchild{
     width: 290px;
     border-radius: 0px;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
 }
 
 li.all__category__list i {
@@ -5089,7 +5080,7 @@ body {
     left: 0;
     width: 60px;
     height: 2px;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
 }
 
 /* 🏷️ Home Categories Section — Tight Gap between Title and Items */
@@ -5115,7 +5106,7 @@ body {
     text-align: center;
 }
 .cat_item:hover {
-    border-color: {{$generalsetting->primary_color}};
+    border-color: #303d6e;
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.07);
 }
@@ -5221,7 +5212,7 @@ body {
     display: inline-block;
     width: 4px;
     height: 18px;
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     border-radius: 2px;
     margin-right: 8px;
     vertical-align: middle;
@@ -5230,8 +5221,8 @@ body {
 .view_more_btn {
     font-size: 13px;
     font-weight: 600;
-    color: {{$generalsetting->primary_color}};
-    border: 1px solid {{$generalsetting->primary_color}};
+    color: #303d6e;
+    border: 1px solid #303d6e;
     padding: 4px 14px;
     border-radius: 20px;
     transition: all 0.2s ease;
@@ -5239,7 +5230,7 @@ body {
     flex-shrink: 0;
 }
 .view_more_btn:hover {
-    background: {{$generalsetting->primary_color}};
+    background: #303d6e;
     color: #fff;
 }
 
@@ -5258,7 +5249,7 @@ body {
     font-size: 13.5px;
     transition: color 0.2s;
 }
-.category-breadcrumb a:hover { color: {{$generalsetting->primary_color}}; }
+.category-breadcrumb a:hover { color: #303d6e; }
 .category-breadcrumb span { color: #94a3b8; font-size: 13px; }
 .category-breadcrumb strong { color: #1e293b; font-size: 13.5px; }
 
@@ -5298,7 +5289,7 @@ body {
 }
 
 .sidebar_item h2.accordion-header button.accordion-button:not(.collapsed) {
-    color: {{$generalsetting->primary_color}} !important;
+    color: #303d6e !important;
 }
 
 .accordion-body.cust_according_body {
@@ -5313,7 +5304,7 @@ body {
     transition: color 0.2s;
 }
 .accordion-body.cust_according_body ul li a:hover {
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
     padding-left: 4px;
 }
 
@@ -5398,7 +5389,7 @@ form.sort-form .form-select {
     flex-shrink: 0;
 }
 .indicator-item:hover, .indicator-item.active {
-    border-color: {{$generalsetting->primary_color}};
+    border-color: #303d6e;
 }
 .indicator-item img {
     width: 100%;
@@ -5445,7 +5436,7 @@ form.sort-form .form-select {
 .details-price {
     font-size: 26px;
     font-weight: 800;
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
     margin: 8px 0 6px;
     display: flex;
     align-items: center;
@@ -5471,7 +5462,7 @@ form.sort-form .form-select {
 .details-ratting-wrapper span { font-size: 13px; color: #64748b; }
 .all-reviews-button {
     font-size: 13px;
-    color: {{$generalsetting->primary_color}};
+    color: #303d6e;
     text-decoration: underline;
     margin-left: 6px;
 }
@@ -5550,9 +5541,9 @@ form.sort-form .form-select {
     transition: all 0.2s;
 }
 .selector-item_radio:checked + .selector-item_label {
-    border-color: {{$generalsetting->primary_color}};
-    background: {{$generalsetting->primary_color}}18;
-    color: {{$generalsetting->primary_color}};
+    border-color: #303d6e;
+    background: #303d6e18;
+    color: #303d6e;
 }
 
 /* 🎨 Matching Border for Color Swatches (same as Size & Variant) */
@@ -5576,8 +5567,8 @@ form.sort-form .form-select {
     transform: scale(1.06);
 }
 .pro-color .selector-item_radio:checked + .selector-item_label {
-    border-color: {{$generalsetting->primary_color}} !important;
-    outline: 2px solid {{$generalsetting->primary_color}} !important;
+    border-color: #303d6e !important;
+    outline: 2px solid #303d6e !important;
     outline-offset: 2px !important;
     transform: scale(1.08);
     box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
@@ -5626,8 +5617,8 @@ form.sort-form .form-select {
     font-weight: 700;
     border-radius: 8px !important;
     background: #fff !important;
-    border: 2px solid {{$generalsetting->primary_color}} !important;
-    color: {{$generalsetting->primary_color}} !important;
+    border: 2px solid #303d6e !important;
+    color: #303d6e !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -5635,7 +5626,7 @@ form.sort-form .form-select {
     margin-top: 0 !important;
 }
 .add_cart_btn:hover {
-    background: {{$generalsetting->primary_color}} !important;
+    background: #303d6e !important;
     color: #fff !important;
 }
 
@@ -5667,8 +5658,8 @@ form.sort-form .form-select {
     font-size: 15px;
     font-weight: 700;
     border-radius: 8px !important;
-    background: {{$generalsetting->primary_color}} !important;
-    border: 2px solid {{$generalsetting->primary_color}} !important;
+    background: #303d6e !important;
+    border: 2px solid #303d6e !important;
     color: #fff !important;
     display: flex;
     align-items: center;
@@ -5678,13 +5669,13 @@ form.sort-form .form-select {
     margin-left: 0 !important;
     margin-top: 0 !important;
     animation: orderBtnShake 2.5s infinite ease-in-out !important;
-    box-shadow: 0 4px 14px {{$generalsetting->primary_color}}66 !important;
+    box-shadow: 0 4px 14px #303d6e66 !important;
     position: relative !important;
 }
 .order_now_btn:hover {
     animation: none !important;
     transform: scale(1.03) !important;
-    box-shadow: 0 6px 20px {{$generalsetting->primary_color}}99 !important;
+    box-shadow: 0 6px 20px #303d6e99 !important;
 }
 
 .call_now_btn {
@@ -5744,8 +5735,8 @@ section.pro_details_area {
     transition: all 0.2s;
 }
 .desc-nav-ul li a:hover {
-    color: {{$generalsetting->primary_color}};
-    border-color: {{$generalsetting->primary_color}};
+    color: #303d6e;
+    border-color: #303d6e;
 }
 
 /* ----- BANNER ADS SECTIONS ----- */

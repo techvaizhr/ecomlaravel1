@@ -169,6 +169,11 @@ class GeneralSettingController extends Controller
         Cache::forget('pages_right');
         Cache::forget('common_menu');
 
+        try {
+            @file_put_contents(public_path('style.css'), view('frontEnd.assets.style')->render());
+            @file_put_contents(public_path('responsive.css'), view('frontEnd.assets.responsive')->render());
+        } catch (\Throwable $e) {}
+
         Toastr::success('Settings updated successfully!', 'Success');
         return redirect()->route('settings.edit', $update_data->id);
     }
