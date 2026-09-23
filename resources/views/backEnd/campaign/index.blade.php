@@ -225,7 +225,7 @@
 
                             {{-- Live Link --}}
                             <td>
-                                <a href="{{ route('campaign.show', $value->slug) }}" target="_blank" class="badge bg-light text-primary border py-2 px-3 fw-semibold d-inline-flex align-items-center gap-1" title="View live landing page">
+                                <a href="{{ route('campaign', $value->slug) }}" target="_blank" class="badge bg-light text-primary border py-2 px-3 fw-semibold d-inline-flex align-items-center gap-1" title="View live landing page">
                                     /campaign/{{ $value->slug }}
                                     <i data-feather="external-link" style="width: 12px; height: 12px;"></i>
                                 </a>
@@ -248,7 +248,7 @@
                             {{-- Actions --}}
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a href="{{ route('campaign.show', $value->slug) }}" target="_blank" class="btn-action-icon text-success" title="View Landing Page">
+                                    <a href="{{ route('campaign', $value->slug) }}" target="_blank" class="btn-action-icon text-success" title="View Landing Page">
                                         <i data-feather="eye" style="width:14px; height:14px;"></i>
                                     </a>
                                     

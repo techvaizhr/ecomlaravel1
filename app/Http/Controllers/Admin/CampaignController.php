@@ -297,4 +297,31 @@ class CampaignController extends Controller
         return isset($matches[1]) ? $matches[1] : null;
     }
 
+    /**
+     * Show / redirect to the frontend landing page for the campaign
+     */
+    public function show($id)
+    {
+        $campaign = Campaign::where('id', $id)->orWhere('slug', $id)->first();
+        if (!$campaign) {
+            Toastr::error('Campaign not found', 'Failed!');
+            return redirect()->route('campaign.index');
+        }
+
+        return redirect()->route('campaign', $campaign->slug);
+    }
+
+    /**
+     * Handle image upload from campaign builder
+     */
+    public function uploadBuilderImage(Request $request)
+    {
+        if ($request->hasFile('image')) {
+            $url = ImageOptimizer::store($request->file('image'), 'public/uploads/campaign/');
+            return response()->json(['url' => asset($url)]);
+        }
+
+        return response()->json(['error' => 'No image uploaded'], 400);
+    }
+
 }
