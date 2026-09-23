@@ -1211,9 +1211,9 @@
       $activeSection = 'section-catalog';
   } elseif (request()->routeIs('admin.fund.*', 'admin.expenses.*')) {
       $activeSection = 'section-finance';
-  } elseif (request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*', 'paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*', 'email_setting*', 'backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*', 'admin.seo_settings.*', 'admin.sitemap.*', 'admin.cron.*', 'error-log.*')) {
+  } elseif (request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*', 'email_setting*', 'backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*', 'admin.seo_settings.*', 'admin.sitemap.*', 'admin.cron.*', 'error-log.*')) {
       $activeSection = 'section-settings';
-  } elseif (request()->routeIs('admin.ads_analytics.*', 'tagmanagers.*', 'pixels.*', 'tiktok.pixels.*', 'admin.facebook_page.*', 'admin.reports.*')) {
+  } elseif (request()->routeIs('admin.ads_analytics.*', 'tagmanagers.*', 'pixels.*', 'tiktok.pixels.*', 'paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*', 'admin.facebook_page.*', 'admin.reports.*')) {
       $activeSection = 'section-analytics';
   } elseif (request()->routeIs('campaign.*', 'admin.coupons.*', 'banners.*', 'admin.popup.*', 'admin.sale-notification.*', 'reviews.*', 'admin.blog.*', 'admin.sms.custom.*')) {
       $activeSection = 'section-marketing';
@@ -1261,7 +1261,7 @@
             </a>
             @endcanany
 
-            @canany(['pixel-manage', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+            @canany(['pixel-manage', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report', 'api-manage', 'fraud-setting-list'])
             <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-analytics' ? 'active' : '' }}" data-section="section-analytics" title="Analytics & Reports" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="bar-chart-2"></i>
             </a>
@@ -1723,30 +1723,6 @@
                 </li>
                 @endcanany
 
-                @canany(['api-manage', 'fraud-setting-list'])
-                <li class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'menuitem-active' : '' }}">
-                  <a href="#sub-api" data-bs-toggle="collapse" class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'active' : '' }}">
-                    <i data-feather="save"></i>
-                    <span> API Integration </span>
-                    <span class="menu-arrow"></span>
-                  </a>
-                  <div class="collapse {{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'show' : '' }}" id="sub-api">
-                    <ul class="subpanel-nested-menu">
-                      @can('api-manage')
-                      <li><a href="{{ route('paymentgeteway.manage') }}" class="{{ request()->routeIs('paymentgeteway.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Payment Gateway</a></li>
-                      <li><a href="{{ route('manual-payment-gateway.manage') }}" class="{{ request()->routeIs('manual-payment-gateway.*') ? 'active' : '' }}"><i data-feather="credit-card"></i> Manual Payment</a></li>
-                      <li><a href="{{ route('smsgeteway.manage') }}" class="{{ request()->routeIs('smsgeteway.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> SMS Gateway</a></li>
-                      <li><a href="{{ route('courierapi.manage') }}" class="{{ request()->routeIs('courierapi.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Courier API</a></li>
-                      <li><a href="{{ route('admin.facebook_capi.edit') }}" class="{{ request()->routeIs('admin.facebook_capi.*') ? 'active' : '' }}"><i data-feather="facebook"></i> Facebook CAPI</a></li>
-                      <li><a href="{{ route('admin.gemini_ai.edit') }}" class="{{ request()->routeIs('admin.gemini_ai.*') ? 'active' : '' }}"><i data-feather="cpu"></i> Gemini AI</a></li>
-                      @endcan
-                      @can('fraud-setting-list')
-                      <li><a href="{{ route('admin.fraud.index') }}" class="{{ request()->routeIs('admin.fraud.*') ? 'active' : '' }}"><i data-feather="key"></i> Manage Fraud API</a></li>
-                      @endcan
-                    </ul>
-                  </div>
-                </li>
-                @endcanany
 
                 @can('email-setting-list')
                 <li class="{{ request()->routeIs('email_setting*') ? 'menuitem-active' : '' }}">
@@ -1864,6 +1840,31 @@
                     </ul>
                   </div>
                 </li>
+
+                @canany(['api-manage', 'fraud-setting-list'])
+                <li class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-api" data-bs-toggle="collapse" class="{{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'active' : '' }}">
+                    <i data-feather="cpu"></i>
+                    <span> API Integration </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*') ? 'show' : '' }}" id="sub-api">
+                    <ul class="subpanel-nested-menu">
+                      @can('api-manage')
+                      <li><a href="{{ route('paymentgeteway.manage') }}" class="{{ request()->routeIs('paymentgeteway.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Payment Gateway</a></li>
+                      <li><a href="{{ route('manual-payment-gateway.manage') }}" class="{{ request()->routeIs('manual-payment-gateway.*') ? 'active' : '' }}"><i data-feather="credit-card"></i> Manual Payment</a></li>
+                      <li><a href="{{ route('smsgeteway.manage') }}" class="{{ request()->routeIs('smsgeteway.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> SMS Gateway</a></li>
+                      <li><a href="{{ route('courierapi.manage') }}" class="{{ request()->routeIs('courierapi.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Courier API</a></li>
+                      <li><a href="{{ route('admin.facebook_capi.edit') }}" class="{{ request()->routeIs('admin.facebook_capi.*') ? 'active' : '' }}"><i data-feather="facebook"></i> Facebook CAPI</a></li>
+                      <li><a href="{{ route('admin.gemini_ai.edit') }}" class="{{ request()->routeIs('admin.gemini_ai.*') ? 'active' : '' }}"><i data-feather="cpu"></i> Gemini AI</a></li>
+                      @endcan
+                      @can('fraud-setting-list')
+                      <li><a href="{{ route('admin.fraud.index') }}" class="{{ request()->routeIs('admin.fraud.*') ? 'active' : '' }}"><i data-feather="key"></i> Manage Fraud API</a></li>
+                      @endcan
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
 
                 <li class="{{ request()->routeIs('admin.facebook_page.*') ? 'menuitem-active' : '' }}">
                   <a href="{{ route('admin.facebook_page.settings') }}" class="{{ request()->routeIs('admin.facebook_page.*') ? 'active' : '' }}">
