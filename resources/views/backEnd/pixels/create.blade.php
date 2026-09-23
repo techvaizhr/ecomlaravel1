@@ -129,6 +129,29 @@
                         </div>
 
                         <div class="form-group mb-4">
+                            <label for="access_token" class="form-label">Events API Access Token (CAPI) <small class="text-muted">(Optional - for server-side Conversions API)</small></label>
+                            <textarea class="form-control @error('access_token') is-invalid @enderror" 
+                                      name="access_token" id="access_token" rows="3" 
+                                      placeholder="Meta Events Manager → Settings → Conversions API → Generate Access Token">{{ old('access_token') }}</textarea>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fe-info"></i> If provided, purchase and conversion events will be sent via Facebook Conversions API with 100% server reliability and deduplication.
+                            </small>
+                            @error('access_token')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="test_event_code" class="form-label">Test Event Code <small class="text-muted">(Optional - for Meta Test Events tool)</small></label>
+                            <input type="text" class="form-control @error('test_event_code') is-invalid @enderror" 
+                                   name="test_event_code" value="{{ old('test_event_code') }}" id="test_event_code" 
+                                   placeholder="e.g. TEST12345">
+                            @error('test_event_code')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-4">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded bg-light">
                                 <div>
                                     <label class="form-label mb-0 text-dark">Active Status</label>

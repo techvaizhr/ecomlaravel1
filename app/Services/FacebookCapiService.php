@@ -40,22 +40,23 @@ class FacebookCapiService
             }
         } catch (\Throwable $e) {}
 
-        // 2. Also check if active EcomPixel records exist and we have a token
+        // 2. Also check if active EcomPixel records exist
         try {
             $defaultToken = !empty($configs) ? reset($configs)['access_token'] : (config('services.facebook.access_token') ?? env('FACEBOOK_ACCESS_TOKEN'));
             $defaultTestCode = !empty($configs) ? reset($configs)['test_event_code'] : (config('services.facebook.test_event_code') ?? env('FACEBOOK_TEST_EVENT_CODE'));
 
-            if ($defaultToken) {
-                $ecomPixels = \App\Models\EcomPixel::where('status', 1)->get();
-                foreach ($ecomPixels as $ep) {
-                    $code = trim($ep->code);
-                    if ($code && !isset($configs[$code])) {
-                        $configs[$code] = [
-                            'pixel_id'        => $code,
-                            'access_token'    => $defaultToken,
-                            'test_event_code' => $defaultTestCode,
-                        ];
-                    }
+            $ecomPixels = \App\Models\EcomPixel::where('status', 1)->get();
+            foreach ($ecomPixels as $ep) {
+                $code = trim($ep->code ?? '');
+                $token = !empty($ep->access_token) ? trim($ep->access_token) : $defaultToken;
+                $testCode = !empty($ep->test_event_code) ? trim($ep->test_event_code) : $defaultTestCode;
+
+                if ($code && $token && !isset($configs[$code])) {
+                    $configs[$code] = [
+                        'pixel_id'        => $code,
+                        'access_token'    => $token,
+                        'test_event_code' => $testCode,
+                    ];
                 }
             }
         } catch (\Throwable $e) {}

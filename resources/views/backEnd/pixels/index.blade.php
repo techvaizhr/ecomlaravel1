@@ -209,11 +209,18 @@
                             
                             {{-- Code --}}
                             <td>
-                                <span class="pixel-badge" onclick="copyPixelCode('{{ $value->code }}')" title="Click to copy">
-                                    <i data-feather="code" style="width: 14px; height: 14px;"></i>
-                                    {{ $value->code }}
-                                    <i data-feather="copy" style="width: 12px; height: 12px;" class="text-muted ms-1"></i>
-                                </span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="pixel-badge" onclick="copyPixelCode('{{ $value->code }}')" title="Click to copy">
+                                        <i data-feather="code" style="width: 14px; height: 14px;"></i>
+                                        {{ $value->code }}
+                                        <i data-feather="copy" style="width: 12px; height: 12px;" class="text-muted ms-1"></i>
+                                    </span>
+                                    @if(!empty($value->access_token))
+                                        <span class="badge bg-soft-info text-info border border-info border-opacity-25" title="Server-side CAPI enabled">
+                                            <i class="fas fa-server me-1"></i> CAPI Active
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
 
                             {{-- Status --}}
