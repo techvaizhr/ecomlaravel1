@@ -1020,6 +1020,16 @@ class FrontendController extends Controller
                 : view('frontEnd.layouts.ajax.cart');
         }
 
+        // Campaign / area based shipping charge
+        if ($request->boolean('campaign')) {
+            $charge = \App\Models\ShippingCharge::where('id', $request->id)->where('status', 1)->first();
+            if ($charge) {
+                Session::put('shipping', (int) $charge->amount);
+                Session::put('shipping_district_id', null);
+            }
+            return view('frontEnd.layouts.ajax.campaign-cart-table');
+        }
+
         $district = DeliveryDistrict::query()->whereKey($request->id)->where('status', 1)->first();
         if ($district) {
             Session::put('shipping', (int) $district->delivery_charge);
@@ -1172,8 +1182,8 @@ class FrontendController extends Controller
             // Silently fail — page load block করবে না
         }
 
-        // Page builder দিয়ে ডিজাইন করা থাকলে আলাদা ভিউ
-        if (!empty($campaign_data->page_html)) {
+        // Page builder দিয়ে ডিজাইন করা থাকলে আলাদা ভিউ (যদি টেমপ্লেট ফাইল থাকে)
+        if (!empty($campaign_data->page_html) && view()->exists('frontEnd.layouts.pages.campaign.campaign-builder')) {
             return view('frontEnd.layouts.pages.campaign.campaign-builder', compact('campaign_data', 'products', 'shippingcharge', 'fb_view_content_event_id', 'campaignVariants'));
         }
 

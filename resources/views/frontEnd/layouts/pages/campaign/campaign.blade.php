@@ -18,6 +18,7 @@
         <!-- common css -->
         <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/style.css" />
         <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/responsive.css" />
+        <link rel="stylesheet" href="{{ asset('public/backEnd/assets/css/toastr.min.css') }}" />
         <!-- ========== DataLayer Initialization ========== -->
         @php
             $camp_name      = strip_tags($campaign_data->name ?? '');
@@ -43,6 +44,12 @@
                     'quantity'  => 1,
                 ];
             })->values();
+            $primary_gtm_item = $_firstProd ? [
+                'item_id'   => (string) $_firstProd->id,
+                'item_name' => strip_tags($_firstProd->name ?? ''),
+                'price'     => (float)  $_firstProd->new_price,
+                'quantity'  => 1,
+            ] : null;
         @endphp
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -56,6 +63,31 @@
             window._campaignProducts = {!! json_encode($camp_products) !!};
             window._campaignVariants = @json($campaignVariants ?? []);
             window._singleCampaignProductId = @json($products->isNotEmpty() ? (string) $products->first()->id : null);
+
+            // 1. General page data for GTM
+            dataLayer.push({
+                event:         'site_page_data',
+                page_type:     'campaign_landing',
+                page_url:      window.location.href,
+                currency:      'BDT',
+                campaign_id:   {{ json_encode($camp_id) }},
+                campaign_name: {{ json_encode($camp_name) }}
+            });
+
+            // 2. GA4 Standard view_item (for Google Analytics 4 Ecommerce)
+            @if($primary_gtm_item)
+            dataLayer.push({ ecommerce: null });
+            dataLayer.push({
+                event: 'view_item',
+                ecommerce: {
+                    currency: 'BDT',
+                    value: {{ $camp_value }},
+                    items: [{!! json_encode($primary_gtm_item) !!}]
+                }
+            });
+            @endif
+
+            // 3. Campaign page loaded event
             dataLayer.push({
                 event:         'campaign_page_loaded',
                 page_type:     'campaign_landing',
@@ -141,7 +173,7 @@
         <script>
             !function (w, d, t) {
                 w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
-                ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];
+                ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
                 ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
                 for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
                 ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
@@ -155,12 +187,23 @@
             @endforeach
             ttq.page();
             ttq.track('ViewContent', {
+                content_id:   {{ json_encode($_firstProd ? (string)$_firstProd->id : $camp_id) }},
                 content_name: {{ json_encode($camp_name) }},
-                content_id:   {{ json_encode($camp_id) }},
                 content_type: 'product',
                 value:        {{ $camp_value }},
                 currency:     'BDT',
-                quantity:     1
+                quantity:     1,
+                contents: [
+                    @foreach($products as $p)
+                    {
+                        content_id:   {{ json_encode((string)$p->id) }},
+                        content_name: {{ json_encode(strip_tags($p->name)) }},
+                        content_type: 'product',
+                        price:        {{ (float)$p->new_price }},
+                        quantity:     1
+                    }@if(!$loop->last),@endif
+                    @endforeach
+                ]
             });
         </script>
         @endif
@@ -730,8 +773,11 @@
                 </div>
                 <div class="col-lg-5 cus-order-2">
                     <div class="checkout-shipping" id="order_form">
-                        <form action="{{route('customer.ordersave')}}" method="POST" data-parsley-validate="">
+                        <form action="{{route('customer.ordersave')}}" method="POST">
                         @csrf
+                        <input type="hidden" name="payment_method" value="cod">
+                        <input type="hidden" name="campaign" value="1">
+                        @include('frontEnd.layouts.partials.traffic-attribution')
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="potro_font">আপনার ইনফরমেশন দিন  </h5>
@@ -753,7 +799,7 @@
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
                                             <label for="phone">আপনার মোবাইল লিখুন *</label>
-                                            <input type="number" minlength="11" id="number" maxlength="11" pattern="0[0-9]+" title="please enter number only and 0 must first character" title="Please enter an 11-digit number." id="phone" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="+৮৮ বাদে ১১ সংখ্যা "  required>
+                                            <input type="tel" id="phone" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="01XXXXXXXXX" pattern="0[0-9]{10}" maxlength="11" minlength="11" required>
                                             @error('phone')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -764,9 +810,9 @@
                                     <!-- col-end -->
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="address">আপনার ঠিকানা লিখুন   *</label>
-                                            <input type="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="জেলা, থানা, গ্রাম " name="address" value="{{old('address')}}"  required>
-                                            @error('email')
+                                            <label for="address">আপনার ঠিকানা লিখুন *</label>
+                                            <input type="text" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="জেলা, থানা, গ্রাম " name="address" value="{{old('address')}}" required>
+                                            @error('address')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -775,13 +821,13 @@
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="area">আপনার এরিয়া সিলেক্ট করুন  *</label>
-                                            <select type="area" id="area" class="form-control @error('area') is-invalid @enderror" name="area"   required>
+                                            <label for="area">আপনার এরিয়া সিলেক্ট করুন *</label>
+                                            <select id="area" class="form-control @error('area') is-invalid @enderror" name="area" required>
                                                 @foreach($shippingcharge as $key=>$value)
                                                 <option value="{{$value->id}}">{{$value->name}}</option>
                                                 @endforeach
                                             </select>
-                                            @error('email')
+                                            @error('area')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -1054,7 +1100,14 @@
                         content_type: 'product',
                         value:        prodPrice,
                         currency:     'BDT',
-                        quantity:     1
+                        quantity:     1,
+                        contents: [{
+                            content_id:   String(productId),
+                            content_name: prodName,
+                            content_type: 'product',
+                            price:        prodPrice,
+                            quantity:     1
+                        }]
                     });
                 }
             }
@@ -1193,14 +1246,25 @@
                 // ========== InitiateCheckout + Lead — Order Form Submit ==========
                 $('form[action="{{ route("customer.ordersave") }}"]').on('submit', function() {
                     var subtotalVal   = parseFloat($('#net_total strong').text().replace(/[^0-9.]/g, '')) || 0;
-                    var contentIds    = window._campaignProducts ? window._campaignProducts.map(function(p){ return p.id; }) : [];
+                    var currentProdId = String(getCurrentCampaignProductId() || window._singleCampaignProductId || '');
+                    var selProd       = window._campaignProducts
+                        ? window._campaignProducts.find(function(p){ return p.id === currentProdId; })
+                        : null;
+                    var prodPrice     = selProd ? selProd.price : subtotalVal;
+                    var prodName      = selProd ? selProd.name : {{ json_encode($camp_name) }};
+                    var contentIds    = currentProdId ? [currentProdId] : (window._campaignProducts ? window._campaignProducts.map(function(p){ return p.id; }) : []);
                     var icEventId     = 'ic_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
                     var leadEventId   = 'lead_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
                     var campItems     = window._campaignProducts
                         ? window._campaignProducts.map(function(p, i){
                             return {item_id: p.id, item_name: p.name, price: p.price, index: i, quantity: 1};
                           })
-                        : [];
+                        : [{
+                            item_id:   currentProdId || '{{ $campaign_data->id }}',
+                            item_name: prodName,
+                            price:     prodPrice,
+                            quantity:  1
+                          }];
 
                     // GTM — begin_checkout
                     dataLayer.push({'ecommerce': null});
@@ -1213,8 +1277,18 @@
                         }
                     });
 
-                    // Facebook Pixel — InitiateCheckout + Lead
+                    // Facebook Pixel — InitiateCheckout + Lead with user matching
                     if (typeof fbq !== 'undefined') {
+                        var rawPhone = ($('#phone').val() || '').replace(/\D/g, '');
+                        if (rawPhone.length === 11 && rawPhone.charAt(0) === '0') rawPhone = '880' + rawPhone.slice(1);
+                        var rawName = ($('#name').val() || '').trim();
+                        var nameParts = rawName.split(/\s+/);
+                        var fbUserData = { country: 'bd' };
+                        if (rawPhone) fbUserData.ph = rawPhone;
+                        if (nameParts[0]) fbUserData.fn = nameParts[0].toLowerCase();
+                        if (nameParts.slice(1).join(' ')) fbUserData.ln = nameParts.slice(1).join(' ').toLowerCase();
+                        try { fbq('set', 'userData', fbUserData); } catch(e) {}
+
                         fbq('track', 'InitiateCheckout', {
                             content_ids:  contentIds,
                             content_type: 'product',
@@ -1222,6 +1296,7 @@
                             currency:     'BDT',
                             num_items:    contentIds.length
                         }, {eventID: icEventId});
+
                         fbq('track', 'Lead', {
                             value:        subtotalVal,
                             currency:     'BDT',
@@ -1229,14 +1304,46 @@
                         }, {eventID: leadEventId});
                     }
 
-                    // TikTok Pixel — InitiateCheckout
+                    // TikTok Pixel — InitiateCheckout + PlaceAnOrder
                     if (typeof ttq !== 'undefined') {
+                        var ttPhone = ($('#phone').val() || '').replace(/\D/g, '');
+                        if (ttPhone.length === 11 && ttPhone.charAt(0) === '0') ttPhone = '+880' + ttPhone.slice(1);
+                        if (ttPhone && typeof ttq.identify === 'function') {
+                            try { ttq.identify({ phone_number: ttPhone }); } catch(e) {}
+                        }
+
+                        var ttContents = (window._campaignProducts && window._campaignProducts.length > 0)
+                            ? window._campaignProducts.map(function(p){
+                                return {
+                                    content_id:   String(p.id),
+                                    content_name: p.name,
+                                    content_type: 'product',
+                                    price:        p.price,
+                                    quantity:     1
+                                };
+                              })
+                            : [{
+                                content_id:   String(currentProdId || '{{ $camp_id }}'),
+                                content_name: {{ json_encode($camp_name) }},
+                                content_type: 'product',
+                                price:        subtotalVal,
+                                quantity:     1
+                              }];
+
                         ttq.track('InitiateCheckout', {
-                            content_ids:  contentIds,
                             content_type: 'product',
                             value:        subtotalVal,
                             currency:     'BDT',
-                            quantity:     contentIds.length
+                            quantity:     ttContents.length,
+                            contents:     ttContents
+                        });
+
+                        ttq.track('PlaceAnOrder', {
+                            content_type: 'product',
+                            value:        subtotalVal,
+                            currency:     'BDT',
+                            quantity:     ttContents.length,
+                            contents:     ttContents
                         });
                     }
                 });
@@ -1251,5 +1358,7 @@
                 });
             });
         </script>
+        <script src="{{ asset('public/backEnd/assets/js/toastr.min.js') }}"></script>
+        {!! Toastr::message() !!}
     </body>
 </html>

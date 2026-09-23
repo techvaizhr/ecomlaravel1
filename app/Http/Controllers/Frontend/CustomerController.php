@@ -788,15 +788,17 @@ public function order_save(Request $request)
 
         \App\Http\Controllers\Frontend\ShoppingController::refreshCartWholesalePrices();
 
+        $paymentMethod = $request->input('payment_method', 'cod') ?: 'cod';
+
         // ⭐ কার্টে ডিজিটাল প্রোডাক্ট আছে কি না চেক
         $hasDigital = \App\Http\Controllers\Frontend\ShoppingController::hasDigitalProductInCart();
 
-        if ($hasDigital && $request->payment_method === 'cod') {
+        if ($hasDigital && $paymentMethod === 'cod') {
             Toastr::error('ডিজিটাল প্রোডাক্টের জন্য Cash On Delivery পাওয়া যায় না, অনুগ্রহ করে অনলাইন পেমেন্ট সিলেক্ট করুন।', 'Failed!');
             return redirect()->back();
         }
 
-        $manualPayId = ManualPaymentGateway::manualIdFromPaymentMethod($request->payment_method);
+        $manualPayId = ManualPaymentGateway::manualIdFromPaymentMethod($paymentMethod);
         if ($manualPayId !== null) {
             $mg = ManualPaymentGateway::where('id', $manualPayId)->where('status', 1)->first();
             if (! $mg) {
@@ -823,6 +825,13 @@ public function order_save(Request $request)
         $districtId = null;
         $upazilaId = null;
 
+        $isCampaignOrder = $request->filled('area') && ! $request->filled('division_id');
+        $campaignAreaName = null;
+        if ($isCampaignOrder) {
+            $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
+            $campaignAreaName = $shippingCharge ? $shippingCharge->name : ($request->area ?? 'Campaign Area');
+        }
+
         $checkoutOtpVerified = false;
 
         // OTP মুলতুবি থাকলে আগে যাচাই — সেশন শুধু সব ভ্যালিডেশন পাসের পর মুছব
@@ -835,18 +844,32 @@ public function order_save(Request $request)
         }
 
         if ($requiresPhysicalShipping && ! $hasAllFreeDelivery) {
-            $this->validate($request, [
-                'division_id' => 'required|exists:divisions,id',
-                'district_id' => 'required|exists:districts,id',
-                'upazila_id'  => 'required|exists:upazilas,id',
-            ]);
-            $divisionId = (int) $request->division_id;
-            $districtId = (int) $request->district_id;
-            $upazilaId = (int) $request->upazila_id;
-            if (! DeliveryLocation::validateChain($divisionId, $districtId, $upazilaId)) {
-                Toastr::error('বিভাগ, জেলা ও উপজেলা সঠিকভাবে নির্বাচন করুন।', 'Failed!');
-                return redirect()->back()->withInput();
+            if ($isCampaignOrder) {
+                $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
+                $shippingfee = $shippingCharge ? (float) $shippingCharge->amount : (float) Session::get('shipping', 0);
+                Session::put('shipping', $shippingfee);
+                Session::put('shipping_district_id', null);
+            } else {
+                $this->validate($request, [
+                    'division_id' => 'required|exists:divisions,id',
+                    'district_id' => 'required|exists:districts,id',
+                    'upazila_id'  => 'required|exists:upazilas,id',
+                ]);
+                $divisionId = (int) $request->division_id;
+                $districtId = (int) $request->district_id;
+                $upazilaId = (int) $request->upazila_id;
+                if (! DeliveryLocation::validateChain($divisionId, $districtId, $upazilaId)) {
+                    Toastr::error('বিভাগ, জেলা ও উপজেলা সঠিকভাবে নির্বাচন করুন।', 'Failed!');
+                    return redirect()->back()->withInput();
+                }
+                $shippingfee = DeliveryLocation::chargeForDistrictId($districtId);
+                Session::put('shipping', $shippingfee);
+                Session::put('shipping_district_id', $districtId);
             }
+        } else {
+            $shippingfee = 0;
+            Session::put('shipping', 0);
+            Session::put('shipping_district_id', null);
         }
 
         if ($this->checkoutOtpIsEnabled() && ! $checkoutOtpVerified) {
@@ -864,19 +887,9 @@ public function order_save(Request $request)
         $subtotal = (float) str_replace([',','.00'],'',Cart::instance('shopping')->subtotal());
         $discount = Session::get('discount', 0);
 
-        if ($requiresPhysicalShipping && ! $hasAllFreeDelivery) {
-            $shippingfee = DeliveryLocation::chargeForDistrictId($districtId);
-            Session::put('shipping', $shippingfee);
-            Session::put('shipping_district_id', $districtId);
-        } else {
-            $shippingfee = 0;
-            Session::put('shipping', 0);
-            Session::put('shipping_district_id', null);
-        }
-
         $locationLabelForGateway = ($divisionId && $districtId && $upazilaId)
             ? DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId)
-            : 'BD';
+            : ($campaignAreaName ?: 'BD');
 
         // কার্টের advance item গুলোর মোট
         $advanceTotal = \App\Http\Controllers\Frontend\ShoppingController::getCartAdvanceAmount();
@@ -945,7 +958,7 @@ public function order_save(Request $request)
         $shipping->upazila_id  = $upazilaId;
         $shipping->area        = ($divisionId && $districtId && $upazilaId)
             ? DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId)
-            : 'Digital / Free Shipping';
+            : ($campaignAreaName ?: 'Digital / Free Shipping');
         $shipping->save();
 
         // BD Courier — ফোন অনুযায়ী সফলতার হার অর্ডার লিস্টে দেখাতে (চেকআউট রেসপন্স ব্লক না করে রিকোয়েস্ট শেষ হওয়ার পর রান)
@@ -960,12 +973,12 @@ public function order_save(Request $request)
         $payment = new Payment();
         $payment->order_id       = $order->id;
         $payment->customer_id    = $customer_id;
-        $payment->payment_method = $request->payment_method;
+        $payment->payment_method = $paymentMethod;
 
         // =========================================================
         // ⭐ ফিক্সড লজিক: ডাটাবেসে কত টাকা সেভ করব?
         // =========================================================
-        if (ManualPaymentGateway::usesHostedRedirect($request->payment_method)) {
+        if (ManualPaymentGateway::usesHostedRedirect($paymentMethod)) {
             // অনলাইন পেমেন্ট: শুরুতে ০ — কলব্যাকে আপডেট হবে
             $payment->amount = 0;
         } elseif ($manualPayId !== null) {
@@ -1067,12 +1080,12 @@ public function order_save(Request $request)
         // যাতে ওই কন্ট্রোলারগুলো সঠিক এমাউন্ট পায়
         Session::put('payable_amount', $payable_amount);
 
-        if($request->payment_method == 'bkash'){
+        if($paymentMethod == 'bkash'){
             Session::forget('coupon_code');
             Session::forget('discount');
             return redirect('/bkash/checkout-url/create?order_id='.$order->id);
 
-        } elseif($request->payment_method == 'shurjopay'){
+        } elseif($paymentMethod == 'shurjopay'){
 
             $info = [
                 'currency'        => "BDT",
@@ -1094,18 +1107,18 @@ public function order_save(Request $request)
             $sp = new ShurjopayController();
             return $sp->checkout($info);
 
-        } elseif($request->payment_method == 'uddoktapay'){
+        } elseif($paymentMethod == 'uddoktapay'){
             Session::forget('coupon_code');
             Session::forget('discount');
             return redirect()->route('uddoktapay.checkout',['order_id'=>$order->id]);
 
-        } elseif($request->payment_method == 'aamarpay'){
+        } elseif($paymentMethod == 'aamarpay'){
             Session::forget('coupon_code');
             Session::forget('discount');
             return redirect()->route('aamarpay.checkout',['order_id'=>$order->id]);
 
-        } elseif ($request->payment_method === 'cod'
-            || ManualPaymentGateway::isManualPaymentMethod($request->payment_method)) {
+        } elseif ($paymentMethod === 'cod'
+            || ManualPaymentGateway::isManualPaymentMethod($paymentMethod)) {
             // Cash On Delivery বা ম্যানুয়াল গাইডেড পেমেন্ট — সরাসরি সাফল্য পেইজ
             $this->createDigitalDownloads($order);
             
