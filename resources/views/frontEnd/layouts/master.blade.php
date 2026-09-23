@@ -4662,6 +4662,51 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<script type="speculationrules">
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": ["/customer/*", "/logout*", "/admin/*", "/checkout*", "*/add-to-cart*"] } }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+</script>
+<script>
+(function() {
+    // ⚡ Universal Instant-Page Prefetcher (SPA-like instant transitions)
+    var prefetched = new Set();
+    function prefetchUrl(url) {
+        if (!url || prefetched.has(url)) return;
+        if (url.indexOf(window.location.origin) !== 0 && url.indexOf('/') !== 0) return;
+        if (/logout|customer|checkout|admin|add-to-cart/i.test(url)) return;
+        prefetched.add(url);
+        var link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = url;
+        link.as = 'document';
+        document.head.appendChild(link);
+    }
+    document.addEventListener('mouseover', function(e) {
+        var a = e.target.closest('a');
+        if (a && a.href && a.origin === window.location.origin) {
+            prefetchUrl(a.href);
+        }
+    }, { passive: true });
+    document.addEventListener('touchstart', function(e) {
+        var a = e.target.closest('a');
+        if (a && a.href && a.origin === window.location.origin) {
+            prefetchUrl(a.href);
+        }
+    }, { passive: true });
+})();
+</script>
 
     </body>
 </html>
