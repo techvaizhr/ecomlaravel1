@@ -144,6 +144,11 @@
                             <label class="form-label">Product <span class="text-danger">*</span></label>
                             <select class="form-control select2" name="product_id" required>
                                 <option value="">Select Product...</option>
+                                @if($edit_data->product_id && !$products->contains('id', $edit_data->product_id))
+                                    <option value="{{ $edit_data->product_id }}" selected>
+                                        [Deleted / Inactive Product #{{ $edit_data->product_id }}]
+                                    </option>
+                                @endif
                                 @foreach($products as $value)
                                     <option value="{{$value->id}}" {{$edit_data->product_id==$value->id?'selected':''}}>
                                         {{$value->name}}

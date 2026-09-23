@@ -75,7 +75,9 @@
                                 <div class="pro_img">
                                     <a href="{{ route('product', $value->slug) }}">
                                         <img src="{{ asset($value->image ? $value->image->image : '') }}"
-                                            alt="{{ $value->name }}" />
+                                            alt="{{ $value->name }}"
+                                            loading="lazy"
+                                            decoding="async" />
                                     </a>
                                 </div>
 
@@ -89,7 +91,7 @@
                             </div>
 
                             @php
-                                $averageRating = $value->reviews->avg('ratting'); 
+                                $averageRating = (float) ($value->reviews_avg_ratting ?? ($value->relationLoaded('reviews') ? $value->reviews->avg('ratting') : 0)); 
                                 $filledStars = floor($averageRating);
                                 $hasHalfStar = $averageRating - $filledStars >= 0.5;
                                 $emptyStars = 5 - $filledStars - ($hasHalfStar ? 1 : 0);

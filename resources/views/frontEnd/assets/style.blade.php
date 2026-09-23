@@ -1404,7 +1404,7 @@ section.slider-section {
     object-fit: cover;
 }
 
-/* PC: Match sidebar menu height */
+/* PC: Match sidebar menu height & Allow Category Menu to Scroll Internally */
 @media (min-width: 992px) {
     .slider-section .row {
         display: flex;
@@ -1416,10 +1416,36 @@ section.slider-section {
         flex-direction: column;
     }
     .home-category-sidebar {
-        height: 100%;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+    .home-cat-list {
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f8fafc;
+    }
+    .home-cat-list::-webkit-scrollbar {
+        width: 5px;
+    }
+    .home-cat-list::-webkit-scrollbar-track {
+        background: #f8fafc;
+        border-radius: 4px;
+    }
+    .home-cat-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .home-cat-list::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
     }
     .home-slider-container {
-        height: 100%;
+        height: 100% !important;
         border-radius: 10px;
         overflow: hidden;
     }
@@ -1429,7 +1455,41 @@ section.slider-section {
     .main_slider .owl-item,
     .slider-item {
         height: 100% !important;
-        max-height: 360px;
+    }
+    .slider-item {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .slider-item img {
+        width: 100%;
+        height: 100% !important;
+        object-fit: cover;
+    }
+}
+
+@media (min-width: 1200px) {
+    .home-category-sidebar,
+    .home-slider-container,
+    .main_slider,
+    .main_slider .owl-stage-outer,
+    .main_slider .owl-stage,
+    .main_slider .owl-item,
+    .slider-item {
+        height: 385px !important;
+        max-height: 385px !important;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .home-category-sidebar,
+    .home-slider-container,
+    .main_slider,
+    .main_slider .owl-stage-outer,
+    .main_slider .owl-stage,
+    .main_slider .owl-item,
+    .slider-item {
+        height: 345px !important;
+        max-height: 345px !important;
     }
 }
 

@@ -23,6 +23,27 @@ class Order extends Model
         ];
     }
 
+    public static function flushStatusCache(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('order_status_list');
+        \Illuminate\Support\Facades\Cache::forget('order_statuses_list');
+        \Illuminate\Support\Facades\Cache::forget('all_orders_count');
+        \Illuminate\Support\Facades\Cache::forget('orders_count_all');
+        \Illuminate\Support\Facades\Cache::forget('new_order_count');
+        \Illuminate\Support\Facades\Cache::forget('pending_orders_list');
+        \Illuminate\Support\Facades\Cache::forget('incomplete_orders_count');
+    }
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            static::flushStatusCache();
+        });
+        static::deleted(function () {
+            static::flushStatusCache();
+        });
+    }
+
     // ============================
     // 🌟 RELATIONSHIPS
     // ============================

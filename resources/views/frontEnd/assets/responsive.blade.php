@@ -787,29 +787,41 @@ img {
         width: 100%;
         margin-left: 0;
         padding: 0;
+        border-radius: 10px;
+        overflow: hidden;
     }
 
     .slider-item {
         width: 100%;
-        height: auto;
-        max-height: 350px;
+        height: 260px;
         overflow: hidden;
+        border-radius: 10px;
     }
 
     .slider-item img {
         width: 100%;
-        height: 100%;
+        height: 100% !important;
         object-fit: cover;
     }
 }
 
 @media only screen and (max-width: 767px) {
     .slider-item {
-        height: 180px;
+        height: 220px !important;
+        border-radius: 10px;
+        overflow: hidden;
     }
 
     .slider-item img {
+        width: 100%;
+        height: 100% !important;
         object-fit: cover;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .slider-item {
+        height: 210px !important;
     }
 }
 

@@ -20,7 +20,7 @@ class ReviewController extends Controller
 
     public function index(Request $request)
     {
-        $query = Review::with('product');
+        $query = Review::with(['product', 'customer']);
 
         if ($request->filled('keyword')) {
             $keyword = trim($request->keyword);
@@ -115,7 +115,7 @@ class ReviewController extends Controller
  
     public function pending(Request $request)
     {
-        $query = Review::with('product')->where('status', 'pending');
+        $query = Review::with(['product', 'customer'])->where('status', 'pending');
 
         if ($request->filled('keyword')) {
             $keyword = trim($request->keyword);
@@ -151,27 +151,41 @@ class ReviewController extends Controller
     }
     public function inactive(Request $request){
         $inactive = Review::find($request->hidden_id);
-        $inactive->status = 'pending';
-        $inactive->save();
-        Toastr::success('Success','Data inactive successfully');
+        if ($inactive) {
+            $inactive->status = 'pending';
+            $inactive->save();
+            Toastr::success('Success','Data inactive successfully');
+        } else {
+            Toastr::error('Error','Review not found');
+        }
         return redirect()->back();
     }
     public function active(Request $request){
         $active = Review::find($request->hidden_id);
-        $active->status = 'active';
-        $active->save();
-        
-        $product = Product::select('id','ratting')->find($active->product_id);
-        $product->ratting += 1;
-        $product->save();
-        Toastr::success('Success','Data active successfully');
+        if ($active) {
+            $active->status = 'active';
+            $active->save();
+            
+            $product = Product::select('id','ratting')->find($active->product_id);
+            if ($product) {
+                $product->ratting = ($product->ratting ?? 0) + 1;
+                $product->save();
+            }
+            Toastr::success('Success','Data active successfully');
+        } else {
+            Toastr::error('Error','Review not found');
+        }
         return redirect()->back();
     }
     public function destroy(Request $request)
     {
         $delete_data = Review::find($request->hidden_id);
-        $delete_data->delete();
-        Toastr::success('Success','Data delete successfully');
+        if ($delete_data) {
+            $delete_data->delete();
+            Toastr::success('Success','Data delete successfully');
+        } else {
+            Toastr::error('Error','Review not found');
+        }
         return redirect()->back();
     }
 }

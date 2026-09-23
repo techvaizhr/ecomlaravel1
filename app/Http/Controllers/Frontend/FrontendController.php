@@ -381,15 +381,19 @@ class FrontendController extends Controller
         ]);
     }
 
-    $products = $products->paginate(24);
+        $products = $products
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+            ->paginate(24)
+            ->withQueryString();
 
-    return view('frontEnd.layouts.pages.brand', compact(
-        'brand',
-        'products',
-        'min_price',
-        'max_price'
-    ));
-}
+        return view('frontEnd.layouts.pages.brand', compact(
+            'brand',
+            'products',
+            'min_price',
+            'max_price'
+        ));
+    }
 
     public function vendorShop($slug, Request $request)
     {
@@ -403,7 +407,8 @@ class FrontendController extends Controller
             ->where('status', 1)
             ->where('approval_status', 'approved')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'sold')
-            ->with(['image', 'reviews', 'prosizes', 'procolors']);
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting');
 
         // Sorting
         if ($request->sort == 1) {
@@ -418,21 +423,23 @@ class FrontendController extends Controller
             $products = $products->latest();
         }
 
-        $products = $products->paginate(24);
+        $products = $products->paginate(24)->withQueryString();
 
-        // Calculate vendor stats
+        // Calculate vendor stats with aggregate query instead of loading all models
         $vendorProducts = Product::where('vendor_id', $vendor->id)
             ->where('status', 1)
             ->where('approval_status', 'approved')
             ->pluck('id');
-        
-        $reviews = Review::whereIn('product_id', $vendorProducts)
+
+        $vendorStats = DB::table('reviews')
+            ->whereIn('product_id', $vendorProducts)
             ->where('status', 'active')
-            ->get();
-        
-        $vendor->total_reviews = $reviews->count();
-        $vendor->average_rating = $reviews->count() > 0 
-            ? round($reviews->avg('ratting'), 1) 
+            ->selectRaw('COUNT(*) as total_reviews, AVG(ratting) as avg_rating')
+            ->first();
+
+        $vendor->total_reviews = $vendorStats ? (int) $vendorStats->total_reviews : 0;
+        $vendor->average_rating = $vendorStats && $vendorStats->total_reviews > 0
+            ? round((float) $vendorStats->avg_rating, 1)
             : 0;
         $vendor->total_products = $vendorProducts->count();
 
@@ -549,7 +556,12 @@ class FrontendController extends Controller
             $products = $products->where('new_price','>=',$request->min_price);
             $products = $products->where('new_price','<=',$request->max_price);
         }
-        $products = $products->paginate(36);
+        $products = $products
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+            ->paginate(36)
+            ->withQueryString();
+
         return view('frontEnd.layouts.pages.hotdeals', compact('products'));
     }
 
@@ -610,6 +622,28 @@ class FrontendController extends Controller
         $products = Product::where(['status' => 1, 'approval_status' => 'approved'])
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock');
 
+        // Cached catalog min/max price to avoid expensive table scans on every request
+        $priceRange = Cache::remember('shop_catalog_price_range', 600, function () {
+            return DB::table('products')
+                ->where('status', 1)
+                ->where('approval_status', 'approved')
+                ->selectRaw('MIN(new_price) as min_price, MAX(new_price) as max_price')
+                ->first();
+        });
+
+        $min_price = $priceRange && $priceRange->min_price !== null ? (float) $priceRange->min_price : 0.0;
+        $max_price = $priceRange && $priceRange->max_price !== null ? (float) $priceRange->max_price : max(1.0, $min_price + 1);
+        if ($max_price <= $min_price) {
+            $max_price = $min_price + 1;
+        }
+
+        if ($request->filled('min_price') && $request->filled('max_price')) {
+            $products = $products->whereBetween('new_price', [
+                (float) $request->min_price,
+                (float) $request->max_price,
+            ]);
+        }
+
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
         } elseif ($request->sort == 2) {
@@ -626,23 +660,9 @@ class FrontendController extends Controller
             $products = $products->latest();
         }
 
-        $minDb = (clone $products)->min('new_price');
-        $maxDb = (clone $products)->max('new_price');
-        $min_price = $minDb !== null ? (float) $minDb : 0.0;
-        $max_price = $maxDb !== null ? (float) $maxDb : max(1.0, $min_price + 1);
-        if ($max_price <= $min_price) {
-            $max_price = $min_price + 1;
-        }
-
-        if ($request->filled('min_price') && $request->filled('max_price')) {
-            $products = $products->whereBetween('new_price', [
-                (float) $request->min_price,
-                (float) $request->max_price,
-            ]);
-        }
-
         $products = $products
-            ->with(['prosizes', 'procolors', 'image', 'reviews'])
+            ->with(['prosizes', 'procolors', 'image'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(36)
             ->withQueryString();
 
@@ -679,14 +699,19 @@ class FrontendController extends Controller
             $products = $products->where('new_price','>=',$request->min_price);
             $products = $products->where('new_price','<=',$request->max_price);
         }
-        $products = $products->paginate(36);
+        $products = $products
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+            ->paginate(36)
+            ->withQueryString();
+
         return view('frontEnd.layouts.pages.flashsales', compact('products'));
     }
 
     public function category($slug, Request $request)
     {
         $soldShow = $request->sold=='show'?true:false;
-        $category = Category::where(['slug' => $slug, 'status' => 1])->first();
+        $category = Category::where(['slug' => $slug, 'status' => 1])->firstOrFail();
 
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id])
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id','sold','stock');
@@ -722,14 +747,19 @@ class FrontendController extends Controller
             });
         });
 
-        $products = $products->paginate(24);
+        $products = $products
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+            ->paginate(24)
+            ->withQueryString();
+
         return view('frontEnd.layouts.pages.category', compact('category', 'products', 'subcategories', 'min_price', 'max_price','soldShow'));
     }
 
     public function subcategory($slug, Request $request)
     {
         $soldShow = $request->sold=='show'?true:false;
-        $subcategory = Subcategory::where(['slug' => $slug, 'status' => 1])->first();
+        $subcategory = Subcategory::where(['slug' => $slug, 'status' => 1])->firstOrFail();
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'subcategory_id' => $subcategory->id])
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'subcategory_id','sold','stock');
         $childcategories = Childcategory::where('subcategory_id', $subcategory->id)->get();
@@ -764,7 +794,12 @@ class FrontendController extends Controller
             });
         });
 
-        $products = $products->paginate(24);
+        $products = $products
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+            ->paginate(24)
+            ->withQueryString();
+
         $impproducts = Product::where(['status' => 1, 'topsale' => 1])
             ->with('image')
             ->limit(6)
@@ -777,7 +812,7 @@ class FrontendController extends Controller
     public function products($slug, Request $request)
     {
         $soldShow = $request->sold=='show'?true:false;
-        $childcategory = Childcategory::where(['slug' => $slug, 'status' => 1])->first();
+        $childcategory = Childcategory::where(['slug' => $slug, 'status' => 1])->firstOrFail();
         $childcategories = Childcategory::where('subcategory_id', $childcategory->subcategory_id)->get();
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'childcategory_id' => $childcategory->id])->with('category')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'subcategory_id', 'childcategory_id','sold','stock');
@@ -805,7 +840,12 @@ class FrontendController extends Controller
             $products = $products->where('new_price','<=',$request->max_price);
         }
 
-        $products = $products->paginate(24);
+        $products = $products
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+            ->paginate(24)
+            ->withQueryString();
+
         $impproducts = Product::where(['status' => 1, 'approval_status' => 'approved', 'topsale' => 1])
             ->with('image')
             ->limit(6)
@@ -834,24 +874,39 @@ class FrontendController extends Controller
                 ->firstOrFail();
         });
 
-        // Related products: limit 12, exclude current, eager load to avoid N+1
-        $products = Product::where('category_id', $details->category_id)
-            ->where('id', '!=', $details->id)
-            ->where(['status' => 1, 'approval_status' => 'approved'])
-            ->with(['image', 'category', 'brand', 'reviews', 'prosizes', 'procolors'])
-            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'category_id', 'brand_id', 'pro_unit')
-            ->limit(12)
-            ->get();
+        // Related products: limit 12, exclude current, eager load with cache to avoid N+1
+        $relatedCacheKey = "product_related_cat_{$details->category_id}_ex_{$details->id}";
+        $products = Cache::remember($relatedCacheKey, 600, function () use ($details) {
+            return Product::where('category_id', $details->category_id)
+                ->where('id', '!=', $details->id)
+                ->where(['status' => 1, 'approval_status' => 'approved'])
+                ->with(['image', 'category', 'brand', 'prosizes', 'procolors'])
+                ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+                ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'category_id', 'brand_id', 'pro_unit')
+                ->limit(12)
+                ->get();
+        });
 
         $shippingcharge = Cache::remember('shipping_charges_active', 300, fn() => ShippingCharge::where('status', 1)->get());
 
-        $productReviewsTotal = Review::where('product_id', $details->id)->where('status', 'active')->count();
-        $productReviewsAverage = Review::where('product_id', $details->id)->where('status', 'active')->avg('ratting');
-        $productReviews = Review::where('product_id', $details->id)
-            ->where('status', 'active')
-            ->latest()
-            ->limit(3)
-            ->get();
+        // Single query for review count and average
+        $reviewStats = Cache::remember("product_reviews_stats_{$details->id}", 300, function () use ($details) {
+            return DB::table('reviews')
+                ->where('product_id', $details->id)
+                ->where('status', 'active')
+                ->selectRaw('COUNT(*) as total, AVG(ratting) as average')
+                ->first();
+        });
+        $productReviewsTotal = $reviewStats ? (int) $reviewStats->total : 0;
+        $productReviewsAverage = $reviewStats && $reviewStats->average ? (float) $reviewStats->average : 0;
+
+        $productReviews = Cache::remember("product_reviews_top3_{$details->id}", 300, function () use ($details) {
+            return Review::where('product_id', $details->id)
+                ->where('status', 'active')
+                ->latest()
+                ->limit(3)
+                ->get();
+        });
 
         return view('frontEnd.layouts.pages.details', compact(
             'details',
@@ -940,7 +995,11 @@ class FrontendController extends Controller
         if ($request->category) {
             $products = $products->where('category_id', $request->category);
         }
-        $products = $products->paginate(36);
+        $products = $products
+            ->with(['image', 'prosizes', 'procolors'])
+            ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
+            ->paginate(36)
+            ->withQueryString();
         $keyword = $request->keyword;
         return view('frontEnd.layouts.pages.search', compact('products', 'keyword'));
     }

@@ -170,7 +170,7 @@ class AppServiceProvider extends ServiceProvider
                     return Order::where('order_status', 1)->latest()->limit(9)->get();
                 });
 
-                $orderstatus = Cache::remember('order_status_list', 1800, function () {
+                $orderstatus = Cache::remember('order_status_list', 60, function () {
                     return OrderStatus::where('status', 1)->withCount('orders')->orderBy('id', 'ASC')->get();
                 });
 

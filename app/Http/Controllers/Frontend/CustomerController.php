@@ -38,6 +38,7 @@ use DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash as HashFacade;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
 use App\Helpers\OrderHelper;
 use App\Services\BdCourierService;
 use App\Services\FacebookCapiService;
@@ -692,24 +693,38 @@ class CustomerController extends Controller
     {
         $this->checkoutOtpSweepExpired('customer');
 
-        $divisions = DeliveryDivision::active()->ordered()->get();
-        $bkash_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'bkash'])->first();
-        $shurjopay_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'shurjopay'])->first();
-        $uddoktapay_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'uddoktapay'])->first();
-        $aamarpay_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'aamarpay'])->first();
-        $manual_gateways = ManualPaymentGateway::enabled()
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get();
+        $divisions = Cache::remember('delivery_divisions_active', 1800, fn() => DeliveryDivision::active()->ordered()->get());
+
+        $activeGateways = Cache::remember('payment_gateways_active_by_type', 600, function () {
+            return PaymentGateway::where('status', 1)->get()->keyBy('type');
+        });
+        $bkash_gateway     = $activeGateways->get('bkash');
+        $shurjopay_gateway = $activeGateways->get('shurjopay');
+        $uddoktapay_gateway = $activeGateways->get('uddoktapay');
+        $aamarpay_gateway  = $activeGateways->get('aamarpay');
+
+        $manual_gateways = Cache::remember('manual_payment_gateways_active', 600, function () {
+            return ManualPaymentGateway::enabled()
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get();
+        });
 
         $hasAllFreeDelivery = \App\Http\Controllers\Frontend\ShoppingController::hasAllFreeDeliveryProducts();
 
         $requiresPhysicalShipping = false;
         foreach (Cart::instance('shopping')->content() as $item) {
-            $product = Product::find($item->id);
-            if ($product && (int) $product->is_digital !== 1) {
-                $requiresPhysicalShipping = true;
-                break;
+            if (isset($item->options->is_digital)) {
+                if ((int) $item->options->is_digital !== 1) {
+                    $requiresPhysicalShipping = true;
+                    break;
+                }
+            } else {
+                $product = Product::select('id', 'is_digital')->find($item->id);
+                if ($product && (int) $product->is_digital !== 1) {
+                    $requiresPhysicalShipping = true;
+                    break;
+                }
             }
         }
 

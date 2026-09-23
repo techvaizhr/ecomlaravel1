@@ -1461,6 +1461,8 @@ PROMPT;
         Shipping::where('order_id', $request->id)->delete();
         Payment::where('order_id', $request->id)->delete();
 
+        $this->clearOrderStatusCache();
+
         Toastr::success('Success', 'Order delete success successfully');
         return redirect()->back();
     }
@@ -1474,6 +1476,7 @@ PROMPT;
             Shipping::where('order_id', $order_id)->delete();
             Payment::where('order_id', $order_id)->delete();
         }
+        $this->clearOrderStatusCache();
         return response()->json(['status' => 'success', 'message' => 'Order delete successfully']);
     }
 

@@ -215,11 +215,11 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="avatar-circle">
-                                        {{ strtoupper(substr($value->name ?: 'C', 0, 1)) }}
+                                        {{ strtoupper(substr($value->name ?: ($value->customer?->name ?: 'C'), 0, 1)) }}
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark">{{ $value->name ?: 'Anonymous' }}</div>
-                                        <small class="text-muted">{{ $value->email ?: 'No email' }}</small>
+                                        <div class="fw-bold text-dark">{{ $value->name ?: ($value->customer?->name ?: 'Anonymous') }}</div>
+                                        <small class="text-muted">{{ $value->email ?: ($value->customer?->email ?: 'No email') }}</small>
                                     </div>
                                 </div>
                             </td>
@@ -231,7 +231,9 @@
                                         {{ $value->product->name }} <i data-feather="external-link" style="width: 12px; height: 12px;"></i>
                                     </a>
                                 @else
-                                    <span class="text-muted small">N/A</span>
+                                    <span class="badge bg-light text-muted border py-1 px-2" title="Product was deleted or is no longer available">
+                                        <i class="fas fa-box-open text-secondary me-1"></i> Product Deleted
+                                    </span>
                                 @endif
                             </td>
 
