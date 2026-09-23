@@ -143,8 +143,13 @@
         viewContent: function (opts) {
             opts = opts || {};
             var items = opts.items || (opts.item ? [opts.item] : []);
-            var value = Number(opts.value || 0);
             var ga4 = lineToGa4(items);
+            var value = Number(opts.value || 0);
+            if (!value && ga4.length) {
+                value = Number(ga4[0].price || 0);
+            }
+            value = Math.max(0.01, Math.round(value * 100) / 100);
+
             if (ga4.length) {
                 pushEvent('view_item', { ecommerce: { currency: CURRENCY, value: value, items: ga4 } });
             }
@@ -154,6 +159,7 @@
                     content_name: ga4[0].item_name,
                     content_category: ga4[0].item_category || undefined,
                     content_type: 'product',
+                    contents: lineToFbContents(items),
                     value: value,
                     currency: CURRENCY
                 });
@@ -177,11 +183,21 @@
             var listId = opts.item_list_id || listName;
             var ga4 = lineToGa4(items);
 
+            // Compute positive decimal value from items for ROAS calculation
+            var value = Number(opts.value || 0);
+            if (!value && ga4.length) {
+                value = ga4.reduce(function (sum, it) {
+                    return sum + (Number(it.price) || 0);
+                }, 0);
+            }
+            value = Math.max(0.01, Math.round(value * 100) / 100);
+
             if (ga4.length) {
                 pushEvent('view_item_list', {
                     ecommerce: {
                         item_list_id: listId,
                         item_list_name: listName,
+                        value: value,
                         items: ga4
                     }
                 });
@@ -189,8 +205,12 @@
 
             if (typeof w.fbq === 'function' && ga4.length) {
                 w.fbq('trackCustom', 'ViewCategory', {
+                    content_name: listName,
                     content_category: listName,
                     content_ids: ga4.map(function (i) { return i.item_id; }),
+                    content_type: 'product',
+                    contents: lineToFbContents(items),
+                    value: value,
                     currency: CURRENCY
                 });
             }
@@ -198,10 +218,12 @@
             if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function' && ga4.length) {
                 w.ttq.track('ViewContent', {
                     content_type: 'product_group',
+                    content_id: String(listId),
                     content_name: listName,
-                    value: Number(opts.value || 0),
+                    value: value,
                     currency: CURRENCY,
-                    quantity: ga4.length
+                    quantity: ga4.length,
+                    contents: lineToTtContents(items)
                 });
             }
         },
@@ -211,10 +233,17 @@
             var query = String(opts.query || '').trim();
             var items = opts.items || [];
             var ga4 = lineToGa4(items);
+            var value = Number(opts.value || 0);
+            if (!value && ga4.length) {
+                value = ga4.reduce(function (sum, it) {
+                    return sum + (Number(it.price) || 0);
+                }, 0);
+            }
+            value = Math.round(value * 100) / 100;
 
             pushEvent('view_search_results', {
                 search_term: query,
-                ecommerce: { items: ga4 }
+                ecommerce: { value: value > 0 ? value : undefined, items: ga4 }
             });
 
             if (typeof w.fbq === 'function') {
@@ -222,6 +251,8 @@
                     search_string: query,
                     content_ids: ga4.map(function (i) { return i.item_id; }),
                     content_type: 'product',
+                    contents: lineToFbContents(items),
+                    value: value > 0 ? value : 0.01,
                     currency: CURRENCY
                 });
             }
@@ -229,6 +260,8 @@
             if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('Search', {
                     query: query,
+                    value: value > 0 ? value : undefined,
+                    currency: CURRENCY,
                     contents: lineToTtContents(items)
                 });
             }
@@ -271,16 +304,25 @@
 
         viewCart: function (opts) {
             opts = opts || {};
-            var value = Number(opts.value || 0);
             var items = opts.items || [];
             var ga4 = lineToGa4(items);
+            var value = Number(opts.value || 0);
+            if (!value && ga4.length) {
+                value = ga4.reduce(function (sum, it) {
+                    return sum + ((Number(it.price) || 0) * (Number(it.quantity) || 1));
+                }, 0);
+            }
+            value = Math.max(0.01, Math.round(value * 100) / 100);
+
             pushEvent('view_cart', { ecommerce: { currency: CURRENCY, value: value, items: ga4 } });
             if (typeof w.fbq === 'function') {
                 w.fbq('trackCustom', 'ViewCart', {
                     value: value,
                     currency: CURRENCY,
                     num_items: ga4.length,
-                    content_ids: ga4.map(function (i) { return i.item_id; })
+                    content_type: 'product',
+                    content_ids: ga4.map(function (i) { return i.item_id; }),
+                    contents: lineToFbContents(items)
                 });
             }
             if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
@@ -288,7 +330,8 @@
                     content_type: 'product_group',
                     value: value,
                     currency: CURRENCY,
-                    quantity: ga4.length
+                    quantity: ga4.length,
+                    contents: lineToTtContents(items)
                 });
             }
         },
