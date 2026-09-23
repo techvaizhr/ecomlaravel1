@@ -103,6 +103,9 @@
     animation: orderBtnShake 2.5s infinite ease-in-out !important;
     box-shadow: 0 4px 14px {{ optional($generalsetting)->primary_color ?? '#e11d48' }}66 !important;
     position: relative !important;
+    background-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    border-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    color: #fff !important;
 }
 
 .order_now_btn:hover, 
@@ -111,6 +114,27 @@
     animation: none !important;
     transform: scale(1.03) !important;
     box-shadow: 0 6px 20px {{ optional($generalsetting)->primary_color ?? '#e11d48' }}99 !important;
+    filter: brightness(0.9) !important;
+}
+
+/* Cart button – border style matching grid card */
+.add_cart_btn {
+    background: transparent !important;
+    border: 2px solid {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
+    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+}
+.add_cart_btn i {
+    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+}
+.add_cart_btn:hover,
+.add_cart_btn:active {
+    background: {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
+    border-color: {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
+    color: #fff !important;
+}
+.add_cart_btn:hover i,
+.add_cart_btn:active i {
+    color: #fff !important;
 }
 
 /* 🎨 Matching Border for Color Swatches (same as Size & Variant) */
@@ -140,10 +164,22 @@
     transform: scale(1.08) !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
 }
-.pro-color .selector-item_label span img {
-    width: 14px !important;
-    height: 14px !important;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)) !important;
+.pro-color .selector-item_label span,
+.quick-color-swatch span {
+    display: none !important;
+}
+
+/* 🏷️ Size / Variant Selected — matching color double-ring / outline-offset style */
+.pro-size .selector-item_radio:checked + .selector-item_label,
+.selector-item_radio:checked + .selector-item_label:not(.pro-color .selector-item_label) {
+    border-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    outline: 2px solid {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    outline-offset: 2px !important;
+    background: {{ optional($generalsetting)->primary_color ?? '#e11d48' }}15 !important;
+    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    font-weight: 700 !important;
+    transform: scale(1.06) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.16) !important;
 }
 
 /* ✅ Scoped Review Section */

@@ -9,7 +9,7 @@
 
 html {
     overflow-x: hidden;
-    background-color: #ffffff;
+    background-color: #f6f8fb;
 }
 
 body {
@@ -17,7 +17,7 @@ body {
     font-size: 14px;
     overflow-x: hidden;
     line-height: 1.5;
-    background: #ffffff;
+    background: #f6f8fb;
     width: 100%;
     position: relative;
     -webkit-font-smoothing: antialiased;
@@ -300,15 +300,18 @@ body {
 
     /* বাম দিকের বড় “অর্ডার করুন” বাটন – পুরো জায়গা নেবে */
     .product_item .pro_btn > form:first-child,
-    .product_item .pro_btn > a.order-btn-link{
+    .product_item .pro_btn > a.order-btn-link,
+    .product_item .pro_btn > .order-btn-link{
         flex:1 1 auto;
     }
 
     /* ডান পাশের ছোট কার্ট বাটন – ফিক্সড width */
     .product_item .pro_btn > form:last-child,
-    .product_item .pro_btn > a.cart-icon-link{
-        flex:0 0 44px;
-        max-width:44px;
+    .product_item .pro_btn > a.cart-icon-link,
+    .product_item .pro_btn > .cart-icon-link{
+        flex:0 0 40px;
+        min-width:40px;
+        max-width:40px;
     }
 
     /* অর্ডার বাটনের ডিজাইন */
@@ -318,58 +321,57 @@ body {
         justify-content:center;
         align-items:center;
         width:100%;
-        height:40px;
-        padding:8px 12px;
-        background:#d32f2f;
+        height:38px;
+        padding:6px 10px;
+        background:{{$generalsetting->primary_color}};
+        border:2px solid {{$generalsetting->primary_color}};
         color:#fff !important;
-        border-radius:4px;
-        font-size:14px;
+        border-radius:6px;
+        font-size:13px;
         font-weight:600;
         cursor:pointer;
         font-family:"Potro Sans Bangla",sans-serif;
         transition:all .2s ease;
         text-align:center;
+        white-space:nowrap;
     }
     .product_item .order-btn:hover,
     .product_item .order-btn-link:hover{
-        background:#b71c1c;
-        border-color:#b71c1c;
+        filter:brightness(0.88);
         color:#fff !important;
     }
 
-    /* কার্ট আইকন বাটন */
+    /* কার্ট আইকন বাটন – শুধু আইকন, বর্ডার + প্রাইমারি আইকন রঙ */
     .product_item .cart-icon-btn,
     .product_item .cart-icon-link{
         display:flex;
         justify-content:center;
         align-items:center;
-        width:100%;
-        height:40px;
-        background:#fff;
-        border-radius:4px;
+        width:40px;
+        min-width:40px;
+        height:38px;
+        background:transparent;
+        border:2px solid {{$generalsetting->secodery_color}};
+        border-radius:6px;
         cursor:pointer;
         transition:all .2s ease;
+        padding:0;
+        flex-shrink:0;
     }
     .product_item .cart-icon-btn i,
     .product_item .cart-icon-link i{
-        font-size:18px;
-        color:#fff;
+        font-size:15px;
+        color:{{$generalsetting->primary_color}};
+        transition:color .2s ease;
     }
     .product_item .cart-icon-btn:hover,
     .product_item .cart-icon-link:hover{
-        background:#d32f2f;
-        border-color:#d32f2f;
+        background:{{$generalsetting->secodery_color}};
+        border-color:{{$generalsetting->secodery_color}};
     }
     .product_item .cart-icon-btn:hover i,
     .product_item .cart-icon-link:hover i{
         color:#fff;
-    }
-
-    /* আগের গ্লোবাল প্রো_btn বাটন স্টাইল সামান্য ওভাররাইড */
-    .product_item .pro_btn button{
-        width:100%;
-        border-radius:4px;
-        background: {{$generalsetting->primary_color}};
     }
 /*==== COMMON CSS START ====*/
 @font-face {
@@ -5633,8 +5635,8 @@ form.sort-form .form-select {
     font-size: 15px;
     font-weight: 700;
     border-radius: 8px !important;
-    background: #fff !important;
-    border: 2px solid {{$generalsetting->primary_color}} !important;
+    background: transparent !important;
+    border: 2px solid {{$generalsetting->secodery_color}} !important;
     color: {{$generalsetting->primary_color}} !important;
     display: flex;
     align-items: center;
@@ -5642,8 +5644,16 @@ form.sort-form .form-select {
     transition: all 0.2s;
     margin-top: 0 !important;
 }
+.add_cart_btn i {
+    color: {{$generalsetting->primary_color}} !important;
+    transition: color 0.2s;
+}
 .add_cart_btn:hover {
-    background: {{$generalsetting->primary_color}} !important;
+    background: {{$generalsetting->secodery_color}} !important;
+    border-color: {{$generalsetting->secodery_color}} !important;
+    color: #fff !important;
+}
+.add_cart_btn:hover i {
     color: #fff !important;
 }
 
@@ -5873,10 +5883,10 @@ section.pro_details_area {
 
 .pro-color .selector-item_radio:checked + .selector-item_label,
 .quick-color-radio:checked + .quick-color-swatch {
-    border-color: #303d6e !important;
-    outline: 2px solid #303d6e !important;
+    border-color: {{$generalsetting->primary_color}} !important;
+    outline: 2px solid {{$generalsetting->primary_color}} !important;
     outline-offset: 2px !important;
-    box-shadow: inset 0 0 0 3.5px #ffffff, 0 3px 8px rgba(48, 61, 110, 0.2) !important;
+    box-shadow: inset 0 0 0 3.5px #ffffff, 0 3px 8px rgba(0,0,0,0.2) !important;
     transform: scale(1.06) !important;
 }
 
@@ -5889,14 +5899,14 @@ section.pro_details_area {
 .pro-size .selector-item_radio:checked + .selector-item_label,
 .quick-size-radio:checked + .quick-size-pill,
 .selector-item_radio:checked + .selector-item_label:not(.pro-color .selector-item_label):not(.quick-color-swatch) {
-    border-color: #303d6e !important;
-    outline: 2px solid #303d6e !important;
+    border-color: {{$generalsetting->primary_color}} !important;
+    outline: 2px solid {{$generalsetting->primary_color}} !important;
     outline-offset: 2px !important;
-    background: #303d6e15 !important;
-    color: #303d6e !important;
+    background: {{$generalsetting->primary_color}}15 !important;
+    color: {{$generalsetting->primary_color}} !important;
     font-weight: 700 !important;
     transform: scale(1.06) !important;
-    box-shadow: 0 3px 8px rgba(48, 61, 110, 0.16) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.16) !important;
 }
 
 /* ⚡ Quick Variation Modal */
@@ -6031,7 +6041,7 @@ section.pro_details_area {
 }
 .quick-thumb-item.active,
 .quick-thumb-item:hover {
-    border-color: #303d6e;
+    border-color: {{$generalsetting->primary_color}};
 }
 .quick-thumb-item img {
     width: 100%;
@@ -6073,7 +6083,7 @@ section.pro_details_area {
 .quick-current-price {
     font-size: 22px;
     font-weight: 800;
-    color: #303d6e;
+    color: {{$generalsetting->primary_color}};
 }
 .quick-old-price {
     font-size: 15px;
@@ -6108,7 +6118,7 @@ section.pro_details_area {
 }
 .quick-variant-selected-val {
     font-weight: 700;
-    color: #303d6e;
+    color: {{$generalsetting->primary_color}};
 }
 .quick-size-pill {
     min-width: 40px;
@@ -6127,10 +6137,13 @@ section.pro_details_area {
     background: #fff;
 }
 .quick-size-radio:checked + .quick-size-pill {
-    border-color: #303d6e !important;
-    background: #303d6e15 !important;
-    color: #303d6e !important;
+    border-color: {{$generalsetting->primary_color}} !important;
+    background: {{$generalsetting->primary_color}}15 !important;
+    color: {{$generalsetting->primary_color}} !important;
     font-weight: 700 !important;
+    outline: 2px solid {{$generalsetting->primary_color}} !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.16) !important;
 }
 .quick-qty-row {
     display: flex;
@@ -6201,23 +6214,31 @@ section.pro_details_area {
     box-sizing: border-box;
 }
 .quick-btn-cart {
-    background: #ffffff;
-    color: #303d6e;
-    border: 2px solid #303d6e;
+    background: transparent;
+    color: {{$generalsetting->primary_color}};
+    border: 2px solid {{$generalsetting->secodery_color}};
+}
+.quick-btn-cart i {
+    color: {{$generalsetting->primary_color}};
 }
 .quick-btn-cart:hover {
-    background: #303d6e;
+    background: {{$generalsetting->secodery_color}};
+    border-color: {{$generalsetting->secodery_color}};
+    color: #ffffff;
+}
+.quick-btn-cart:hover i {
     color: #ffffff;
 }
 .quick-btn-order {
-    background: #303d6e;
+    background: {{$generalsetting->primary_color}};
     color: #ffffff;
-    border: 2px solid #303d6e;
-    box-shadow: 0 4px 12px #303d6e40;
+    border: 2px solid {{$generalsetting->primary_color}};
+    box-shadow: 0 4px 12px {{$generalsetting->primary_color}}40;
 }
 .quick-btn-order:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px #303d6e60;
+    filter: brightness(0.9);
+    box-shadow: 0 6px 16px {{$generalsetting->primary_color}}60;
 }
 .quick-modal-footer-link {
     text-align: center;
@@ -6233,5 +6254,5 @@ section.pro_details_area {
     transition: color 0.2s;
 }
 .quick-details-link:hover {
-    color: #303d6e;
+    color: {{$generalsetting->primary_color}};
 }

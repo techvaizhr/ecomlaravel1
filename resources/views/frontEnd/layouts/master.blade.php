@@ -31,12 +31,11 @@
         <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
 
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
-<link rel="stylesheet" href="{{ url('/style.css') }}?v=3">
-<link rel="stylesheet" href="{{ url('/responsive.css') }}?v=3">
+        <link rel="stylesheet" href="{{ url('/style.css') }}?v=4">
+        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=4">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" />
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" media="print" onload="this.media='all'" />
         <meta name="facebook-domain-verification" content="38f1w8335btoklo88dyfl63ba3st2e" />
         <style>
             /* 🚀 CRITICAL VIEWPORT & LAYOUT STABILIZATION (Smooth Page Load & Zero Flash) */
@@ -81,7 +80,7 @@
             .wow {
                 visibility: visible !important;
             }
-            /* 🌟 Smooth Hero Banner & Details Slider Fade-In (Zero Pop / Zero Jump) */
+            /* 🌟 Immediate Smooth Hero Banner & Details Slider Rendering */
             .home-slider-container {
                 position: relative;
                 border-radius: 8px;
@@ -89,21 +88,9 @@
                 background: #f8fafc;
                 min-height: 250px;
             }
-            .main_slider {
-                opacity: 0;
-                transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-            .main_slider.owl-loaded {
-                opacity: 1;
-            }
             .details_slider {
-                opacity: 0;
-                transition: opacity 0.35s ease-in-out;
                 min-height: 380px;
                 background: #ffffff;
-            }
-            .details_slider.owl-loaded {
-                opacity: 1;
             }
             @media (max-width: 767px) {
                 .details_slider {
@@ -127,6 +114,11 @@
                 display: flex;
                 overflow: hidden;
                 flex-wrap: nowrap;
+            }
+            .owl-carousel:not(.owl-loaded) > *:first-child {
+                display: block;
+                width: 100%;
+                flex-shrink: 0;
             }
             .owl-carousel:not(.owl-loaded) > *:not(:first-child) {
                 display: none;
