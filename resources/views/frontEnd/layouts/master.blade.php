@@ -69,6 +69,35 @@
             .wow {
                 visibility: visible !important;
             }
+            /* 🌟 Smooth Hero Banner & Details Slider Fade-In (Zero Pop / Zero Jump) */
+            .home-slider-container {
+                position: relative;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #f8fafc;
+                min-height: 250px;
+            }
+            .main_slider {
+                opacity: 0;
+                transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .main_slider.owl-loaded {
+                opacity: 1;
+            }
+            .details_slider {
+                opacity: 0;
+                transition: opacity 0.35s ease-in-out;
+                min-height: 380px;
+                background: #ffffff;
+            }
+            .details_slider.owl-loaded {
+                opacity: 1;
+            }
+            @media (max-width: 767px) {
+                .details_slider {
+                    min-height: 260px;
+                }
+            }
             .sidebar-cart-drawer:not(.active) {
                 visibility: hidden !important;
                 pointer-events: none !important;
@@ -4560,6 +4589,18 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
 
     setInterval(fetchAndStart, 300000);
 })();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('a[href="{{ route('home') }}"], a[href="{{ url('/') }}"]').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            if (window.location.pathname === '/' || window.location.pathname === '') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    });
+});
 </script>
 
     </body>

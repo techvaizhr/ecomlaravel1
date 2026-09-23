@@ -5361,16 +5361,24 @@ form.sort-form .form-select {
     border: none;
     border-radius: 12px;
     overflow: hidden;
-    background: #f8fafc;
+    background: #ffffff;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    min-height: 380px;
+    opacity: 0;
+    transition: opacity 0.35s ease-in-out;
+}
+
+.details_slider.owl-loaded {
+    opacity: 1;
 }
 
 .details_slider .dimage_item {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8fafc;
+    background: #ffffff;
     height: 380px;
+    min-height: 380px;
 }
 
 .details_slider .dimage_item img,

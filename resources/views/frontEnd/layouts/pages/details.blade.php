@@ -985,8 +985,36 @@
             $slider.trigger("to.owl.carousel", slideIndex);
         });
 
-        if ($(".block__pic").length && typeof $(".block__pic").imagezoomsl === "function") {
-            $(".block__pic").imagezoomsl({ zoomrange: [3, 3] });
+        initProductZoom();
+    }
+
+    function initProductZoom() {
+        if (window.innerWidth >= 992 && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+            if ($(".block__pic").length && typeof $.fn.imagezoomsl === "function") {
+                $('.magnifier, .cursorshade, .statusdiv, .tracker').remove();
+                $(".block__pic").each(function() {
+                    var img = this;
+                    var $img = $(img);
+                    function applyZoom() {
+                        if ($img.data('zoom-initialized')) return;
+                        $img.data('zoom-initialized', true);
+                        try {
+                            $img.imagezoomsl({
+                                zoomrange: [2, 2],
+                                magnifierspeedanimate: 200,
+                                loadopacity: 0,
+                                cursorshade: true,
+                                cursorshadeopacity: 0.15
+                            });
+                        } catch(e) {}
+                    }
+                    if (img.complete && img.naturalWidth > 0) {
+                        setTimeout(applyZoom, 60);
+                    } else {
+                        $img.one('load', applyZoom);
+                    }
+                });
+            }
         }
     }
 
@@ -1288,8 +1316,10 @@
 </script>
 
 <script type="text/javascript">
-    $(".block__pic").imagezoomsl({
-        zoomrange: [3, 3]
+    $(document).ready(function() {
+        if (typeof initProductZoom === 'function') {
+            initProductZoom();
+        }
     });
 </script>
 <script>
