@@ -293,6 +293,10 @@
         </div>
         @endif
     </div>
+
+    {{-- GTM SETUP & DATALAYER CHEATSHEET GUIDE --}}
+    @include('backEnd.tagmanager.partials.gtm_reference')
+
 </div>
 @endsection
 

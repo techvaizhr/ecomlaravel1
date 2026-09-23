@@ -103,7 +103,7 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-6">
+        <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-tag"></i></div>
@@ -117,10 +117,11 @@
                         <div class="form-group mb-4">
                             <label for="code" class="form-label">Tag Manager ID <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-lg @error('code') is-invalid @enderror" 
-                                   name="code" value="{{ $edit_data->code }}" id="code" required>
+                                   name="code" value="{{ $edit_data->code }}" id="code" 
+                                   placeholder="e.g. GTM-XXXXXXX" required>
                             
                             <small class="text-muted d-block mt-2">
-                                <i class="fe-info"></i> Update your Google Tag Manager Container ID.
+                                <i class="fe-info"></i> Update your Google Tag Manager Container ID (যেমন: <code>GTM-XXXXXXX</code>).
                             </small>
 
                             @error('code')
@@ -151,7 +152,14 @@
                         </div>
 
                     </form>
-                </div> </div> </div> </div>
+                </div>
+            </div>
+
+            {{-- GTM SETUP & DATALAYER CHEATSHEET GUIDE --}}
+            @include('backEnd.tagmanager.partials.gtm_reference')
+
+        </div>
+    </div>
 </div>
 @endsection
 
