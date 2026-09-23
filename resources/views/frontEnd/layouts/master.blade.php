@@ -31,8 +31,8 @@
         <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
 
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
-        <link rel="stylesheet" href="{{ url('/style.css') }}?v=5">
-        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=5">
+        <link rel="stylesheet" href="{{ url('/style.css') }}?v=6">
+        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=6">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" media="print" onload="this.media='all'" />

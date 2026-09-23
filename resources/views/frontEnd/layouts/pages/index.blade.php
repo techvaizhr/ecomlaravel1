@@ -141,24 +141,24 @@
             <div class="col-sm-12">
                 <div class="category-slider owl-carousel cat-slider-modern">
                     @foreach ($menucategories as $value)
-                        <div class="cat_card_modern">
-                            <a href="{{ route('category', $value->slug) }}" class="cat_card_link">
-                                <div class="cat_icon_bubble">
+                        <div class="cat_clean_item">
+                            <a href="{{ route('category', $value->slug) }}" class="cat_clean_link">
+                                <div class="cat_clean_bubble">
                                     @if($value->image)
                                         <img src="{{ asset($value->image) }}"
                                              alt="{{ $value->name }}"
-                                             class="cat_bubble_img"
+                                             class="cat_clean_img"
                                              loading="lazy" />
                                     @elseif($value->icon)
                                         <img src="{{ asset($value->icon) }}"
                                              alt="{{ $value->name }}"
-                                             class="cat_bubble_img"
+                                             class="cat_clean_img"
                                              loading="lazy" />
                                     @else
-                                        <span class="cat_bubble_fallback"><i class="fa-solid fa-shapes"></i></span>
+                                        <span class="cat_clean_fallback"><i class="fa-solid fa-shapes"></i></span>
                                     @endif
                                 </div>
-                                <h3 class="cat_card_title">{{ $value->name }}</h3>
+                                <span class="cat_clean_title">{{ $value->name }}</span>
                             </a>
                         </div>
                     @endforeach

@@ -5185,52 +5185,64 @@ body {
     transform: translateX(3px);
 }
 
-/* Modern Category Cards */
+/* Seamless Circular Category Items (No Nested Boxes) */
 .cat-slider-modern {
-    margin-top: 6px !important;
+    margin-top: 4px !important;
     position: relative;
 }
+.cat_clean_item,
 .cat_card_modern {
-    background: #ffffff;
-    border: 1px solid #eef2f6;
-    border-radius: 14px;
-    padding: 12px 6px 10px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 6px 2px 8px;
     text-align: center;
-    transition: all 0.26s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
     cursor: pointer;
-    height: 100%;
+    outline: none !important;
 }
+.cat_clean_link,
 .cat_card_link {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
     color: inherit;
+    outline: none !important;
 }
+.cat_clean_bubble,
 .cat_icon_bubble {
-    width: 66px;
-    height: 66px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1px solid #e2e8f0;
+    width: 76px;
+    height: 76px;
+    border-radius: 50% !important;
+    background: #f8fafc;
+    border: 1.5px solid #edf2f7;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 10px;
-    transition: all 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+    margin: 0 auto 8px;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    position: relative;
+    overflow: hidden;
 }
+.cat_clean_img,
 .cat_bubble_img {
-    max-width: 42px;
-    max-height: 42px;
-    width: auto !important;
-    height: auto !important;
+    width: 46px;
+    height: 46px;
+    max-width: 46px;
+    max-height: 46px;
     object-fit: contain;
     margin: 0 auto;
-    transition: transform 0.26s ease;
+    display: block;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.cat_clean_fallback,
 .cat_bubble_fallback {
-    font-size: 20px;
+    font-size: 22px;
     color: #94a3b8;
 }
+.cat_clean_title,
 .cat_card_title {
     font-size: 13px;
     font-weight: 600;
@@ -5240,24 +5252,25 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
     padding: 0 4px;
     transition: color 0.2s ease;
 }
 
-/* Card Hover States */
-.cat_card_modern:hover {
-    border-color: {{$generalsetting->primary_color}};
-    transform: translateY(-4px);
-    box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.1), 0 3px 8px -2px rgba(15, 23, 42, 0.04);
-}
+/* Hover States: Circle elevates smoothly with soft glow, icon zooms, text turns primary */
+.cat_clean_item:hover .cat_clean_bubble,
 .cat_card_modern:hover .cat_icon_bubble {
-    background: #eef2ff;
     border-color: {{$generalsetting->primary_color}};
-    transform: scale(1.05);
+    background: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px -2px rgba(15, 23, 42, 0.12);
 }
+.cat_clean_item:hover .cat_clean_img,
 .cat_card_modern:hover .cat_bubble_img {
-    transform: scale(1.1);
+    transform: scale(1.12);
 }
+.cat_clean_item:hover .cat_clean_title,
 .cat_card_modern:hover .cat_card_title {
     color: {{$generalsetting->primary_color}};
 }
@@ -5401,20 +5414,24 @@ body {
         padding: 4px 10px;
         font-size: 11.5px;
     }
+    .cat_clean_item,
     .cat_card_modern {
-        padding: 8px 4px 6px;
-        border-radius: 10px;
+        padding: 4px 2px 6px;
     }
+    .cat_clean_bubble,
     .cat_icon_bubble {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
+        width: 58px;
+        height: 58px;
         margin-bottom: 6px;
     }
+    .cat_clean_img,
     .cat_bubble_img {
-        max-width: 32px;
-        max-height: 32px;
+        width: 36px;
+        height: 36px;
+        max-width: 36px;
+        max-height: 36px;
     }
+    .cat_clean_title,
     .cat_card_title {
         font-size: 11px;
     }
