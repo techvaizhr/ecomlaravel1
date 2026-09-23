@@ -37,6 +37,42 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
         <meta name="facebook-domain-verification" content="38f1w8335btoklo88dyfl63ba3st2e" />
         <style>
+            /* 🚀 CRITICAL VIEWPORT & LAYOUT STABILIZATION (Zero Flash & Zero Shift) */
+            html {
+                overflow-x: hidden !important;
+                scrollbar-gutter: stable;
+            }
+            body {
+                overflow-x: hidden !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                position: relative;
+            }
+            #loading {
+                display: none;
+            }
+            .sidebar-cart-drawer:not(.active) {
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+            .mobile-menu:not(.active) {
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+            @media (min-width: 768px) {
+                .mobile-menu {
+                    display: none !important;
+                }
+            }
+            .owl-carousel:not(.owl-loaded) {
+                display: flex;
+                overflow: hidden;
+                flex-wrap: nowrap;
+            }
+            .owl-carousel:not(.owl-loaded) > *:not(:first-child) {
+                display: none;
+            }
+
             .float{
             	position:fixed;
             	color:white;
@@ -2623,7 +2659,9 @@ section.slider-section {
     background: #f8fafc;
     z-index: 100011;
     transform: translateX(100%);
-    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.38s;
     box-shadow: -10px 0 40px rgba(0, 0, 0, 0.22);
     display: flex;
     flex-direction: column;
@@ -2632,6 +2670,8 @@ section.slider-section {
 }
 .sidebar-cart-drawer.active {
     transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
 }
 #sidebarCartContent {
     flex: 1;
@@ -3055,7 +3095,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
 
         <div id="custom-modal"></div>
         <div id="page-overlay"></div>
-        <div id="loading"><div class="custom-loader"></div></div>
+        <div id="loading" style="display: none;"><div class="custom-loader"></div></div>
         <script>document.addEventListener('DOMContentLoaded',function(){var e=document.getElementById('loading');if(e)e.style.display='none';});</script>
 
         <script src="{{asset('public/frontEnd/js/jquery-3.6.3.min.js')}}"></script>
