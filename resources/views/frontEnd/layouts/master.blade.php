@@ -31,8 +31,8 @@
         <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
 
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
-        <link rel="stylesheet" href="{{ url('/style.css') }}?v=4">
-        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=4">
+        <link rel="stylesheet" href="{{ url('/style.css') }}?v=5">
+        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=5">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" media="print" onload="this.media='all'" />
@@ -928,6 +928,7 @@ li.all__category__list {
     position: relative;
     border-radius: 0;
     transition: background 0.2s ease;
+    overflow: visible !important;
 }
 li.all__category__list > a {
     color: #ffffff !important;
@@ -937,112 +938,57 @@ li.all__category__list > a {
     justify-content: space-between;
     width: 100%;
     margin: 0 !important;
+    user-select: none;
 }
 li.all__category__list > a i {
     font-size: 15px;
     padding: 0 !important;
-    transition: transform 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-li.all__category__list:hover > a i {
+li.all__category__list.open > a i {
     transform: rotate(90deg);
 }
-
-/* CATEGORY DROPDOWN SIDEBAR */
-.side__bar {
-    position: absolute;
-    left: 0;
-    top: 100%;
-    width: 250px;
-    background: #ffffff !important;
-    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
-    border-radius: 0 0 12px 12px;
-    border: 1px solid #e2e8f0;
-    border-top: none;
-    overflow: visible;
-    z-index: 1000;
-}
-.side__bar .hideshow {
-    list-style: none;
-    padding: 6px 0;
-    margin: 0;
-}
-.side__bar .hideshow > li {
-    position: relative;
-    transition: all 0.2s ease;
-}
-.side__bar .hideshow > li > a {
-    display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    padding: 9px 16px !important;
-    color: #334155 !important;
-    font-size: 13.5px !important;
-    font-weight: 500 !important;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-.side__bar .hideshow > li > a img {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
-    margin-right: 10px;
-    border-radius: 4px;
-}
-.side__bar .hideshow > li > a i {
-    font-size: 11px;
-    color: #94a3b8;
-    transition: transform 0.2s ease;
-}
-.side__bar .hideshow > li:hover > a {
-    background: #f8fafc !important;
-    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
-    padding-left: 20px !important;
-}
-.side__bar .hideshow > li:hover > a i {
-    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
-    transform: translateX(3px);
+li.all__category__list.homepage-cat-btn {
+    cursor: default;
 }
 
-/* Submenu Flyout */
-.side__barsub,
-.side__barchild {
-    position: absolute;
-    left: 100%;
-    top: 0;
-    width: 230px;
+/* FLOATING CATEGORY DROPDOWN (Non-home pages) */
+.header-floating-cat-menu {
+    position: absolute !important;
+    left: 0 !important;
+    top: 100% !important;
+    min-width: 260px !important;
+    width: 100% !important;
     background: #ffffff !important;
-    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    list-style: none;
-    padding: 6px 0;
-    margin: 0;
-    display: none;
-    z-index: 1001;
+    box-shadow: 0 20px 45px -5px rgba(15, 23, 42, 0.18), 0 8px 18px -2px rgba(15, 23, 42, 0.08) !important;
+    border-radius: 0 0 14px 14px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-top: none !important;
+    z-index: 999999 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(8px) !important;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s !important;
+    padding: 6px 0 !important;
 }
-.side__bar .hideshow > li:hover > .side__barsub {
-    display: block;
+.header-floating-cat-menu.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
 }
-.side__barsub > li:hover > .side__barchild {
-    display: block;
+.header-floating-cat-menu .home-cat-list {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
 }
-.side__barsub li a,
-.side__barchild li a {
-    display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 16px !important;
-    color: #334155 !important;
-    font-size: 13px !important;
-    font-weight: 500 !important;
-    text-decoration: none;
-    transition: all 0.2s ease;
+.catagory_menu {
+    position: relative !important;
+    overflow: visible !important;
 }
-.side__barsub li:hover > a,
-.side__barchild li:hover > a {
-    background: #f8fafc !important;
-    color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
-    padding-left: 20px !important;
+.heder__category {
+    overflow: visible !important;
 }
 
 /* Menu Nav Links (Home, Sellers, Contact) */
@@ -2138,39 +2084,63 @@ section.slider-section {
                                 <div class="catagory_menu">
                                     <ul class="heder__category">
                                         <div>
-                                            <li class="all__category__list">
-                                                <a href="#">ALL CATEGORIES <i class="fa-solid fa-list"></i>
+                                            <li class="all__category__list {{ Request::is('/') ? 'homepage-cat-btn' : '' }}" id="headerAllCatItem">
+                                                <a href="javascript:void(0);" id="headerAllCatToggle" class="all__cat__btn" title="All Categories">
+                                                    <span>ALL CATEGORIES</span>
+                                                    <i class="fa-solid fa-list cat-toggle-icon"></i>
                                                 </a>
-                                                @if(Request::is('/'))
-                                                <div></div>
-                                                @else
-                                                <div class="sidebar-menu side__bar">
-                                                    <ul class="hideshow">
+                                                @if(!Request::is('/'))
+                                                <div class="header-floating-cat-menu" id="headerFloatingCatMenu">
+                                                    <ul class="hideshow home-cat-list">
                                                         @foreach ($menucategories as $key => $category)
-                                                            <li>
-                                                                <a href="{{ route('category', $category->slug) }}">
-                                                                    <img src="{{ asset($category->image) }}" alt="" />
-                                                                    {{ $category->name }}
-                                                                    <i class="fa-solid fa-chevron-right"></i>
+                                                            <li class="home-cat-item">
+                                                                <a href="{{ route('category', $category->slug) }}" class="home-cat-link">
+                                                                    <div class="home-cat-link-left">
+                                                                        @if($category->icon)
+                                                                            <img src="{{ asset($category->icon) }}"
+                                                                                 alt="{{ $category->name }}"
+                                                                                 class="side_cat_img"
+                                                                                 loading="lazy" />
+                                                                        @elseif($category->image)
+                                                                            <img src="{{ asset($category->image) }}"
+                                                                                 alt="{{ $category->name }}"
+                                                                                 class="side_cat_img"
+                                                                                 loading="lazy" />
+                                                                        @else
+                                                                            <span class="home-cat-icon-fallback"><i class="fa-solid fa-shapes"></i></span>
+                                                                        @endif
+                                                                        <span class="home-cat-name">{{ $category->name }}</span>
+                                                                    </div>
+                                                                    @if($category->subcategories && $category->subcategories->count() > 0)
+                                                                        <i class="fa-solid fa-chevron-right home-cat-arrow"></i>
+                                                                    @endif
                                                                 </a>
-                                                                <ul class="sidebar-submenu side__barsub">
-                                                                    @foreach ($category->subcategories as $key => $subcategory)
-                                                                        <li>
-                                                                            <a href="{{ route('subcategory', $subcategory->slug) }}">
-                                                                                {{ $subcategory->subcategoryName }} <i
-                                                                                    class="fa-solid fa-chevron-right"></i> </a>
-                                                                            <ul class="sidebar-childmenu side__barchild">
-                                                                                @foreach ($subcategory->childcategories as $key => $childcat)
-                                                                                    <li>
-                                                                                        <a href="{{ route('products', $childcat->slug) }}">
+
+                                                                @if($category->subcategories && $category->subcategories->count() > 0)
+                                                                <ul class="sidebar-submenu home-cat-submenu">
+                                                                    @foreach ($category->subcategories as $subcategory)
+                                                                        <li class="home-subcat-item">
+                                                                            <a href="{{ route('subcategory', $subcategory->slug) }}" class="home-subcat-link">
+                                                                                <span>{{ $subcategory->subcategoryName }}</span>
+                                                                                @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
+                                                                                    <i class="fa-solid fa-chevron-right home-cat-arrow"></i>
+                                                                                @endif
+                                                                            </a>
+                                                                            @if($subcategory->childcategories && $subcategory->childcategories->count() > 0)
+                                                                            <ul class="sidebar-childmenu home-cat-childmenu">
+                                                                                @foreach ($subcategory->childcategories as $childcat)
+                                                                                    <li class="home-childcat-item">
+                                                                                        <a href="{{ route('products', $childcat->slug) }}" class="home-childcat-link">
                                                                                             {{ $childcat->childcategoryName }}
                                                                                         </a>
                                                                                     </li>
                                                                                 @endforeach
                                                                             </ul>
+                                                                            @endif
                                                                         </li>
                                                                     @endforeach
                                                                 </ul>
+                                                                @endif
                                                             </li>
                                                         @endforeach
                                                     </ul>
@@ -3232,29 +3202,82 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
 <script>
     $(document).ready(function() {
         $(".category-slider").owlCarousel({
-            margin: 15,
+            margin: 14,
             loop: true,
             dots: false,
             autoplay: true,
-            autoplayTimeout: 6000,
+            autoplayTimeout: 4500,
             autoplayHoverPause: true,
             responsiveClass: true,
+            nav: true,
+            navText: [
+                '<button type="button" class="cat-nav-btn cat-prev" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>',
+                '<button type="button" class="cat-nav-btn cat-next" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>'
+            ],
             responsive: {
                 0: {
                     items: 3,
-                    nav: true,
-                },
-                600: {
-                    items: 5,
+                    margin: 8,
                     nav: false,
+                },
+                480: {
+                    items: 4,
+                    margin: 10,
+                    nav: false,
+                },
+                768: {
+                    items: 6,
+                    margin: 12,
+                    nav: true,
                 },
                 1000: {
                     items: 8,
+                    margin: 14,
                     nav: true,
                     loop: false,
                 },
             },
         });
+
+        // Header Floating Category Dropdown Toggle (Non-home pages)
+        (function() {
+            var toggleBtn = document.getElementById('headerAllCatToggle');
+            var menu = document.getElementById('headerFloatingCatMenu');
+            var container = document.getElementById('headerAllCatItem');
+
+            if (toggleBtn && menu && container) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var isOpen = menu.classList.contains('show');
+                    if (isOpen) {
+                        menu.classList.remove('show');
+                        container.classList.remove('open');
+                    } else {
+                        menu.classList.add('show');
+                        container.classList.add('open');
+                    }
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!container.contains(e.target)) {
+                        menu.classList.remove('show');
+                        container.classList.remove('open');
+                    }
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' || e.key === 'Esc') {
+                        menu.classList.remove('show');
+                        container.classList.remove('open');
+                    }
+                });
+            } else if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            }
+        })();
 
         $(".product_slider").owlCarousel({
             margin: 15,

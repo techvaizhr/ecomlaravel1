@@ -119,39 +119,47 @@
     </div>
 </section>
 
-{{-- CATEGORY SLIDER SECTION --}}
+{{-- CATEGORY SLIDER SECTION (Clean & Modern Redesign) --}}
 <section class="homeproduct home-category-section">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
-                <div class="sec_title">
-                    <h3 class="section-title-header">
-                        <div class="timer_inner">
-                            <div>
-                                <span class="section-title-name"> Categories </span>
-                            </div>
+                <div class="cat-modern-header">
+                    <div class="cat-modern-title-group">
+                        <span class="cat-modern-badge"><i class="fa-solid fa-layer-group"></i></span>
+                        <div class="cat-modern-text">
+                            <h2 class="cat-modern-title">জনপ্রিয় ক্যাটাগরি</h2>
+                            <p class="cat-modern-subtitle">আপনার প্রয়োজনীয় ক্যাটাগরি থেকে সহজে কেনাকাটা করুন</p>
                         </div>
-                    </h3>
+                    </div>
+                    <a href="{{ route('shop') }}" class="cat-modern-viewall">
+                        <span>সব দেখুন</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
             <div class="col-sm-12">
-                <div class="category-slider owl-carousel">
+                <div class="category-slider owl-carousel cat-slider-modern">
                     @foreach ($menucategories as $value)
-                        <div class="cat_item">
-                            <div class="cat_img">
-                                <a href="{{ route('category', $value->slug) }}">
-                                    <img src="{{ asset($value->image) }}"
-                                         alt="{{ $value->name }}"
-                                         class="img-fluid"
-                                         loading="lazy" />
-                                </a>
-                            </div>
-                            <div class="cat_name">
-                                <a href="{{ route('category', $value->slug) }}"
-                                   style="color: #000; text-decoration: none;">
-                                    {{ $value->name }}
-                                </a>
-                            </div>
+                        <div class="cat_card_modern">
+                            <a href="{{ route('category', $value->slug) }}" class="cat_card_link">
+                                <div class="cat_icon_bubble">
+                                    @if($value->image)
+                                        <img src="{{ asset($value->image) }}"
+                                             alt="{{ $value->name }}"
+                                             class="cat_bubble_img"
+                                             loading="lazy" />
+                                    @elseif($value->icon)
+                                        <img src="{{ asset($value->icon) }}"
+                                             alt="{{ $value->name }}"
+                                             class="cat_bubble_img"
+                                             loading="lazy" />
+                                    @else
+                                        <span class="cat_bubble_fallback"><i class="fa-solid fa-shapes"></i></span>
+                                    @endif
+                                </div>
+                                <h3 class="cat_card_title">{{ $value->name }}</h3>
+                            </a>
                         </div>
                     @endforeach
                 </div>
