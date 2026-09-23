@@ -5876,8 +5876,27 @@ section.pro_details_area {
     border-color: #303d6e !important;
     outline: 2px solid #303d6e !important;
     outline-offset: 2px !important;
-    box-shadow: inset 0 0 0 3.5px #ffffff !important;
+    box-shadow: inset 0 0 0 3.5px #ffffff, 0 3px 8px rgba(48, 61, 110, 0.2) !important;
     transform: scale(1.06) !important;
+}
+
+.pro-color .selector-item_label span,
+.quick-color-swatch span {
+    display: none !important;
+}
+
+/* 🏷️ Size / Variant Selected — matching color double-ring / outline-offset style */
+.pro-size .selector-item_radio:checked + .selector-item_label,
+.quick-size-radio:checked + .quick-size-pill,
+.selector-item_radio:checked + .selector-item_label:not(.pro-color .selector-item_label):not(.quick-color-swatch) {
+    border-color: #303d6e !important;
+    outline: 2px solid #303d6e !important;
+    outline-offset: 2px !important;
+    background: #303d6e15 !important;
+    color: #303d6e !important;
+    font-weight: 700 !important;
+    transform: scale(1.06) !important;
+    box-shadow: 0 3px 8px rgba(48, 61, 110, 0.16) !important;
 }
 
 /* ⚡ Quick Variation Modal */

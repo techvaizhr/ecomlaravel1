@@ -42,17 +42,29 @@
             /* 🚀 CRITICAL VIEWPORT & LAYOUT STABILIZATION (Smooth Page Load & Zero Flash) */
             html {
                 overflow-x: hidden;
-                background-color: #ffffff;
+                background-color: #f6f8fb;
             }
             body {
                 overflow-x: hidden;
                 width: 100%;
-                background-color: #ffffff;
+                background-color: #f6f8fb !important;
                 position: relative;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
             }
             #loading {
+                display: none !important;
+            }
+            #page-overlay:not(.active) {
+                display: none !important;
+            }
+            .sidebar-cart-overlay:not(.active) {
+                display: none !important;
+            }
+            #snx-popup:not(.snx-show) {
+                display: none !important;
+            }
+            #gcc-panel:not(.open) {
                 display: none !important;
             }
             /* Smooth stable product display without jarring WOW zoomIn flashing */
@@ -3142,7 +3154,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         <!-- /. fixed sidebar -->
 
         <div id="custom-modal"></div>
-        <div id="page-overlay"></div>
+        <div id="page-overlay" style="display: none;"></div>
         <div id="loading" style="display: none;"><div class="custom-loader"></div></div>
         <script>document.addEventListener('DOMContentLoaded',function(){var e=document.getElementById('loading');if(e)e.style.display='none';});</script>
 
@@ -4353,6 +4365,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
 {{-- 🛍️ MODERN LIVE SALES NOTIFICATION POPUP --}}
 <style>
 #snx-popup {
+    display: none;
     position: fixed;
     bottom: 24px;
     left: 24px;
@@ -4362,7 +4375,6 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 14px 38px -4px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
-    display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px 14px;
@@ -4519,7 +4531,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
 }
 </style>
 
-<div id="snx-popup" role="alert" aria-live="polite">
+<div id="snx-popup" style="display: none;" role="alert" aria-live="polite">
     <button class="snx-close" id="snx-close-btn" aria-label="Close" title="বিজ্ঞপ্তিটি বন্ধ করুন">
         <i class="fa-solid fa-xmark"></i>
     </button>
@@ -4582,13 +4594,21 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         };
         productEl.style.cursor = item.product_url && item.product_url !== '#' ? 'pointer' : 'default';
 
-        popup.classList.add('snx-show');
+        popup.style.display = 'flex';
+        requestAnimationFrame(function() {
+            popup.classList.add('snx-show');
+        });
         clearTimeout(hideTimer);
         hideTimer = setTimeout(hidePopup, SHOW_DURATION);
     }
 
     function hidePopup() {
         popup.classList.remove('snx-show');
+        setTimeout(function() {
+            if (!popup.classList.contains('snx-show')) {
+                popup.style.display = 'none';
+            }
+        }, 400);
     }
 
     function showNext() {

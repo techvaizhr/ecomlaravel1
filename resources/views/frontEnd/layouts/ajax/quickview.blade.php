@@ -120,7 +120,6 @@
                                        style="background-color: {{ $color->color ?? '#ddd' }}"
                                        class="selector-item_label quick-color-swatch"
                                        title="{{ $color->getDisplayName() ?? $color->colorName ?? $color->name }}">
-                                    <span><img src="{{ asset('public/frontEnd/images/check-icon.svg') }}" alt="✓" /></span>
                                 </label>
                             </div>
                             @endforeach

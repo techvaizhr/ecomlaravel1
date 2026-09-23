@@ -402,7 +402,6 @@
                                                             <label for="fc-option{{ $procolor->id }}"
                                                                 style="background-color: {{ $procolor->color ?? '#ccc' }}"
                                                                 class="selector-item_label">
-                                                                <span><img src="{{ asset('public/frontEnd/images/check-icon.svg') }}" alt="Checked Icon" /></span>
                                                             </label>
                                                         </div>
                                                         @endforeach
@@ -994,31 +993,20 @@
 
     function initProductZoom() {
         if (window.innerWidth >= 992 && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
-            if ($(".block__pic").length && typeof $.fn.imagezoomsl === "function") {
-                $('.magnifier, .cursorshade, .statusdiv, .tracker').remove();
-                $(".block__pic").each(function() {
-                    var img = this;
-                    var $img = $(img);
-                    function applyZoom() {
-                        if ($img.data('zoom-initialized')) return;
-                        $img.data('zoom-initialized', true);
-                        try {
-                            $img.imagezoomsl({
-                                zoomrange: [2, 2],
-                                magnifierspeedanimate: 200,
-                                loadopacity: 0,
-                                cursorshade: true,
-                                cursorshadeopacity: 0.15
-                            });
-                        } catch(e) {}
-                    }
-                    if (img.complete && img.naturalWidth > 0) {
-                        setTimeout(applyZoom, 60);
-                    } else {
-                        $img.one('load', applyZoom);
-                    }
-                });
-            }
+            $(document).off('mouseenter.zoom', '.block__pic').on('mouseenter.zoom', '.block__pic', function() {
+                var $img = $(this);
+                if ($img.data('zoom-initialized') || typeof $.fn.imagezoomsl !== 'function') return;
+                $img.data('zoom-initialized', true);
+                try {
+                    $img.imagezoomsl({
+                        zoomrange: [2, 2],
+                        magnifierspeedanimate: 0,
+                        loadopacity: 1,
+                        cursorshade: true,
+                        cursorshadeopacity: 0.15
+                    });
+                } catch(e) {}
+            });
         }
     }
 

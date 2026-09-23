@@ -52,6 +52,7 @@
 
 /* CHAT MODAL / PANEL */
 #gcc-panel {
+    display: none;
     position: fixed;
     right: 20px;
     bottom: 80px;
@@ -63,7 +64,6 @@
     background: #ffffff;
     border-radius: 18px;
     box-shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
-    display: flex;
     flex-direction: column;
     overflow: hidden;
     transform: scale(0.92) translateY(24px);
@@ -72,6 +72,7 @@
     transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 #gcc-panel.open {
+    display: flex !important;
     transform: scale(1) translateY(0);
     opacity: 1;
     pointer-events: auto;
@@ -462,7 +463,7 @@
 </style>
 
 <div id="gcc-widget">
-    <div id="gcc-panel">
+    <div id="gcc-panel" style="display: none;">
         <div id="gcc-header">
             <div id="gcc-header-top">
                 <div style="display:flex;align-items:center;gap:10px;">
@@ -642,8 +643,11 @@
 
     function openPanel() {
         isOpen = true;
-        panel.classList.add('open');
-        toggle.classList.add('open');
+        panel.style.display = 'flex';
+        requestAnimationFrame(function () {
+            panel.classList.add('open');
+            toggle.classList.add('open');
+        });
         if (!welcomed) { appendBubble('bot', welcome); welcomed = true; }
         setTimeout(function () { input.focus(); }, 200);
     }
@@ -652,6 +656,11 @@
         isOpen = false;
         panel.classList.remove('open');
         toggle.classList.remove('open');
+        setTimeout(function() {
+            if (!panel.classList.contains('open')) {
+                panel.style.display = 'none';
+            }
+        }, 300);
     }
 
     function sendMessage(text) {
