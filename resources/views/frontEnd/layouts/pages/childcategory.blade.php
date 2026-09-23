@@ -211,25 +211,30 @@
                                 </p>
                             </div>
 
-                            {{-- ✅ এখানে দুইটা বাটন (অর্ডার + কার্ট আইকন) যোগ করা হলো --}}
-                            @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
-                                {{-- ভ্যারিয়েন্ট থাকলে: শুধু ডিটেইল পেজে পাঠাবে --}}
+                            {{-- ✅ এখানে নতুন দুইটা বাটন লাগানো হলো --}}
+                            @if ($value->has_variants)
+                                {{-- ভ্যারিয়েন্ট আছে → পপআপ মডাল --}}
                                 <div class="pro_btn">
-                                    {{-- বড় "অর্ডার করুন" বাটন --}}
-                                    <a href="{{ route('product', $value->slug) }}"
-                                       class="order-btn-link order-btn">
+                                    {{-- বড় অর্ডার বাটন --}}
+                                    <button type="button"
+                                       class="order-btn-link order-btn quick_variant_modal"
+                                       data-id="{{ $value->id }}"
+                                       data-action="order">
                                         অর্ডার করুন
-                                    </a>
+                                    </button>
 
-                                    {{-- ডান পাশে ছোট কার্ট আইকন বাটন --}}
-                                    <a href="{{ route('product', $value->slug) }}"
-                                       class="cart-icon-link cart-icon-btn">
+                                    {{-- ছোট কার্ট আইকন বাটন --}}
+                                    <button type="button"
+                                       class="cart-icon-link cart-icon-btn quick_variant_modal"
+                                       data-id="{{ $value->id }}"
+                                       data-action="cart">
                                         <i class="fa-solid fa-cart-shopping"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             @else
-                                {{-- ভ্যারিয়েন্ট না থাকলে: সরাসরি কার্টে যোগ + অর্ডার --}}
+                                {{-- ভ্যারিয়েন্ট নেই → সরাসরি কার্ট + অর্ডার --}}
                                 <div class="pro_btn">
+
                                     {{-- Order Now --}}
                                     <form action="{{ route('cart.store') }}" method="POST">
                                         @csrf

@@ -83,7 +83,7 @@ class FrontendController extends Controller
         $hotdeal_top = Product::where(['status' => 1, 'approval_status' => 'approved', 'topsale' => 1])
             ->orderBy('id', 'DESC')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock')
-            ->with(['prosizes', 'procolors', 'image'])
+            ->with(['prosizes', 'procolors', 'image', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->limit(12)->get();
 
@@ -93,7 +93,7 @@ class FrontendController extends Controller
                 ->with(['products' => function ($q) {
                     $q->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'category_id')
                         ->where('status', 1)->where('approval_status', 'approved')
-                        ->with(['image', 'prosizes', 'procolors'])
+                        ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
                         ->withAvg(['reviews as reviews_avg_ratting' => fn ($r) => $r->where('status', 'active')], 'ratting');
                 }])
                 ->get()
@@ -190,7 +190,42 @@ class FrontendController extends Controller
         // [END] লজিক শেষ
         // =========================================================
 
-        $product = Product::with(['image', 'wholesalePrices'])->findOrFail($request->id);
+        $product = Product::with(['image', 'wholesalePrices', 'variantPrices'])->findOrFail($request->id);
+
+        // ---------------------------------------------------------
+        // ভ্যারিয়েন্ট প্রোডাক্টের জন্য কালার ও সাইজ নির্বাচন বাধ্যতামূলক চেক
+        // ---------------------------------------------------------
+        $hasVariantColors = false;
+        $hasVariantSizes  = false;
+        if ($product->variantPrices && $product->variantPrices->count() > 0) {
+            $hasVariantColors = $product->variantPrices->pluck('color_id')->filter()->isNotEmpty();
+            $hasVariantSizes  = $product->variantPrices->pluck('size_id')->filter()->isNotEmpty();
+        } else {
+            $hasVariantColors = $product->procolors()->exists();
+            $hasVariantSizes  = $product->prosizes()->exists();
+        }
+
+        if ($hasVariantColors && !$request->filled('product_color')) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'অনুগ্রহ করে রঙের ভ্যারিয়েন্ট সিলেক্ট করুন'
+                ], 422);
+            }
+            Toastr::warning('অনুগ্রহ করে রঙের ভ্যারিয়েন্ট সিলেক্ট করুন', 'ভ্যারিয়েন্ট নির্বাচন');
+            return redirect()->back()->withInput();
+        }
+
+        if ($hasVariantSizes && !$request->filled('product_size')) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'অনুগ্রহ করে সাইজ ভ্যারিয়েন্ট সিলেক্ট করুন'
+                ], 422);
+            }
+            Toastr::warning('অনুগ্রহ করে সাইজ ভ্যারিয়েন্ট সিলেক্ট করুন', 'ভ্যারিয়েন্ট নির্বাচন');
+            return redirect()->back()->withInput();
+        }
 
         // 1) প্রোডাক্টের স্টক বের করি
         $availableStock = $this->getAvailableStock($product);
@@ -385,7 +420,7 @@ class FrontendController extends Controller
     }
 
         $products = $products
-            ->with(['image', 'prosizes', 'procolors'])
+            ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(24)
             ->withQueryString();
@@ -410,7 +445,7 @@ class FrontendController extends Controller
             ->where('status', 1)
             ->where('approval_status', 'approved')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'sold')
-            ->with(['image', 'prosizes', 'procolors'])
+            ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting');
 
         // Sorting
@@ -560,7 +595,7 @@ class FrontendController extends Controller
             $products = $products->where('new_price','<=',$request->max_price);
         }
         $products = $products
-            ->with(['image', 'prosizes', 'procolors'])
+            ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(36)
             ->withQueryString();
@@ -664,7 +699,7 @@ class FrontendController extends Controller
         }
 
         $products = $products
-            ->with(['prosizes', 'procolors', 'image'])
+            ->with(['prosizes', 'procolors', 'image', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(36)
             ->withQueryString();
@@ -703,7 +738,7 @@ class FrontendController extends Controller
             $products = $products->where('new_price','<=',$request->max_price);
         }
         $products = $products
-            ->with(['image', 'prosizes', 'procolors'])
+            ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(36)
             ->withQueryString();
@@ -751,7 +786,7 @@ class FrontendController extends Controller
         });
 
         $products = $products
-            ->with(['image', 'prosizes', 'procolors'])
+            ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(24)
             ->withQueryString();
@@ -798,7 +833,7 @@ class FrontendController extends Controller
         });
 
         $products = $products
-            ->with(['image', 'prosizes', 'procolors'])
+            ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(24)
             ->withQueryString();
@@ -844,7 +879,7 @@ class FrontendController extends Controller
         }
 
         $products = $products
-            ->with(['image', 'prosizes', 'procolors'])
+            ->with(['image', 'prosizes', 'procolors', 'variantPrices'])
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->paginate(24)
             ->withQueryString();
@@ -883,7 +918,7 @@ class FrontendController extends Controller
             return Product::where('category_id', $details->category_id)
                 ->where('id', '!=', $details->id)
                 ->where(['status' => 1, 'approval_status' => 'approved'])
-                ->with(['image', 'category', 'brand', 'prosizes', 'procolors'])
+                ->with(['image', 'category', 'brand', 'prosizes', 'procolors', 'variantPrices'])
                 ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
                 ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'category_id', 'brand_id', 'pro_unit')
                 ->limit(12)
@@ -955,15 +990,29 @@ class FrontendController extends Controller
 
     public function quickview(Request $request)
     {
-        $data['data'] = Product::where(['id' => $request->id, 'status' => 1, 'approval_status' => 'approved'])
-            ->with('images')
+        $product = Product::where(['id' => $request->id, 'status' => 1, 'approval_status' => 'approved'])
+            ->with([
+                'images',
+                'image',
+                'category',
+                'brand',
+                'variantPrices.color',
+                'variantPrices.size',
+                'wholesalePrices',
+                'prosizes',
+                'procolors'
+            ])
             ->withCount('reviews')
             ->first();
 
-        $data = view('frontEnd.layouts.ajax.quickview', $data)->render();
-        if ($data != '') {
-            echo $data;
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
         }
+
+        $data['data'] = $product;
+        $data['defaultAction'] = $request->get('action', 'cart');
+
+        return view('frontEnd.layouts.ajax.quickview', $data);
     }
 
     public function livesearch(Request $request)

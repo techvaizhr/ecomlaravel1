@@ -2177,6 +2177,7 @@ section.slider-section {
 
 
                                         <div> <li><a href="{{route('home')}}">Home</a></li></div>
+                                        <div> <li><a href="{{route('shop')}}">Shop</a></li></div>
                                         @if(($generalsetting?->vendor_enabled ?? 1) == 1)
                                         <div><li><a href="{{route('sellers')}}">Sellers</a></li></div>
                                         @endif
@@ -3389,11 +3390,36 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                 if (!$form.length) return;
                 var id = $btn.data("id") || $form.find("input[name=id]").val();
                 if (!id) return;
+
+                // ভ্যারিয়েন্ট নির্বাচন যাচাই
+                var $colorRadios = $form.find('input[name="product_color"]');
+                if ($colorRadios.length > 0 && !$form.find('input[name="product_color"]:checked').val()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    toastr.error('অনুগ্রহ করে একটি কালার সিলেক্ট করুন', 'ভ্যারিয়েন্ট নির্বাচন');
+                    return false;
+                }
+
+                var $sizeRadios = $form.find('input[name="product_size"]');
+                if ($sizeRadios.length > 0 && !$form.find('input[name="product_size"]:checked').val()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    toastr.warning('অনুগ্রহ করে একটি সাইজ সিলেক্ট করুন', 'ভ্যারিয়েন্ট নির্বাচন');
+                    return false;
+                }
+
                 e.preventDefault();
                 $form.addClass('cart-ajax-submit');
+
+                var postData = $form.serialize();
+                var isOrderNow = $btn.is('[name="order_now"]') || $btn.hasClass('order_now_btn');
+                if (isOrderNow && postData.indexOf('order_now') === -1) {
+                    postData += '&order_now=1';
+                }
+
                 $.ajax({
                     type: "POST",
-                    data: $form.serialize(),
+                    data: postData,
                     url: $form.attr('action'),
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     dataType: "json",
@@ -3423,27 +3449,49 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                             cart_count();
                             mobile_cart();
                             if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
-                            var isOrderNow = $btn.is('[name="order_now"]') || $btn.hasClass('order_now_btn');
                             if (isOrderNow) {
                                 window.location.href = '{{ route('customer.checkout') }}';
                                 return;
                             }
                             runFlyToCart($btn, function() { if (typeof openSidebarCart === "function") openSidebarCart(); });
                         } else {
-                            toastr.error(data && data.message ? data.message : 'Failed');
+                            toastr.error(data && data.message ? data.message : 'কার্টে যোগ করা যায়নি');
                         }
                     },
                     error: function(xhr) {
-                        try {
-                            var d = xhr.responseJSON;
-                            if (d && !d.success) {
-                                toastr.error(d.message || 'Failed');
-                                return;
-                            }
-                        } catch(e) {}
-                        $form.submit();
+                        var msg = 'কার্টে যোগ করা যায়নি';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        toastr.error(msg, 'ত্রুটি');
                     },
                     complete: function() { $form.removeClass('cart-ajax-submit'); }
+                });
+            });
+
+            // ⚡ Quick Variation Modal from Grid / Listing Buttons
+            $(document).on("click", ".quick_variant_modal", function (e) {
+                e.preventDefault();
+                var $btn = $(this);
+                var id = $btn.data("id");
+                var action = $btn.data("action") || 'cart';
+                if (!id) return;
+
+                $("#page-overlay").fadeIn(150);
+                $("#custom-modal").html('<div class="quick-modal-backdrop"><div class="quick-variant-modal-dialog" style="padding:40px; text-align:center;"><div class="spinner-border text-primary" role="status"></div><p style="margin-top:10px; font-weight:600; color:#64748b;">লোড হচ্ছে...</p></div></div>').fadeIn(150);
+
+                $.ajax({
+                    type: "GET",
+                    url: "{{ route('quickview') }}",
+                    data: { id: id, action: action },
+                    success: function (res) {
+                        $("#custom-modal").html(res);
+                    },
+                    error: function () {
+                        $("#custom-modal").fadeOut(150);
+                        $("#page-overlay").fadeOut(150);
+                        toastr.error('ভ্যারিয়েন্ট লোড করতে সমস্যা হয়েছে');
+                    }
                 });
             });
 

@@ -460,17 +460,20 @@
                                             </div>
                                         </div>
                                         <div class="single_product col-12">
-                                            <input type="submit"
+                                            <button type="submit"
                                                 class="btn add_cart_btn cart_store"
                                                 data-id="{{ $details->id }}"
-                                                onclick="return sendSuccess();"
                                                 name="add_cart"
-                                                value="কার্টে যোগ করুন" />
-                                            <input type="submit"
-                                                class="btn order_now_btn order_now_btn_m"
-                                                onclick="return sendSuccess();"
+                                                value="1">
+                                                <i class="fa-solid fa-cart-shopping me-1"></i> কার্টে যোগ করুন
+                                            </button>
+                                            <button type="submit"
+                                                class="btn order_now_btn order_now_btn_m cart_store"
+                                                data-id="{{ $details->id }}"
                                                 name="order_now"
-                                                value="অর্ডার করুন" />
+                                                value="1">
+                                                <i class="fa-solid fa-bolt me-1"></i> অর্ডার করুন
+                                            </button>
                                         </div>
                                     </div>
 
@@ -747,23 +750,24 @@
                             </p>
                         </div>
 
-                        {{-- ⭐⭐⭐ BUTTON AREA (Added) ⭐⭐⭐ --}}
-                        @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
-                        {{-- ভ্যারিয়েন্ট আছে = দুই বাটনই product details page এ যাবে --}}
+                        {{-- ⭐⭐⭐ BUTTON AREA ⭐⭐⭐ --}}
+                        @if ($value->has_variants)
+                        {{-- ভ্যারিয়েন্ট আছে = কুইক ভ্যারিয়েন্ট পপআপ মডাল --}}
                         <div class="pro_btn">
-
-                            <a href="{{ route('product', $value->slug) }}" 
-                                class="order-btn-link order-btn">
+                            <button type="button" 
+                                class="order-btn-link order-btn quick_variant_modal"
+                                data-id="{{ $value->id }}"
+                                data-action="order">
                                 অর্ডার করুন
-                            </a>
+                            </button>
 
-                            <a href="{{ route('product', $value->slug) }}" 
-                                class="cart-icon-link cart-icon-btn">
+                            <button type="button" 
+                                class="cart-icon-link cart-icon-btn quick_variant_modal"
+                                data-id="{{ $value->id }}"
+                                data-action="cart">
                                 <i class="fa-solid fa-cart-shopping"></i>
-                            </a>
-
+                            </button>
                         </div>
-
                         @else
                         {{-- ভ্যারিয়েন্ট নেই = Order Now + Add to Cart --}}
                         <div class="pro_btn">

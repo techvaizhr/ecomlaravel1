@@ -269,15 +269,15 @@
                             </div>
 
                             {{-- দুইটা বাটন: অর্ডার + কার্ট --}}
-                            @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
-                                {{-- ভ্যারিয়েন্ট প্রোডাক্ট – দুটোই ডিটেইল পেজে --}}
+                            @if ($value->has_variants)
+                                {{-- ভ্যারিয়েন্ট প্রোডাক্ট – পপআপ মডাল --}}
                                 <div class="pro_btn">
-                                    <a href="{{ route('product', $value->slug) }}" class="order-btn-link">
+                                    <button type="button" class="order-btn-link order-btn quick_variant_modal" data-id="{{ $value->id }}" data-action="order">
                                         অর্ডার করুন
-                                    </a>
-                                    <a href="{{ route('product', $value->slug) }}" class="cart-icon-link">
+                                    </button>
+                                    <button type="button" class="cart-icon-link cart-icon-btn quick_variant_modal" data-id="{{ $value->id }}" data-action="cart">
                                         <i class="fa-solid fa-cart-shopping"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             @else
                                 {{-- সিম্পল প্রোডাক্ট --}}
@@ -418,14 +418,14 @@
                                     </div>
 
                                     {{-- দুইটা বাটন: অর্ডার + কার্ট --}}
-                                    @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
+                                    @if ($value->has_variants)
                                         <div class="pro_btn">
-                                            <a href="{{ route('product', $value->slug) }}" class="order-btn-link">
+                                            <button type="button" class="order-btn-link order-btn quick_variant_modal" data-id="{{ $value->id }}" data-action="order">
                                                 অর্ডার করুন
-                                            </a>
-                                            <a href="{{ route('product', $value->slug) }}" class="cart-icon-link">
+                                            </button>
+                                            <button type="button" class="cart-icon-link cart-icon-btn quick_variant_modal" data-id="{{ $value->id }}" data-action="cart">
                                                 <i class="fa-solid fa-cart-shopping"></i>
-                                            </a>
+                                            </button>
                                         </div>
                                     @else
                                         <div class="pro_btn">

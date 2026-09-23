@@ -14,7 +14,19 @@
     <ul>
     @foreach(Cart::instance('shopping')->content() as $key=>$value)
       <li><a href=""><img src="{{asset($value->options->image)}}" alt=""></a></li>
-      <li><a href="">{{$value->name}}</a></li>
+      <li>
+        <a href="">{{$value->name}}</a>
+        @if(!empty($value->options->product_size) || !empty($value->options->product_color))
+          <div style="font-size: 11px; color: #777; margin-top: 2px;">
+            @if(!empty($value->options->product_size))
+              <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-right: 4px;">সাইজ: {{ $value->options->product_size }}</span>
+            @endif
+            @if(!empty($value->options->product_color))
+              <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; display: inline-block;">কালার: {{ $value->options->product_color }}</span>
+            @endif
+          </div>
+        @endif
+      </li>
       <li>Qty: {{$value->qty}}</li>
       <li><p>৳{{$value->price}}</p><button class="remove-cart cart_remove" data-id="{{$value->rowId}}"><i data-feather="x"></i></button></li>
     @endforeach

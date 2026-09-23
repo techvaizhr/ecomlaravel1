@@ -555,6 +555,7 @@
             $p = \App\Models\Product::find($item->id);
             if ($p && $p->is_digital == 1) { $hasDigital = true; }
             $cartItemsForJs[] = [
+                'rowId'             => $item->rowId,
                 'id'                => $item->id,
                 'name'              => $item->name,
                 'qty'               => $item->qty,
@@ -882,7 +883,7 @@
                                 {{-- Products List (Scrollable) --}}
                                 <div class="cart-items-scroll px-4 pt-3 cartlist {{ Cart::instance('shopping')->count() ? '' : 'is-empty' }}" style="overflow-y: auto;">
                                     @foreach (Cart::instance('shopping')->content() as $value)
-                                        <div class="checkout-item">
+                                        <div class="checkout-item" data-rowid="{{ $value->rowId }}">
                                             {{-- Remove --}}
                                             <a class="remove-item-btn cart_remove" data-id="{{ $value->rowId }}" title="Remove Item">
                                                 <i class="far fa-trash-alt"></i>
@@ -898,10 +899,16 @@
                                                 <a href="{{ route('product', $value->options->slug) }}" class="text-dark text-decoration-none">
                                                     <h6>{{ Str::limit($value->name, 35) }}</h6>
                                                 </a>
-                                                <div class="meta text-muted small mb-1">
-                                                    @if($value->options->product_size) Size: {{$value->options->product_size}} @endif
-                                                    @if($value->options->product_color) | Color: {{$value->options->product_color}} @endif
-                                                </div>
+                                                @if(!empty($value->options->product_size) || !empty($value->options->product_color))
+                                                    <div class="checkout-variant-badges my-1 d-flex flex-wrap gap-1">
+                                                        @if(!empty($value->options->product_size))
+                                                            <span class="badge bg-light text-dark border fw-normal" style="font-size: 11.5px; padding: 2px 7px; border-radius: 4px;">সাইজ: {{ $value->options->product_size }}</span>
+                                                        @endif
+                                                        @if(!empty($value->options->product_color))
+                                                            <span class="badge bg-light text-dark border fw-normal" style="font-size: 11.5px; padding: 2px 7px; border-radius: 4px;">কালার: {{ $value->options->product_color }}</span>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                                 
                                                 {{-- Price & Qty --}}
                                                 <div class="d-flex justify-content-between align-items-center">
@@ -910,7 +917,7 @@
                                                         <span class="qty-val qty-value">{{ $value->qty }}</span>
                                                         <button type="button" class="qty-btn plus"><i class="fas fa-plus" style="font-size:10px;"></i></button>
                                                     </div>
-                                                    <div class="fw-bold text-dark">৳ {{ number_format($value->price * $value->qty, 0) }}</div>
+                                                    <div class="fw-bold text-dark item-total-price">৳ {{ number_format($value->price * $value->qty, 0) }}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1222,46 +1229,159 @@ document.addEventListener('DOMContentLoaded', function () {
         // 1. CART LOGIC (REMOVE, INCREASE, DECREASE)
         // ==========================================
         
-        // Remove Item
+        let cartUpdating = false;
+
+        // Remove Item smoothly
         $(document).on('click', '.cart_remove', function(e) {
             e.preventDefault(); e.stopImmediatePropagation();
+            if (cartUpdating) return;
             var id = $(this).data("id");
+            var $itemRow = $(this).closest('.checkout-item');
+
             if (id) {
-                $("#loading").show();
+                cartUpdating = true;
+                $itemRow.css({ 'opacity': '0.4', 'pointer-events': 'none' });
                 $.ajax({
                     type: "GET",
                     url: "{{ route('cart.remove') }}",
                     data: { id: id },
-                    success: function() { toastr.success('Success', 'Item removed'); window.location.reload(); },
-                    error: function() { window.location.reload(); }
+                    dataType: 'json',
+                    headers: { 'Accept': 'application/json' },
+                    success: function(res) {
+                        cartUpdating = false;
+                        if (res && res.success) {
+                            if (res.isEmpty || res.count === 0) {
+                                window.location.reload();
+                                return;
+                            }
+                            $itemRow.slideUp(250, function() {
+                                $(this).remove();
+                            });
+                            cartItems = cartItems.filter(function(it) { return it.rowId !== id; });
+                            baseSubtotal = parseFloat(res.subtotal) || 0;
+                            $('#subtotalAmount').text('৳ ' + baseSubtotal.toFixed(2));
+                            applyShippingToDomAndSession();
+                            if (typeof cart_count === 'function') cart_count();
+                            if (typeof mobile_cart === 'function') mobile_cart();
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success('আইটেমটি কার্ট থেকে সরানো হয়েছে', 'সফল');
+                            }
+                        } else {
+                            window.location.reload();
+                        }
+                    },
+                    error: function() {
+                        cartUpdating = false;
+                        $itemRow.css({ 'opacity': '1', 'pointer-events': 'auto' });
+                        window.location.reload();
+                    }
                 });
             }
         });
 
-        // Quantity Increment
-        $('.checkout-qty .plus').on('click', function() {
-            var rowId = $(this).closest('.checkout-qty').data('rowid');
-            $("#loading").show();
-            $.get("{{ route('cart.increment') }}", { id: rowId }, function() { window.location.reload(); });
+        // Quantity Increment smoothly
+        $(document).on('click', '.checkout-qty .plus', function(e) {
+            e.preventDefault();
+            if (cartUpdating) return;
+            var $btn = $(this);
+            var $qtyBox = $btn.closest('.checkout-qty');
+            var $itemRow = $qtyBox.closest('.checkout-item');
+            var rowId = $qtyBox.data('rowid');
+
+            cartUpdating = true;
+            $qtyBox.css('opacity', '0.5');
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cart.increment') }}",
+                data: { id: rowId },
+                dataType: 'json',
+                headers: { 'Accept': 'application/json' },
+                success: function(res) {
+                    cartUpdating = false;
+                    $qtyBox.css('opacity', '1');
+                    if (res && res.success) {
+                        $qtyBox.find('.qty-val').text(res.item_qty);
+                        $itemRow.find('.item-total-price').text('৳ ' + Math.round(res.item_total).toLocaleString());
+                        baseSubtotal = parseFloat(res.subtotal) || 0;
+                        $('#subtotalAmount').text('৳ ' + baseSubtotal.toFixed(2));
+
+                        var foundItem = cartItems.find(function(it) { return it.rowId === rowId; });
+                        if (foundItem) { foundItem.qty = res.item_qty; }
+
+                        applyShippingToDomAndSession();
+                        if (typeof cart_count === 'function') cart_count();
+                        if (typeof mobile_cart === 'function') mobile_cart();
+                    } else {
+                        window.location.reload();
+                    }
+                },
+                error: function() {
+                    cartUpdating = false;
+                    $qtyBox.css('opacity', '1');
+                    window.location.reload();
+                }
+            });
         });
 
-        // Quantity Decrement
-        $('.checkout-qty .minus').on('click', function() {
-            var rowId = $(this).closest('.checkout-qty').data('rowid');
-            $("#loading").show();
-            $.get("{{ route('cart.decrement') }}", { id: rowId }, function() { window.location.reload(); });
+        // Quantity Decrement smoothly
+        $(document).on('click', '.checkout-qty .minus', function(e) {
+            e.preventDefault();
+            if (cartUpdating) return;
+            var $btn = $(this);
+            var $qtyBox = $btn.closest('.checkout-qty');
+            var $itemRow = $qtyBox.closest('.checkout-item');
+            var currentVal = parseInt($qtyBox.find('.qty-val').text()) || 1;
+            if (currentVal <= 1) return;
+
+            var rowId = $qtyBox.data('rowid');
+
+            cartUpdating = true;
+            $qtyBox.css('opacity', '0.5');
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cart.decrement') }}",
+                data: { id: rowId },
+                dataType: 'json',
+                headers: { 'Accept': 'application/json' },
+                success: function(res) {
+                    cartUpdating = false;
+                    $qtyBox.css('opacity', '1');
+                    if (res && res.success) {
+                        $qtyBox.find('.qty-val').text(res.item_qty);
+                        $itemRow.find('.item-total-price').text('৳ ' + Math.round(res.item_total).toLocaleString());
+                        baseSubtotal = parseFloat(res.subtotal) || 0;
+                        $('#subtotalAmount').text('৳ ' + baseSubtotal.toFixed(2));
+
+                        var foundItem = cartItems.find(function(it) { return it.rowId === rowId; });
+                        if (foundItem) { foundItem.qty = res.item_qty; }
+
+                        applyShippingToDomAndSession();
+                        if (typeof cart_count === 'function') cart_count();
+                        if (typeof mobile_cart === 'function') mobile_cart();
+                    } else {
+                        window.location.reload();
+                    }
+                },
+                error: function() {
+                    cartUpdating = false;
+                    $qtyBox.css('opacity', '1');
+                    window.location.reload();
+                }
+            });
         });
 
         // ==========================================
         // 2. SHIPPING & TOTAL CALCULATION
         // ==========================================
         
-        const baseSubtotal = parseFloat("{{ $subtotal ?? 0 }}");
-        const baseDiscount = parseFloat("{{ $discount ?? 0 }}");
-        const advanceAmount = parseFloat("{{ $advance_amount ?? 0 }}");
+        let baseSubtotal = parseFloat("{{ $subtotal ?? 0 }}");
+        let baseDiscount = parseFloat("{{ $discount ?? 0 }}");
+        let advanceAmount = parseFloat("{{ $advance_amount ?? 0 }}");
         const hasAdvance = @json($hasAdvance ?? false);
         const requiresShipping = @json($requires_shipping ?? false);
-        const cartItems = @json($cartItemsForJs ?? []);
+        let cartItems = @json($cartItemsForJs ?? []);
         const hasAllFreeDelivery = @json($hasAllFreeDelivery ?? false);
 
         // ⭐ Free Delivery Check Function

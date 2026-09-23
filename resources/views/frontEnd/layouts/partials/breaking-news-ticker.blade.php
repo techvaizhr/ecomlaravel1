@@ -11,7 +11,7 @@
 @if($showNewsTicker)
 <div class="news-ticker-bar" id="newsTickerBar" data-text="{{ e($breakingNewsText) }}" style="background:{{ $tickerBg }}; color:{{ $tickerTextCol }};">
     <div class="news-ticker-label" style="background:{{ $tickerLabelBg }}; color:{{ $tickerLabelTxt }};">
-        <i class="fas fa-bolt" style="margin-right:5px;"></i> Speacial Notice
+        <i class="fas fa-bolt" style="margin-right:5px;"></i> Today's Special
     </div>
     <div class="news-ticker-track">
         <div class="news-ticker-inner" id="newsTickerInner" style="animation-duration: {{ $tickerSpeed }}s;">

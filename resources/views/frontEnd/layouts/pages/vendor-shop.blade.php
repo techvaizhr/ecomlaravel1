@@ -181,15 +181,15 @@
                         </div>
 
                         {{-- Order and Cart Buttons --}}
-                        @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
-                            {{-- Variant product – go to detail page --}}
+                        @if ($value->has_variants)
+                            {{-- Variant product – open quick view modal --}}
                             <div class="pro_btn">
-                                <a href="{{ route('product', $value->slug) }}" class="order-btn-link">
+                                <button type="button" class="order-btn-link order-btn quick_variant_modal" data-id="{{ $value->id }}" data-action="order">
                                     অর্ডার করুন
-                                </a>
-                                <a href="{{ route('product', $value->slug) }}" class="cart-icon-link">
+                                </button>
+                                <button type="button" class="cart-icon-link cart-icon-btn quick_variant_modal" data-id="{{ $value->id }}" data-action="cart">
                                     <i class="fa-solid fa-cart-shopping"></i>
-                                </a>
+                                </button>
                             </div>
                         @else
                             {{-- Simple product --}}

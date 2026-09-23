@@ -132,6 +132,28 @@ class Product extends Model
         return $this->hasMany(ProductWholesalePrice::class, 'product_id')->orderBy('min_quantity', 'asc');
     }
 
+    public function hasVariants(): bool
+    {
+        if ($this->relationLoaded('variantPrices')) {
+            if ($this->variantPrices->isNotEmpty()) {
+                return true;
+            }
+        } elseif ($this->variantPrices()->exists()) {
+            return true;
+        }
+
+        if ($this->relationLoaded('prosizes') && $this->relationLoaded('procolors')) {
+            return $this->prosizes->isNotEmpty() || $this->procolors->isNotEmpty();
+        }
+
+        return $this->prosizes()->exists() || $this->procolors()->exists();
+    }
+
+    public function getHasVariantsAttribute(): bool
+    {
+        return $this->hasVariants();
+    }
+
     // ------------------------
     // Digital product related
     // ------------------------

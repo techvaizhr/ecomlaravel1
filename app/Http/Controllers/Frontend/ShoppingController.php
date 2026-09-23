@@ -115,10 +115,17 @@ class ShoppingController extends Controller
     public function addTocartGet($id, Request $request)
     {
         $qty = 1;
-        $productInfo = Product::find($id);
+        $productInfo = Product::with(['variantPrices', 'prosizes', 'procolors'])->find($id);
 
         if (!$productInfo) {
-            return response()->json(['error' => 'Product not found']);
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+
+        if ($productInfo->hasVariants()) {
+            return response()->json([
+                'error' => 'variation_required',
+                'message' => 'এই পণ্যটির ভ্যারিয়েন্ট সিলেক্ট করা প্রয়োজন।'
+            ], 422);
         }
 
         $productImage = DB::table('productimages')
@@ -299,6 +306,18 @@ class ShoppingController extends Controller
     public function cart_remove(Request $request)
     {
         Cart::instance('shopping')->update($request->id, 0);
+
+        if ($request->ajax() && ($request->wantsJson() || $request->has('json') || $request->header('Accept') === 'application/json')) {
+            $count = Cart::instance('shopping')->count();
+            $subtotal = floatval(preg_replace('/[^\d.]/', '', Cart::instance('shopping')->subtotal()));
+            return response()->json([
+                'success'  => true,
+                'count'    => $count,
+                'subtotal' => $subtotal,
+                'isEmpty'  => $count === 0,
+            ]);
+        }
+
         return $this->cartFragmentView($request);
     }
 
@@ -307,11 +326,28 @@ class ShoppingController extends Controller
     {
         $item = Cart::instance('shopping')->get($request->id);
         if (!$item) {
+            if ($request->ajax() && ($request->wantsJson() || $request->has('json') || $request->header('Accept') === 'application/json')) {
+                return response()->json(['success' => false, 'message' => 'Item not found'], 404);
+            }
             return $this->cartFragmentView($request);
         }
 
         $qty = $item->qty + 1;
         $this->syncCartItemPrice($request->id, $qty);
+        $updatedItem = Cart::instance('shopping')->get($request->id);
+
+        if ($request->ajax() && ($request->wantsJson() || $request->has('json') || $request->header('Accept') === 'application/json')) {
+            $count = Cart::instance('shopping')->count();
+            $subtotal = floatval(preg_replace('/[^\d.]/', '', Cart::instance('shopping')->subtotal()));
+            return response()->json([
+                'success'    => true,
+                'count'      => $count,
+                'subtotal'   => $subtotal,
+                'item_qty'   => $updatedItem ? $updatedItem->qty : $qty,
+                'item_price' => $updatedItem ? (float) $updatedItem->price : 0,
+                'item_total' => $updatedItem ? (float) ($updatedItem->price * $updatedItem->qty) : 0,
+            ]);
+        }
 
         return $this->cartFragmentView($request);
     }
@@ -321,11 +357,28 @@ class ShoppingController extends Controller
     {
         $item = Cart::instance('shopping')->get($request->id);
         if (!$item) {
+            if ($request->ajax() && ($request->wantsJson() || $request->has('json') || $request->header('Accept') === 'application/json')) {
+                return response()->json(['success' => false, 'message' => 'Item not found'], 404);
+            }
             return $this->cartFragmentView($request);
         }
 
         $qty = max(1, $item->qty - 1);
         $this->syncCartItemPrice($request->id, $qty);
+        $updatedItem = Cart::instance('shopping')->get($request->id);
+
+        if ($request->ajax() && ($request->wantsJson() || $request->has('json') || $request->header('Accept') === 'application/json')) {
+            $count = Cart::instance('shopping')->count();
+            $subtotal = floatval(preg_replace('/[^\d.]/', '', Cart::instance('shopping')->subtotal()));
+            return response()->json([
+                'success'    => true,
+                'count'      => $count,
+                'subtotal'   => $subtotal,
+                'item_qty'   => $updatedItem ? $updatedItem->qty : $qty,
+                'item_price' => $updatedItem ? (float) $updatedItem->price : 0,
+                'item_total' => $updatedItem ? (float) ($updatedItem->price * $updatedItem->qty) : 0,
+            ]);
+        }
 
         return $this->cartFragmentView($request);
     }
