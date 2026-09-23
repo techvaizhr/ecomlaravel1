@@ -62,14 +62,50 @@
         stroke: {{ $brandPrimary }} !important;
       }
 
-      /* 🔔 Modern Notification Dropdown Styles */
-      .noti-dropdown-custom {
-        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.18), 0 0 1px 1px rgba(0, 0, 0, 0.05) !important;
-        animation: notiFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      /* 🔔 Modern Notification & Topbar Dropdown Styles (Header-attached & Fully Responsive) */
+      .topbar-dropdown {
+        position: relative;
+      }
+      .topbar-dropdown .noti-dropdown-custom {
+        position: absolute !important;
+        top: 100% !important;
+        right: 0 !important;
+        left: auto !important;
+        margin: 0 !important;
+        transform: none !important;
+        width: 380px !important;
+        max-width: calc(100vw - 20px) !important;
+        max-height: calc(100vh - 80px) !important;
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        border-bottom-left-radius: 16px !important;
+        border-bottom-right-radius: 16px !important;
+        box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+        border: none !important;
+        display: none;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        z-index: 1055 !important;
+        animation: notiFadeIn 0.18s ease-out;
+      }
+      .topbar-dropdown .noti-dropdown-custom.show {
+        display: flex !important;
       }
       @keyframes notiFadeIn {
-        from { opacity: 0; transform: translateY(8px); }
+        from { opacity: 0; transform: translateY(-4px); }
         to { opacity: 1; transform: translateY(0); }
+      }
+      .noti-dropdown-custom .noti-header-card {
+        flex-shrink: 0;
+      }
+      .noti-dropdown-custom .noti-scroll-custom {
+        flex: 1 1 auto;
+        max-height: calc(100vh - 210px) !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+      }
+      .noti-dropdown-custom .noti-footer-bar {
+        flex-shrink: 0;
       }
       .noti-item-row {
         transition: background-color 0.15s ease, padding-left 0.15s ease;
@@ -99,6 +135,38 @@
         0% { transform: scale(1); }
         50% { transform: scale(1.18); box-shadow: 0 0 10px rgba(239, 68, 68, 0.7); }
         100% { transform: scale(1); }
+      }
+
+      /* Profile Dropdown Flush with Header */
+      .topbar-dropdown .profile-dropdown-custom {
+        position: absolute !important;
+        top: 100% !important;
+        right: 0 !important;
+        left: auto !important;
+        margin: 0 !important;
+        transform: none !important;
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        border-bottom-left-radius: 16px !important;
+        border-bottom-right-radius: 16px !important;
+        box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+      }
+
+      /* Mobile & Small Screen Responsive */
+      @media (max-width: 576px) {
+        .topbar-dropdown .noti-dropdown-custom {
+          position: fixed !important;
+          top: 70px !important;
+          left: 10px !important;
+          right: 10px !important;
+          width: auto !important;
+          max-width: calc(100vw - 20px) !important;
+          max-height: calc(100vh - 85px) !important;
+          border-radius: 0 0 16px 16px !important;
+        }
+        .noti-dropdown-custom .noti-scroll-custom {
+          max-height: calc(100vh - 200px) !important;
+        }
       }
     </style>
     <!-- Page Level CSS -->
@@ -926,15 +994,15 @@
 
             {{-- 🔔 REDESIGNED MODERN NOTIFICATION DROPDOWN --}}
             <li class="dropdown notification-list topbar-dropdown">
-              <a class="nav-link dropdown-toggle waves-effect waves-light position-relative noti-bell-link" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" title="নতুন অর্ডার নোটিফিকেশন">
+              <a class="nav-link dropdown-toggle waves-effect waves-light position-relative noti-bell-link" data-bs-toggle="dropdown" data-bs-display="static" href="#" role="button" aria-haspopup="false" aria-expanded="false" title="নতুন অর্ডার নোটিফিকেশন">
                 <i class="fe-bell noti-icon"></i>
                 @if($neworder > 0)
                   <span class="badge bg-danger rounded-circle noti-icon-badge noti-pulse-badge">{{ $neworder > 99 ? '99+' : $neworder }}</span>
                 @endif
               </a>
-              <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0 rounded-4 overflow-hidden noti-dropdown-custom" style="width: 360px; max-width: calc(100vw - 24px); z-index: 1055;">
+              <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0 noti-dropdown-custom" style="z-index: 1055;">
                 {{-- Header Card --}}
-                <div class="p-3 text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, {{ $brandPrimary }} 0%, #0f172a 100%);">
+                <div class="p-3 text-white d-flex align-items-center justify-content-between noti-header-card" style="background: linear-gradient(135deg, {{ $brandPrimary }} 0%, #0f172a 100%);">
                   <div class="d-flex align-items-center gap-2">
                     <div class="avatar-xs rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center text-white" style="width: 34px; height: 34px;">
                       <i class="fe-bell" style="font-size: 15px;"></i>
@@ -995,7 +1063,7 @@
                 </div>
 
                 {{-- Footer Action Bar --}}
-                <div class="p-2 bg-light border-top text-center">
+                <div class="p-2 bg-light border-top text-center noti-footer-bar">
                   <a href="{{ route('admin.orders', ['slug' => 'pending']) }}" class="btn btn-sm btn-link text-primary fw-semibold text-decoration-none d-flex align-items-center justify-content-center gap-1 w-100 py-1">
                     <span>সকল পেন্ডিং অর্ডার দেখুন</span>
                     <i class="fe-arrow-right fs-12"></i>
@@ -1006,7 +1074,7 @@
 
             {{-- 👤 REDESIGNED MODERN PROFILE DROPDOWN --}}
             <li class="dropdown notification-list topbar-dropdown">
-              <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light d-flex align-items-center" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+              <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light d-flex align-items-center" data-bs-toggle="dropdown" data-bs-display="static" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                 <div>
                   <img src="{{asset(Auth::guard('admin')->user()->image ? Auth::guard('admin')->user()->image : 'public/backEnd/assets/images/users/user-1.jpg')}}" alt="user-image" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);" />
                 </div>
@@ -1014,7 +1082,7 @@
                   {{ Auth::guard('admin')->user()->name }} <i class="mdi mdi-chevron-down"></i>
                 </span>
               </a>
-              <div class="dropdown-menu dropdown-menu-end profile-dropdown-custom p-0 shadow-lg border-0 rounded-4 overflow-hidden" style="width: 270px; z-index: 1055;">
+              <div class="dropdown-menu dropdown-menu-end profile-dropdown-custom p-0 shadow-lg border-0 overflow-hidden" style="width: 270px; z-index: 1055;">
                 {{-- Header Card --}}
                 <div class="p-3 text-white" style="background: linear-gradient(135deg, {{ $brandPrimary }} 0%, #0f172a 100%);">
                   <div class="d-flex align-items-center gap-3">
