@@ -1069,20 +1069,18 @@ class FrontendController extends Controller
                 : view('frontEnd.layouts.ajax.cart');
         }
 
-        // Campaign / area based shipping charge
-        if ($request->boolean('campaign')) {
+        // 1. Try district delivery charge
+        $district = DeliveryDistrict::query()->whereKey($request->id)->where('status', 1)->first();
+        if ($district) {
+            Session::put('shipping', (int) $district->delivery_charge);
+            Session::put('shipping_district_id', $district->id);
+        } else {
+            // 2. Try generic shipping charge (area)
             $charge = \App\Models\ShippingCharge::where('id', $request->id)->where('status', 1)->first();
             if ($charge) {
                 Session::put('shipping', (int) $charge->amount);
                 Session::put('shipping_district_id', null);
             }
-            return view('frontEnd.layouts.ajax.campaign-cart-table');
-        }
-
-        $district = DeliveryDistrict::query()->whereKey($request->id)->where('status', 1)->first();
-        if ($district) {
-            Session::put('shipping', (int) $district->delivery_charge);
-            Session::put('shipping_district_id', $district->id);
         }
 
         return $request->boolean('campaign')
@@ -1207,12 +1205,15 @@ class FrontendController extends Controller
             Session::put('shipping', $select_charge->amount);
         }
 
+        $divisions = \App\Models\DeliveryDivision::active()->ordered()->get();
+        $generalsetting = GeneralSetting::first();
+
         // Page builder দিয়ে ডিজাইন করা থাকলে আলাদা ভিউ (যদি টেমপ্লেট ফাইল থাকে)
         if (!empty($campaign_data->page_html) && view()->exists('frontEnd.layouts.pages.campaign.campaign-builder')) {
-            return view('frontEnd.layouts.pages.campaign.campaign-builder', compact('campaign_data', 'products', 'shippingcharge', 'campaignVariants'));
+            return view('frontEnd.layouts.pages.campaign.campaign-builder', compact('campaign_data', 'products', 'shippingcharge', 'campaignVariants', 'divisions', 'generalsetting'));
         }
 
-        return view('frontEnd.layouts.pages.campaign.campaign', compact('campaign_data', 'products', 'shippingcharge', 'campaignVariants'));
+        return view('frontEnd.layouts.pages.campaign.campaign', compact('campaign_data', 'products', 'shippingcharge', 'campaignVariants', 'divisions', 'generalsetting'));
     }
 
     public function payment_success(Request $request)

@@ -751,8 +751,13 @@ class CustomerController extends Controller
 
         \App\Http\Controllers\Frontend\ShoppingController::refreshCartWholesalePrices();
 
+        $shippingcharges = \App\Models\ShippingCharge::where('status', 1)->get();
+        $generalsetting = GeneralSetting::first();
+
         return view('frontEnd.layouts.customer.checkout',compact(
             'divisions',
+            'shippingcharges',
+            'generalsetting',
             'bkash_gateway',
             'shurjopay_gateway',
             'uddoktapay_gateway',
@@ -825,12 +830,8 @@ public function order_save(Request $request)
         $districtId = null;
         $upazilaId = null;
 
-        $isCampaignOrder = $request->filled('area') && ! $request->filled('division_id');
-        $campaignAreaName = null;
-        if ($isCampaignOrder) {
-            $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
-            $campaignAreaName = $shippingCharge ? $shippingCharge->name : ($request->area ?? 'Campaign Area');
-        }
+        $hasLocationChain = $request->filled('division_id') && (int) $request->division_id > 0;
+        $resolvedAreaName = null;
 
         $checkoutOtpVerified = false;
 
@@ -844,12 +845,7 @@ public function order_save(Request $request)
         }
 
         if ($requiresPhysicalShipping && ! $hasAllFreeDelivery) {
-            if ($isCampaignOrder) {
-                $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
-                $shippingfee = $shippingCharge ? (float) $shippingCharge->amount : (float) Session::get('shipping', 0);
-                Session::put('shipping', $shippingfee);
-                Session::put('shipping_district_id', null);
-            } else {
+            if ($hasLocationChain) {
                 $this->validate($request, [
                     'division_id' => 'required|exists:divisions,id',
                     'district_id' => 'required|exists:districts,id',
@@ -865,11 +861,24 @@ public function order_save(Request $request)
                 $shippingfee = DeliveryLocation::chargeForDistrictId($districtId);
                 Session::put('shipping', $shippingfee);
                 Session::put('shipping_district_id', $districtId);
+            } else {
+                $shippingCharge = null;
+                if ($request->filled('area')) {
+                    $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
+                }
+                if (! $shippingCharge) {
+                    $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->first();
+                }
+                $shippingfee = $shippingCharge ? (float) $shippingCharge->amount : (float) Session::get('shipping', 0);
+                Session::put('shipping', $shippingfee);
+                Session::put('shipping_district_id', null);
+                $resolvedAreaName = $shippingCharge ? $shippingCharge->name : ($request->area ?? 'General Area');
             }
         } else {
             $shippingfee = 0;
             Session::put('shipping', 0);
             Session::put('shipping_district_id', null);
+            $resolvedAreaName = 'Digital / Free Shipping';
         }
 
         if ($this->checkoutOtpIsEnabled() && ! $checkoutOtpVerified) {
@@ -889,7 +898,7 @@ public function order_save(Request $request)
 
         $locationLabelForGateway = ($divisionId && $districtId && $upazilaId)
             ? DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId)
-            : ($campaignAreaName ?: 'BD');
+            : ($resolvedAreaName ?: 'BD');
 
         // কার্টের advance item গুলোর মোট
         $advanceTotal = \App\Http\Controllers\Frontend\ShoppingController::getCartAdvanceAmount();
@@ -958,7 +967,7 @@ public function order_save(Request $request)
         $shipping->upazila_id  = $upazilaId;
         $shipping->area        = ($divisionId && $districtId && $upazilaId)
             ? DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId)
-            : ($campaignAreaName ?: 'Digital / Free Shipping');
+            : ($resolvedAreaName ?: 'Digital / Free Shipping');
         $shipping->save();
 
         // BD Courier — ফোন অনুযায়ী সফলতার হার অর্ডার লিস্টে দেখাতে (চেকআউট রেসপন্স ব্লক না করে রিকোয়েস্ট শেষ হওয়ার পর রান)

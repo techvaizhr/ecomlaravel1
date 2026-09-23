@@ -25,13 +25,11 @@ form input::placeholder {
     font-size: 15px;
     color: #888;
 }
-button:focus,
-button {
-    border: none !important;
-    box-shadow: none !important;
+button:focus {
+    outline: none;
 }
 input:focus {
-    box-shadow: none !important;
+    outline: none;
 }
 .campaign_item img {
     width: 100%;

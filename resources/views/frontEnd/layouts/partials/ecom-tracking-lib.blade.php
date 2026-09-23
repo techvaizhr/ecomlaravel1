@@ -42,6 +42,7 @@
             first_name: user.first_name || nm.first,
             last_name: user.last_name || nm.last,
             city: user.city || '',
+            state: user.state || '',
             address: user.address || '',
             area: user.area || user.city || '',
             country: 'bd',
@@ -61,6 +62,7 @@
         if (p.first_name) o.fn = p.first_name.toLowerCase();
         if (p.last_name) o.ln = p.last_name.toLowerCase();
         if (p.city) o.ct = p.city.toLowerCase();
+        if (p.state) o.st = p.state.toLowerCase();
         if (p.customer_id) o.external_id = String(p.customer_id);
         return o;
     }

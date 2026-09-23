@@ -432,13 +432,18 @@ button:active {
     outline: 0;
 }
 
-.form-control,
+.form-control {
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 .form-control:focus,
-input,
-input:focus {
+input:focus,
+textarea:focus,
+select:focus {
     outline: 0;
-    border: 0;
-    box-shadow: 0 0 !important;
+    border-color: #303d6e !important;
+    box-shadow: 0 0 0 3px rgba(48, 61, 110, 0.15) !important;
 }
 
 .parsley-errors-list {

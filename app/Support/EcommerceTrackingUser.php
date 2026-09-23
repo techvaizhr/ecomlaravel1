@@ -117,13 +117,41 @@ class EcommerceTrackingUser
         $shipping = $order->shipping;
         $parts    = self::splitName($shipping?->name);
 
+        $cityName = null;
+        $stateName = null;
+
+        if ($shipping?->district_id) {
+            $district = \App\Models\DeliveryDistrict::find($shipping->district_id);
+            $cityName = $district?->name;
+        }
+        if ($shipping?->division_id) {
+            $division = \App\Models\DeliveryDivision::find($shipping->division_id);
+            $stateName = $division?->name;
+        }
+
+        // Fallback: if no district_id was saved, extract clean city from area / address
+        if (! $cityName && $shipping?->area) {
+            $rawArea = trim((string) $shipping->area);
+            if (str_contains($rawArea, ',')) {
+                $p = array_map('trim', explode(',', $rawArea));
+                $cityName = $p[1] ?? $p[0];
+                $stateName = $p[2] ?? $cityName;
+            } elseif (stripos($rawArea, 'Dhaka') !== false || stripos($rawArea, 'ঢাকা') !== false) {
+                $cityName = 'Dhaka';
+                $stateName = 'Dhaka';
+            } else {
+                $cityName = $rawArea;
+            }
+        }
+
         return array_filter([
             'email'        => $order->customer?->email,
             'phone'        => $shipping?->phone,
             'name'         => $shipping?->name,
             'first_name'   => $parts['first'] ?: null,
             'last_name'    => $parts['last'] ?: null,
-            'city'         => $shipping?->area,
+            'city'         => $cityName ?: 'Dhaka',
+            'state'        => $stateName ?: ($cityName ?: 'Dhaka'),
             'address'      => $shipping?->address,
             'external_id'  => $order->customer_id ? (string) $order->customer_id : null,
             'country_code' => 'BD',
@@ -167,6 +195,7 @@ class EcommerceTrackingUser
             'first_name'        => $parts['first'] ?: null,
             'last_name'         => $parts['last'] ?: null,
             'city'              => $data['city'] ?? null,
+            'state'             => $data['state'] ?? null,
             'country_code'      => 'BD',
             'external_id'       => $data['external_id'] ?? null,
             'fbp'               => $fbp,

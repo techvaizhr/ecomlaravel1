@@ -51,29 +51,61 @@
 @endphp
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;600;700&display=swap');
 
-    .invoice-wrapper { background: #f8fafc; padding: 30px 15px; font-family: 'Plus Jakarta Sans', sans-serif; }
-    #invoice-pdf-area { background: #fff; max-width: 850px; margin: 0 auto; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    .invoice-wrapper { background: #f1f5f9; padding: 30px 15px; font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; }
+    .success-hero-card {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: #fff;
+        max-width: 850px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+    .success-icon-pulse {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 16px;
+        background: rgba(255, 255, 255, 0.22);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+    #invoice-pdf-area { 
+        background: #fff; 
+        max-width: 850px; 
+        margin: 0 auto; 
+        border-radius: 14px; 
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08); 
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
     .inv-container { padding: 40px; }
-    .inv-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; }
-    .inv-logo img { width: 150px; height: auto; margin-bottom: 15px; }
-    .inv-title h1 { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; }
-    .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-    .info-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
-    .info-val { font-size: 14px; color: #1e293b; line-height: 1.5; }
-    .table-responsive { margin: 30px 0; }
+    .inv-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; }
+    .inv-logo img { max-width: 170px; max-height: 60px; object-fit: contain; margin-bottom: 12px; }
+    .inv-title h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: 0.5px; }
+    .inv-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-bottom: 25px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .info-label { font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 6px; }
+    .info-val { font-size: 14px; color: #1e293b; line-height: 1.6; }
+    .table-responsive { margin: 25px 0; }
     .inv-table { width: 100%; border-collapse: collapse; }
-    .inv-table th { background: #f1f5f9; padding: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; }
-    .inv-table td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-    .sum-wrapper { display: flex; justify-content: flex-end; }
-    .sum-box { width: 100%; max-width: 320px; }
-    .sum-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-    .total-row { border-top: 2px solid #0f172a; margin-top: 10px; padding-top: 15px; font-weight: 800; font-size: 18px; color: #000; }
-    .payment-badge-box { background: #0f172a; color: #fff; padding: 15px; border-radius: 8px; margin-top: 15px; }
-    .status-tag { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; margin-top: 8px; }
-    .bg-paid-light { background: #dcfce7; color: #15803d; }
-    .bg-due-light { background: #fee2e2; color: #b91c1c; }
+    .inv-table th { background: #0f172a; color: #ffffff; padding: 12px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .inv-table th:first-child { border-top-left-radius: 6px; }
+    .inv-table th:last-child { border-top-right-radius: 6px; }
+    .inv-table td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #1e293b; }
+    .inv-table tbody tr:nth-child(even) { background-color: #fafbfc; }
+    .sum-wrapper { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .sum-box { width: 100%; max-width: 350px; }
+    .sum-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: #334155; }
+    .total-row { border-top: 2px solid #0f172a; margin-top: 10px; padding-top: 14px; font-weight: 800; font-size: 19px; color: #0f172a; }
+    .payment-badge-box { background: #0f172a; color: #fff; padding: 16px; border-radius: 10px; margin-top: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .status-tag { display: inline-block; padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .bg-paid-light { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .bg-due-light { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
     /* ডিজিটাল আইটেম ডাউনলোড বক্স */
     .digital-download-box {
@@ -101,20 +133,32 @@
     @media print {
         .no-print { display: none !important; }
         body { background: white; }
-        .invoice-wrapper { padding: 0; }
-        #invoice-pdf-area { box-shadow: none; width: 100%; }
+        .invoice-wrapper { padding: 0; background: #fff; }
+        #invoice-pdf-area { box-shadow: none; border: none; width: 100%; max-width: 100%; border-radius: 0; }
+        .inv-container { padding: 15px; }
     }
 </style>
 
 <div class="invoice-wrapper">
+    {{-- Celebration Banner --}}
     <div class="container no-print mb-4">
-        <div class="d-flex justify-content-center gap-2">
-            <a href="{{route('customer.orders')}}" class="btn btn-dark btn-sm rounded-pill px-4">
-               <i class="fa fa-arrow-left me-1"></i> Back
-            </a>
-            <button onclick="downloadPDF()" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
-                <i class="fa fa-download me-1"></i> Download Invoice
-            </button>
+        <div class="success-hero-card text-center p-4 rounded-4 shadow-sm mb-4">
+            <div class="success-icon-pulse">
+                <i class="fa fa-check text-white"></i>
+            </div>
+            <h3 class="fw-bold mb-1">অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!</h3>
+            <p class="mb-3 opacity-90 small">ধন্যবাদ! আপনার ইনভয়েস নম্বর <strong>#{{$order->invoice_id}}</strong>। আমাদের প্রতিনিধি খুব শীঘ্রই আপনার ঠিকানায় পণ্যটি প্রেরণের ব্যবস্থা করবেন।</p>
+            <div class="d-flex justify-content-center flex-wrap gap-2">
+                <a href="{{ url('/') }}" class="btn btn-light btn-sm rounded-pill px-4 fw-bold text-success shadow-sm">
+                   <i class="fa fa-shopping-bag me-1"></i> কেনাকাটা চালিয়ে যান
+                </a>
+                <a href="{{ route('customer.order_track') }}?phone={{ $order->shipping?->phone }}&invoice_id={{ $order->invoice_id }}" class="btn btn-outline-light btn-sm rounded-pill px-4 fw-bold">
+                   <i class="fa fa-truck me-1"></i> অর্ডার ট্র্যাক করুন
+                </a>
+                <button onclick="downloadPDF()" class="btn btn-warning btn-sm rounded-pill px-4 fw-bold shadow-sm text-dark">
+                    <i class="fa fa-download me-1"></i> ডাউনলোড ইনভয়েস (PDF)
+                </button>
+            </div>
         </div>
     </div>
 
@@ -139,35 +183,42 @@
                 <div class="inv-logo">
                     <img src="{{asset($generalsetting->white_logo)}}" alt="Logo">
                     <div class="info-val">
-                        <strong>{{$generalsetting->name}}</strong><br>
+                        <strong class="text-dark">{{$generalsetting->name}}</strong><br>
                         <span class="text-muted small">{{$contact->address}}</span><br>
-                        <span class="text-muted small">Phone: {{$contact->phone}}</span>
+                        <span class="text-muted small">হটলাইন: {{$contact->phone}}</span>
                     </div>
                 </div>
                 <div class="text-end">
                     <div class="inv-title"><h1>INVOICE</h1></div>
-                    <p class="mb-0 fw-bold">#{{$order->invoice_id}}</p>
-                    <p class="text-muted small">Date: {{$order->created_at->format('d M, Y')}}</p>
+                    <p class="mb-0 fw-bold fs-5 text-primary">#{{$order->invoice_id}}</p>
+                    <p class="text-muted small mb-0">তারিখ: {{$order->created_at->format('d M, Y')}}</p>
+                    <p class="text-muted small">সময়: {{$order->created_at->format('h:i A')}}</p>
                 </div>
             </div>
-
-            <hr class="my-4" style="opacity: 0.1;">
 
             <div class="inv-grid">
                 <div>
                     <span class="info-label">Customer Details</span>
                     <div class="info-val">
-                        <strong class="d-block mb-1">{{$order->shipping ? $order->shipping->name : 'N/A'}}</strong>
-                        {{$order->shipping ? $order->shipping->phone : ''}}<br>
-                        {{$order->shipping ? $order->shipping->address : ''}}
+                        <strong class="d-block mb-1 fs-6 text-dark">{{$order->shipping ? $order->shipping->name : 'N/A'}}</strong>
+                        <span class="d-block text-secondary"><i class="fa fa-phone me-1 small"></i> {{$order->shipping ? $order->shipping->phone : ''}}</span>
+                        <span class="d-block text-secondary mt-1"><i class="fa fa-map-marker-alt me-1 small text-danger"></i> {{$order->shipping ? $order->shipping->address : ''}}</span>
+                        @if($order->shipping && $order->shipping->area)
+                            <span class="d-block text-muted small mt-1 fw-semibold"><i class="fa fa-location-arrow me-1 small text-primary"></i> এলাকা/লোকেশন: {{ $order->shipping->area }}</span>
+                        @endif
                     </div>
                 </div>
                 <div class="text-end">
                     <span class="info-label">Payment Information</span>
-                    <div class="info-val text-uppercase fw-bold">{{ $payment_method }}</div>
-                    <span class="status-tag {{ $paid_amount >= $grand_total ? 'bg-paid-light' : 'bg-due-light' }}">
-                        {{ $paid_amount >= $grand_total ? '✔ Verified Paid' : '✘ Payment Outstanding' }}
-                    </span>
+                    <div class="info-val text-uppercase fw-bold fs-6 text-dark">{{ $payment_method }}</div>
+                    <div>
+                        <span class="status-tag {{ $paid_amount >= $grand_total ? 'bg-paid-light' : 'bg-due-light' }}">
+                            {{ $paid_amount >= $grand_total ? '✔ Verified Paid' : '✘ Payment Outstanding' }}
+                        </span>
+                    </div>
+                    @if($order->order_status == 1)
+                        <div class="mt-2"><span class="badge bg-primary px-3 py-1 rounded-pill">অর্ডার প্রক্রিয়াধীন</span></div>
+                    @endif
                 </div>
             </div>
 

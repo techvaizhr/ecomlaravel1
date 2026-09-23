@@ -173,18 +173,19 @@
     .form-control-custom {
         width: 100%;
         height: 50px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 8px !important;
         padding: 0 16px;
         font-size: 15px;
-        color: #333;
-        transition: all 0.2s;
-        background-color: #fff;
+        color: #1e293b !important;
+        transition: all 0.2s ease;
+        background-color: #fff !important;
     }
     .form-control-custom:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 4px rgba(15, 52, 96, 0.08);
-        outline: none;
+        border-color: var(--primary-color, #303d6e) !important;
+        box-shadow: 0 0 0 3.5px rgba(48, 61, 110, 0.16) !important;
+        outline: none !important;
+        background-color: #fff !important;
     }
     textarea.form-control-custom {
         height: auto;
@@ -652,37 +653,51 @@
                                     </div>
                                 </div>
                                 @if($requires_shipping)
-                                <div class="col-12">
-                                    <div class="row g-2 g-md-3 align-items-end checkout-location-fields">
-                                        <div class="col-12 col-md-4">
-                                            <div class="form-group mb-0 mb-md-2">
-                                                <label class="form-label-custom">বিভাগ *</label>
-                                                <select name="division_id" id="checkout_division" class="form-control-custom" required>
-                                                    <option value="">বিভাগ নির্বাচন করুন</option>
-                                                    @foreach(($divisions ?? collect()) as $d)
-                                                        <option value="{{ $d->id }}">{{ $d->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                    @if(($generalsetting->checkout_location_enabled ?? 1) == 1)
+                                    <div class="col-12">
+                                        <div class="row g-2 g-md-3 align-items-end checkout-location-fields">
+                                            <div class="col-12 col-md-4">
+                                                <div class="form-group mb-0 mb-md-2">
+                                                    <label class="form-label-custom">বিভাগ *</label>
+                                                    <select name="division_id" id="checkout_division" class="form-control-custom" required>
+                                                        <option value="">বিভাগ নির্বাচন করুন</option>
+                                                        @foreach(($divisions ?? collect()) as $d)
+                                                            <option value="{{ $d->id }}">{{ $d->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-12 col-md-4">
-                                            <div class="form-group mb-0 mb-md-2">
-                                                <label class="form-label-custom">জেলা *</label>
-                                                <select name="district_id" id="checkout_district" class="form-control-custom" required disabled>
-                                                    <option value="">আগে বিভাগ সিলেক্ট করুন</option>
-                                                </select>
+                                            <div class="col-12 col-md-4">
+                                                <div class="form-group mb-0 mb-md-2">
+                                                    <label class="form-label-custom">জেলা *</label>
+                                                    <select name="district_id" id="checkout_district" class="form-control-custom" required disabled>
+                                                        <option value="">আগে বিভাগ সিলেক্ট করুন</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-12 col-md-4">
-                                            <div class="form-group mb-0 mb-md-2">
-                                                <label class="form-label-custom">উপজেলা / থানা *</label>
-                                                <select name="upazila_id" id="checkout_upazila" class="form-control-custom" required disabled>
-                                                    <option value="">আগে জেলা সিলেক্ট করুন</option>
-                                                </select>
+                                            <div class="col-12 col-md-4">
+                                                <div class="form-group mb-0 mb-md-2">
+                                                    <label class="form-label-custom">উপজেলা / থানা *</label>
+                                                    <select name="upazila_id" id="checkout_upazila" class="form-control-custom" required disabled>
+                                                        <option value="">আগে জেলা সিলেক্ট করুন</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                    @else
+                                    <div class="col-12">
+                                        <div class="form-group mb-0 mb-md-2">
+                                            <label class="form-label-custom">ডেলিভারি এরিয়া / চার্জ *</label>
+                                            <select name="area" id="checkout_area" class="form-control-custom" required>
+                                                <option value="">ডেলিভারি এরিয়া নির্বাচন করুন</option>
+                                                @foreach(($shippingcharges ?? collect()) as $sc)
+                                                    <option value="{{ $sc->id }}" data-charge="{{ $sc->amount }}" {{ $loop->first ? 'selected' : '' }}>{{ $sc->name }} (৳{{ $sc->amount }})</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @endif
                                 @else
                                 <div class="col-12">
                                     <div class="form-group">
@@ -1403,16 +1418,19 @@ document.addEventListener('DOMContentLoaded', function () {
             return allFreeDelivery;
         }
 
-        function districtChargeFromSelect() {
-            if (!$('#checkout_district').length || !$('#checkout_district').val()) {
-                return 0;
+        function shippingChargeFromSelect() {
+            if ($('#checkout_district').length && $('#checkout_district').val()) {
+                return parseFloat($('#checkout_district option:selected').attr('data-charge')) || 0;
             }
-            return parseFloat($('#checkout_district option:selected').attr('data-charge')) || 0;
+            if ($('#checkout_area').length && $('#checkout_area').val()) {
+                return parseFloat($('#checkout_area option:selected').attr('data-charge')) || 0;
+            }
+            return 0;
         }
 
         function applyShippingToDomAndSession() {
             var isFreeDelivery = checkFreeDelivery();
-            var shippingCharge = isFreeDelivery ? 0 : districtChargeFromSelect();
+            var shippingCharge = isFreeDelivery ? 0 : shippingChargeFromSelect();
 
             var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
             var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
@@ -1433,11 +1451,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
             } else {
                 var did = $('#checkout_district').val();
+                var aid = $('#checkout_area').val();
                 if (did) {
                     $.get('{{ route("shipping.charge") }}', { id: did });
+                } else if (aid) {
+                    $.get('{{ route("shipping.charge") }}', { id: aid });
                 }
             }
         }
+
+        $('#checkout_area').on('change', function () {
+            applyShippingToDomAndSession();
+            saveIncompleteOrder();
+        });
 
         $('#checkout_division').on('change', function () {
             var divId = $(this).val();
@@ -1509,8 +1535,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 var did = $('#checkout_district').val();
+                var aid = $('#checkout_area').val();
                 if (did) {
                     $.get('{{ route("shipping.charge") }}', { id: did });
+                } else if (aid) {
+                    $.get('{{ route("shipping.charge") }}', { id: aid });
                 }
             }
         });
@@ -1531,9 +1560,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 var div = selectedLocationText($('#checkout_division'));
                 var dist = selectedLocationText($('#checkout_district'));
                 var upa = selectedLocationText($('#checkout_upazila'));
+                var area = selectedLocationText($('#checkout_area'));
                 if (div) parts.push(div);
                 if (dist) parts.push(dist);
                 if (upa) parts.push(upa);
+                if (area) parts.push(area);
             }
             if (street) parts.unshift(street);
             return parts.join(', ');

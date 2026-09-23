@@ -286,6 +286,34 @@
                 }
             }
 
+            /* High-visibility inputs with distinct focus borders for Campaign Form */
+            #order_form .form-control,
+            #order_form select,
+            #order_form input[type="text"],
+            #order_form input[type="tel"] {
+                border: 1.5px solid #94a3b8 !important;
+                border-radius: 8px !important;
+                padding: 10px 14px !important;
+                height: 48px !important;
+                font-size: 15px !important;
+                color: #0f172a !important;
+                background-color: #ffffff !important;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+            }
+            #order_form .form-control:focus,
+            #order_form select:focus,
+            #order_form input[type="text"]:focus,
+            #order_form input[type="tel"]:focus {
+                border: 2px solid #2563eb !important;
+                outline: none !important;
+                box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18) !important;
+                background-color: #ffffff !important;
+            }
+            #order_form .form-control.is-invalid {
+                border: 2px solid #dc2626 !important;
+                box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+            }
         </style>
         <style>
             .button-3d {
@@ -826,7 +854,7 @@
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
                                             <label for="address">আপনার ঠিকানা লিখুন *</label>
-                                            <input type="text" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="জেলা, থানা, গ্রাম " name="address" value="{{old('address')}}" required>
+                                            <input type="text" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="রোড নং, বাসা নং, গ্রাম বা এলাকা" name="address" value="{{old('address')}}" required>
                                             @error('address')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -834,6 +862,50 @@
                                             @enderror
                                         </div>
                                     </div>
+                                    @if(($generalsetting->campaign_location_enabled ?? 0) == 1)
+                                    <div class="col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label for="campaign_division">বিভাগ নির্বাচন করুন *</label>
+                                            <select id="campaign_division" name="division_id" class="form-control @error('division_id') is-invalid @enderror" required>
+                                                <option value="">বিভাগ নির্বাচন করুন</option>
+                                                @foreach(($divisions ?? collect()) as $div)
+                                                    <option value="{{ $div->id }}">{{ $div->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('division_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label for="campaign_district">জেলা নির্বাচন করুন *</label>
+                                            <select id="campaign_district" name="district_id" class="form-control @error('district_id') is-invalid @enderror" required disabled>
+                                                <option value="">আগে বিভাগ সিলেক্ট করুন</option>
+                                            </select>
+                                            @error('district_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label for="campaign_upazila">উপজেলা / থানা নির্বাচন করুন *</label>
+                                            <select id="campaign_upazila" name="upazila_id" class="form-control @error('upazila_id') is-invalid @enderror" required disabled>
+                                                <option value="">আগে জেলা সিলেক্ট করুন</option>
+                                            </select>
+                                            @error('upazila_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    @else
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
                                             <label for="area">আপনার এরিয়া সিলেক্ট করুন *</label>
@@ -849,6 +921,7 @@
                                             @enderror
                                         </div>
                                     </div>
+                                    @endif
                                     <!-- col-end -->
                                     <div class="col-sm-12">
                                         <div class="form-group">
@@ -912,6 +985,48 @@
                 $.ajax({
                     type: "GET",
                     data: { id: id, campaign: 1 },
+                    url: "{{route('shipping.charge')}}",
+                    dataType: "html",
+                    success: function(response){
+                        $('#campaign-cartlist').html(response);
+                    }
+                });
+            });
+
+            $('#campaign_division').on('change', function () {
+                var divId = $(this).val();
+                $('#campaign_district').prop('disabled', !divId).html(divId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে বিভাগ সিলেক্ট করুন</option>');
+                $('#campaign_upazila').prop('disabled', true).html('<option value="">আগে জেলা সিলেক্ট করুন</option>');
+                if (!divId) return;
+                $.get('{{ url('/ajax/delivery/districts') }}/' + divId, function (res) {
+                    var opts = '<option value="">জেলা নির্বাচন করুন</option>';
+                    (res.data || []).forEach(function (r) {
+                        opts += '<option value="' + r.id + '" data-charge="' + r.delivery_charge + '">' + r.name + ' (৳' + r.delivery_charge + ')</option>';
+                    });
+                    $('#campaign_district').html(opts).prop('disabled', false);
+                }).fail(function () {
+                    $('#campaign_district').html('<option value="">লোড ব্যর্থ</option>');
+                });
+            });
+
+            $('#campaign_district').on('change', function () {
+                var distId = $(this).val();
+                $('#campaign_upazila').prop('disabled', !distId).html(distId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে জেলা সিলেক্ট করুন</option>');
+                if (!distId) return;
+                $.get('{{ url('/ajax/delivery/upazilas') }}/' + distId, function (res) {
+                    var opts = '<option value="">উপজেলা নির্বাচন করুন</option>';
+                    (res.data || []).forEach(function (r) {
+                        opts += '<option value="' + r.id + '">' + r.name + '</option>';
+                    });
+                    $('#campaign_upazila').html(opts).prop('disabled', false);
+                }).fail(function () {
+                    $('#campaign_upazila').html('<option value="">লোড ব্যর্থ</option>');
+                });
+
+                // Calculate shipping for district on campaign cart
+                $.ajax({
+                    type: "GET",
+                    data: { id: distId, campaign: 1 },
                     url: "{{route('shipping.charge')}}",
                     dataType: "html",
                     success: function(response){
@@ -1302,6 +1417,14 @@
                         if (rawPhone) fbUserData.ph = rawPhone;
                         if (nameParts[0]) fbUserData.fn = nameParts[0].toLowerCase();
                         if (nameParts.slice(1).join(' ')) fbUserData.ln = nameParts.slice(1).join(' ').toLowerCase();
+                        var selectedDist = $('#campaign_district option:selected').text();
+                        var selectedDiv = $('#campaign_division option:selected').text();
+                        if (selectedDist && $('#campaign_district').val()) {
+                            fbUserData.ct = selectedDist.replace(/\s*\(৳[^)]*\)\s*/g, '').trim().toLowerCase();
+                        }
+                        if (selectedDiv && $('#campaign_division').val()) {
+                            fbUserData.st = selectedDiv.trim().toLowerCase();
+                        }
                         try { fbq('set', 'userData', fbUserData); } catch(e) {}
 
                         fbq('track', 'InitiateCheckout', {
