@@ -10,19 +10,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 html {
-    overflow-x: hidden !important;
-    scrollbar-gutter: stable;
+    overflow-x: hidden;
+    background-color: #ffffff;
 }
 
 body {
     font-family: "Roboto", sans-serif;
     font-size: 14px;
-    overflow-x: hidden !important;
+    overflow-x: hidden;
     line-height: 1.5;
     background: #ffffff;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 100%;
     position: relative;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.product_item {
+    visibility: visible !important;
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
 }
 
 /* ===== Customer Account Card ===== */
@@ -2385,7 +2393,7 @@ li.recent_pro {
     left: 0;
     top: 0;
     z-index: 999999;
-    display: none;
+    display: none !important;
     background: rgba(255, 255, 255, 0.65);
     height: 100%;
     width: 100%;

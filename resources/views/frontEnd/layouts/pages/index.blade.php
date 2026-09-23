@@ -200,9 +200,7 @@
             <div class="col-sm-12">
                 <div class="product_slider owl-carousel">
                     @foreach ($hotdeal_top as $key => $value)
-                        <div class="product_item wist_item wow zoomIn"
-                             data-wow-duration="1.5s"
-                             data-wow-delay="0.{{ $key }}s">
+                        <div class="product_item wist_item">
                             <div class="product_item_inner">
                                 @if($value->old_price)
                                 <div class="sale-badge">
@@ -351,9 +349,7 @@
                     <div class="col-sm-12">
                         <div class="product_slider owl-carousel">
                             @foreach ($homecat->products as $key => $value)
-                                <div class="product_item wist_item wow zoomIn"
-                                     data-wow-duration="1.5s"
-                                     data-wow-delay="0.{{ $key }}s">
+                                <div class="product_item wist_item">
                                     <div class="product_item_inner">
                                         @if($value->old_price)
                                         <div class="sale-badge">

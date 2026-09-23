@@ -32,24 +32,39 @@
 <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=3">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" />
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" media="print" onload="this.media='all'">
-        <noscript><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></noscript>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
         <meta name="facebook-domain-verification" content="38f1w8335btoklo88dyfl63ba3st2e" />
         <style>
-            /* 🚀 CRITICAL VIEWPORT & LAYOUT STABILIZATION (Zero Flash & Zero Shift) */
+            /* 🚀 CRITICAL VIEWPORT & LAYOUT STABILIZATION (Smooth Page Load & Zero Flash) */
             html {
-                overflow-x: hidden !important;
-                scrollbar-gutter: stable;
+                overflow-x: hidden;
+                background-color: #ffffff;
             }
             body {
-                overflow-x: hidden !important;
-                width: 100% !important;
-                max-width: 100vw !important;
+                overflow-x: hidden;
+                width: 100%;
+                background-color: #ffffff;
                 position: relative;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             }
             #loading {
-                display: none;
+                display: none !important;
+            }
+            /* Smooth stable product display without jarring WOW zoomIn flashing */
+            .product_item {
+                visibility: visible !important;
+                animation: none !important;
+                transform: none !important;
+                opacity: 1 !important;
+                transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+            }
+            .product_item:hover {
+                transform: translateY(-3px) !important;
+            }
+            .wow {
+                visibility: visible !important;
             }
             .sidebar-cart-drawer:not(.active) {
                 visibility: hidden !important;

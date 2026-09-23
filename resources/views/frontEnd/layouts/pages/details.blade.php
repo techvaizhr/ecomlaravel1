@@ -689,8 +689,7 @@
             <div class="col-sm-12">
                 <div class="product-inner owl-carousel related_slider">
                     @foreach ($products as $key => $value)
-                    <div class="product_item wist_item wow zoomIn" data-wow-duration="1.5s"
-                        data-wow-delay="0.{{ $key }}s">
+                    <div class="product_item wist_item">
 
                         <div class="product_item_inner">
                             @if($value->old_price)
