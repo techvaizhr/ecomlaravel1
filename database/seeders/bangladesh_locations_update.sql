@@ -1,6 +1,12 @@
 -- Bangladesh Divisions, Districts, Upazilas Data Update (UTF-8)
+-- Location Toggles for General Settings (Checkout & Campaign LP)
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
+
+-- ১. General Settings টেবিলে টগল ফিল্ড যুক্ত করা (মাইগ্রেশন না চালালে এটি রান করবেন)
+ALTER TABLE `general_settings` 
+ADD COLUMN IF NOT EXISTS `checkout_location_enabled` TINYINT NOT NULL DEFAULT 1 COMMENT '1 = Location Cascade ON, 0 = OFF (Address only)',
+ADD COLUMN IF NOT EXISTS `campaign_location_enabled` TINYINT NOT NULL DEFAULT 0 COMMENT '1 = Location Cascade ON, 0 = OFF (Address only)';
 
 UPDATE `divisions` SET `name` = 'বরিশাল' WHERE `id` = 1;
 UPDATE `divisions` SET `name` = 'চট্টগ্রাম' WHERE `id` = 2;
