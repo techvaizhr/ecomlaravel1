@@ -315,6 +315,9 @@ class FacebookCapiService
             $prepared['content_ids'] = is_array($data['content_ids']) ? $data['content_ids'] : [$data['content_ids']];
         }
 
+        // Content type ('product' or 'product_group')
+        $prepared['content_type'] = $data['content_type'] ?? 'product';
+
         // Contents (array of content objects)
         if (isset($data['contents'])) {
             $prepared['contents'] = $data['contents'];
