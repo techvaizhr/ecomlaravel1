@@ -4223,10 +4223,52 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                 });
             });
 
+            // 🎯 Full Uncollapsed Header Height Cache & Dynamic Offset
+            var cachedFullMobileHeaderHeight = 0;
+
+            function syncHeaderHeight() {
+                var navbar = document.getElementById('navbar_top');
+                var content = document.getElementById('content');
+                var mobileSearch = document.querySelector('.mobile-search');
+                var mobileHeader = document.querySelector('.mobile-header');
+                var ticker = document.getElementById('newsTickerBar');
+
+                if (navbar && content) {
+                    if (window.innerWidth <= 767) {
+                        var tickerH = (ticker && ticker.offsetHeight && window.getComputedStyle(ticker).display !== 'none') ? ticker.offsetHeight : 0;
+                        var mHeaderH = mobileHeader ? mobileHeader.offsetHeight : 48;
+                        var mSearchNaturalH = 42; // 34px form + 8px padding
+
+                        var naturalH = tickerH + mHeaderH + mSearchNaturalH;
+
+                        // Only measure navbar.offsetHeight directly when mobileSearch is NOT collapsed
+                        var isCollapsed = mobileSearch && (mobileSearch.classList.contains('scrolled-hide') || mobileSearch.offsetHeight < 20);
+                        if (!isCollapsed && navbar.offsetHeight > 50) {
+                            cachedFullMobileHeaderHeight = Math.max(cachedFullMobileHeaderHeight, navbar.offsetHeight);
+                        }
+
+                        var finalH = Math.max(cachedFullMobileHeaderHeight, naturalH);
+                        cachedFullMobileHeaderHeight = finalH;
+
+                        document.documentElement.style.setProperty('--navbar-height', finalH + 'px');
+                        content.style.paddingTop = finalH + 'px';
+                    } else {
+                        var h = navbar.offsetHeight;
+                        document.documentElement.style.setProperty('--navbar-height', h + 'px');
+                    }
+                }
+            }
+            window.syncHeaderHeight = syncHeaderHeight;
+            window.addEventListener('load', syncHeaderHeight);
+            window.addEventListener('resize', syncHeaderHeight);
+            document.addEventListener('DOMContentLoaded', syncHeaderHeight);
+            setTimeout(syncHeaderHeight, 150);
+            setTimeout(syncHeaderHeight, 500);
+
             // 📱 Mobile Header Search: Auto-Hide on Scroll, Auto-Show at Top
             (function () {
                 var isTicking = false;
-                var scrollThreshold = 30; // px threshold from top
+                var scrollThreshold = 12; // px threshold from top
 
                 function checkMobileSearchScroll() {
                     var mobileSearch = document.querySelector('.mobile-search');
@@ -4243,6 +4285,8 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                         if (mobileSearch.classList.contains('scrolled-hide')) {
                             mobileSearch.classList.remove('scrolled-hide');
                             document.body.classList.remove('mobile-scrolled');
+                            // Ensure body padding-top is 100% verified when returning to top
+                            syncHeaderHeight();
                         }
                     }
                 }
@@ -4261,25 +4305,6 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                 window.addEventListener('load', checkMobileSearchScroll);
                 window.addEventListener('resize', checkMobileSearchScroll);
             })();
-
-            // 🎯 Dynamic Header Height Offset to Prevent Overlap
-            function syncHeaderHeight() {
-                var navbar = document.getElementById('navbar_top');
-                var content = document.getElementById('content');
-                if (navbar && content) {
-                    var h = navbar.offsetHeight;
-                    document.documentElement.style.setProperty('--navbar-height', h + 'px');
-                    if (window.innerWidth <= 767) {
-                        content.style.paddingTop = h + 'px';
-                    }
-                }
-            }
-            window.syncHeaderHeight = syncHeaderHeight;
-            window.addEventListener('load', syncHeaderHeight);
-            window.addEventListener('resize', syncHeaderHeight);
-            document.addEventListener('DOMContentLoaded', syncHeaderHeight);
-            setTimeout(syncHeaderHeight, 150);
-            setTimeout(syncHeaderHeight, 500);
         </script>
         <script>
             $(".filter_btn").click(function(){
