@@ -373,7 +373,10 @@ Route::post('/gemini-chat/complaint', [\App\Http\Controllers\Frontend\GeminiCust
 Route::get('/admin/complaints', [AdminComplaintController::class, 'index'])
     ->middleware(['auth:admin', 'admin'])->name('backEnd.complaints.index');
 
-Route::post('/admin/complaints/{id}/status', [AdminComplaintController::class, 'updateStatus'])
+Route::match(['post', 'put'], '/admin/complaints/{id}/status', [AdminComplaintController::class, 'updateStatus'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('backEnd.complaints.updateStatus');
+
+Route::match(['post', 'put'], '/admin/complaints/{id}/update-status', [AdminComplaintController::class, 'updateStatus'])
     ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('backEnd.complaints.status');
 
 Route::delete('/admin/complaints/{id}', [AdminComplaintController::class, 'destroy'])
