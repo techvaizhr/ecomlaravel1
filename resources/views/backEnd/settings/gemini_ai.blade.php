@@ -112,6 +112,83 @@
         border: 1px solid #fca5a5;
         color: #991b1b;
     }
+    .model-pills-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .btn-model-pill {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 7px 11px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        display: inline-flex;
+        flex-direction: column;
+        gap: 2px;
+        color: #334155;
+        position: relative;
+    }
+    .btn-model-pill strong {
+        font-size: 12.5px;
+        font-family: monospace, sans-serif;
+        color: #1e293b;
+    }
+    .btn-model-pill .pill-desc {
+        font-size: 11px;
+        color: #64748b;
+    }
+    .btn-model-pill:hover {
+        border-color: #6366f1;
+        background: #f5f3ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.12);
+    }
+    .btn-model-pill.active {
+        border-color: #6366f1;
+        background: #eef2ff;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    .btn-model-pill.active strong {
+        color: #4f46e5;
+    }
+    .pill-badge {
+        font-size: 9px;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: .3px;
+        width: fit-content;
+        margin-bottom: 2px;
+        display: inline-block;
+    }
+    .pill-recommended {
+        background: #dcfce7;
+        color: #15803d;
+    }
+    .pill-fast {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+    .pill-pro {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+    .pill-stable {
+        background: #f1f5f9;
+        color: #475569;
+    }
+    .pill-lite {
+        background: #fef3c7;
+        color: #b45309;
+    }
+    .pill-legacy {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
 </style>
 @endsection
 
@@ -197,18 +274,70 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="model">Model</label>
-                            <input
-                                type="text"
-                                class="form-control @error('model') is-invalid @enderror"
-                                id="model"
-                                name="model"
-                                value="{{ old('model', $setting->model ?? 'gemini-2.5-flash') }}"
-                                placeholder="gemini-2.5-flash"
-                            >
-                            <small class="small-help">প্রস্তাবিত: <code>gemini-2.5-flash</code> বা <code>gemini-2.5-flash-lite</code>। পুরোনো <code>gemini-2.0-flash</code> এ quota error হতে পারে।</small>
+                            <label class="form-label d-flex align-items-center justify-content-between mb-1" for="model">
+                                <span>Gemini Model <span class="text-danger">*</span></span>
+                                <small class="text-primary fw-semibold" style="font-size: 11.5px;">
+                                    <i class="fe-mouse-pointer me-1"></i>যেকোনো মডেলে ক্লিক করলে সরাসরি সিলেক্ট হবে
+                                </small>
+                            </label>
+                            
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="fe-cpu"></i></span>
+                                <input
+                                    type="text"
+                                    class="form-control border-start-0 @error('model') is-invalid @enderror"
+                                    id="model"
+                                    name="model"
+                                    value="{{ old('model', $setting->model ?? 'gemini-2.5-flash') }}"
+                                    placeholder="e.g. gemini-2.5-flash"
+                                    required
+                                >
+                            </div>
+
+                            {{-- Clickable Model Pills --}}
+                            <div class="model-pills-wrap mb-2">
+                                <button type="button" class="btn-model-pill" data-model="gemini-2.5-flash" title="Click to select gemini-2.5-flash">
+                                    <span class="pill-badge pill-recommended">Recommended</span>
+                                    <strong>gemini-2.5-flash</strong>
+                                    <small class="pill-desc">দ্রুততম ও সেরা পারফরম্যান্স</small>
+                                </button>
+
+                                <button type="button" class="btn-model-pill" data-model="gemini-2.5-flash-lite" title="Click to select gemini-2.5-flash-lite">
+                                    <span class="pill-badge pill-fast">Ultra Fast</span>
+                                    <strong>gemini-2.5-flash-lite</strong>
+                                    <small class="pill-desc">হাই কোটা ও লো লেটেন্সি</small>
+                                </button>
+
+                                <button type="button" class="btn-model-pill" data-model="gemini-2.5-pro" title="Click to select gemini-2.5-pro">
+                                    <span class="pill-badge pill-pro">Pro</span>
+                                    <strong>gemini-2.5-pro</strong>
+                                    <small class="pill-desc">গভীর যুক্তি ও জটিল কাজ</small>
+                                </button>
+
+                                <button type="button" class="btn-model-pill" data-model="gemini-2.0-flash" title="Click to select gemini-2.0-flash">
+                                    <span class="pill-badge pill-stable">v2.0 Flash</span>
+                                    <strong>gemini-2.0-flash</strong>
+                                    <small class="pill-desc">পূর্ববর্তী ২.০ সংস্করণ</small>
+                                </button>
+
+                                <button type="button" class="btn-model-pill" data-model="gemini-2.0-flash-lite" title="Click to select gemini-2.0-flash-lite">
+                                    <span class="pill-badge pill-lite">v2.0 Lite</span>
+                                    <strong>gemini-2.0-flash-lite</strong>
+                                    <small class="pill-desc">লাইটওয়েট ২.০ মডেল</small>
+                                </button>
+
+                                <button type="button" class="btn-model-pill" data-model="gemini-1.5-flash" title="Click to select gemini-1.5-flash">
+                                    <span class="pill-badge pill-legacy">v1.5 Flash</span>
+                                    <strong>gemini-1.5-flash</strong>
+                                    <small class="pill-desc">লেগ্যাসি ১.৫ সংস্করণ</small>
+                                </button>
+                            </div>
+
+                            <small class="small-help d-block mt-1">
+                                <i class="fe-info text-info me-1"></i> প্রস্তাবিত: <code>gemini-2.5-flash</code> বা <code>gemini-2.5-flash-lite</code>। পুরোনো <code>gemini-2.0-flash</code> এ Google কোটা সংক্রান্ত সমস্যা বা Quota Error হতে পারে।
+                            </small>
                             @error('model')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -349,5 +478,45 @@ document.getElementById('test-gemini-btn')?.addEventListener('click', function (
         btn.innerHTML = '<i class="fe-zap me-1"></i> Test Connection';
     });
 });
+
+// Click-to-Select Gemini Model Pill
+(function() {
+    var modelInput = document.getElementById('model');
+    var modelPills = document.querySelectorAll('.btn-model-pill');
+
+    function updateActivePill(val) {
+        if (!val) return;
+        var cleanVal = val.trim();
+        modelPills.forEach(function(pill) {
+            if (pill.getAttribute('data-model').trim() === cleanVal) {
+                pill.classList.add('active');
+            } else {
+                pill.classList.remove('active');
+            }
+        });
+    }
+
+    modelPills.forEach(function(pill) {
+        pill.addEventListener('click', function(e) {
+            e.preventDefault();
+            var chosen = this.getAttribute('data-model');
+            if (modelInput) {
+                modelInput.value = chosen;
+                updateActivePill(chosen);
+                if (typeof toastr !== 'undefined') {
+                    toastr.clear();
+                    toastr.info('মডেল নির্বাচিত হয়েছে: ' + chosen);
+                }
+            }
+        });
+    });
+
+    if (modelInput) {
+        modelInput.addEventListener('input', function() {
+            updateActivePill(this.value);
+        });
+        updateActivePill(modelInput.value);
+    }
+})();
 </script>
 @endsection
