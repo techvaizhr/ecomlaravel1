@@ -185,6 +185,14 @@
         background: #fef3c7;
         color: #b45309;
     }
+    .pill-latest {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #ffffff;
+    }
+    .pill-live {
+        background: linear-gradient(135deg, #e11d48, #f43f5e);
+        color: #ffffff;
+    }
     .pill-legacy {
         background: #f3f4f6;
         color: #6b7280;
@@ -295,42 +303,88 @@
                             </div>
 
                             {{-- Clickable Model Pills --}}
-                            <div class="model-pills-wrap mb-2">
-                                <button type="button" class="btn-model-pill" data-model="gemini-2.5-flash" title="Click to select gemini-2.5-flash">
-                                    <span class="pill-badge pill-recommended">Recommended</span>
-                                    <strong>gemini-2.5-flash</strong>
-                                    <small class="pill-desc">দ্রুততম ও সেরা পারফরম্যান্স</small>
-                                </button>
+                            <div class="mb-2">
+                                <div class="text-muted small fw-bold mb-1.5" style="font-size: 11px;">
+                                    <i class="fe-zap text-success me-1"></i> Gemini 3.x Series (Newest Generation — up to 3.8):
+                                </div>
+                                <div class="model-pills-wrap mb-2.5">
+                                    <button type="button" class="btn-model-pill" data-model="gemini-3.8-flash" title="Click to select gemini-3.8-flash">
+                                        <span class="pill-badge pill-latest">v3.8 Latest</span>
+                                        <strong>gemini-3.8-flash</strong>
+                                        <small class="pill-desc">সর্বাধুনিক ও পাওয়ারফুল ফ্ল্যাশ</small>
+                                    </button>
 
-                                <button type="button" class="btn-model-pill" data-model="gemini-2.5-flash-lite" title="Click to select gemini-2.5-flash-lite">
-                                    <span class="pill-badge pill-fast">Ultra Fast</span>
-                                    <strong>gemini-2.5-flash-lite</strong>
-                                    <small class="pill-desc">হাই কোটা ও লো লেটেন্সি</small>
-                                </button>
+                                    <button type="button" class="btn-model-pill" data-model="gemini-3.8-live" title="Click to select gemini-3.8-live">
+                                        <span class="pill-badge pill-live">v3.8 Live</span>
+                                        <strong>gemini-3.8-live</strong>
+                                        <small class="pill-desc">রিয়েল-টাইম কনভার্সেশন ও থিংকিং</small>
+                                    </button>
 
-                                <button type="button" class="btn-model-pill" data-model="gemini-2.5-pro" title="Click to select gemini-2.5-pro">
-                                    <span class="pill-badge pill-pro">Pro</span>
-                                    <strong>gemini-2.5-pro</strong>
-                                    <small class="pill-desc">গভীর যুক্তি ও জটিল কাজ</small>
-                                </button>
+                                    <button type="button" class="btn-model-pill" data-model="gemini-3.6-flash" title="Click to select gemini-3.6-flash">
+                                        <span class="pill-badge pill-fast">v3.6 Flash</span>
+                                        <strong>gemini-3.6-flash</strong>
+                                        <small class="pill-desc">সুপার-ফাস্ট এজেন্টিক লুপ</small>
+                                    </button>
 
-                                <button type="button" class="btn-model-pill" data-model="gemini-2.0-flash" title="Click to select gemini-2.0-flash">
-                                    <span class="pill-badge pill-stable">v2.0 Flash</span>
-                                    <strong>gemini-2.0-flash</strong>
-                                    <small class="pill-desc">পূর্ববর্তী ২.০ সংস্করণ</small>
-                                </button>
+                                    <button type="button" class="btn-model-pill" data-model="gemini-3.5-flash-lite" title="Click to select gemini-3.5-flash-lite">
+                                        <span class="pill-badge pill-lite">v3.5 Lite</span>
+                                        <strong>gemini-3.5-flash-lite</strong>
+                                        <small class="pill-desc">বাজেট-ফ্রেন্ডলি ও হাই ভলিউম</small>
+                                    </button>
 
-                                <button type="button" class="btn-model-pill" data-model="gemini-2.0-flash-lite" title="Click to select gemini-2.0-flash-lite">
-                                    <span class="pill-badge pill-lite">v2.0 Lite</span>
-                                    <strong>gemini-2.0-flash-lite</strong>
-                                    <small class="pill-desc">লাইটওয়েট ২.০ মডেল</small>
-                                </button>
+                                    <button type="button" class="btn-model-pill" data-model="gemini-3.1-pro" title="Click to select gemini-3.1-pro">
+                                        <span class="pill-badge pill-pro">v3.1 Pro</span>
+                                        <strong>gemini-3.1-pro</strong>
+                                        <small class="pill-desc">জটিল কোডিং ও গভীর যুক্তি</small>
+                                    </button>
 
-                                <button type="button" class="btn-model-pill" data-model="gemini-1.5-flash" title="Click to select gemini-1.5-flash">
-                                    <span class="pill-badge pill-legacy">v1.5 Flash</span>
-                                    <strong>gemini-1.5-flash</strong>
-                                    <small class="pill-desc">লেগ্যাসি ১.৫ সংস্করণ</small>
-                                </button>
+                                    <button type="button" class="btn-model-pill" data-model="gemini-3.0-flash" title="Click to select gemini-3.0-flash">
+                                        <span class="pill-badge pill-stable">v3.0 Flash</span>
+                                        <strong>gemini-3.0-flash</strong>
+                                        <small class="pill-desc">৩.০ ফাউন্ডেশনাল ফ্ল্যাশ</small>
+                                    </button>
+                                </div>
+
+                                <div class="text-muted small fw-bold mb-1.5" style="font-size: 11px;">
+                                    <i class="fe-cpu text-primary me-1"></i> Gemini 2.x & 1.5 Series (Stable):
+                                </div>
+                                <div class="model-pills-wrap mb-2">
+                                    <button type="button" class="btn-model-pill" data-model="gemini-2.5-flash" title="Click to select gemini-2.5-flash">
+                                        <span class="pill-badge pill-recommended">v2.5 Flash</span>
+                                        <strong>gemini-2.5-flash</strong>
+                                        <small class="pill-desc">জনপ্রিয় ও নির্ভরযোগ্য</small>
+                                    </button>
+
+                                    <button type="button" class="btn-model-pill" data-model="gemini-2.5-flash-lite" title="Click to select gemini-2.5-flash-lite">
+                                        <span class="pill-badge pill-fast">v2.5 Lite</span>
+                                        <strong>gemini-2.5-flash-lite</strong>
+                                        <small class="pill-desc">লো লেটেন্সি ফ্ল্যাশ লাইট</small>
+                                    </button>
+
+                                    <button type="button" class="btn-model-pill" data-model="gemini-2.5-pro" title="Click to select gemini-2.5-pro">
+                                        <span class="pill-badge pill-pro">v2.5 Pro</span>
+                                        <strong>gemini-2.5-pro</strong>
+                                        <small class="pill-desc">২.৫ প্রো সংস্করণ</small>
+                                    </button>
+
+                                    <button type="button" class="btn-model-pill" data-model="gemini-2.0-flash" title="Click to select gemini-2.0-flash">
+                                        <span class="pill-badge pill-stable">v2.0 Flash</span>
+                                        <strong>gemini-2.0-flash</strong>
+                                        <small class="pill-desc">পূর্ববর্তী ২.০ সংস্করণ</small>
+                                    </button>
+
+                                    <button type="button" class="btn-model-pill" data-model="gemini-2.0-flash-lite" title="Click to select gemini-2.0-flash-lite">
+                                        <span class="pill-badge pill-lite">v2.0 Lite</span>
+                                        <strong>gemini-2.0-flash-lite</strong>
+                                        <small class="pill-desc">লাইটওয়েট ২.০ মডেল</small>
+                                    </button>
+
+                                    <button type="button" class="btn-model-pill" data-model="gemini-1.5-flash" title="Click to select gemini-1.5-flash">
+                                        <span class="pill-badge pill-legacy">v1.5 Flash</span>
+                                        <strong>gemini-1.5-flash</strong>
+                                        <small class="pill-desc">লেগ্যাসি ১.৫ সংস্করণ</small>
+                                    </button>
+                                </div>
                             </div>
 
                             <small class="small-help d-block mt-1">
