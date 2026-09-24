@@ -109,21 +109,27 @@ class AppServiceProvider extends ServiceProvider
             view()->share('seo', $seo);
 
             $menucategories = Cache::remember('menu_categories_v4', 1800, function () {
-                return Category::where('status', 1)
-                    ->where('parent_id', 0)
-                    ->select('id', 'name', 'slug', 'status', 'image', 'icon')
-                    ->with(['subcategories' => function ($query) {
-                        $query->where('status', 1)
-                            ->select('id', 'slug', 'subcategoryName', 'category_id')
-                            ->orderBy('subcategoryName')
-                            ->with(['childcategories' => function ($q) {
-                                $q->where('status', 1)
-                                    ->select('id', 'slug', 'childcategoryName', 'subcategory_id')
-                                    ->orderBy('childcategoryName');
-                            }]);
-                    }])
-                    ->orderBy('id', 'ASC')
-                    ->get();
+                try {
+                    $hasIcon = \Illuminate\Support\Facades\Schema::hasColumn('categories', 'icon');
+                    $selectCols = array_filter(['id', 'name', 'slug', 'status', 'image', $hasIcon ? 'icon' : null]);
+                    return Category::where('status', 1)
+                        ->where('parent_id', 0)
+                        ->select(array_values($selectCols))
+                        ->with(['subcategories' => function ($query) {
+                            $query->where('status', 1)
+                                ->select('id', 'slug', 'subcategoryName', 'category_id')
+                                ->orderBy('subcategoryName')
+                                ->with(['childcategories' => function ($q) {
+                                    $q->where('status', 1)
+                                        ->select('id', 'slug', 'childcategoryName', 'subcategory_id')
+                                        ->orderBy('childcategoryName');
+                                }]);
+                        }])
+                        ->orderBy('id', 'ASC')
+                        ->get();
+                } catch (\Exception $e) {
+                    return collect();
+                }
             });
             view()->share('menucategories', $menucategories);
 

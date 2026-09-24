@@ -11,6 +11,7 @@ use App\Models\Childcategory;
 use Toastr;
 use File;
 use Str;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryController extends Controller
 {
@@ -90,6 +91,8 @@ class CategoryController extends Controller
 
         Category::create($input);
 
+        Cache::forget('menu_categories_v4');
+
         Toastr::success('Success','Data insert successfully');
         if ($request->redirect_to) {
             return redirect($request->redirect_to);
@@ -161,6 +164,8 @@ class CategoryController extends Controller
 
         $update_data->update($input);
 
+        Cache::forget('menu_categories_v4');
+
         Toastr::success('Success','Data update successfully');
         if ($request->redirect_to) {
             return redirect($request->redirect_to);
@@ -178,6 +183,8 @@ class CategoryController extends Controller
         $inactive->status = 0;
         $inactive->save();
 
+        Cache::forget('menu_categories_v4');
+
         Toastr::success('Success','Data inactive successfully');
         return redirect()->back();
     }
@@ -191,6 +198,8 @@ class CategoryController extends Controller
         }
         $active->status = 1;
         $active->save();
+
+        Cache::forget('menu_categories_v4');
 
         Toastr::success('Success','Data active successfully');
         return redirect()->back();
@@ -221,6 +230,8 @@ class CategoryController extends Controller
             File::delete($delete_data->icon);
         }
         $delete_data->delete();
+
+        Cache::forget('menu_categories_v4');
 
         Toastr::success('Success', 'Category deleted successfully.');
         return redirect()->back();

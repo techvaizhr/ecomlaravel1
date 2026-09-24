@@ -122,6 +122,20 @@ Route::get('/cc', function() {
     return "Cleared!";
 });
 
+// Fix categories table: add icon & front_view columns + clear menu cache
+Route::get('/fix-categories-db', function() {
+    try {
+        Artisan::call('migrate', ['--path' => 'database/migrations/2026_09_24_160000_add_icon_front_view_to_categories_table.php', '--force' => true]);
+        $output = Artisan::output();
+    } catch (\Exception $e) {
+        $output = 'Migration error: ' . $e->getMessage();
+    }
+    // Also clear menu cache
+    \Illuminate\Support\Facades\Cache::forget('menu_categories_v4');
+    Artisan::call('cache:clear');
+    return '<pre>Migration Output:<br>' . htmlspecialchars($output) . '<br><br>✅ Categories DB fixed & cache cleared!</pre>';
+});
+
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['demo_mode']], function () {
     
