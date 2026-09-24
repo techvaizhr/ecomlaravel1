@@ -722,7 +722,7 @@ li.Newsletter i {
 
 .mobile-search input {
     width: 86% !important;
-    text-align: center;
+    text-align: left !important;
 }
 
 .mobile-search button {

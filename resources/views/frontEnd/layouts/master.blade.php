@@ -1336,11 +1336,11 @@ li.all__category__list.homepage-cat-btn {
     object-fit: contain;
 }
 .mobile-search {
-    padding: 2px 10px 4px;
+    padding: 3px 10px 5px;
     background: #ffffff;
     box-sizing: border-box;
     overflow: hidden;
-    max-height: 48px;
+    max-height: 54px;
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -1371,8 +1371,8 @@ li.all__category__list.homepage-cat-btn {
     display: flex !important;
     align-items: stretch !important;
     background: #ffffff !important;
-    border-radius: 10px !important;
-    height: 28px !important;
+    border-radius: 12px !important;
+    height: 34px !important;
     padding: 0 !important;
     margin: 0 !important;
     border: 1.5px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
@@ -1392,12 +1392,12 @@ li.all__category__list.homepage-cat-btn {
     display: flex !important;
     align-items: center !important;
     height: 100% !important;
-    padding: 0 6px !important;
+    padding: 0 8px !important;
 }
 .mobile-search .search-icon-left,
 .mobile-search form.mobile-search-form .search-icon-left {
-    font-size: 10px !important;
-    margin-right: 4px !important;
+    font-size: 12px !important;
+    margin-right: 6px !important;
     color: #94a3b8 !important;
     flex-shrink: 0 !important;
 }
@@ -1408,16 +1408,19 @@ li.all__category__list.homepage-cat-btn {
     border: none !important;
     outline: none !important;
     background: transparent !important;
-    font-size: 11px !important;
+    font-size: 12.5px !important;
     color: #1e293b !important;
     padding: 0 !important;
     height: 100% !important;
-    line-height: 28px !important;
+    line-height: 34px !important;
+    text-align: left !important;
+    direction: ltr !important;
 }
 .mobile-search input::placeholder,
 .mobile-search form.mobile-search-form input.msearch_keyword::placeholder {
     color: #94a3b8 !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
+    text-align: left !important;
 }
 .mobile-search .search-submit-btn,
 .mobile-search form.mobile-search-form .search-submit-btn,
@@ -1426,26 +1429,27 @@ li.all__category__list.homepage-cat-btn {
     width: auto !important;
     min-width: 0 !important;
     height: 100% !important;
-    padding: 0 9px !important;
-    border-radius: 0 8px 8px 0 !important;
+    padding: 0 12px !important;
+    border-radius: 0 10px 10px 0 !important;
     background: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
     border: none !important;
     color: #ffffff !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 3px !important;
+    gap: 4px !important;
     white-space: nowrap !important;
 }
 .mobile-search .search-submit-btn span {
-    font-size: 11px !important;
+    font-size: 12px !important;
 }
 .mobile-search .search-submit-btn svg,
 .mobile-search .search-submit-btn i {
-    width: 10px !important;
-    height: 10px !important;
+    width: 11px !important;
+    height: 11px !important;
+    font-size: 11px !important;
 }
 /* 📱 ULTRA-MODERN & BEAUTIFUL MOBILE SIDE MENU (DRAWER) */
 .mobile-menu {
@@ -2139,7 +2143,7 @@ section.slider-section {
         margin-bottom: 0 !important;
     }
     .mobile-search:not(.scrolled-hide) {
-        padding: 2px 10px 4px !important;
+        padding: 3px 10px 5px !important;
         margin-bottom: 0 !important;
     }
     section.slider-section {
@@ -2753,17 +2757,17 @@ section.slider-section {
     </div>
 </div>
 <style>
-/* --- Mobile Bottom Navigation Styles --- */
+/* --- Mobile Bottom Navigation Styles (Compact & Sleek) --- */
 .mobile_bottom_nav {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     background: #ffffff;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -3px 14px rgba(0, 0, 0, 0.08);
     z-index: 9999;
-    padding: 10px 0;
-    border-radius: 20px 20px 0 0; /* উপরের কোনা গুলো একটু গোল হবে */
+    padding: 5px 0 4px;
+    border-radius: 14px 14px 0 0;
     display: none; /* ডেস্কটপে হাইড থাকবে */
 }
 
@@ -2777,9 +2781,9 @@ section.slider-section {
 .nav_container {
     display: flex;
     justify-content: space-around;
-    align-items: flex-end; /* আইটেমগুলো নিচে সমান থাকবে */
+    align-items: flex-end;
     position: relative;
-    padding: 0 10px;
+    padding: 0 6px;
 }
 
 /* সাধারণ মেনু আইটেম */
@@ -2788,74 +2792,82 @@ section.slider-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #6c757d; /* ডিফল্ট কালার */
-    font-size: 12px;
-    transition: all 0.3s ease;
+    color: #64748b;
+    font-size: 10.5px;
+    transition: all 0.25s ease;
     width: 20%;
+    padding: 2px 0 1px;
 }
 
 .icon_box {
     position: relative;
-    font-size: 20px;
-    margin-bottom: 4px;
+    font-size: 16px;
+    margin-bottom: 2px;
     transition: transform 0.2s;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav_text {
+    font-size: 10px;
     font-weight: 500;
+    line-height: 1.1;
 }
 
 /* হোভার এবং একটিভ কালার */
 .nav_item:hover, .nav_item.active {
-    color: #FF6600; /* আপনার ব্র্যান্ড কালার এখানে দিন */
+    color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
 }
 
 .nav_item.active .icon_box {
-    transform: translateY(-3px); /* একটিভ হলে একটু উপরে উঠবে */
+    transform: translateY(-2px);
 }
 
 /* --- Center Floating Home Button --- */
 .home_wrapper {
     position: relative;
-    bottom: 25px; /* স্বাভাবিকের চেয়ে উপরে থাকবে */
+    bottom: 14px;
 }
 
 .home_fab {
-    width: 60px;
-    height: 60px;
-    background: {{$generalsetting->primary_color}}; /* ব্র্যান্ড কালার */
+    width: 44px;
+    height: 44px;
+    background: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff;
-    font-size: 24px;
-    box-shadow: 0 8px 15px rgba(255, 102, 0, 0.4);
-    border: 4px solid #fff; /* সাদা বর্ডার */
-    transition: transform 0.3s ease;
+    color: #fff !important;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    border: 3px solid #fff;
+    transition: transform 0.25s ease;
 }
 
 .home_fab:hover {
-    transform: scale(1.1); /* হোভারে বড় হবে */
-    color: #fff;
+    transform: scale(1.08);
+    color: #fff !important;
 }
 
 /* --- Cart Badge Style --- */
 .cart_badge {
     position: absolute;
-    top: -8px;
-    right: -10px;
-    background: #ff0000;
+    top: -6px;
+    right: -8px;
+    background: #ef4444;
     color: #fff;
-    font-size: 10px;
-    font-weight: bold;
-    width: 18px;
-    height: 18px;
+    font-size: 9.5px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #fff;
+    border: 1.5px solid #fff;
+    padding: 0 2px;
 }
 </style>
 
