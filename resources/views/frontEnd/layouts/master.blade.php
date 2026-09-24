@@ -16,25 +16,36 @@
         @stack('css')
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap">
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'">
+        <noscript>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap">
+        </noscript>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
         <link rel="preconnect" href="https://maxcdn.bootstrapcdn.com" crossorigin>
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/bootstrap.min.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/animate.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/all.min.css')}}" />
+        <link rel="stylesheet" href="{{asset('public/frontEnd/css/animate.css')}}" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="{{asset('public/frontEnd/css/animate.css')}}" /></noscript>
+        <link rel="stylesheet" href="{{asset('public/frontEnd/css/all.min.css')}}" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="{{asset('public/frontEnd/css/all.min.css')}}" /></noscript>
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/owl.carousel.min.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/owl.theme.default.min.css')}}" />
+        <link rel="stylesheet" href="{{asset('public/frontEnd/css/owl.theme.default.min.css')}}" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="{{asset('public/frontEnd/css/owl.theme.default.min.css')}}" /></noscript>
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/mobile-menu.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/select2.min.css')}}" />
+        <link rel="stylesheet" href="{{asset('public/frontEnd/css/select2.min.css')}}" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="{{asset('public/frontEnd/css/select2.min.css')}}" /></noscript>
         <!-- toastr css -->
-        <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
+        <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" /></noscript>
 
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
+        <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" /></noscript>
         <link rel="stylesheet" href="{{ url('/style.css') }}?v=8">
         <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=7">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" />
+        <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" /></noscript>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" media="print" onload="this.media='all'" />
         <meta name="facebook-domain-verification" content="38f1w8335btoklo88dyfl63ba3st2e" />
         <style>
@@ -4434,7 +4445,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
             @if($isSimpleImagePopup)
                 {{-- শুধু ইমেজ পপআপ (FABRILIFE/bKash স্টাইল) --}}
                 <a href="{{ !empty(trim($popup->link ?? '')) ? $popup->link : 'javascript:void(0)' }}" {{ !empty(trim($popup->link ?? '')) ? 'target="_blank"' : '' }} class="popup-simple-link">
-                    <img src="{{ url('public/'.$popup->image) }}" alt="{{ $popup->title }}" class="popup-simple-img">
+                    <img src="{{ url('public/'.$popup->image) }}" alt="{{ $popup->title }}" class="popup-simple-img" loading="lazy" decoding="async">
                 </a>
             @else
                 {{-- পুরনো লেআউট (টেক্সট + ইমেজ) --}}
@@ -4458,7 +4469,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                         </div>
                     </div>
                     <div class="ps-image-section">
-                        <img src="{{ url('public/'.$popup->image) }}" alt="Offer Image">
+                        <img src="{{ url('public/'.$popup->image) }}" alt="Offer Image" loading="lazy" decoding="async">
                     </div>
                 </div>
             @endif

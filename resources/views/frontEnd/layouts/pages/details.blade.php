@@ -397,7 +397,7 @@
                     <div class="details_slider owl-carousel" id="details_slider_main">
                         @foreach ($details->images as $k => $value)
                             <div class="dimage_item" data-color-id="{{ $value->color_id ?? '' }}">
-                                <img src="{{ asset($value->image) }}" class="block__pic" @if($k === 0) fetchpriority="high" decoding="async" @else loading="lazy" decoding="async" @endif />
+                                <img src="{{ asset($value->image) }}" class="block__pic" @if($k === 0) fetchpriority="high" loading="eager" decoding="async" @else loading="lazy" decoding="async" @endif />
                             </div>
                         @endforeach
                     </div>

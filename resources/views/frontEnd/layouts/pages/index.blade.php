@@ -85,7 +85,7 @@
                                 <img src="{{ asset($value->image) }}"
                                      alt="Slider"
                                      class="img-fluid w-100"
-                                     @if($key === 0) fetchpriority="high" decoding="async" @else loading="lazy" decoding="async" @endif />
+                                     @if($key === 0) fetchpriority="high" loading="eager" decoding="async" @else loading="lazy" decoding="async" @endif />
                             </div>
                         @endforeach
                     </div>
