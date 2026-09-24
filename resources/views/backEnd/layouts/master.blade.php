@@ -1780,14 +1780,15 @@
                 @endcanany
 
                 @canany(['api-manage', 'cache-clear', 'error-log-view'])
-                <li class="{{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'menuitem-active' : '' }}">
-                  <a href="#sub-maintenance" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('admin.cron.*', 'error-log.*', 'admin.backups.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-maintenance" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.cron.*', 'error-log.*', 'admin.backups.*') ? 'active' : '' }}">
                     <i data-feather="tool"></i>
                     <span> Maintenance </span>
                     <span class="menu-arrow"></span>
                   </a>
-                  <div class="collapse {{ request()->routeIs('admin.cron.*', 'error-log.*') ? 'show' : '' }}" id="sub-maintenance">
+                  <div class="collapse {{ request()->routeIs('admin.cron.*', 'error-log.*', 'admin.backups.*') ? 'show' : '' }}" id="sub-maintenance">
                     <ul class="subpanel-nested-menu">
+                      <li><a href="{{ route('admin.backups.index') }}" class="{{ request()->routeIs('admin.backups.*') ? 'active' : '' }}"><i data-feather="hard-drive"></i> Backup & Restore</a></li>
                       @can('api-manage')
                       <li><a href="{{ route('admin.cron.index') }}" class="{{ request()->routeIs('admin.cron.*') ? 'active' : '' }}"><i data-feather="clock"></i> Cron Job</a></li>
                       @endcan

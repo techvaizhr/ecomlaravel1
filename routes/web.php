@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CreatePageController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ErrorLogController;
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CustomerManageController;
 use App\Http\Controllers\Admin\VendorController;
@@ -1052,6 +1053,17 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('error-log', [ErrorLogController::class,'index'])->name('error-log.index');
     Route::post('error-log/create', [ErrorLogController::class,'create'])->name('error-log.create');
     Route::post('error-log/test', [ErrorLogController::class,'testLog'])->name('error-log.test');
+
+    // Database & Images Backup and Restore
+    Route::get('backups', [BackupController::class, 'index'])->name('admin.backups.index');
+    Route::post('backups/db/create', [BackupController::class, 'createDb'])->name('admin.backups.db.create');
+    Route::get('backups/db/download/{filename}', [BackupController::class, 'downloadDb'])->name('admin.backups.db.download');
+    Route::post('backups/db/restore', [BackupController::class, 'restoreDb'])->name('admin.backups.db.restore');
+    Route::post('backups/db/delete', [BackupController::class, 'deleteDb'])->name('admin.backups.db.delete');
+    Route::post('backups/images/create', [BackupController::class, 'createImages'])->name('admin.backups.images.create');
+    Route::get('backups/images/download/{filename}', [BackupController::class, 'downloadImages'])->name('admin.backups.images.download');
+    Route::post('backups/images/restore', [BackupController::class, 'restoreImages'])->name('admin.backups.images.restore');
+    Route::post('backups/images/delete', [BackupController::class, 'deleteImages'])->name('admin.backups.images.delete');
 
     // settings route 
     Route::get('settings/manage', [GeneralSettingController::class,'index'])->name('settings.index');
