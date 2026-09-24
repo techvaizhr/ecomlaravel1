@@ -283,26 +283,37 @@
     .btn-auth-primary {
         width: 100%;
         height: 48px;
-        background: linear-gradient(135deg, {{ $primaryColor }} 0%, {{ $secondaryColor }} 100%);
-        border: none;
-        border-radius: 12px;
-        color: #ffffff;
-        font-size: 15px;
-        font-weight: 600;
+        background: {{ optional($generalsetting)->primary_color ?? '#0f3460' }} !important;
+        border: none !important;
+        border-radius: 12px !important;
+        color: #ffffff !important;
+        font-size: 15.5px !important;
+        font-weight: 700 !important;
         cursor: pointer;
         transition: all 0.25s ease;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        box-shadow: 0 4px 14px {{ $primaryColor }}40;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
         margin-top: 10px;
+    }
+    .btn-auth-primary span,
+    .btn-auth-primary i {
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
 
     .btn-auth-primary:hover {
         transform: translateY(-1.5px);
-        box-shadow: 0 6px 20px {{ $primaryColor }}55;
-        color: #ffffff;
+        filter: brightness(0.92);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22) !important;
+        color: #ffffff !important;
+    }
+    .btn-auth-primary:hover span,
+    .btn-auth-primary:hover i {
+        color: #ffffff !important;
     }
 
     .btn-auth-primary:active {

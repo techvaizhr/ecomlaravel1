@@ -173,9 +173,15 @@
 }
 
 /* 🏷️ Fresh White 4-Corner 2-Radius Category Design */
+.homeproduct.home-category-section,
 .home-category-section {
-    padding: 10px 0 16px;
-    margin-top: 0;
+    padding: 2px 0 8px !important;
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+}
+.home-category-section .cat-modern-header {
+    padding-bottom: 2px !important;
+    margin-bottom: 6px !important;
 }
 .cat_fresh_card {
     display: flex;
@@ -251,10 +257,13 @@
     color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }} !important;
 }
 
-/* 🖥️ Desktop Category Slider */
+/* 🖥️ Desktop Category Slider with Perfectly Centered <> Arrows */
 .cat_desktop_slider_wrap {
     position: relative;
-    padding: 0 4px;
+    padding: 0 2px;
+}
+.category-slider {
+    position: relative !important;
 }
 .category-slider .owl-stage {
     display: flex;
@@ -268,75 +277,85 @@
     width: 100%;
     height: 100%;
 }
+.category-slider .owl-nav {
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 0 !important;
+}
 .cat-nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #1e293b;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.2s ease;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 34px !important;
+    height: 34px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #0f172a !important;
+    font-size: 13px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+    cursor: pointer !important;
+    z-index: 30 !important;
+    transition: all 0.2s ease !important;
+    margin: 0 !important;
 }
 .cat-nav-btn:hover {
-    background: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
-    color: #ffffff;
-    border-color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
+    background: {{ optional($generalsetting)->primary_color ?? '#0f3460' }} !important;
+    color: #ffffff !important;
+    border-color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }} !important;
 }
-.cat-prev { left: -12px; }
-.cat-next { right: -12px; }
+.cat-prev { left: -14px !important; }
+.cat-next { right: -14px !important; }
 
-/* 📱 Mobile Category 3x4 Grid (12 Items) */
+/* 📱 Mobile Category 4x3 Grid (12 Items) */
 @media (max-width: 767px) {
+    .homeproduct.home-category-section,
     .home-category-section {
-        padding: 6px 0 12px;
-        margin-top: 0;
+        padding: 2px 0 6px !important;
+        margin-top: 0 !important;
+        margin-bottom: 2px !important;
     }
-    .cat_mobile_3x4_grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 6px;
-        margin-top: 4px;
+    .cat_mobile_4x3_grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 5px !important;
+        margin-top: 3px !important;
     }
     .cat_fresh_card {
-        padding: 6px 4px 6px;
-        border-radius: 12px 0 12px 0 !important;
+        padding: 5px 3px 5px !important;
+        border-radius: 10px 0 10px 0 !important;
     }
     .cat_fresh_img_box {
-        height: 56px;
+        height: 48px !important;
     }
     .cat_fresh_title {
-        font-size: 11px;
-        font-weight: 600;
-        line-height: 1.2;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        line-height: 1.15 !important;
     }
 }
 @media (max-width: 380px) {
-    .cat_mobile_3x4_grid {
-        gap: 5px;
+    .cat_mobile_4x3_grid {
+        gap: 4px !important;
     }
     .cat_fresh_card {
-        border-radius: 10px 0 10px 0 !important;
-        padding: 5px 3px 5px;
+        padding: 4px 2px 4px !important;
+        border-radius: 8px 0 8px 0 !important;
     }
     .cat_fresh_img_box {
-        height: 50px;
+        height: 44px !important;
     }
     .cat_fresh_title {
-        font-size: 10px;
+        font-size: 9.5px !important;
     }
 }
 </style>
 
-{{-- CATEGORY SECTION (PC: 8-Item Auto-Scroll Single Line Slider | Mobile: 3x4 Fresh White 12-Item Grid) --}}
+{{-- CATEGORY SECTION (PC: 8-Item Auto-Scroll Single Line Slider | Mobile: 4x3 Fresh White 12-Item Grid) --}}
 <section class="homeproduct home-category-section">
     <div class="container">
         <div class="row">
@@ -390,9 +409,9 @@
                 </div>
             </div>
 
-            {{-- 📱 Mobile Grid: 3x4 (3 Columns x 4 Rows = 12 Items total), Fresh White cards, 4-corner 2-radius, full picture, zero black gradient --}}
+            {{-- 📱 Mobile Grid: 4x3 (4 Columns x 3 Rows = 12 Items total), Fresh White cards, 4-corner 2-radius, full picture, zero black gradient --}}
             <div class="col-sm-12 d-block d-md-none">
-                <div class="cat_mobile_3x4_grid">
+                <div class="cat_mobile_4x3_grid">
                     @foreach ($menucategories->take(12) as $value)
                         <a href="{{ route('category', $value->slug) }}" class="cat_fresh_card">
                             <div class="cat_fresh_img_box">
