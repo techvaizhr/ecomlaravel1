@@ -170,6 +170,9 @@
             <p class="mb-0 text-white-50" style="font-size:14px;">মার্কেটপ্লেসের বিভিন্ন ভেন্ডর কর্তৃক লিস্ট করা পণ্যসমূহ পর্যবেক্ষণ ও ফিল্টার করুন।</p>
         </div>
         <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-info rounded-pill px-3 py-2 fw-bold text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#importProductModal">
+                <i class="fe-download-cloud me-1"></i> Import from URL
+            </button>
             <a href="{{ route('products.pending') }}" class="btn btn-warning rounded-pill px-3 py-2 fw-bold text-dark shadow-sm">
                 <i class="fe-clock me-1"></i> Pending Approvals
             </a>
@@ -473,6 +476,8 @@
         </div>
     </div>
 </div>
+
+@include('backEnd.product.partials.import_modal')
 @endsection
 
 @section('script')

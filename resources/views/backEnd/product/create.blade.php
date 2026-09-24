@@ -19,10 +19,44 @@
             </h4>
             <p class="pf-sub mb-0">প্রোডাক্টের সাধারণ তথ্য, ভ্যারিয়েন্ট, হোলসেল টায়ার, এসইও এবং মিডিয়া ফাইল যুক্ত করে সহজে পাবলিশ করুন।</p>
         </div>
-        <div class="pf-header-actions">
+        <div class="pf-header-actions d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-info rounded-pill px-3 py-1.5 fw-bold text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#importProductModal">
+                <i class="fe-download-cloud me-1"></i> Import from URL
+            </button>
             <a href="{{ route('products.index') }}" class="pf-btn-manage">
                 <i class="fe-arrow-left"></i> প্রোডাক্ট তালিকা
             </a>
+        </div>
+    </div>
+
+    {{-- Fast URL Import Bar --}}
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4f46e5 100%);">
+        <div class="card-body p-3 p-md-4 text-white">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-25" style="width: 40px; height: 40px; flex-shrink: 0;">
+                            <i class="fe-zap text-white fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-white" style="font-size: 15px;">Auto-Fill from URL</h6>
+                            <small class="text-white-50" style="font-size: 12px;">Daraz, Alibaba, AliExpress, Amazon, eBay ইত্যাদি</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="input-group">
+                        <input type="url" id="page_quick_import_url" class="form-control border-0" placeholder="প্রোডাক্ট লিঙ্ক পেস্ট করুন (যেমন: https://www.daraz.com.bd/... বা Alibaba)" style="border-radius: 8px 0 0 8px; font-size: 13.5px;">
+                        <button class="btn btn-light px-3 fw-bold text-dark border-0" type="button" id="btn_page_paste_url">
+                            <i class="fe-clipboard me-1"></i> Paste
+                        </button>
+                        <button class="btn btn-warning px-4 fw-bold text-dark border-0" type="button" id="btn_page_quick_fetch" style="border-radius: 0 8px 8px 0;">
+                            <span class="spinner-border spinner-border-sm me-1 d-none" id="page_fetch_spinner"></span>
+                            <span id="page_fetch_btn_text"><i class="fe-download-cloud me-1"></i> Fetch & Fill Form</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -280,6 +314,8 @@
         </div>
     </form>
 </div>
+
+@include('backEnd.product.partials.import_modal')
 @endsection 
 
 @section('script')
@@ -677,6 +713,194 @@
             return m ? m[1] : null;
         }
     })();
+</script>
+
+<script>
+    // ========================================================
+    // IMPORT FROM URL / PREFILL LOGIC (DARAZ, ALIBABA, ETC.)
+    // ========================================================
+    function applyPrefillData(data) {
+        if (!data) return;
+
+        // Title
+        if (data.name) {
+            $('#product_name_input').val(data.name).trigger('input');
+        }
+
+        // Pricing & Stock
+        if (data.new_price !== undefined && data.new_price !== null) {
+            $('#pro_new_price').val(data.new_price).trigger('input');
+        }
+        if (data.old_price !== undefined && data.old_price !== null) {
+            $('#pro_old_price').val(data.old_price).trigger('input');
+        }
+        if (data.purchase_price !== undefined && data.purchase_price !== null) {
+            $('#pro_purchase_price').val(data.purchase_price).trigger('input');
+        }
+        if (data.stock !== undefined && data.stock !== null) {
+            $('input[name="stock"]').val(data.stock);
+        }
+        if (data.pro_unit) {
+            $('input[name="pro_unit"]').val(data.pro_unit);
+        }
+
+        // Description (Summernote)
+        if (data.description) {
+            try {
+                $('textarea.summernote').summernote('code', data.description);
+            } catch (e) {
+                $('textarea.summernote').val(data.description);
+            }
+        }
+
+        // SEO Fields
+        if (data.meta_title || data.name) {
+            $('#meta_title_input').val(data.meta_title || data.name).trigger('input');
+        }
+        if (data.meta_description) {
+            $('#meta_desc_input').val(data.meta_description).trigger('input');
+        }
+
+        // Category & Subcategory
+        const catId = data.suggested_category_id || data.category_id;
+        if (catId && $('#category_id option[value="' + catId + '"]').length > 0) {
+            $('#category_id').val(catId).trigger('change');
+            if (data.subcategory_id) {
+                setTimeout(function () {
+                    $('#subcategory_id').val(data.subcategory_id).trigger('change');
+                }, 600);
+            }
+        }
+
+        // Remote Images
+        const images = data.images || [];
+        if (images.length > 0) {
+            renderRemoteImages(images);
+        }
+    }
+
+    function renderRemoteImages(images) {
+        const $area = $('#remote_images_preview_area');
+        const $grid = $('#remote_images_grid');
+        const $count = $('#remote_images_count');
+
+        $grid.empty();
+        $count.text(images.length);
+
+        images.forEach(function (imgUrl, idx) {
+            const isMain = (idx === 0);
+            const itemHtml = `
+                <div class="position-relative border rounded p-1 bg-white remote-img-card" style="width: 72px; height: 72px;">
+                    <img src="${imgUrl}" alt="Preview" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" loading="lazy">
+                    <input type="hidden" name="imported_remote_images[]" value="${imgUrl}">
+                    <button type="button" class="btn btn-xs btn-danger position-absolute btn-remove-remote-img" style="top:-6px; right:-6px; border-radius:50%; width:18px; height:18px; padding:0; display:flex; align-items:center; justify-content:center;" title="Remove">
+                        <i class="fe-x" style="font-size:10px;"></i>
+                    </button>
+                    ${isMain ? '<span class="badge bg-primary position-absolute" style="bottom:2px; left:2px; font-size:8.5px; padding:1px 3px;">Main</span>' : ''}
+                </div>
+            `;
+            $grid.append(itemHtml);
+        });
+
+        $area.removeClass('d-none');
+        $('.gallery-file-input').removeAttr('required');
+    }
+
+    // Remove single remote image
+    $(document).on('click', '.btn-remove-remote-img', function () {
+        $(this).closest('.remote-img-card').remove();
+        const count = $('#remote_images_grid .remote-img-card').length;
+        $('#remote_images_count').text(count);
+        if (count === 0) {
+            $('#remote_images_preview_area').addClass('d-none');
+            $('.gallery-file-input').first().attr('required', 'required');
+        }
+    });
+
+    // Clear all remote images
+    $('#btn_clear_remote_images').on('click', function () {
+        $('#remote_images_grid').empty();
+        $('#remote_images_preview_area').addClass('d-none');
+        $('.gallery-file-input').first().attr('required', 'required');
+    });
+
+    // Fast URL Paste Button
+    $('#btn_page_paste_url').on('click', async function () {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                $('#page_quick_import_url').val(text.trim());
+            }
+        } catch (err) {
+            toastr.info('ক্লিপবোর্ড থেকে সরাসরি লিঙ্ক পেতে অনুমতি প্রয়োজন অথবা বক্সে পেস্ট করুন।');
+        }
+    });
+
+    // Fast URL Fetch & Auto-Fill Button
+    $('#btn_page_quick_fetch').on('click', function () {
+        const url = $('#page_quick_import_url').val().trim();
+        if (!url) {
+            toastr.warning('অনুগ্রহ করে একটি সঠিক প্রোডাক্ট লিঙ্ক প্রদান করুন!');
+            $('#page_quick_import_url').focus();
+            return;
+        }
+
+        const $btn = $(this);
+        const $spinner = $('#page_fetch_spinner');
+        const $text = $('#page_fetch_btn_text');
+
+        $btn.prop('disabled', true);
+        $spinner.removeClass('d-none');
+        $text.html('তথ্য সংগ্রহ হচ্ছে...');
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('products.import_url_fetch') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                url: url
+            },
+            success: function (res) {
+                $btn.prop('disabled', false);
+                $spinner.addClass('d-none');
+                $text.html('<i class="fe-download-cloud me-1"></i> Fetch & Fill Form');
+
+                if (res.status === 'success' && res.data) {
+                    applyPrefillData(res.data);
+                    toastr.success('✅ প্রোডাক্টের তথ্য সফলভাবে ফর্মে সেট হয়েছে! অনুগ্রহ করে যাচাই করুন।');
+                } else {
+                    toastr.error(res.message || 'প্রোডাক্ট তথ্য পাওয়া যায়নি।');
+                }
+            },
+            error: function (xhr) {
+                $btn.prop('disabled', false);
+                $spinner.addClass('d-none');
+                $text.html('<i class="fe-download-cloud me-1"></i> Fetch & Fill Form');
+                let msg = 'প্রোডাক্ট তথ্য সংগ্রহে সমস্যা হয়েছে।';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                toastr.error(msg);
+            }
+        });
+    });
+
+    // Check if prefill data exists from Import Modal redirect
+    $(document).ready(function () {
+        try {
+            const stored = sessionStorage.getItem('imported_product_prefill');
+            if (stored) {
+                const prefillData = JSON.parse(stored);
+                sessionStorage.removeItem('imported_product_prefill');
+                setTimeout(function () {
+                    applyPrefillData(prefillData);
+                    toastr.success('✅ ইমপোর্ট করা প্রোডাক্টের তথ্য সফলভাবে ফর্মে বসে গেছে!');
+                }, 400);
+            }
+        } catch (e) {
+            console.error('Prefill read error:', e);
+        }
+    });
 </script>
 @include('backEnd.product.partials.ai_description_script')
 @endsection

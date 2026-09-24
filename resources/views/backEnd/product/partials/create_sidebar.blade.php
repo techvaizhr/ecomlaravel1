@@ -67,6 +67,22 @@
                 <span class="text-danger fw-bold" style="font-size:12px;">* Required</span>
             </div>
 
+            {{-- Remote Imported Images Container --}}
+            <div id="remote_images_preview_area" class="mb-3 d-none">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge bg-soft-info text-info fw-bold" style="font-size:11px;">
+                        <i class="fe-download-cloud me-1"></i> Imported Images (<span id="remote_images_count">0</span>)
+                    </span>
+                    <button type="button" class="btn btn-link btn-sm text-danger p-0 text-decoration-none" id="btn_clear_remote_images" style="font-size:11px;">
+                        <i class="fe-x"></i> Clear All
+                    </button>
+                </div>
+                <div id="remote_images_grid" class="d-flex flex-wrap gap-2 p-2 bg-light rounded border"></div>
+                <small class="text-muted d-block mt-1" style="font-size:10.5px;">
+                    সংরক্ষণ করার সময় এই ছবিগুলো স্বয়ংক্রিয়ভাবে ডাউনলোড ও অপ্টিমাইজ হয়ে গ্যালারিতে সেভ হবে।
+                </small>
+            </div>
+
             <div class="increment-wrapper">
                 <div class="gallery-item-row control-group increment image-row">
                     <div class="row align-items-center g-2">

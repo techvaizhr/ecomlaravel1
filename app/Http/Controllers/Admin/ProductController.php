@@ -24,6 +24,7 @@ use DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use App\Services\GeminiAiService;
+use App\Services\ProductImportService;
 use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
@@ -31,7 +32,7 @@ class ProductController extends Controller
     function __construct()
     {
         $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:product-create', ['only' => ['create','store']]);
+        $this->middleware('permission:product-create', ['only' => ['create','store','fetchFromUrl','quickStoreFromUrl']]);
         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
         $this->middleware('permission:product-create|product-edit', ['only' => ['generateAIDescription']]);
@@ -388,6 +389,11 @@ class ProductController extends Controller
             if (empty($product->meta_image) && $product->images()->first()) {
                 $product->update(['meta_image' => $product->images()->first()->image]);
             }
+        }
+
+        // IMPORTED REMOTE IMAGES (from URL Import / Fast Fill)
+        if ($request->filled('imported_remote_images') && is_array($request->imported_remote_images)) {
+            ProductImportService::downloadAndAttachImages($request->imported_remote_images, $product);
         }
 
         // VARIANT PRICES
@@ -945,5 +951,95 @@ PROMPT;
                 'message' => $e->getMessage(),
             ], 422);
         }
+    }
+
+    // ================================
+    // IMPORT FROM URL: FETCH DATA
+    // ================================
+    public function fetchFromUrl(Request $request)
+    {
+        $request->validate([
+            'url' => 'required|url',
+        ], [
+            'url.required' => 'একটি সঠিক প্রোডাক্ট লিঙ্ক (URL) দিন।',
+            'url.url'      => 'একটি সঠিক ও পূর্ণাঙ্গ URL দিন (যেমন: https://...)',
+        ]);
+
+        $res = ProductImportService::fetch($request->url);
+
+        if (!$res['success']) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $res['message'] ?? 'প্রোডাক্ট তথ্য সংগ্রহ করা যায়নি।',
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $res['data'],
+        ]);
+    }
+
+    // ================================
+    // IMPORT FROM URL: QUICK STORE
+    // ================================
+    public function quickStoreFromUrl(Request $request)
+    {
+        $request->validate([
+            'name'            => 'required|string|max:255',
+            'category_id'     => 'required',
+            'new_price'       => 'required|numeric|min:0',
+            'old_price'       => 'nullable|numeric|min:0',
+            'purchase_price'  => 'nullable|numeric|min:0',
+            'stock'           => 'nullable|integer|min:0',
+            'description'     => 'required',
+            'selected_images' => 'nullable|array',
+        ], [
+            'name.required'        => 'প্রোডাক্টের নাম দেওয়া আবশ্যক।',
+            'category_id.required' => 'মেইন ক্যাটাগরি নির্বাচন করুন।',
+            'new_price.required'   => 'প্রোডাক্টের বিক্রয়মূল্য (New Price) দিন।',
+            'description.required' => 'প্রোডাক্টের বিস্তারিত বিবরণ দিন।',
+        ]);
+
+        $last_id = Product::max('id') + 1;
+        $slug = Str::slug($request->name);
+        $slug = str_replace('/', '', $slug);
+
+        $product = Product::create([
+            'name'             => $request->name,
+            'slug'             => $slug ?: ('prod-' . time()),
+            'category_id'      => $request->category_id,
+            'subcategory_id'   => $request->subcategory_id ?: null,
+            'childcategory_id' => $request->childcategory_id ?: null,
+            'brand_id'         => $request->brand_id ?: null,
+            'new_price'        => $request->new_price,
+            'old_price'        => $request->old_price ?: null,
+            'purchase_price'   => $request->purchase_price ?: 0,
+            'stock'            => $request->filled('stock') ? (int) $request->stock : 100,
+            'pro_unit'         => $request->pro_unit ?: 'pcs',
+            'description'      => $request->description,
+            'note'             => $request->note ?: ('Imported from ' . ($request->source_platform ?? 'URL')),
+            'product_type'     => 'physical',
+            'product_code'     => 'P' . str_pad($last_id, 4, '0', STR_PAD_LEFT),
+            'status'           => 1,
+            'approval_status'  => 'approved',
+            'meta_title'       => $request->meta_title ?: $request->name,
+            'meta_description' => $request->meta_description ?: Str::limit(strip_tags($request->description), 160),
+            'meta_keywords'    => $request->meta_keywords ?: '',
+        ]);
+
+        // Download & attach remote images selected by admin
+        if ($request->selected_images && is_array($request->selected_images)) {
+            ProductImportService::downloadAndAttachImages($request->selected_images, $product);
+        }
+
+        Toastr::success('Success', 'প্রোডাক্ট সফলভাবে ইমপোর্ট ও পাবলিশ করা হয়েছে!');
+
+        return response()->json([
+            'status'       => 'success',
+            'message'      => 'প্রোডাক্ট সফলভাবে ইমপোর্ট ও পাবলিশ করা হয়েছে!',
+            'redirect_url' => route('products.index'),
+            'product_id'   => $product->id,
+        ]);
     }
 }
