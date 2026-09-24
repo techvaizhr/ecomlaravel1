@@ -3,10 +3,17 @@
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
--- ১. General Settings টেবিলে টগল ফিল্ড যুক্ত করা (মাইগ্রেশন না চালালে এটি রান করবেন)
+-- ১. টেবিলগুলোর ক্যারেক্টার সেট utf8mb4 তে রূপান্তর (যাতে বাংলা নাম '???' না হয়)
+ALTER TABLE `divisions` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE `districts` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE `upazilas` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- ২. General Settings এ টগল ফিল্ড যুক্ত করা ও ডিফল্টভাবে 0 (OFF) রাখা
 ALTER TABLE `general_settings` 
-ADD COLUMN IF NOT EXISTS `checkout_location_enabled` TINYINT NOT NULL DEFAULT 1 COMMENT '1 = Location Cascade ON, 0 = OFF (Address only)',
+ADD COLUMN IF NOT EXISTS `checkout_location_enabled` TINYINT NOT NULL DEFAULT 0 COMMENT '1 = Location Cascade ON, 0 = OFF (Address only)',
 ADD COLUMN IF NOT EXISTS `campaign_location_enabled` TINYINT NOT NULL DEFAULT 0 COMMENT '1 = Location Cascade ON, 0 = OFF (Address only)';
+
+UPDATE `general_settings` SET `checkout_location_enabled` = 0, `campaign_location_enabled` = 0;
 
 UPDATE `divisions` SET `name` = 'বরিশাল' WHERE `id` = 1;
 UPDATE `divisions` SET `name` = 'চট্টগ্রাম' WHERE `id` = 2;

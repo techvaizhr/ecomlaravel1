@@ -862,11 +862,27 @@
                                             @enderror
                                         </div>
                                     </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label for="area">আপনার এরিয়া সিলেক্ট করুন *</label>
+                                            <select id="area" class="form-control @error('area') is-invalid @enderror" name="area" required>
+                                                @foreach($shippingcharge as $key=>$value)
+                                                <option value="{{$value->id}}" {{ $loop->first ? 'selected' : '' }}>{{$value->name}}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('area')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+
                                     @if(($generalsetting->campaign_location_enabled ?? 0) == 1)
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="campaign_division">বিভাগ নির্বাচন করুন *</label>
-                                            <select id="campaign_division" name="division_id" class="form-control @error('division_id') is-invalid @enderror" required>
+                                            <label for="campaign_division">বিভাগ নির্বাচন করুন (ঐচ্ছিক)</label>
+                                            <select id="campaign_division" name="division_id" class="form-control @error('division_id') is-invalid @enderror">
                                                 <option value="">বিভাগ নির্বাচন করুন</option>
                                                 @foreach(($divisions ?? collect()) as $div)
                                                     <option value="{{ $div->id }}">{{ $div->name }}</option>
@@ -881,8 +897,8 @@
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="campaign_district">জেলা নির্বাচন করুন *</label>
-                                            <select id="campaign_district" name="district_id" class="form-control @error('district_id') is-invalid @enderror" required disabled>
+                                            <label for="campaign_district">জেলা নির্বাচন করুন (ঐচ্ছিক)</label>
+                                            <select id="campaign_district" name="district_id" class="form-control @error('district_id') is-invalid @enderror" disabled>
                                                 <option value="">আগে বিভাগ সিলেক্ট করুন</option>
                                             </select>
                                             @error('district_id')
@@ -894,27 +910,11 @@
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="campaign_upazila">উপজেলা / থানা নির্বাচন করুন *</label>
-                                            <select id="campaign_upazila" name="upazila_id" class="form-control @error('upazila_id') is-invalid @enderror" required disabled>
+                                            <label for="campaign_upazila">উপজেলা / থানা নির্বাচন করুন (ঐচ্ছিক)</label>
+                                            <select id="campaign_upazila" name="upazila_id" class="form-control @error('upazila_id') is-invalid @enderror" disabled>
                                                 <option value="">আগে জেলা সিলেক্ট করুন</option>
                                             </select>
                                             @error('upazila_id')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    @else
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="area">আপনার এরিয়া সিলেক্ট করুন *</label>
-                                            <select id="area" class="form-control @error('area') is-invalid @enderror" name="area" required>
-                                                @foreach($shippingcharge as $key=>$value)
-                                                <option value="{{$value->id}}">{{$value->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('area')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -1021,17 +1021,6 @@
                     $('#campaign_upazila').html(opts).prop('disabled', false);
                 }).fail(function () {
                     $('#campaign_upazila').html('<option value="">লোড ব্যর্থ</option>');
-                });
-
-                // Calculate shipping for district on campaign cart
-                $.ajax({
-                    type: "GET",
-                    data: { id: distId, campaign: 1 },
-                    url: "{{route('shipping.charge')}}",
-                    dataType: "html",
-                    success: function(response){
-                        $('#campaign-cartlist').html(response);
-                    }
                 });
             });
         </script>

@@ -1069,17 +1069,17 @@ class FrontendController extends Controller
                 : view('frontEnd.layouts.ajax.cart');
         }
 
-        // 1. Try district delivery charge
-        $district = DeliveryDistrict::query()->whereKey($request->id)->where('status', 1)->first();
-        if ($district) {
-            Session::put('shipping', (int) $district->delivery_charge);
-            Session::put('shipping_district_id', $district->id);
+        // 1. First prioritize generic shipping charge (area / ShippingCharge)
+        $charge = \App\Models\ShippingCharge::where('id', $request->id)->where('status', 1)->first();
+        if ($charge) {
+            Session::put('shipping', (int) $charge->amount);
+            Session::put('shipping_district_id', null);
         } else {
-            // 2. Try generic shipping charge (area)
-            $charge = \App\Models\ShippingCharge::where('id', $request->id)->where('status', 1)->first();
-            if ($charge) {
-                Session::put('shipping', (int) $charge->amount);
-                Session::put('shipping_district_id', null);
+            // 2. Fallback to district delivery charge only if not a generic charge and has positive charge
+            $district = DeliveryDistrict::query()->whereKey($request->id)->where('status', 1)->first();
+            if ($district && (int) $district->delivery_charge > 0) {
+                Session::put('shipping', (int) $district->delivery_charge);
+                Session::put('shipping_district_id', $district->id);
             }
         }
 

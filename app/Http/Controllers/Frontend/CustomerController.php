@@ -845,40 +845,42 @@ public function order_save(Request $request)
         }
 
         if ($requiresPhysicalShipping && ! $hasAllFreeDelivery) {
-            if ($hasLocationChain) {
-                $this->validate($request, [
-                    'division_id' => 'required|exists:divisions,id',
-                    'district_id' => 'required|exists:districts,id',
-                    'upazila_id'  => 'required|exists:upazilas,id',
-                ]);
-                $divisionId = (int) $request->division_id;
-                $districtId = (int) $request->district_id;
-                $upazilaId = (int) $request->upazila_id;
-                if (! DeliveryLocation::validateChain($divisionId, $districtId, $upazilaId)) {
-                    Toastr::error('বিভাগ, জেলা ও উপজেলা সঠিকভাবে নির্বাচন করুন।', 'Failed!');
-                    return redirect()->back()->withInput();
-                }
-                $shippingfee = DeliveryLocation::chargeForDistrictId($districtId);
-                Session::put('shipping', $shippingfee);
-                Session::put('shipping_district_id', $districtId);
-            } else {
-                $shippingCharge = null;
-                if ($request->filled('area')) {
-                    $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
-                }
-                if (! $shippingCharge) {
-                    $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->first();
-                }
-                $shippingfee = $shippingCharge ? (float) $shippingCharge->amount : (float) Session::get('shipping', 0);
-                Session::put('shipping', $shippingfee);
-                Session::put('shipping_district_id', null);
-                $resolvedAreaName = $shippingCharge ? $shippingCharge->name : ($request->area ?? 'General Area');
+            // ⭐ 1. শিপিং চার্জ নির্ধারণ (ডেলিভারি এরিয়া / ShippingCharge থেকে)
+            $shippingCharge = null;
+            if ($request->filled('area')) {
+                $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
             }
+            if ($shippingCharge) {
+                $shippingfee = (float) $shippingCharge->amount;
+                $resolvedAreaName = $shippingCharge->name;
+            } else {
+                if ($hasLocationChain) {
+                    $dCharge = DeliveryLocation::chargeForDistrictId((int) $request->district_id);
+                    if ($dCharge > 0) {
+                        $shippingfee = (float) $dCharge;
+                    }
+                }
+                if (!isset($shippingfee)) {
+                    $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->first();
+                    $shippingfee = $shippingCharge ? (float) $shippingCharge->amount : (float) Session::get('shipping', 0);
+                    $resolvedAreaName = $shippingCharge ? $shippingCharge->name : ($request->area ?? 'General Area');
+                }
+            }
+            Session::put('shipping', $shippingfee);
+
+            // ⭐ 2. লোকেশন চেইন (বিভাগ, জেলা, উপজেলা) — ঠিকানার জন্য (ঐচ্ছিক)
+            $divisionId = $request->filled('division_id') ? (int) $request->division_id : null;
+            $districtId = $request->filled('district_id') ? (int) $request->district_id : null;
+            $upazilaId  = $request->filled('upazila_id') ? (int) $request->upazila_id : null;
+            Session::put('shipping_district_id', $districtId);
         } else {
             $shippingfee = 0;
             Session::put('shipping', 0);
             Session::put('shipping_district_id', null);
             $resolvedAreaName = 'Digital / Free Shipping';
+            $divisionId = null;
+            $districtId = null;
+            $upazilaId  = null;
         }
 
         if ($this->checkoutOtpIsEnabled() && ! $checkoutOtpVerified) {
@@ -965,9 +967,7 @@ public function order_save(Request $request)
         $shipping->division_id = $divisionId;
         $shipping->district_id = $districtId;
         $shipping->upazila_id  = $upazilaId;
-        $shipping->area        = ($divisionId && $districtId && $upazilaId)
-            ? DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId)
-            : ($resolvedAreaName ?: 'Digital / Free Shipping');
+        $shipping->area        = $resolvedAreaName ?: 'Digital / Free Shipping';
         $shipping->save();
 
         // BD Courier — ফোন অনুযায়ী সফলতার হার অর্ডার লিস্টে দেখাতে (চেকআউট রেসপন্স ব্লক না করে রিকোয়েস্ট শেষ হওয়ার পর রান)
