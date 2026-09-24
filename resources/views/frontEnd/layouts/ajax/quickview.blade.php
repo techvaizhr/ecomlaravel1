@@ -43,145 +43,217 @@
     });
 @endphp
 
+<style>
+.quick-variant-modal-dialog {
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 88vh !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+.quick-modal-body-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    min-height: 0;
+}
+.quick-modal-floating-footer {
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    border-top: 1px solid #eef2f6;
+    padding: 12px 24px 14px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    z-index: 50;
+    display: flex;
+    gap: 12px;
+    box-sizing: border-box;
+}
+.quick-modal-floating-footer .quick-btn {
+    flex: 1 1 0% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+    height: 44px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+@media (max-width: 767px) {
+    .quick-modal-backdrop {
+        padding: 8px !important;
+    }
+    .quick-variant-modal-dialog {
+        max-height: 85vh !important;
+        border-radius: 16px !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    .quick-modal-container {
+        padding: 14px 14px 10px !important;
+        gap: 12px !important;
+    }
+    .quick-modal-floating-footer {
+        padding: 10px 12px 12px !important;
+        border-top: 1px solid #e2e8f0 !important;
+        box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.09) !important;
+    }
+    .quick-modal-floating-footer .quick-btn {
+        height: 42px !important;
+        font-size: 13.5px !important;
+        border-radius: 8px !important;
+    }
+}
+</style>
+
 <div class="quick-modal-backdrop">
     <div class="quick-variant-modal-dialog">
         <button type="button" class="quick-modal-close-btn" aria-label="Close">&times;</button>
         
-        <div class="quick-modal-container">
-            {{-- LEFT: IMAGE GALLERY --}}
-            <div class="quick-modal-media">
-                <div class="quick-modal-main-image-wrap">
-                    <img id="quickModalMainImg" 
-                         src="{{ asset($data->image->image ?? 'public/uploads/default.webp') }}" 
-                         alt="{{ $data->name }}" />
-                    @if($data->old_price && $data->old_price > $data->new_price)
-                        @php
-                            $discountPercent = round((($data->old_price - $data->new_price) / $data->old_price) * 100);
-                        @endphp
-                        <span class="quick-modal-discount-badge">-{{ $discountPercent }}%</span>
-                    @endif
-                </div>
-
-                @if($galleryImages->count() > 1)
-                <div class="quick-modal-thumbs">
-                    @foreach($galleryImages->take(5) as $idx => $gImg)
-                    <div class="quick-thumb-item {{ $idx === 0 ? 'active' : '' }}" 
-                         data-img-src="{{ asset($gImg->image) }}"
-                         data-color-id="{{ $gImg->color_id ?? '' }}">
-                        <img src="{{ asset($gImg->image) }}" alt="thumb" />
+        <div class="quick-modal-body-scroll">
+            <div class="quick-modal-container">
+                {{-- LEFT: IMAGE GALLERY --}}
+                <div class="quick-modal-media">
+                    <div class="quick-modal-main-image-wrap">
+                        <img id="quickModalMainImg" 
+                             src="{{ asset($data->image->image ?? 'public/uploads/default.webp') }}" 
+                             alt="{{ $data->name }}" />
+                        @if($data->old_price && $data->old_price > $data->new_price)
+                            @php
+                                $discountPercent = round((($data->old_price - $data->new_price) / $data->old_price) * 100);
+                            @endphp
+                            <span class="quick-modal-discount-badge">-{{ $discountPercent }}%</span>
+                        @endif
                     </div>
-                    @endforeach
-                </div>
-                @endif
-            </div>
 
-            {{-- RIGHT: PRODUCT DETAILS & VARIANT FORM --}}
-            <div class="quick-modal-details">
-                <div class="quick-modal-header">
-                    @if($data->category)
-                        <span class="quick-modal-category">{{ $data->category->name }}</span>
-                    @endif
-                    <h3 class="quick-modal-title">
-                        <a href="{{ route('product', $data->slug) }}" title="{{ $data->name }}">{{ $data->name }}</a>
-                    </h3>
-                </div>
-
-                <div class="quick-modal-pricing">
-                    <span class="quick-current-price" id="quickModalCurrentPrice">৳ {{ number_format($data->new_price, 0) }}</span>
-                    @if($data->old_price && $data->old_price > $data->new_price)
-                        <del class="quick-old-price" id="quickModalOldPrice">৳ {{ number_format($data->old_price, 0) }}</del>
-                    @endif
-                    <span class="quick-stock-status {{ ($data->stock ?? 1) > 0 ? 'in-stock' : 'out-of-stock' }}">
-                        <i class="fa fa-circle"></i> {{ ($data->stock ?? 1) > 0 ? 'ইন স্টক' : 'স্টক আউট' }}
-                    </span>
-                </div>
-
-                {{-- VARIANT SELECTION FORM --}}
-                <form id="quickVariantForm" action="{{ route('cart.store') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="id" value="{{ $data->id }}" />
-
-                    {{-- COLOR VARIANTS --}}
-                    @if($productcolors->count() > 0)
-                    <div class="quick-variant-group">
-                        <div class="quick-variant-label">
-                            কালার: <span id="quickColorSelectedName" class="quick-variant-selected-val">নির্বাচন করুন</span>
+                    @if($galleryImages->count() > 1)
+                    <div class="quick-modal-thumbs">
+                        @foreach($galleryImages->take(5) as $idx => $gImg)
+                        <div class="quick-thumb-item {{ $idx === 0 ? 'active' : '' }}" 
+                             data-img-src="{{ asset($gImg->image) }}"
+                             data-color-id="{{ $gImg->color_id ?? '' }}">
+                            <img src="{{ asset($gImg->image) }}" alt="thumb" />
                         </div>
-                        <div class="quick-color-options selector">
-                            @foreach($productcolors as $color)
-                            <div class="selector-item">
-                                <input type="radio"
-                                       id="quick_c_{{ $color->id }}"
-                                       value="{{ $color->id }}"
-                                       name="product_color"
-                                       data-color-name="{{ $color->getDisplayName() ?? $color->colorName ?? $color->name }}"
-                                       class="selector-item_radio quick-color-radio" />
-                                <label for="quick_c_{{ $color->id }}"
-                                       style="background-color: {{ $color->color ?? '#ddd' }}"
-                                       class="selector-item_label quick-color-swatch"
-                                       title="{{ $color->getDisplayName() ?? $color->colorName ?? $color->name }}">
-                                </label>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
+
+                {{-- RIGHT: PRODUCT DETAILS & VARIANT FORM --}}
+                <div class="quick-modal-details">
+                    <div class="quick-modal-header">
+                        <h3 class="quick-modal-title">
+                            <a href="{{ route('product', $data->slug) }}" title="{{ $data->name }}">{{ $data->name }}</a>
+                        </h3>
+                    </div>
+
+                    <div class="quick-modal-pricing">
+                        <span class="quick-current-price" id="quickModalCurrentPrice">৳ {{ number_format($data->new_price, 0) }}</span>
+                        @if($data->old_price && $data->old_price > $data->new_price)
+                            <del class="quick-old-price" id="quickModalOldPrice">৳ {{ number_format($data->old_price, 0) }}</del>
+                        @endif
+                    </div>
+
+                    {{-- VARIANT SELECTION FORM --}}
+                    <form id="quickVariantForm" action="{{ route('cart.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $data->id }}" />
+
+                        {{-- COLOR VARIANTS --}}
+                        @if($productcolors->count() > 0)
+                        <div class="quick-variant-group">
+                            <div class="quick-variant-label">
+                                কালার: <span id="quickColorSelectedName" class="quick-variant-selected-val">নির্বাচন করুন</span>
                             </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-
-                    {{-- SIZE VARIANTS --}}
-                    @if($productsizes->count() > 0)
-                    <div class="quick-variant-group">
-                        <div class="quick-variant-label">
-                            সাইজ / ভ্যারিয়েন্ট: <span id="quickSizeSelectedName" class="quick-variant-selected-val">নির্বাচন করুন</span>
-                        </div>
-                        <div class="quick-size-options selector">
-                            @foreach($productsizes as $size)
-                            <div class="selector-item">
-                                <input type="radio"
-                                       id="quick_s_{{ $size->id }}"
-                                       value="{{ $size->id }}"
-                                       name="product_size"
-                                       data-size-name="{{ $size->sizeName ?? $size->name }}"
-                                       class="selector-item_radio quick-size-radio" />
-                                <label for="quick_s_{{ $size->id }}" class="selector-item_label quick-size-pill">
-                                    {{ $size->sizeName ?? $size->name }}
-                                </label>
+                            <div class="quick-color-options selector">
+                                @foreach($productcolors as $color)
+                                <div class="selector-item">
+                                    <input type="radio"
+                                           id="quick_c_{{ $color->id }}"
+                                           value="{{ $color->id }}"
+                                           name="product_color"
+                                           data-color-name="{{ $color->getDisplayName() ?? $color->colorName ?? $color->name }}"
+                                           class="selector-item_radio quick-color-radio" />
+                                    <label for="quick_c_{{ $color->id }}"
+                                           style="background-color: {{ $color->color ?? '#ddd' }}"
+                                           class="selector-item_label quick-color-swatch"
+                                           title="{{ $color->getDisplayName() ?? $color->colorName ?? $color->name }}">
+                                    </label>
+                                </div>
+                                @endforeach
                             </div>
-                            @endforeach
                         </div>
-                    </div>
-                    @endif
+                        @endif
 
-                    {{-- QUANTITY SELECTOR --}}
-                    <div class="quick-qty-row">
-                        <span class="quick-qty-label">পরিমাণ:</span>
-                        <div class="quick-qty-box">
-                            <button type="button" class="quick-qty-btn quick-qty-minus">-</button>
-                            <input type="number" name="qty" id="quickModalQty" value="1" min="1" step="1" readonly />
-                            <button type="button" class="quick-qty-btn quick-qty-plus">+</button>
+                        {{-- SIZE VARIANTS --}}
+                        @if($productsizes->count() > 0)
+                        <div class="quick-variant-group">
+                            <div class="quick-variant-label">
+                                সাইজ / ভ্যারিয়েন্ট: <span id="quickSizeSelectedName" class="quick-variant-selected-val">নির্বাচন করুন</span>
+                            </div>
+                            <div class="quick-size-options selector">
+                                @foreach($productsizes as $size)
+                                <div class="selector-item">
+                                    <input type="radio"
+                                           id="quick_s_{{ $size->id }}"
+                                           value="{{ $size->id }}"
+                                           name="product_size"
+                                           data-size-name="{{ $size->sizeName ?? $size->name }}"
+                                           class="selector-item_radio quick-size-radio" />
+                                    <label for="quick_s_{{ $size->id }}" class="selector-item_label quick-size-pill">
+                                        {{ $size->sizeName ?? $size->name }}
+                                    </label>
+                                </div>
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
+                        @endif
 
-                    {{-- ACTION BUTTONS: EQUAL 50/50 WIDTH --}}
-                    <div class="quick-modal-actions">
-                        <button type="button" 
-                                class="btn quick-btn quick-btn-cart quick_modal_btn_submit" 
-                                data-action="cart">
-                            <i class="fa-solid fa-cart-shopping me-1"></i> কার্টে যোগ করুন
-                        </button>
-                        <button type="button" 
-                                class="btn quick-btn quick-btn-order quick_modal_btn_submit" 
-                                data-action="order">
-                            <i class="fa-solid fa-bolt me-1"></i> অর্ডার করুন
-                        </button>
-                    </div>
-                </form>
+                        {{-- QUANTITY SELECTOR --}}
+                        <div class="quick-qty-row">
+                            <span class="quick-qty-label">পরিমাণ:</span>
+                            <div class="quick-qty-box">
+                                <button type="button" class="quick-qty-btn quick-qty-minus">-</button>
+                                <input type="number" name="qty" id="quickModalQty" value="1" min="1" step="1" readonly />
+                                <button type="button" class="quick-qty-btn quick-qty-plus">+</button>
+                            </div>
+                        </div>
+                    </form>
 
-                <div class="quick-modal-footer-link">
-                    <a href="{{ route('product', $data->slug) }}" class="quick-details-link">
-                        সম্পূর্ণ বিবরণ দেখুন <i class="fa-solid fa-arrow-right-long ms-1"></i>
-                    </a>
+                    <div class="quick-modal-footer-link">
+                        <a href="{{ route('product', $data->slug) }}" class="quick-details-link">
+                            সম্পূর্ণ বিবরণ দেখুন <i class="fa-solid fa-arrow-right-long ms-1"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        {{-- FLOATING ACTION BUTTONS: ALWAYS VISIBLE AT BOTTOM --}}
+        <div class="quick-modal-floating-footer">
+            <button type="button" 
+                    form="quickVariantForm"
+                    class="btn quick-btn quick-btn-cart quick_modal_btn_submit" 
+                    data-action="cart">
+                <i class="fa-solid fa-cart-shopping me-1"></i> কার্টে যোগ করুন
+            </button>
+            <button type="button" 
+                    form="quickVariantForm"
+                    class="btn quick-btn quick-btn-order quick_modal_btn_submit" 
+                    data-action="order">
+                <i class="fa-solid fa-bolt me-1"></i> অর্ডার করুন
+            </button>
         </div>
     </div>
 </div>

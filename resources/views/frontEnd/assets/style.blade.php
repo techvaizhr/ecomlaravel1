@@ -6749,7 +6749,8 @@ section.pro_details_area {
     outline: none;
     background: #fff;
 }
-.quick-modal-actions {
+.quick-modal-actions,
+.quick-modal-floating-footer {
     display: flex;
     gap: 12px;
     width: 100%;

@@ -182,6 +182,79 @@
     box-shadow: 0 3px 8px rgba(0,0,0,0.16) !important;
 }
 
+/* 🔢 Single Product Page Quantity Selector (Identical to Quickview Popup) */
+.quick-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0 12px 0;
+}
+.quick-qty-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #334155;
+}
+.qty-cart .quick-qty-box,
+.qty-cart .quantity,
+.quick-qty-box {
+    display: inline-flex !important;
+    align-items: center !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    height: 38px !important;
+    width: auto !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    position: static !important;
+}
+.qty-cart .quick-qty-btn,
+.qty-cart .quantity .minus,
+.qty-cart .quantity .plus,
+.quick-qty-btn {
+    width: 36px !important;
+    height: 38px !important;
+    border: none !important;
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+    position: static !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    user-select: none !important;
+    outline: none !important;
+}
+.qty-cart .quick-qty-btn:hover,
+.qty-cart .quantity .minus:hover,
+.qty-cart .quantity .plus:hover,
+.quick-qty-btn:hover {
+    background: #e2e8f0 !important;
+}
+.qty-cart .quick-qty-box input,
+.qty-cart .quantity input,
+.quick-qty-box input {
+    width: 44px !important;
+    height: 38px !important;
+    border: none !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    color: #0f172a !important;
+    outline: none !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 38px !important;
+}
+
 /* ✅ Scoped Review Section */
 .gomobd-review-section {
     font-family: 'Poppins', sans-serif;
@@ -481,17 +554,20 @@
                                     {{-- Quantity + Buttons --}}
                                     <div class="row mt-2">
                                         <div class="qty-cart col-12">
-                                            <div class="quantity">
-                                                <span class="minus">-</span>
-                                                @php
-                                                    $defaultQty = 1;
-                                                    if ($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0) {
-                                                        $defaultQty = max(1, (int) $details->wholesalePrices->sortBy('min_quantity')->first()->min_quantity);
-                                                    }
-                                                @endphp
-                                                <input type="number" name="qty" class="product-qty-input"
-                                                    value="{{ $defaultQty }}" min="1" step="1" />
-                                                <span class="plus">+</span>
+                                            <div class="quick-qty-row">
+                                                <span class="quick-qty-label">পরিমাণ:</span>
+                                                <div class="quantity quick-qty-box">
+                                                    <button type="button" class="quick-qty-btn minus" aria-label="Decrease quantity">-</button>
+                                                    @php
+                                                        $defaultQty = 1;
+                                                        if ($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0) {
+                                                            $defaultQty = max(1, (int) $details->wholesalePrices->sortBy('min_quantity')->first()->min_quantity);
+                                                        }
+                                                    @endphp
+                                                    <input type="number" name="qty" class="product-qty-input"
+                                                        value="{{ $defaultQty }}" min="1" step="1" readonly />
+                                                    <button type="button" class="quick-qty-btn plus" aria-label="Increase quantity">+</button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="single_product col-12">
@@ -1276,16 +1352,19 @@
 </script>
 <script>
     $(document).ready(function() {
-        $('form[name="formName"] .minus').click(function() {
+        $(document).on('click', 'form[name="formName"] .minus, .qty-cart .minus', function(e) {
+            e.preventDefault();
             var $input = $(this).closest('.quantity').find('input[name="qty"]');
             var count = parseInt($input.val(), 10) - 1;
             count = count < 1 ? 1 : count;
             $input.val(count).trigger('change');
             return false;
         });
-        $('form[name="formName"] .plus').click(function() {
+        $(document).on('click', 'form[name="formName"] .plus, .qty-cart .plus', function(e) {
+            e.preventDefault();
             var $input = $(this).closest('.quantity').find('input[name="qty"]');
-            $input.val(parseInt($input.val(), 10) + 1).trigger('change');
+            var count = parseInt($input.val(), 10) + 1;
+            $input.val(count).trigger('change');
             return false;
         });
     });

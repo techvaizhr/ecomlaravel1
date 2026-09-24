@@ -126,15 +126,27 @@
 @media (max-width: 767px) {
     .slider-section {
         padding-top: 4px !important;
-        padding-bottom: 2px !important;
+        padding-bottom: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 4px !important;
+    }
+    .slider-section .container,
+    .slider-section .row,
+    .slider-section .col-sm-9 {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
         margin-bottom: 0 !important;
     }
     .home-slider-container {
-        border-radius: 10px;
-        overflow: hidden;
+        border-radius: 10px !important;
+        overflow: hidden !important;
         height: auto !important;
+        min-height: 0 !important;
         background: transparent !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: none !important;
+        border: none !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
     }
     .main_slider,
     .main_slider .owl-stage-outer,
@@ -142,163 +154,189 @@
     .main_slider .owl-item,
     .slider-item {
         height: auto !important;
+        min-height: 0 !important;
         max-height: none !important;
         background: transparent !important;
+        margin-bottom: 0 !important;
     }
     .slider-item img {
         width: 100% !important;
         height: auto !important;
         display: block !important;
         border-radius: 10px;
-        object-fit: contain !important;
+        object-fit: cover !important;
+        margin-bottom: 0 !important;
     }
     .bottoads_area {
-        padding: 4px 0 !important;
-        margin: 4px 0 !important;
-        background: transparent !important;
+        display: none !important;
     }
 }
 
-/* 🏷️ 4-Corner 2-Radius Full Picture Category Grid */
+/* 🏷️ Fresh White 4-Corner 2-Radius Category Design */
 .home-category-section {
-    padding: 8px 0 16px;
+    padding: 10px 0 16px;
+    margin-top: 0;
 }
-.cat_modern_grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-top: 4px;
-}
-.cat_grid_card {
-    display: block;
-    position: relative;
+.cat_fresh_card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff !important;
+    border: 1px solid #eef2f6;
+    border-radius: 14px 0 14px 0 !important;
+    padding: 8px 6px 8px;
     text-decoration: none !important;
     outline: none !important;
-    border-radius: 16px 0 16px 0;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     overflow: hidden;
-    background: #f1f5f9;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
-}
-.cat_grid_card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 22px -3px rgba(15, 23, 42, 0.16);
-    border-color: var(--primary-color, #0f3460);
-}
-.cat_grid_inner {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    min-height: 110px;
-    overflow: hidden;
-}
-.cat_grid_img {
-    width: 100%;
     height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.cat_grid_card:hover .cat_grid_img {
-    transform: scale(1.08);
+.cat_fresh_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    border-color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
 }
-.cat_grid_fallback {
+.cat_fresh_img_box {
     width: 100%;
-    height: 100%;
+    height: 68px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    color: #94a3b8;
-    font-size: 28px;
+    background: #ffffff;
+    overflow: hidden;
 }
-.cat_grid_overlay {
-    position: absolute;
-    inset: 0;
+.cat_fresh_img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.3s ease;
+}
+.cat_fresh_card:hover .cat_fresh_img {
+    transform: scale(1.08);
+}
+.cat_fresh_fallback {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px 0 10px 0;
+    background: #f1f5f9;
+    color: #64748b;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
-    padding: 24px 8px 8px;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.55) 65%, rgba(0, 0, 0, 0.88) 100%);
-    transition: background 0.25s ease;
+    font-size: 20px;
 }
-.cat_grid_card:hover .cat_grid_overlay {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 20%, rgba(0, 0, 0, 0.65) 60%, rgba(0, 0, 0, 0.94) 100%);
-}
-.cat_grid_title {
-    color: #ffffff !important;
-    font-size: 13.5px;
-    font-weight: 700;
-    line-height: 1.25;
+.cat_fresh_title_box {
+    width: 100%;
+    padding-top: 5px;
     text-align: center;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 2px 8px rgba(0, 0, 0, 0.6);
-    margin: 0;
+}
+.cat_fresh_title {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    transition: color 0.2s ease, transform 0.2s ease;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #1e293b !important;
+    text-align: center;
+    transition: color 0.2s ease;
 }
-.cat_grid_card:hover .cat_grid_title {
-    color: #ffffff !important;
-    transform: translateY(-1px);
+.cat_fresh_card:hover .cat_fresh_title {
+    color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }} !important;
 }
 
-/* Tablet & Mobile Responsiveness */
-@media (max-width: 991px) and (min-width: 768px) {
-    .cat_modern_grid {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 7px;
-    }
-    .cat_grid_inner {
-        aspect-ratio: 16 / 11;
-        min-height: 95px;
-    }
-    .cat_grid_title {
-        font-size: 12.5px;
-    }
+/* 🖥️ Desktop Category Slider */
+.cat_desktop_slider_wrap {
+    position: relative;
+    padding: 0 4px;
 }
+.category-slider .owl-stage {
+    display: flex;
+    align-items: stretch;
+}
+.category-slider .owl-item {
+    display: flex;
+    height: auto;
+}
+.category-slider .cat_slider_cell {
+    width: 100%;
+    height: 100%;
+}
+.cat-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1e293b;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+.cat-nav-btn:hover {
+    background: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
+    color: #ffffff;
+    border-color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
+}
+.cat-prev { left: -12px; }
+.cat-next { right: -12px; }
+
+/* 📱 Mobile Category 3x4 Grid (12 Items) */
 @media (max-width: 767px) {
-    .cat_modern_grid {
-        grid-template-columns: repeat(4, 1fr);
+    .home-category-section {
+        padding: 6px 0 12px;
+        margin-top: 0;
+    }
+    .cat_mobile_3x4_grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 6px;
+        margin-top: 4px;
     }
-    .cat_grid_card {
-        border-radius: 12px 0 12px 0;
+    .cat_fresh_card {
+        padding: 6px 4px 6px;
+        border-radius: 12px 0 12px 0 !important;
     }
-    .cat_grid_inner {
-        aspect-ratio: 1 / 1;
-        min-height: 74px;
+    .cat_fresh_img_box {
+        height: 56px;
     }
-    .cat_grid_overlay {
-        padding: 16px 4px 5px;
-    }
-    .cat_grid_title {
+    .cat_fresh_title {
         font-size: 11px;
         font-weight: 600;
         line-height: 1.2;
     }
 }
 @media (max-width: 380px) {
-    .cat_modern_grid {
-        grid-template-columns: repeat(3, 1fr);
+    .cat_mobile_3x4_grid {
         gap: 5px;
     }
-    .cat_grid_card {
-        border-radius: 10px 0 10px 0;
+    .cat_fresh_card {
+        border-radius: 10px 0 10px 0 !important;
+        padding: 5px 3px 5px;
     }
-    .cat_grid_inner {
-        aspect-ratio: 1 / 1;
-        min-height: 70px;
+    .cat_fresh_img_box {
+        height: 50px;
     }
-    .cat_grid_title {
-        font-size: 10.5px;
+    .cat_fresh_title {
+        font-size: 10px;
     }
 }
 </style>
 
-{{-- CATEGORY GRID SECTION (4-Corner 2-Radius Full Picture Grid) --}}
+{{-- CATEGORY SECTION (PC: 8-Item Auto-Scroll Single Line Slider | Mobile: 3x4 Fresh White 12-Item Grid) --}}
 <section class="homeproduct home-category-section">
     <div class="container">
         <div class="row">
@@ -317,34 +355,71 @@
                     </a>
                 </div>
             </div>
-            <div class="col-sm-12">
-                <div class="cat_modern_grid">
-                    @foreach ($menucategories as $value)
-                        <a href="{{ route('category', $value->slug) }}" class="cat_grid_card">
-                            <div class="cat_grid_inner">
+
+            {{-- 🖥️ PC & Tablet Slider: 1-line, 8 visible items on PC, auto-scrolls 1 by 1 --}}
+            <div class="col-sm-12 d-none d-md-block">
+                <div class="cat_desktop_slider_wrap">
+                    <div class="category-slider owl-carousel">
+                        @foreach ($menucategories as $value)
+                            <div class="cat_slider_cell">
+                                <a href="{{ route('category', $value->slug) }}" class="cat_fresh_card">
+                                    <div class="cat_fresh_img_box">
+                                        @if($value->image)
+                                            <img src="{{ asset($value->image) }}"
+                                                 alt="{{ $value->name }}"
+                                                 class="cat_fresh_img"
+                                                 loading="lazy" />
+                                        @elseif($value->icon)
+                                            <img src="{{ asset($value->icon) }}"
+                                                 alt="{{ $value->name }}"
+                                                 class="cat_fresh_img"
+                                                 loading="lazy" />
+                                        @else
+                                            <div class="cat_fresh_fallback">
+                                                <i class="fa-solid fa-shapes"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="cat_fresh_title_box">
+                                        <span class="cat_fresh_title">{{ $value->name }}</span>
+                                    </div>
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            {{-- 📱 Mobile Grid: 3x4 (3 Columns x 4 Rows = 12 Items total), Fresh White cards, 4-corner 2-radius, full picture, zero black gradient --}}
+            <div class="col-sm-12 d-block d-md-none">
+                <div class="cat_mobile_3x4_grid">
+                    @foreach ($menucategories->take(12) as $value)
+                        <a href="{{ route('category', $value->slug) }}" class="cat_fresh_card">
+                            <div class="cat_fresh_img_box">
                                 @if($value->image)
                                     <img src="{{ asset($value->image) }}"
                                          alt="{{ $value->name }}"
-                                         class="cat_grid_img"
+                                         class="cat_fresh_img"
                                          loading="lazy" />
                                 @elseif($value->icon)
                                     <img src="{{ asset($value->icon) }}"
                                          alt="{{ $value->name }}"
-                                         class="cat_grid_img"
+                                         class="cat_fresh_img"
                                          loading="lazy" />
                                 @else
-                                    <div class="cat_grid_fallback">
+                                    <div class="cat_fresh_fallback">
                                         <i class="fa-solid fa-shapes"></i>
                                     </div>
                                 @endif
-                                <div class="cat_grid_overlay">
-                                    <span class="cat_grid_title">{{ $value->name }}</span>
-                                </div>
+                            </div>
+                            <div class="cat_fresh_title_box">
+                                <span class="cat_fresh_title">{{ $value->name }}</span>
                             </div>
                         </a>
                     @endforeach
                 </div>
             </div>
+
         </div>
     </div>
 </section>
