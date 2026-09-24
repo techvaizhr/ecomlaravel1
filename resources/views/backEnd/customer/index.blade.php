@@ -264,8 +264,11 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                @if($value->image && file_exists(public_path($value->image)))
-                                    <img src="{{ asset($value->image) }}" alt="" class="cust-avatar">
+                                @if($value->image)
+                                    <img src="{{ asset($value->image) }}" alt="" class="cust-avatar" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                    <div class="cust-avatar-initials" style="display:none;">
+                                        {{ strtoupper(substr($value->name ?: 'C', 0, 1)) }}
+                                    </div>
                                 @else
                                     <div class="cust-avatar-initials">
                                         {{ strtoupper(substr($value->name ?: 'C', 0, 1)) }}

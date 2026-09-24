@@ -225,8 +225,9 @@
                                 
                                 <td>
                                     <div class="brand-logo-wrap">
-                                        @if($value->image && file_exists(public_path($value->image)))
-                                            <img src="{{ asset($value->image) }}" class="brand-logo-img" alt="{{ $value->name }}">
+                                        @if($value->image)
+                                            <img src="{{ asset($value->image) }}" class="brand-logo-img" alt="{{ $value->name }}" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                            <span class="brand-logo-fallback" style="display:none;">{{ strtoupper(substr($value->name, 0, 2)) }}</span>
                                         @else
                                             <span class="brand-logo-fallback">{{ strtoupper(substr($value->name, 0, 2)) }}</span>
                                         @endif

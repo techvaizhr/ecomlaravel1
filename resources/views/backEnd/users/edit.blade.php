@@ -173,8 +173,9 @@
 
                             <div class="col-md-4 d-flex align-items-center justify-content-center">
                                 <div class="img-preview-box" id="img-preview-wrap">
-                                    @if($edit_data->image && file_exists(public_path($edit_data->image)))
-                                        <img src="{{ asset($edit_data->image) }}" alt="Preview">
+                                    @if($edit_data->image)
+                                        <img src="{{ asset($edit_data->image) }}" alt="Preview" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
+                                        <i class="fe-user" style="display:none;"></i>
                                     @else
                                         <i class="fe-user"></i>
                                     @endif

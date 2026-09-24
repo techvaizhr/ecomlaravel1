@@ -1024,8 +1024,11 @@
                   @forelse($pendingorder as $porder)
                     <a href="{{ route('admin.order.invoice', ['invoice_id' => $porder->invoice_id]) }}" class="d-flex align-items-center gap-3 p-3 border-bottom text-decoration-none noti-item-row">
                       <div class="flex-shrink-0">
-                        @if($porder->customer && !empty($porder->customer->image) && file_exists(public_path($porder->customer->image)))
-                          <img src="{{ asset($porder->customer->image) }}" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover;" alt="customer" />
+                        @if($porder->customer && !empty($porder->customer->image))
+                          <img src="{{ asset($porder->customer->image) }}" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover;" alt="customer" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                          <div class="rounded-circle align-items-center justify-content-center fw-bold" style="display: none; width: 40px; height: 40px; background: rgba(79, 70, 229, 0.1); color: {{ $brandPrimary }}; border: 1px solid rgba(79, 70, 229, 0.2); font-size: 14px;">
+                            {{ mb_substr($porder->customer ? $porder->customer->name : 'অর্ডার', 0, 1) }}
+                          </div>
                         @else
                           <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px; background: rgba(79, 70, 229, 0.1); color: {{ $brandPrimary }}; border: 1px solid rgba(79, 70, 229, 0.2); font-size: 14px;">
                             {{ mb_substr($porder->customer ? $porder->customer->name : 'অর্ডার', 0, 1) }}

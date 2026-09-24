@@ -5,7 +5,7 @@
     $customerImg = $oqvDefaultAvatar;
     if ($customer) {
         $imgPath = trim((string) ($customer->profile_image_url ?? $customer->image ?? ''));
-        if ($imgPath !== '' && file_exists(public_path($imgPath))) {
+        if ($imgPath !== '') {
             $customerImg = asset($imgPath);
         }
     }

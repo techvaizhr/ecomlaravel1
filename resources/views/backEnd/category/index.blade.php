@@ -496,8 +496,12 @@
                                 <td class="fw-bold text-muted">{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="hub-thumb">
-                                        @if($value->image && file_exists(public_path($value->image)))
-                                            <img src="{{ asset($value->image) }}" alt="{{ $value->name }}">
+                                        @php
+                                            $catImg = $value->image ?: $value->icon;
+                                        @endphp
+                                        @if($catImg)
+                                            <img src="{{ asset($catImg) }}" alt="{{ $value->name }}" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                            <span class="fallback-char" style="display:none;">{{ strtoupper(substr($value->name, 0, 1)) }}</span>
                                         @else
                                             <span class="fallback-char">{{ strtoupper(substr($value->name, 0, 1)) }}</span>
                                         @endif
@@ -614,8 +618,15 @@
                                 <td class="fw-bold text-muted">{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="hub-thumb">
-                                        @if($value->image && file_exists(public_path($value->image)))
-                                            <img src="{{ asset($value->image) }}" alt="{{ $value->subcategoryName }}">
+                                        @php
+                                            $subImg = $value->image ?: (optional($value->category)->image ?: optional($value->category)->icon);
+                                        @endphp
+                                        @if($value->image)
+                                            <img src="{{ asset($value->image) }}" alt="{{ $value->subcategoryName }}" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                            <span class="fallback-char" style="display:none; color:#10b981;">{{ strtoupper(substr($value->subcategoryName, 0, 1)) }}</span>
+                                        @elseif($subImg)
+                                            <img src="{{ asset($subImg) }}" alt="{{ $value->subcategoryName }}" loading="lazy" style="opacity:0.85;" title="From Parent: {{ optional($value->category)->name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                            <span class="fallback-char" style="display:none; color:#10b981;">{{ strtoupper(substr($value->subcategoryName, 0, 1)) }}</span>
                                         @else
                                             <span class="fallback-char" style="color:#10b981;">{{ strtoupper(substr($value->subcategoryName, 0, 1)) }}</span>
                                         @endif
@@ -718,6 +729,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">SL</th>
+                                <th style="width: 60px;">Image</th>
                                 <th>Childcategory Name</th>
                                 <th>Hierarchy Pathway</th>
                                 <th>Status</th>
@@ -728,6 +740,19 @@
                             @foreach($childcategories as $value)
                             <tr>
                                 <td class="fw-bold text-muted">{{ $loop->iteration }}</td>
+                                <td>
+                                    <div class="hub-thumb">
+                                        @php
+                                            $childImg = optional($value->subcategory)->image ?: optional(optional($value->subcategory)->category)->image;
+                                        @endphp
+                                        @if($childImg)
+                                            <img src="{{ asset($childImg) }}" alt="{{ $value->childcategoryName }}" loading="lazy" style="opacity:0.85;" title="From: {{ optional($value->subcategory)->subcategoryName }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                            <span class="fallback-char" style="display:none; color:#7c3aed;">{{ strtoupper(substr($value->childcategoryName, 0, 1)) }}</span>
+                                        @else
+                                            <span class="fallback-char" style="color:#7c3aed;">{{ strtoupper(substr($value->childcategoryName, 0, 1)) }}</span>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="fw-bold text-dark">{{ $value->childcategoryName }}</div>
                                     <span class="slug-chip">/{{ $value->slug }}</span>
@@ -827,8 +852,12 @@
                             <div class="tree-header" data-bs-toggle="collapse" data-bs-target="#tree-collapse-{{ $cat->id }}">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="hub-thumb" style="width:36px; height:36px; border-radius:8px;">
-                                        @if($cat->image && file_exists(public_path($cat->image)))
-                                            <img src="{{ asset($cat->image) }}" alt="{{ $cat->name }}">
+                                        @php
+                                            $catImg = $cat->image ?: $cat->icon;
+                                        @endphp
+                                        @if($catImg)
+                                            <img src="{{ asset($catImg) }}" alt="{{ $cat->name }}" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                            <span class="fallback-char" style="display:none; font-size:13px;">{{ strtoupper(substr($cat->name, 0, 1)) }}</span>
                                         @else
                                             <span class="fallback-char" style="font-size:13px;">{{ strtoupper(substr($cat->name, 0, 1)) }}</span>
                                         @endif
@@ -854,8 +883,14 @@
                                     @forelse($cat->allSubcategories as $sub)
                                     <div class="subcat-node tree-sub-node" data-title="{{ strtolower($sub->subcategoryName) }}">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <i class="fe-folder text-success"></i>
+                                                @php
+                                                    $treeSubImg = $sub->image ?: (optional($cat)->image ?: optional($cat)->icon);
+                                                @endphp
+                                                @if($treeSubImg)
+                                                    <img src="{{ asset($treeSubImg) }}" alt="{{ $sub->subcategoryName }}" style="width:20px; height:20px; border-radius:4px; object-fit:cover;" loading="lazy">
+                                                @else
+                                                    <i class="fe-folder text-success"></i>
+                                                @endif
                                                 <span class="fw-bold text-dark">{{ $sub->subcategoryName }}</span>
                                                 <span class="badge bg-light text-muted border rounded-pill" style="font-size:10.5px;">{{ $sub->allChildcategories->count() }} Child</span>
                                             </div>
