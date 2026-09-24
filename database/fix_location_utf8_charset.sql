@@ -9,11 +9,7 @@ ALTER TABLE `divisions` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode
 ALTER TABLE `districts` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ALTER TABLE `upazilas` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- ২. জেনারেল সেটিংসে টগল নিশ্চিত করা (ডিফল্ট 0 = অফ)
-ALTER TABLE `general_settings` 
-ADD COLUMN IF NOT EXISTS `checkout_location_enabled` TINYINT NOT NULL DEFAULT 0,
-ADD COLUMN IF NOT EXISTS `campaign_location_enabled` TINYINT NOT NULL DEFAULT 0;
-
+-- ২. জেনারেল সেটিংসে টগল ডিফল্ট 0 (অফ) রাখা
 UPDATE `general_settings` SET `checkout_location_enabled` = 0, `campaign_location_enabled` = 0;
 
 -- ৩. ৮টি বিভাগের নাম বাংলায় পুনরুদ্ধার (ecomlaravel1.sql অনুযায়ী)

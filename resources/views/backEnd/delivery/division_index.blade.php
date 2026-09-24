@@ -69,9 +69,14 @@
             </h4>
             <p class="text-muted small mb-0">Configure regional delivery divisions, districts, and upazilas.</p>
         </div>
-        <a href="{{ route('admin.delivery.divisions.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-            <i data-feather="plus" class="me-1" style="width:16px;height:16px;"></i> Add Division
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.delivery.divisions.restore') }}" class="btn btn-outline-success rounded-pill px-3 shadow-sm" onclick="return confirm('আপনি কি নিশ্চিত যে সকল বিভাগ ও জেলার নাম বাংলায় রিস্টোর করতে চান?');">
+                <i data-feather="refresh-cw" class="me-1" style="width:16px;height:16px;"></i> নাম বাংলায় রিস্টোর করুন
+            </a>
+            <a href="{{ route('admin.delivery.divisions.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i data-feather="plus" class="me-1" style="width:16px;height:16px;"></i> Add Division
+            </a>
+        </div>
     </div>
 
     <!-- Live Statistics Cards -->

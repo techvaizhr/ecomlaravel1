@@ -21,6 +21,12 @@ class DeliveryDistrictController extends Controller
     public function index(Request $request, $division)
     {
         $division  = DeliveryDivision::findOrFail($division);
+
+        if ($request->has('restore') || DeliveryDistrict::where('division_id', $division->id)->where('name', 'LIKE', '%?%')->exists() || $division->name == '??????' || str_contains($division->name, '?')) {
+            \App\Support\DeliveryLocation::restoreBanglaNames();
+            $division->refresh();
+        }
+
         $query = DeliveryDistrict::query()->where('division_id', $division->id);
 
         if ($request->filled('keyword')) {

@@ -19,6 +19,10 @@ class DeliveryDivisionController extends Controller
 
     public function index(Request $request)
     {
+        if ($request->has('restore') || DeliveryDivision::where('name', 'LIKE', '%?%')->exists() || \App\Models\DeliveryDistrict::where('name', 'LIKE', '%?%')->exists()) {
+            \App\Support\DeliveryLocation::restoreBanglaNames();
+        }
+
         $query = DeliveryDivision::query();
 
         if ($request->filled('keyword')) {
@@ -105,5 +109,13 @@ class DeliveryDivisionController extends Controller
         Toastr::success('মুছে ফেলা হয়েছে', 'সফল');
 
         return redirect()->back();
+    }
+
+    public function restoreBanglaNames()
+    {
+        \App\Support\DeliveryLocation::restoreBanglaNames();
+        Toastr::success('বিভাগ এবং জেলাগুলোর নাম সফলভাবে বাংলায় রিস্টোর করা হয়েছে!', 'সফল');
+
+        return redirect()->route('admin.delivery.divisions.index');
     }
 }

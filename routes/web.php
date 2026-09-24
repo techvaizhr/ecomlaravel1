@@ -1162,6 +1162,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('shipping-charge/destroy', [ShippingChargeController::class,'destroy'])->name('shippingcharges.destroy');
 
     Route::get('delivery/divisions', [DeliveryDivisionController::class, 'index'])->name('admin.delivery.divisions.index');
+    Route::get('delivery/divisions/restore-bangla', [DeliveryDivisionController::class, 'restoreBanglaNames'])->name('admin.delivery.divisions.restore');
     Route::get('delivery/divisions/create', [DeliveryDivisionController::class, 'create'])->name('admin.delivery.divisions.create');
     Route::post('delivery/divisions/save', [DeliveryDivisionController::class, 'store'])->name('admin.delivery.divisions.store');
     Route::get('delivery/divisions/{id}/edit', [DeliveryDivisionController::class, 'edit'])->name('admin.delivery.divisions.edit');
