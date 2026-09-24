@@ -355,48 +355,94 @@
         font-weight: 600;
     }
 
-    /* --- COUPON BOX (LARGER & MODERN) --- */
+    /* --- COUPON BOX (TIGHT, COMPACT & 100% RESPONSIVE) --- */
     .coupon-wrapper {
         background: #f8fafc;
-        padding: 20px;
-        border-top: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
+        padding: 10px 14px;
+        border-top: 1px dashed #e2e8f0;
+        border-bottom: 1px dashed #e2e8f0;
+        margin: 0;
     }
     .coupon-group-modern {
         display: flex;
+        align-items: stretch;
         width: 100%;
-        height: 55px; /* Bigger Height */
-        border: 2px solid #d1d5db;
-        border-radius: 8px;
+        height: 38px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 6px;
         overflow: hidden;
-        transition: 0.3s;
+        transition: all 0.2s ease;
         background: #fff;
     }
     .coupon-group-modern:focus-within {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 4px rgba(15, 52, 96, 0.05);
+        border-color: var(--primary-color, #0f3460);
+        box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.08);
     }
     .coupon-input-modern {
-        flex-grow: 1;
+        flex: 1 1 0;
+        min-width: 0;
         border: none;
-        padding: 0 20px;
-        font-size: 15px;
-        color: #333;
-        outline: none;
+        padding: 0 12px;
+        font-size: 13px;
+        color: #1e293b;
+        background: transparent;
+        outline: none !important;
+    }
+    .coupon-input-modern::placeholder {
+        color: #94a3b8;
+        font-size: 12.5px;
     }
     .coupon-btn-modern {
-        background: var(--text-dark);
-        color: #fff;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--text-dark, #0f3460);
+        color: #ffffff !important;
         border: none;
-        padding: 0 30px;
+        padding: 0 16px;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 12px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
         cursor: pointer;
-        transition: 0.3s;
+        transition: background 0.2s ease;
+        white-space: nowrap;
     }
     .coupon-btn-modern:hover {
-        background: var(--secondary-color);
+        background: var(--primary-color, #1e3a8a);
+    }
+    .coupon-applied-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 12px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: 6px;
+        font-size: 12.5px;
+        color: #065f46;
+    }
+    .coupon-applied-text {
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .coupon-remove-btn {
+        flex-shrink: 0;
+        color: #dc2626 !important;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-decoration: none;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #fee2e2;
+        transition: background 0.2s ease;
+    }
+    .coupon-remove-btn:hover {
+        background: #fecaca;
     }
 
     /* --- Totals Area --- */
@@ -939,21 +985,34 @@
                                     @endforeach
                                 </div>
 
-                                {{-- COUPON SECTION --}}
+                                {{-- COUPON SECTION (Only show if active coupon exists or already applied) --}}
+@php
+    $todayDate = date('Y-m-d');
+    $hasActiveCoupon = \App\Models\Coupon::where('status', 1)
+        ->where(function($q) use ($todayDate) {
+            $q->whereNull('valid_from')->orWhere('valid_from', '<=', $todayDate);
+        })
+        ->where(function($q) use ($todayDate) {
+            $q->whereNull('valid_to')->orWhere('valid_to', '>=', $todayDate);
+        })
+        ->exists();
+@endphp
+
+@if($hasActiveCoupon || Session::has('coupon_code'))
 <div class="coupon-wrapper">
     @if(!Session::has('coupon_code'))
         <div class="coupon-group-modern">
-            {{-- ভিজ্যুয়াল ইনপুট (এটি কোনো ফর্মের অংশ নয়, শুধু ডাটা নেওয়ার জন্য) --}}
-            <input type="text" id="coupon_input" class="coupon-input-modern" placeholder="কুপন কোড আছে? এখানে লিখুন...">
+            <input type="text" id="coupon_input" class="coupon-input-modern" placeholder="কুপন কোড লিখুন..." autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();submitCoupon();}">
             <button type="button" class="coupon-btn-modern" onclick="submitCoupon()">APPLY</button>
         </div>
     @else
-        <div class="alert alert-success d-flex justify-content-between align-items-center m-0 py-3 px-3 border-0 rounded shadow-sm">
-            <span><i class="fas fa-check-circle"></i> Coupon <b>{{ Session::get('coupon_code') }}</b> Applied!</span>
-            <a href="{{ route('coupon.remove') }}" class="text-danger fw-bold text-decoration-none px-2">REMOVE</a>
+        <div class="coupon-applied-box">
+            <span class="coupon-applied-text"><i class="fas fa-check-circle text-success me-1"></i> কুপন <b>{{ Session::get('coupon_code') }}</b> যুক্ত হয়েছে</span>
+            <a href="{{ route('coupon.remove') }}" class="coupon-remove-btn" title="কুপন বাতিল করুন">✕ মুছুন</a>
         </div>
     @endif
 </div>
+@endif
 
                                 {{-- Calculation --}}
                                 <div class="summary-totals">

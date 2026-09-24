@@ -31,8 +31,8 @@
         <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
 
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
-        <link rel="stylesheet" href="{{ url('/style.css') }}?v=7">
-        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=6">
+        <link rel="stylesheet" href="{{ url('/style.css') }}?v=8">
+        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=7">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" media="print" onload="this.media='all'" />
@@ -228,11 +228,33 @@
 }
 
 @media (max-width: 991px) {
-    .footer-trust-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .footer-trust-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 @media (max-width: 540px) {
-    .footer-trust-grid { grid-template-columns: 1fr; gap: 8px; }
-    .footer-trust-card { padding: 10px 12px; }
+    .footer-trust-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2x2 badge grid on mobile */
+        gap: 6px;
+    }
+    .footer-trust-card {
+        padding: 7px 8px;
+        gap: 7px;
+    }
+    .footer-trust-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+    .footer-trust-info h6 {
+        font-size: 11px;
+        line-height: 1.2;
+        margin: 0 0 1px;
+    }
+    .footer-trust-info p {
+        font-size: 9.5px;
+        line-height: 1.15;
+        margin: 0;
+    }
 }
 
 /* Main Footer Content */
@@ -247,14 +269,54 @@
     max-width: 1240px;
     margin: 0 auto;
 }
+.footer-v2__links-wrap {
+    display: contents;
+}
 @media (max-width: 1100px) {
     .footer-v2__grid { grid-template-columns: 1.5fr 1fr 1fr 1.2fr; gap: 2rem; }
 }
 @media (max-width: 890px) {
     .footer-v2__grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
 }
-@media (max-width: 576px) {
-    .footer-v2__grid { grid-template-columns: 1fr; gap: 1.75rem; }
+@media (max-width: 767px) {
+    .footer-v2__main {
+        padding: 1.75rem 1rem 1.25rem;
+    }
+    .footer-v2__grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    .footer-v2__links-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 1x2 পাশাপাশি */
+        gap: 12px;
+        width: 100%;
+    }
+    .footer-v2__title {
+        font-size: 13.5px;
+        margin-bottom: 0.65rem;
+        padding-bottom: 5px;
+    }
+    .footer-v2__links {
+        gap: 6px;
+    }
+    .footer-v2__links li a {
+        font-size: 12px;
+        line-height: 1.35;
+    }
+    .footer-v2__tagline {
+        font-size: 12px;
+        line-height: 1.5;
+        margin-bottom: 0.75rem;
+    }
+    .footer-contact-list {
+        gap: 6px;
+        margin-bottom: 0.75rem;
+    }
+    .footer-contact-item {
+        font-size: 12px;
+        gap: 8px;
+    }
 }
 
 /* Brand block */
@@ -598,8 +660,8 @@
     align-items: center;
     background: #ffffff;
     border: 2px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    border-radius: 50px;
-    height: 44px;
+    border-radius: 12px;
+    height: 42px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     transition: all 0.25s ease;
     overflow: hidden;
@@ -652,7 +714,7 @@
     justify-content: center !important;
     gap: 6px !important;
     cursor: pointer;
-    border-radius: 0 50px 50px 0 !important;
+    border-radius: 0 10px 10px 0 !important;
     transition: all 0.2s ease;
     float: none !important;
 }
@@ -744,7 +806,7 @@
     align-items: center;
     gap: 7px;
     padding: 8px 16px;
-    border-radius: 50px;
+    border-radius: 12px;
     background: #f1f5f9;
     color: #334155 !important;
     font-size: 13px;
@@ -781,9 +843,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
     background: {{ optional($generalsetting)->primary_color ?? '#667eea' }}15;
     color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
     position: relative;
@@ -1229,7 +1291,7 @@ li.all__category__list.homepage-cat-btn {
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     padding: 6px 14px !important;
-    border-radius: 50px !important;
+    border-radius: 12px !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     color: #ffffff !important;
@@ -1244,47 +1306,86 @@ li.all__category__list.homepage-cat-btn {
     color: {{ optional($generalsetting)->primary_color ?? '#1e293b' }} !important;
 }
 
-/* 📱 Mobile Header & Mobile Search Refinement */
+/* 📱 Mobile Header & Mobile Search Refinement (Slim, Tight & 12px Radius) */
 .mobile-header {
     background: #ffffff;
     box-shadow: 0 2px 10px rgba(0,0,0,0.06);
     padding: 8px 12px;
 }
 .mobile-search {
-    padding: 8px 12px;
+    padding: 4px 12px 6px;
     background: #ffffff;
 }
-.mobile-search form {
+.mobile-search form,
+.mobile-search form.search-form-v2 {
     display: flex;
-    align-items: center;
-    background: #f1f5f9;
-    border-radius: 50px;
-    padding: 3px 6px 3px 14px;
-    border: 1.5px solid #e2e8f0;
+    align-items: stretch;
+    background: #ffffff;
+    border-radius: 12px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    border: 1.5px solid {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 .mobile-search form:focus-within {
-    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    background: #ffffff;
+    border-color: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+.mobile-search .search-input-group {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 10px;
+}
+.mobile-search .search-icon-left {
+    font-size: 12px;
+    margin-right: 6px;
+    color: #94a3b8;
+    flex-shrink: 0;
 }
 .mobile-search input {
     flex: 1;
+    min-width: 0;
     border: none !important;
     outline: none !important;
     background: transparent !important;
-    font-size: 13px !important;
+    font-size: 12.5px !important;
     color: #1e293b;
     padding: 0 !important;
+    height: 100% !important;
 }
+.mobile-search input::placeholder {
+    color: #94a3b8;
+    font-size: 12px;
+}
+.mobile-search .search-submit-btn,
 .mobile-search button {
-    width: 34px !important;
-    height: 34px;
-    border-radius: 50%;
-    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }};
-    border: none;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink: 0;
+    width: auto !important;
+    height: 100% !important;
+    padding: 0 14px !important;
+    border-radius: 0 10px 10px 0 !important;
+    background: {{ optional($generalsetting)->primary_color ?? '#667eea' }} !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    white-space: nowrap;
+}
+.mobile-search .search-submit-btn span {
+    font-size: 12px;
+}
+.mobile-search .search-submit-btn svg,
+.mobile-search .search-submit-btn i {
+    width: 12px;
+    height: 12px;
 }
 /* 📱 ULTRA-MODERN & BEAUTIFUL MOBILE SIDE MENU (DRAWER) */
 .mobile-menu {
@@ -2523,29 +2624,32 @@ section.slider-section {
                 @endif
             </div>
 
-            <!-- Useful Links -->
-            <div class="footer-v2__block">
-                <h5 class="footer-v2__title">প্রয়োজনীয় লিংক</h5>
-                <ul class="footer-v2__links">
-                    <li><a href="{{ route('customer.order_track') }}">অর্ডার ট্র্যাকিং</a></li>
-                    <li><a href="{{ route('complaint') }}">অভিযোগ / সমস্যা জানান</a></li>
-                    @foreach($pages as $page)
-                    <li><a href="{{ route('page', ['slug' => $page->slug]) }}">{{ $page->name }}</a></li>
-                    @endforeach
-                </ul>
-            </div>
+            <!-- Useful Links + Policy in 1x2 side by side on mobile -->
+            <div class="footer-v2__links-wrap">
+                <!-- Useful Links -->
+                <div class="footer-v2__block">
+                    <h5 class="footer-v2__title">প্রয়োজনীয় লিংক</h5>
+                    <ul class="footer-v2__links">
+                        <li><a href="{{ route('customer.order_track') }}">অর্ডার ট্র্যাকিং</a></li>
+                        <li><a href="{{ route('complaint') }}">অভিযোগ / সমস্যা জানান</a></li>
+                        @foreach($pages as $page)
+                        <li><a href="{{ route('page', ['slug' => $page->slug]) }}">{{ $page->name }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
 
-            <!-- Policy & Information -->
-            <div class="footer-v2__block">
-                <h5 class="footer-v2__title">তথ্য ও পলিসি</h5>
-                <ul class="footer-v2__links">
-                    @foreach($pagesright as $key => $value)
-                    <li><a href="{{ route('page', ['slug' => $value->slug]) }}">{{ $value->name }}</a></li>
-                    @endforeach
-                    @if(Route::has('contact'))
-                    <li><a href="{{ route('contact') }}">যোগাযোগ করুন</a></li>
-                    @endif
-                </ul>
+                <!-- Policy & Information -->
+                <div class="footer-v2__block">
+                    <h5 class="footer-v2__title">তথ্য ও পলিসি</h5>
+                    <ul class="footer-v2__links">
+                        @foreach($pagesright as $key => $value)
+                        <li><a href="{{ route('page', ['slug' => $value->slug]) }}">{{ $value->name }}</a></li>
+                        @endforeach
+                        @if(Route::has('contact'))
+                        <li><a href="{{ route('contact') }}">যোগাযোগ করুন</a></li>
+                        @endif
+                    </ul>
+                </div>
             </div>
 
             <!-- Newsletter + Social -->
@@ -4212,6 +4316,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
             0 12px 40px rgba(0, 0, 0, 0.24);
         overflow: visible;
         line-height: 0;
+        box-sizing: border-box;
     }
 
     #popShopModal .modal-content.ps-content {
@@ -4336,6 +4441,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         overflow: visible !important;
         border: none !important;
         background: transparent;
+        box-sizing: border-box;
     }
     .popup-simple-link {
         display: block;
@@ -4344,6 +4450,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         border: none;
         outline: none;
         border-radius: inherit;
+        box-sizing: border-box;
     }
     .popup-simple-link:focus,
     .popup-simple-link:focus-visible {
@@ -4354,7 +4461,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
     }
     .popup-simple-img {
         width: auto;
-        max-width: min(560px, calc(100vw - 24px));
+        max-width: 100%;
         height: auto;
         max-height: min(80vh, 600px);
         object-fit: contain;
@@ -4363,6 +4470,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         vertical-align: top;
         border: none;
         outline: none;
+        box-sizing: border-box;
     }
 
     .ps-close {
@@ -4379,7 +4487,7 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         color: #333;
         cursor: pointer;
         z-index: 1050;
-        box-shadow: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
         transition: 0.2s;
         outline: none !important;
     }
@@ -4394,29 +4502,105 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
     }
 
     @media (max-width: 768px) {
-        #popShopModal .modal-dialog.popup-modal-compact:not(.popup-simple-fit) {
-            max-width: min(540px, 94vw) !important;
-            margin: 10px auto;
+        #popShopModal {
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+            overflow-x: hidden !important;
         }
-        #popShopModal .modal-dialog.popup-simple-fit {
-            max-width: calc(100vw - 20px) !important;
+        #popShopModal .modal-dialog {
+            margin: auto !important;
+            min-height: calc(100% - 2rem);
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        /* সাধারণ টেক্সট + ইমেজ পপআপ */
+        #popShopModal .modal-dialog.popup-modal-compact:not(.popup-simple-fit) {
+            width: min(340px, 86vw) !important;
+            max-width: min(340px, 86vw) !important;
+            margin: auto !important;
+        }
+        /* ইমেজ পপআপ: স্ক্রিন থেকে ছোট ও দুই পাশে আরামদায়ক গ্যাপ */
+        #popShopModal .modal-dialog.popup-modal-compact.popup-simple-fit {
+            width: auto !important;
+            max-width: min(320px, 82vw) !important;
+            margin: auto !important;
         }
         .popup-simple-image {
-            max-width: calc(100vw - 20px);
+            width: 100% !important;
+            max-width: 100% !important;
+            display: flex;
+            justify-content: center;
+        }
+        #popShopModal .modal-content.popup-simple-image .popup-simple-link {
+            padding: 4px;
+            border-radius: 14px;
+            max-width: 100%;
+            display: inline-block;
         }
         .popup-simple-img {
-            max-width: calc(100vw - 20px);
-            max-height: min(78vh, 520px);
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: min(65vh, 400px) !important;
+            border-radius: 10px !important;
+            object-fit: contain !important;
+        }
+        .ps-close {
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            font-size: 20px;
+            line-height: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         }
         .ps-layout {
             flex-direction: column-reverse;
             min-height: 0;
         }
-        .ps-text-section { width: 100%; padding: 24px 20px; }
-        .ps-image-section { width: 100%; height: 200px; }
-        .ps-brand { font-size: 26px; }
+        .ps-text-section {
+            width: 100%;
+            padding: 16px 14px;
+        }
+        .ps-image-section {
+            width: 100%;
+            height: 140px;
+        }
+        .ps-brand {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+        .ps-headline {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .ps-headline span, .ps-headline p {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .ps-deadline {
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+        .ps-btn {
+            padding: 9px 14px;
+            font-size: 13px;
+        }
+        .ps-footer {
+            margin-top: 12px;
+            font-size: 8px;
+            gap: 5px;
+        }
+    }
+
+    @media (max-width: 380px) {
+        #popShopModal .modal-dialog.popup-modal-compact:not(.popup-simple-fit),
+        #popShopModal .modal-dialog.popup-modal-compact.popup-simple-fit {
+            max-width: 80vw !important;
+        }
         .popup-simple-img {
-            max-height: min(72vh, 440px);
+            max-height: min(60vh, 320px) !important;
         }
     }
 </style>
@@ -4784,7 +4968,8 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
         left: 12px;
         bottom: 74px;
         width: calc(100vw - 24px);
-        max-width: 320px;
+        max-width: min(310px, calc(100vw - 24px));
+        box-sizing: border-box;
     }
 }
 </style>

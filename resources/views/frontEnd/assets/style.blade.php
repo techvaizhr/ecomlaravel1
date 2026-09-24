@@ -1525,15 +1525,18 @@ section.slider-section {
     }
 }
 
-/* Mobile (<768px): Increased Banner Height */
+/* Mobile (<768px): Banner Auto Height (No White Gap) */
 @media (max-width: 767px) {
     .slider-section {
-        padding-top: 6px !important;
-        padding-bottom: 6px !important;
+        padding-top: 4px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 0 !important;
     }
     .home-slider-container {
         border-radius: 10px;
         overflow: hidden;
+        height: auto !important;
+        background: transparent !important;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
     .main_slider,
@@ -1541,7 +1544,16 @@ section.slider-section {
     .main_slider .owl-stage,
     .main_slider .owl-item,
     .slider-item {
-        height: 215px !important;
+        height: auto !important;
+        max-height: none !important;
+        background: transparent !important;
+    }
+    .slider-item img {
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        border-radius: 10px;
+        object-fit: contain !important;
     }
 }
 /*==== SLIDER CSS END ====*/
@@ -5397,7 +5409,93 @@ body {
     transform: translateX(3px);
 }
 
-/* Seamless Circular Category Items (No Nested Boxes) */
+/* 🏷️ 4-Corner 2-Radius Full Picture Category Grid */
+.home-category-section {
+    padding: 12px 0 18px;
+}
+.cat_modern_grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+}
+.cat_grid_card {
+    display: block;
+    position: relative;
+    text-decoration: none !important;
+    outline: none !important;
+    border-radius: 16px 0 16px 0;
+    overflow: hidden;
+    background: #f1f5f9;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+}
+.cat_grid_card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px -3px rgba(15, 23, 42, 0.16);
+    border-color: {{$generalsetting->primary_color ?? '#0f3460'}};
+}
+.cat_grid_inner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    min-height: 110px;
+    overflow: hidden;
+}
+.cat_grid_img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cat_grid_card:hover .cat_grid_img {
+    transform: scale(1.08);
+}
+.cat_grid_fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #94a3b8;
+    font-size: 28px;
+}
+.cat_grid_overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 24px 8px 8px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.55) 65%, rgba(0, 0, 0, 0.88) 100%);
+    transition: background 0.25s ease;
+}
+.cat_grid_card:hover .cat_grid_overlay {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 20%, rgba(0, 0, 0, 0.65) 60%, rgba(0, 0, 0, 0.94) 100%);
+}
+.cat_grid_title {
+    color: #ffffff !important;
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 2px 8px rgba(0, 0, 0, 0.6);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.cat_grid_card:hover .cat_grid_title {
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Seamless Circular Category Items (Legacy Support) */
 .cat-slider-modern {
     margin-top: 4px !important;
     position: relative;
@@ -5470,7 +5568,6 @@ body {
     transition: color 0.2s ease;
 }
 
-/* Hover States: Circle elevates smoothly with soft glow, icon zooms, text turns primary */
 .cat_clean_item:hover .cat_clean_bubble,
 .cat_card_modern:hover .cat_icon_bubble {
     border-color: {{$generalsetting->primary_color}};
