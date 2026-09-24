@@ -4253,14 +4253,18 @@ form.sort-form .form-select:focus {
 }
 
 a.view_more_btn {
-    text-align: right;
-    float: right;
-    background: {{$generalsetting->primary_color}};
+    display: inline-flex;
+    align-items: center;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 14px;
+    color: {{$generalsetting->primary_color}};
+    border: 1px solid {{$generalsetting->primary_color}};
+    background: transparent;
     text-transform: capitalize;
-    font-size: 15px;
-    padding: 10px 15px;
-    color: #fff;
-    font-family: "Lato", sans-serif;
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
 .register-now.no-account {
@@ -5384,12 +5388,12 @@ body {
 .cat-modern-viewall {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
+    gap: 4px;
+    padding: 3px 10px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    font-size: 13px;
+    border-radius: 14px;
+    font-size: 11.5px;
     font-weight: 600;
     color: #475569;
     text-decoration: none;
@@ -5790,19 +5794,32 @@ body {
 }
 
 .view_more_btn {
-    font-size: 13px;
-    font-weight: 600;
-    color: {{$generalsetting->primary_color}};
-    border: 1px solid {{$generalsetting->primary_color}};
-    padding: 4px 14px;
-    border-radius: 20px;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    flex-shrink: 0;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: {{$generalsetting->primary_color}} !important;
+    border: 1px solid {{$generalsetting->primary_color}} !important;
+    padding: 3px 10px !important;
+    border-radius: 14px !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
 }
 .view_more_btn:hover {
-    background: {{$generalsetting->primary_color}};
-    color: #fff;
+    background: {{$generalsetting->primary_color}} !important;
+    color: #fff !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+@media (max-width: 767px) {
+    .view_more_btn {
+        font-size: 10.5px !important;
+        padding: 2px 7px !important;
+        border-radius: 12px !important;
+    }
 }
 
 /* ----- SHOP / CATEGORY SIDEBAR REDESIGN ----- */

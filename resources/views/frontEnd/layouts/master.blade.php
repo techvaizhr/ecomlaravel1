@@ -1335,6 +1335,65 @@ li.all__category__list.homepage-cat-btn {
     max-height: 38px !important;
     object-fit: contain;
 }
+/* 🔍 Mobile Header Search Toggle Icon (shown when search form is hidden on scroll) */
+.menu-search-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+}
+body.mobile-scrolled .menu-search-toggle {
+    display: flex !important;
+}
+.menu-search-toggle .search-toggle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+.menu-search-toggle .search-toggle-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+.menu-search-toggle .search-toggle-btn i {
+    font-size: 16px !important;
+    color: #334155;
+    line-height: 1;
+    display: inline-block;
+    transition: color 0.2s ease;
+}
+.menu-search-toggle.active .search-toggle-btn,
+.menu-search-toggle .search-toggle-btn:hover {
+    border-color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
+}
+.menu-search-toggle.active .search-toggle-btn i,
+.menu-search-toggle .search-toggle-btn:hover i {
+    color: {{ optional($generalsetting)->primary_color ?? '#0f3460' }};
+}
+.menu-search-toggle .search-close-icon {
+    display: none !important;
+}
+.menu-search-toggle.active .search-open-icon {
+    display: none !important;
+}
+.menu-search-toggle.active .search-close-icon {
+    display: inline-block !important;
+    font-size: 17px !important;
+}
 .mobile-search {
     padding: 3px 10px 5px;
     background: #ffffff;
@@ -2280,6 +2339,12 @@ section.slider-section {
                         <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="{{ $generalsetting->name ?? 'Logo' }}" /></a>
                     </div>
                     <div class="mobile-header-actions">
+                        <div class="menu-search-toggle" id="mobileSearchToggle">
+                            <a href="javascript:void(0)" onclick="toggleMobileSearch()" class="search-toggle-btn" aria-label="সার্চ করুন" title="সার্চ করুন">
+                                <i class="fa-solid fa-magnifying-glass search-open-icon"></i>
+                                <i class="fa-solid fa-xmark search-close-icon"></i>
+                            </a>
+                        </div>
                         <div class="menu-bag">
                             <a href="javascript:void(0)" onclick="openSidebarCart()" class="margin-shopping" aria-label="শপিং কার্ট">
                                 <i class="fa-solid fa-cart-shopping"></i>
@@ -4265,6 +4330,36 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
             setTimeout(syncHeaderHeight, 150);
             setTimeout(syncHeaderHeight, 500);
 
+            // 🔍 Toggle Mobile Search Form on Click (when scrolled)
+            function toggleMobileSearch() {
+                var mobileSearch = document.querySelector('.mobile-search');
+                var toggleBtn = document.getElementById('mobileSearchToggle');
+                var input = document.querySelector('.msearch_keyword');
+                if (!mobileSearch) return;
+
+                if (mobileSearch.classList.contains('scrolled-hide')) {
+                    // Expand/Show the search form
+                    mobileSearch.classList.remove('scrolled-hide');
+                    mobileSearch.classList.add('manual-opened');
+                    if (toggleBtn) toggleBtn.classList.add('active');
+                    if (input) {
+                        setTimeout(function () {
+                            input.focus();
+                        }, 180);
+                    }
+                } else {
+                    // Close the search form if page is scrolled
+                    var currentScroll = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                    if (currentScroll > 12) {
+                        mobileSearch.classList.add('scrolled-hide');
+                        mobileSearch.classList.remove('manual-opened');
+                        if (toggleBtn) toggleBtn.classList.remove('active');
+                        if (input) input.blur();
+                    }
+                }
+            }
+            window.toggleMobileSearch = toggleMobileSearch;
+
             // 📱 Mobile Header Search: Auto-Hide on Scroll, Auto-Show at Top
             (function () {
                 var isTicking = false;
@@ -4272,22 +4367,27 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
 
                 function checkMobileSearchScroll() {
                     var mobileSearch = document.querySelector('.mobile-search');
+                    var toggleBtn = document.getElementById('mobileSearchToggle');
                     if (!mobileSearch || window.innerWidth > 767) return;
 
                     var currentScroll = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
 
                     if (currentScroll > scrollThreshold) {
-                        if (!mobileSearch.classList.contains('scrolled-hide')) {
-                            mobileSearch.classList.add('scrolled-hide');
-                            document.body.classList.add('mobile-scrolled');
+                        document.body.classList.add('mobile-scrolled');
+                        // Hide search only if not manually opened by user
+                        if (!mobileSearch.classList.contains('manual-opened')) {
+                            if (!mobileSearch.classList.contains('scrolled-hide')) {
+                                mobileSearch.classList.add('scrolled-hide');
+                            }
+                            if (toggleBtn) toggleBtn.classList.remove('active');
                         }
                     } else {
-                        if (mobileSearch.classList.contains('scrolled-hide')) {
-                            mobileSearch.classList.remove('scrolled-hide');
-                            document.body.classList.remove('mobile-scrolled');
-                            // Ensure body padding-top is 100% verified when returning to top
-                            syncHeaderHeight();
-                        }
+                        document.body.classList.remove('mobile-scrolled');
+                        mobileSearch.classList.remove('scrolled-hide');
+                        mobileSearch.classList.remove('manual-opened');
+                        if (toggleBtn) toggleBtn.classList.remove('active');
+                        // Ensure body padding-top is 100% verified when returning to top
+                        syncHeaderHeight();
                     }
                 }
 
