@@ -47,7 +47,7 @@ class ChildcategoryController extends Controller
         // image with intervention 
         
         
-        $input = $request->all();
+        $input = $request->except(['redirect_to', '_token']);
 
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->childcategoryName));
         $input['slug'] = str_replace('/', '', $input['slug']);
@@ -83,7 +83,7 @@ class ChildcategoryController extends Controller
             return redirect()->back();
         }
         
-        $input = $request->except('hidden_id');
+        $input = $request->except(['hidden_id', 'id', 'redirect_to', '_token']);
         
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->childcategoryName));
         $input['slug'] = str_replace('/', '', $input['slug']);

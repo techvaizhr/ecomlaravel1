@@ -78,7 +78,7 @@ class CategoryController extends Controller
         }
 
         /* ========= Input Prepare ========= */
-        $input = $request->all();
+        $input = $request->except(['redirect_to', '_token']);
 
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->name));
         $input['slug'] = str_replace('/', '', $input['slug']);
@@ -119,7 +119,7 @@ class CategoryController extends Controller
             return redirect()->back();
         }
         
-        $input       = $request->except('hidden_id');
+        $input       = $request->except(['hidden_id', 'id', 'redirect_to', '_token']);
 
         /* ========= Main Image Update ========= */
         if ($request->hasFile('image')) {

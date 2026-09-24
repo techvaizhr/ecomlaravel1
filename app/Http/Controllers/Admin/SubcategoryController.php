@@ -50,7 +50,7 @@ class SubcategoryController extends Controller
         }
         
       
-        $input = $request->all();
+        $input = $request->except(['redirect_to', '_token']);
 
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->subcategoryName));
         $input['slug'] = str_replace('/', '', $input['slug']);
@@ -78,8 +78,8 @@ class SubcategoryController extends Controller
             'subcategoryName' => 'required',
             'status' => 'required',
         ]);
-        $update_data = Subcategory::find($request->id);
-        $input = $request->all();
+        $update_data = Subcategory::find($request->hidden_id ?? $request->id);
+        $input = $request->except(['id', 'hidden_id', 'redirect_to', '_token']);
         
         if ($request->hasFile('image')) {
             $input['image'] = ImageOptimizer::store($request->file('image'), 'public/uploads/subcategory/');
