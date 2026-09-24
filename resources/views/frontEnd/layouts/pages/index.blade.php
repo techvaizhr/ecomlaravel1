@@ -35,6 +35,12 @@
                                                  alt="{{ $category->name }}"
                                                  class="side_cat_img"
                                                  loading="lazy" />
+                                        @elseif($category->image)
+                                            <img src="{{ asset($category->image) }}"
+                                                 alt="{{ $category->name }}"
+                                                 class="side_cat_img"
+                                                 loading="lazy"
+                                                 width="28" height="28" />
                                         @else
                                             <span class="home-cat-icon-fallback"><i class="fa-solid fa-shapes"></i></span>
                                         @endif
