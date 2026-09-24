@@ -14,13 +14,8 @@
         <link rel="canonical" href="" />
         @stack('seo') 
         @stack('css')
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'">
-        <noscript>
-            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap">
-        </noscript>
+        <!-- High-Performance Self-Hosted Font (Zero Third-Party Latency) -->
+        <link rel="preload" href="{{ asset('public/frontEnd/fonts/roboto.woff2') }}" as="font" type="font/woff2" crossorigin>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
         <link rel="preconnect" href="https://maxcdn.bootstrapcdn.com" crossorigin>

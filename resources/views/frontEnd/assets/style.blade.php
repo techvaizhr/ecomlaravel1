@@ -13,7 +13,7 @@ html {
 }
 
 body {
-    font-family: "Roboto", sans-serif;
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     font-size: 14px;
     overflow-x: hidden;
     line-height: 1.5;
@@ -374,6 +374,15 @@ body {
         color:#fff;
     }
 /*==== COMMON CSS START ====*/
+@font-face {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+    src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular"),
+         url("{{ asset('public/frontEnd/fonts/roboto.woff2') }}") format("woff2");
+}
+
 @font-face {
     font-family: "Potro Sans Bangla";
     src: url("../fonts/Potro-Sans-Bangla-Regular.ttf");
