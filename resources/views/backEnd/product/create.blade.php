@@ -45,19 +45,14 @@
                     </div>
                 </div>
                 <div class="col-lg-8">
-                    <div class="d-flex flex-wrap gap-2">
-                        <div class="input-group flex-grow-1">
-                            <input type="url" id="page_quick_import_url" class="form-control border-0" placeholder="প্রোডাক্ট লিঙ্ক পেস্ট করুন (যেমন: https://www.daraz.com.bd/... বা Alibaba)" style="border-radius: 8px 0 0 8px; font-size: 13.5px;">
-                            <button class="btn btn-light px-3 fw-bold text-dark border-0" type="button" id="btn_page_paste_url">
-                                <i class="fe-clipboard me-1"></i> Paste
-                            </button>
-                            <button class="btn btn-warning px-4 fw-bold text-dark border-0" type="button" id="btn_page_quick_fetch" style="border-radius: 0 8px 8px 0;">
-                                <span class="spinner-border spinner-border-sm me-1 d-none" id="page_fetch_spinner"></span>
-                                <span id="page_fetch_btn_text"><i class="fe-download-cloud me-1"></i> Fetch & Fill Form</span>
-                            </button>
-                        </div>
-                        <button type="button" class="btn btn-outline-light px-3 fw-bold border-white" data-bs-toggle="modal" data-bs-target="#importProductModal" id="btn_open_html_source_modal" style="border-radius: 8px; font-size: 12.5px;">
-                            <i class="fe-code me-1"></i> Paste HTML (Alibaba)
+                    <div class="input-group">
+                        <input type="url" id="page_quick_import_url" class="form-control border-0" placeholder="প্রোডাক্ট লিঙ্ক পেস্ট করুন (যেমন: https://www.daraz.com.bd/... বা Alibaba)" style="border-radius: 8px 0 0 8px; font-size: 13.5px;">
+                        <button class="btn btn-light px-3 fw-bold text-dark border-0" type="button" id="btn_page_paste_url">
+                            <i class="fe-clipboard me-1"></i> Paste
+                        </button>
+                        <button class="btn btn-warning px-4 fw-bold text-dark border-0" type="button" id="btn_page_quick_fetch" style="border-radius: 0 8px 8px 0;">
+                            <span class="spinner-border spinner-border-sm me-1 d-none" id="page_fetch_spinner"></span>
+                            <span id="page_fetch_btn_text"><i class="fe-download-cloud me-1"></i> Fetch & Fill Form</span>
                         </button>
                     </div>
                 </div>
@@ -792,16 +787,16 @@
         $grid.empty();
         $count.text(images.length);
 
-        images.forEach(function (imgUrl, idx) {
-            const isMain = (idx === 0);
+        images.forEach(function (imgUrl) {
             const itemHtml = `
-                <div class="position-relative border rounded p-1 bg-white remote-img-card" style="width: 72px; height: 72px;">
-                    <img src="${imgUrl}" alt="Preview" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" loading="lazy">
+                <div class="position-relative border rounded p-1 bg-white remote-img-card" draggable="true" data-url="${imgUrl}" style="width: 80px; height: 80px; cursor: grab; user-select: none; transition: transform 0.15s, box-shadow 0.15s; border-radius: 8px;">
+                    <img src="${imgUrl}" alt="Preview" style="width:100%; height:100%; object-fit:cover; border-radius:5px; pointer-events: none;" loading="lazy">
                     <input type="hidden" name="imported_remote_images[]" value="${imgUrl}">
-                    <button type="button" class="btn btn-xs btn-danger position-absolute btn-remove-remote-img" style="top:-6px; right:-6px; border-radius:50%; width:18px; height:18px; padding:0; display:flex; align-items:center; justify-content:center;" title="Remove">
+                    <span class="position-absolute bg-dark bg-opacity-75 text-white rounded-circle d-flex align-items-center justify-content-center" style="top:3px; left:3px; width:17px; height:17px; font-size:9.5px; cursor:grab;" title="Drag to reorder"><i class="fe-move"></i></span>
+                    <button type="button" class="btn btn-xs btn-danger position-absolute btn-remove-remote-img" style="top:-5px; right:-5px; border-radius:50%; width:18px; height:18px; padding:0; display:flex; align-items:center; justify-content:center; z-index:3;" title="Remove image">
                         <i class="fe-x" style="font-size:10px;"></i>
                     </button>
-                    ${isMain ? '<span class="badge bg-primary position-absolute" style="bottom:2px; left:2px; font-size:8.5px; padding:1px 3px;">Main</span>' : ''}
+                    <div class="remote-card-footer position-absolute" style="bottom:3px; left:3px; right:3px; z-index:3;"></div>
                 </div>
             `;
             $grid.append(itemHtml);
@@ -809,7 +804,113 @@
 
         $area.removeClass('d-none');
         $('.gallery-file-input').removeAttr('required');
+
+        initRemoteDragAndDrop();
+        updateRemoteImageBadges();
     }
+
+    // Remote Images Drag & Drop Handlers
+    let draggedRemoteCard = null;
+
+    function initRemoteDragAndDrop() {
+        const cards = document.querySelectorAll('#remote_images_grid .remote-img-card');
+        cards.forEach(card => {
+            card.removeEventListener('dragstart', handleRemoteDragStart);
+            card.removeEventListener('dragover', handleRemoteDragOver);
+            card.removeEventListener('dragleave', handleRemoteDragLeave);
+            card.removeEventListener('drop', handleRemoteDrop);
+            card.removeEventListener('dragend', handleRemoteDragEnd);
+
+            card.addEventListener('dragstart', handleRemoteDragStart);
+            card.addEventListener('dragover', handleRemoteDragOver);
+            card.addEventListener('dragleave', handleRemoteDragLeave);
+            card.addEventListener('drop', handleRemoteDrop);
+            card.addEventListener('dragend', handleRemoteDragEnd);
+        });
+    }
+
+    function handleRemoteDragStart(e) {
+        draggedRemoteCard = this;
+        this.style.opacity = '0.4';
+        this.style.cursor = 'grabbing';
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.getAttribute('data-url'));
+    }
+
+    function handleRemoteDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (this !== draggedRemoteCard) {
+            this.style.transform = 'scale(1.05)';
+            this.style.borderColor = '#2563eb';
+        }
+    }
+
+    function handleRemoteDragLeave() {
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+    }
+
+    function handleRemoteDrop(e) {
+        e.preventDefault();
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+
+        const grid = document.getElementById('remote_images_grid');
+        if (draggedRemoteCard && this !== draggedRemoteCard && grid) {
+            const allCards = Array.from(grid.querySelectorAll('.remote-img-card'));
+            const draggedIdx = allCards.indexOf(draggedRemoteCard);
+            const targetIdx = allCards.indexOf(this);
+
+            if (draggedIdx < targetIdx) {
+                this.after(draggedRemoteCard);
+            } else {
+                this.before(draggedRemoteCard);
+            }
+            updateRemoteImageBadges();
+        }
+    }
+
+    function handleRemoteDragEnd() {
+        this.style.opacity = '1';
+        this.style.cursor = 'grab';
+        document.querySelectorAll('#remote_images_grid .remote-img-card').forEach(card => {
+            card.style.transform = 'scale(1)';
+            card.style.borderColor = '#e2e8f0';
+        });
+        updateRemoteImageBadges();
+    }
+
+    function updateRemoteImageBadges() {
+        const cards = document.querySelectorAll('#remote_images_grid .remote-img-card');
+        cards.forEach((card, idx) => {
+            const footer = card.querySelector('.remote-card-footer');
+            if (!footer) return;
+
+            if (idx === 0) {
+                card.style.borderColor = '#2563eb';
+                card.style.boxShadow = '0 0 0 2px rgba(37,99,235,0.25)';
+                footer.innerHTML = `<span class="badge bg-primary w-100 py-0.5" style="font-size:8.5px; border-radius:3px;"><i class="fe-star me-0.5"></i> Main</span>`;
+            } else {
+                card.style.borderColor = '#e2e8f0';
+                card.style.boxShadow = 'none';
+                footer.innerHTML = `<button type="button" class="btn btn-xs btn-light w-100 py-0 border shadow-sm btn-set-remote-main" style="font-size:8px; font-weight:600; color:#1e293b; border-radius:3px;" title="প্রধান ছবি নির্ধারণ করুন"><i class="fe-star text-warning me-0.5"></i> Set Main</button>`;
+            }
+        });
+    }
+
+    // Set Remote Main Image Button
+    $(document).on('click', '.btn-set-remote-main', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const card = $(this).closest('.remote-img-card')[0];
+        const grid = document.getElementById('remote_images_grid');
+        if (card && grid) {
+            grid.prepend(card);
+            updateRemoteImageBadges();
+            toastr.info('প্রধান ছবি নির্বাচন করা হয়েছে!');
+        }
+    });
 
     // Remove single remote image
     $(document).on('click', '.btn-remove-remote-img', function () {
@@ -819,6 +920,8 @@
         if (count === 0) {
             $('#remote_images_preview_area').addClass('d-none');
             $('.gallery-file-input').first().attr('required', 'required');
+        } else {
+            updateRemoteImageBadges();
         }
     });
 
@@ -839,18 +942,6 @@
         } catch (err) {
             toastr.info('ক্লিপবোর্ড থেকে সরাসরি লিঙ্ক পেতে অনুমতি প্রয়োজন অথবা বক্সে পেস্ট করুন।');
         }
-    });
-
-    // Open HTML Import Modal directly to HTML Tab
-    $('#btn_open_html_source_modal').on('click', function () {
-        setTimeout(function () {
-            const tabTrigger = document.getElementById('tab-html-btn');
-            if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
-            const pageUrl = $('#page_quick_import_url').val().trim();
-            if (pageUrl && document.getElementById('import_html_source_url')) {
-                document.getElementById('import_html_source_url').value = pageUrl;
-            }
-        }, 200);
     });
 
     // Fast URL Fetch & Auto-Fill Button
@@ -884,21 +975,7 @@
 
                 if (res.status === 'success' && res.data) {
                     applyPrefillData(res.data);
-                    
-                    // If Alibaba or blocked platform
-                    if (res.data.is_blocked || (res.data.source_platform === 'Alibaba' && (!res.data.images || res.data.images.length === 0))) {
-                        toastr.warning(res.data.block_warning || 'Alibaba রোবট চেক সার্ভার রিকোয়েস্ট আটকে দিয়েছে। ব্রাউজার থেকে পেজ সোর্স (Ctrl+U) কপি করে "Paste HTML" অপশন ব্যবহার করুন।', '', { timeOut: 8000 });
-                        $('#importProductModal').modal('show');
-                        setTimeout(function () {
-                            const tabTrigger = document.getElementById('tab-html-btn');
-                            if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
-                            if (document.getElementById('import_html_source_url')) {
-                                document.getElementById('import_html_source_url').value = url;
-                            }
-                        }, 250);
-                    } else {
-                        toastr.success('✅ প্রোডাক্টের তথ্য সফলভাবে ফর্মে সেট হয়েছে! অনুগ্রহ করে যাচাই করুন।');
-                    }
+                    toastr.success('✅ প্রোডাক্টের তথ্য সফলভাবে ফর্মে সেট হয়েছে! অনুগ্রহ করে যাচাই করুন।');
                 } else {
                     toastr.error(res.message || 'প্রোডাক্ট তথ্য পাওয়া যায়নি।');
                 }

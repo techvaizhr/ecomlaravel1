@@ -354,8 +354,9 @@
                         </td>
                         <td>
                             <div class="fw-bold text-dark" style="max-width:250px;">
-                                <a href="{{ route('products.edit', $product->id) }}" class="text-dark text-decoration-none">
+                                <a href="{{ route('product', $product->slug) }}" target="_blank" class="text-dark text-decoration-none" title="ওয়েবসাইটে দেখুন">
                                     {{ Str::limit($product->name, 45) }}
+                                    <i class="fe-external-link ms-1 text-muted" style="font-size: 11px;"></i>
                                 </a>
                             </div>
                             <small class="text-muted" style="font-family:monospace;font-size:11px;">

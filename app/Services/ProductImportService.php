@@ -292,13 +292,6 @@ class ProductImportService
             'source_url'      => $url,
         ];
 
-        // Check if Alibaba served punish / captcha challenge
-        $isPunish = str_contains($html, 'punish-component') || str_contains($html, 'sec.alibaba.com') || (str_contains($html, 'punish') && strlen($html) < 100000);
-        if ($isPunish) {
-            $result['is_blocked'] = true;
-            $result['block_warning'] = 'Alibaba-র সিকিউরিটি রোবট চেকার সার্ভার রিকোয়েস্ট সাময়িকভাবে আটকে দিয়েছে। সম্পূর্ণ তথ্য ও সব এইচডি ইমেজ পেতে ব্রাউজারের Alibaba পেজে গিয়ে পেজ সোর্স (Ctrl+U) কপি করে "Paste HTML / Source" অপশনে পেস্ট করুন, মুহূর্তেই সব পেয়ে যাবেন!';
-        }
-
         // 1. Title Extraction
         // 1a. From JSON payload
         if (preg_match('/"subject":\s*"([^"]+)"/i', $html, $m)) {

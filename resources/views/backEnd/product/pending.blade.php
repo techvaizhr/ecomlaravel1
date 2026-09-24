@@ -274,8 +274,9 @@
                         </td>
                         <td>
                             <div class="fw-bold text-dark" style="max-width:240px;">
-                                <a href="{{ route('products.edit', $value->id) }}" class="text-dark text-decoration-none">
+                                <a href="{{ route('product', $value->slug) }}" target="_blank" class="text-dark text-decoration-none" title="ওয়েবসাইটে দেখুন">
                                     {{ Str::limit($value->name, 45) }}
+                                    <i class="fe-external-link ms-1 text-muted" style="font-size: 11px;"></i>
                                 </a>
                             </div>
                             <span class="badge {{ $value->product_type === 'digital' ? 'bg-soft-purple text-purple' : 'bg-soft-info text-info' }} mt-1" style="font-size:10px;">
