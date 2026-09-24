@@ -3377,7 +3377,16 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (191, '2026_06_28_000004_add_customer_chat_to_gemini_ai_settings', 119),
 (192, '2026_06_28_000005_add_homepage_section_toggles_to_general_settings', 119),
 (193, '2026_09_23_010000_ensure_product_images_path_length', 120),
-(194, '2026_09_23_020000_create_media_table', 121);
+(194, '2026_09_23_020000_create_media_table', 121),
+(195, '2026_09_22_173000_add_performance_indexes_to_orders_and_related_tables', 122),
+(196, '2026_09_22_220000_add_dark_mode_to_users_table', 122),
+(197, '2026_09_23_000001_add_capi_fields_to_tiktok_pixels_table', 122),
+(198, '2026_09_23_000002_add_capi_fields_to_ecom_pixels_table', 122),
+(199, '2026_09_23_030000_add_frontend_catalog_performance_indexes', 122),
+(200, '2026_09_24_002748_add_location_toggles_to_general_settings_table', 123),
+(201, '2026_09_24_130000_add_pagespeed_performance_db_indexes', 123),
+(202, '2026_09_24_150000_fix_location_charset_and_defaults', 123),
+(203, '2026_09_24_160000_add_icon_front_view_to_categories_table', 124);
 
 -- --------------------------------------------------------
 
