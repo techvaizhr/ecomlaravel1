@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\ChildcategoryController;
 use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\Admin\PixelsController;
 use App\Http\Controllers\Admin\TiktokPixelsController;
+use App\Http\Controllers\CatalogFeedController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ApiIntegrationController;
@@ -537,8 +538,15 @@ Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']
      Route::get('/payment-success', [FrontEndController::class, 'payment_success'])->name('payment_success');
     Route::get('/payment-cancel', [FrontEndController::class, 'payment_cancel'])->name('payment_cancel');
 
-
-
+    // ==========================================
+    // Facebook & Google Product Catalog Data Feeds
+    // ==========================================
+    Route::get('/feed/facebook-catalog.xml', [CatalogFeedController::class, 'facebookXml'])->name('catalog.facebook.xml');
+    Route::get('/feed/google-catalog.xml', [CatalogFeedController::class, 'googleXml'])->name('catalog.google.xml');
+    Route::get('/feed/facebook-catalog.csv', [CatalogFeedController::class, 'facebookCsv'])->name('catalog.facebook.csv');
+    Route::get('/feed/catalog.xml', [CatalogFeedController::class, 'universalXml'])->name('catalog.universal.xml');
+    Route::get('/facebook-feed.xml', [CatalogFeedController::class, 'facebookXml']);
+    Route::get('/google-feed.xml', [CatalogFeedController::class, 'googleXml']);
 
 Route::post('/cart/store', [FrontendController::class, 'cartStore'])->name('cart.store');
 

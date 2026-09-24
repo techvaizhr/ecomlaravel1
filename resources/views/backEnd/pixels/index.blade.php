@@ -90,6 +90,36 @@
         color: #0f172a;
         transform: translateY(-1px);
     }
+
+    .catalog-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: all 0.25s ease;
+    }
+    .catalog-box:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        background: #ffffff;
+    }
+    .feed-input-group .form-control {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.825rem;
+        background: #ffffff;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    .badge-channel {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+    .badge-fb { background: #e7f0fd; color: #1877f2; border: 1px solid #c7d9fd; }
+    .badge-google { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .badge-csv { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 </style>
 @endsection
 
@@ -134,6 +164,177 @@
                 <div class="stat-icon"><i class="fas fa-pause-circle"></i></div>
                 <div class="small text-white-50 text-uppercase fw-bold">Inactive</div>
                 <h3 class="fw-bold mb-0 text-white mt-1">{{ number_format($stats['inactive'] ?? 0) }}</h3>
+            </div>
+        </div>
+    </div>
+
+    {{-- PRODUCT CATALOG FEEDS (FACEBOOK & GOOGLE) --}}
+    <div class="card card-modern mb-4 border-0" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+        <div class="card-header bg-white border-bottom p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #e7f0fd; border-radius: 8px;">
+                        <i class="fab fa-facebook text-primary fs-5"></i>
+                    </span>
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #fef3c7; border-radius: 8px;">
+                        <i class="fab fa-google text-warning fs-5"></i>
+                    </span>
+                    <h5 class="mb-0 fw-bold text-dark">Facebook & Google Product Catalog Data Feeds</h5>
+                    <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-2 py-1 rounded-pill small">Auto-Sync Active</span>
+                </div>
+                <p class="text-muted small mb-0 mt-1">
+                    সঠিক ফরম্যাটের ক্যাটালগ ডাটা ফিড লিংক। ফেসবুক কমার্স ম্যানেজার (Meta Commerce Manager) ও গুগল মার্চেন্ট সেন্টারে এই লিংক দিলেই স্বয়ংক্রিয়ভাবে ক্যাটালগ কানেক্ট ও প্রোডাক্ট সিঙ্ক হয়ে যাবে।
+                </p>
+            </div>
+            <div>
+                <a href="#howToConnectGuide" data-bs-toggle="collapse" class="btn btn-outline-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1">
+                    <i class="fas fa-question-circle"></i>
+                    <span>কীভাবে কানেক্ট করবেন?</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            {{-- Image Rule Alert --}}
+            <div class="alert alert-info border-0 rounded-3 mb-4 d-flex align-items-center gap-3 py-2 px-3" style="background-color: #e0f2fe; color: #0369a1;">
+                <div class="fs-4 text-info"><i class="fas fa-info-circle"></i></div>
+                <div class="small">
+                    <strong>ইমেজ রুলস (Image Resolution Rules):</strong> ভ্যারিয়েশন প্রোডাক্টের ক্ষেত্রে কালার/সাইজ অনুযায়ী ভ্যারিয়েশনের ছবি দেখাবে (না থাকলে স্বয়ংক্রিয়ভাবে মূল ছবি), এবং সাধারণ (Single) প্রোডাক্টের ক্ষেত্রে মূল ছবি দেখাবে।
+                </div>
+            </div>
+
+            <div class="row g-3">
+                {{-- Facebook XML Feed --}}
+                <div class="col-12 col-lg-6">
+                    <div class="catalog-box h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fab fa-facebook text-primary fs-5"></i>
+                                    <span class="fw-bold text-dark">Facebook Catalog Feed (XML)</span>
+                                </div>
+                                <span class="badge-channel badge-fb">Recommended for Meta</span>
+                            </div>
+                            <p class="text-muted small mb-3">
+                                Meta Commerce Manager, Facebook Shop, Instagram Shopping & Advantage+ Catalog Ads-এর জন্য নির্ধারিত RSS 2.0 XML ফিড।
+                            </p>
+                        </div>
+                        <div>
+                            <div class="input-group input-group-sm feed-input-group mb-2">
+                                <input type="text" id="fbXmlFeedUrl" class="form-control" readonly value="{{ route('catalog.facebook.xml') }}">
+                                <button type="button" class="btn btn-primary" onclick="copyFeedLink('{{ route('catalog.facebook.xml') }}', 'Facebook XML Feed', this)" title="Copy Link">
+                                    <i class="fas fa-copy me-1"></i> Copy
+                                </button>
+                                <a href="{{ route('catalog.facebook.xml') }}" target="_blank" class="btn btn-outline-secondary feed-dynamic-link" data-path="/feed/facebook-catalog.xml" title="View XML in new tab">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted"><i class="fas fa-check text-success me-1"></i> ভ্যারিয়েশন ইমেজ ও স্টক সহ ফুল সাপোর্ট</small>
+                                <a href="{{ route('catalog.facebook.xml') }}?refresh=1" target="_blank" class="small text-decoration-none text-muted feed-dynamic-link" data-path="/feed/facebook-catalog.xml?refresh=1" title="Force Refresh Cache">
+                                    <i class="fas fa-sync-alt fa-xs me-1"></i> Refresh Cache
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Google XML Feed --}}
+                <div class="col-12 col-lg-6">
+                    <div class="catalog-box h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fab fa-google text-warning fs-5"></i>
+                                    <span class="fw-bold text-dark">Google Merchant Feed (XML)</span>
+                                </div>
+                                <span class="badge-channel badge-google">Google Shopping / PMax</span>
+                            </div>
+                            <p class="text-muted small mb-3">
+                                Google Merchant Center, Performance Max (PMax) ও Google Shopping Ads-এর জন্য ফুল স্পেসিফিকেশন সমর্থিত XML ফিড।
+                            </p>
+                        </div>
+                        <div>
+                            <div class="input-group input-group-sm feed-input-group mb-2">
+                                <input type="text" id="googleXmlFeedUrl" class="form-control" readonly value="{{ route('catalog.google.xml') }}">
+                                <button type="button" class="btn btn-warning text-dark fw-semibold" onclick="copyFeedLink('{{ route('catalog.google.xml') }}', 'Google Merchant Feed', this)" title="Copy Link">
+                                    <i class="fas fa-copy me-1"></i> Copy
+                                </button>
+                                <a href="{{ route('catalog.google.xml') }}" target="_blank" class="btn btn-outline-secondary feed-dynamic-link" data-path="/feed/google-catalog.xml" title="View XML in new tab">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted"><i class="fas fa-check text-success me-1"></i> Google Merchant Center 100% কমপ্লায়েন্ট</small>
+                                <a href="{{ route('catalog.google.xml') }}?refresh=1" target="_blank" class="small text-decoration-none text-muted feed-dynamic-link" data-path="/feed/google-catalog.xml?refresh=1" title="Force Refresh Cache">
+                                    <i class="fas fa-sync-alt fa-xs me-1"></i> Refresh Cache
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Facebook CSV Feed --}}
+                <div class="col-12">
+                    <div class="catalog-box">
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-md-5">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="fas fa-file-csv text-success fs-5"></i>
+                                    <span class="fw-bold text-dark">Facebook Catalog Feed (CSV Format)</span>
+                                    <span class="badge-channel badge-csv">Alternative</span>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    যারা Facebook Commerce Manager-এ Spreadsheet / CSV লিংক হিসেবে ক্যাটালগ যোগ করতে চান তাদের জন্য।
+                                </p>
+                            </div>
+                            <div class="col-12 col-md-7">
+                                <div class="input-group input-group-sm feed-input-group">
+                                    <input type="text" id="fbCsvFeedUrl" class="form-control" readonly value="{{ route('catalog.facebook.csv') }}">
+                                    <button type="button" class="btn btn-outline-dark" onclick="copyFeedLink('{{ route('catalog.facebook.csv') }}', 'Facebook CSV Feed', this)">
+                                        <i class="fas fa-copy me-1"></i> Copy CSV Link
+                                    </button>
+                                    <a href="{{ route('catalog.facebook.csv') }}" download="facebook-catalog.csv" class="btn btn-outline-secondary feed-dynamic-link" data-path="/feed/facebook-catalog.csv">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Collapsible Step-by-Step Guide --}}
+            <div class="collapse mt-4" id="howToConnectGuide">
+                <div class="p-3 bg-light rounded-3 border">
+                    <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-book-open me-2 text-primary"></i>সহজে ক্যাটালগ কানেক্ট করার নিয়মাবলী:</h6>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="bg-white p-3 rounded-3 border h-100">
+                                <h6 class="fw-bold text-primary mb-2"><i class="fab fa-facebook me-1"></i> Facebook Commerce Manager এ কানেক্ট করার নিয়ম:</h6>
+                                <ol class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
+                                    <li><a href="https://business.facebook.com/commerce" target="_blank" class="fw-semibold text-primary">business.facebook.com/commerce</a> এ লগইন করুন।</li>
+                                    <li>আপনার ক্যাটালগ সিলেক্ট করে বামপাশের মেনু থেকে <strong>Catalog > Data Sources</strong> এ যান।</li>
+                                    <li><strong>Data Feed</strong> সিলেক্ট করে Next চাপুন।</li>
+                                    <li><strong>"Use a URL"</strong> (Scheduled Feed) সিলেক্ট করে উপরের <strong>Facebook Catalog (XML)</strong> লিংকটি পেস্ট করুন।</li>
+                                    <li>Automatic daily upload সময় সিলেক্ট করে <strong>Save & Upload</strong> করুন। ব্যাস, আপনার ক্যাটালগ কানেক্ট হয়ে যাবে!</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="bg-white p-3 rounded-3 border h-100">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fab fa-google me-1"></i> Google Merchant Center এ কানেক্ট করার নিয়ম:</h6>
+                                <ol class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
+                                    <li><a href="https://merchants.google.com" target="_blank" class="fw-semibold text-warning">merchants.google.com</a> এ লগইন করুন।</li>
+                                    <li>বামপাশের মেনু থেকে <strong>Products > Feeds</strong> এ যান।</li>
+                                    <li><strong>Primary Feeds</strong> এর নিচে <strong>Add products (Plus icon)</strong> এ ক্লিক করুন।</li>
+                                    <li>দেশ ও ভাষা সিলেক্ট করে <strong>Scheduled fetch</strong> অপশন নির্বাচন করুন।</li>
+                                    <li>ফিডের একটি নাম দিন এবং উপরের <strong>Google Merchant Feed (XML)</strong> লিংকটি পেস্ট করে সেভ করুন।</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -310,6 +511,71 @@
         navigator.clipboard.writeText(code).then(() => {
             toastr.success('Pixel ID "' + code + '" copied to clipboard!');
         });
+    }
+
+    // Dynamic Domain Sync on Page Load
+    document.addEventListener('DOMContentLoaded', function () {
+        const origin = window.location.origin;
+
+        const fbXmlInput = document.getElementById('fbXmlFeedUrl');
+        const googleXmlInput = document.getElementById('googleXmlFeedUrl');
+        const fbCsvInput = document.getElementById('fbCsvFeedUrl');
+
+        if (fbXmlInput) fbXmlInput.value = origin + '/feed/facebook-catalog.xml';
+        if (googleXmlInput) googleXmlInput.value = origin + '/feed/google-catalog.xml';
+        if (fbCsvInput) fbCsvInput.value = origin + '/feed/facebook-catalog.csv';
+
+        // Update all feed view & download links to current dynamic domain
+        document.querySelectorAll('.feed-dynamic-link').forEach(function(el) {
+            const path = el.getAttribute('data-path');
+            if (path) {
+                el.href = origin + path;
+            }
+        });
+    });
+
+    function copyFeedLink(url, label, btn) {
+        // Guarantee current browser domain is used
+        try {
+            const parsed = new URL(url, window.location.origin);
+            url = window.location.origin + parsed.pathname + parsed.search;
+        } catch(e) {}
+
+        function showSuccess() {
+            toastr.success(label + ' কপি করা হয়েছে!');
+            if (btn) {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check text-white me-1"></i> Copied!';
+                btn.classList.add('btn-success');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('btn-success');
+                }, 2000);
+            }
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(url).then(showSuccess).catch(() => fallbackCopy(url, showSuccess));
+        } else {
+            fallbackCopy(url, showSuccess);
+        }
+    }
+
+    function fallbackCopy(text, callback) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            if (callback) callback();
+        } catch (err) {
+            toastr.error('কপি করতে ব্যর্থ হয়েছে, দয়া করে ম্যানুয়ালি কপি করুন।');
+        }
+        document.body.removeChild(textArea);
     }
 </script>
 @endpush

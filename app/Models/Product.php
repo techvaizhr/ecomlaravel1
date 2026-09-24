@@ -31,6 +31,16 @@ class Product extends Model
         return 'slug';
     }
 
+    protected static function booted()
+    {
+        static::saved(function () {
+            \App\Services\CatalogFeedService::clearCache();
+        });
+        static::deleted(function () {
+            \App\Services\CatalogFeedService::clearCache();
+        });
+    }
+
     // ------------------------
     // RELATIONS
     // ------------------------

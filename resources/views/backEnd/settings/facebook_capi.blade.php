@@ -89,6 +89,12 @@
                     এখানে Facebook CAPI এর Pixel ID এবং Access Token সংরক্ষণ করবেন।
                 </p>
             </div>
+            <div>
+                <a href="{{ route('pixels.index') }}" class="btn btn-outline-primary rounded-pill px-3 py-1 shadow-sm d-flex align-items-center gap-1">
+                    <i class="fab fa-facebook me-1"></i>
+                    <span>Product Catalog Feeds</span>
+                </a>
+            </div>
         </div>
     </div>
 

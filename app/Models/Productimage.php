@@ -16,6 +16,16 @@ class Productimage extends Model
         'size_id',
     ];
 
+    protected static function booted()
+    {
+        static::saved(function () {
+            \App\Services\CatalogFeedService::clearCache();
+        });
+        static::deleted(function () {
+            \App\Services\CatalogFeedService::clearCache();
+        });
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class);
