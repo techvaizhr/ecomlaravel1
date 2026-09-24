@@ -13,7 +13,7 @@ html {
 }
 
 body {
-    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-family: "Roboto", "Potro Sans Bangla", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     font-size: 14px;
     overflow-x: hidden;
     line-height: 1.5;
@@ -385,14 +385,29 @@ body {
 
 @font-face {
     font-family: "Potro Sans Bangla";
-    src: url("../fonts/Potro-Sans-Bangla-Regular.ttf");
-    src: url("../fonts/Potro-Sans-Bangla-Regular.ttf?#iefix") format("embedded-opentype"), url("../fonts/Potro-Sans-Bangla-Regular.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: local("Potro Sans Bangla"), local("PotroSansBangla-Regular"),
+         url("{{ asset('public/frontEnd/fonts/Potro-Sans-Bangla-Regular.ttf') }}") format("truetype");
+}
+
+@font-face {
+    font-family: "Potro Sans Bangla";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: local("Potro Sans Bangla Bold"), local("PotroSansBangla-Bold"),
+         url("{{ asset('public/frontEnd/fonts/Potro-Sans-Bangla-Bold.ttf') }}") format("truetype");
 }
 
 @font-face {
     font-family: "Alinur Banglaborno";
-    src: url("../fonts/Li-Alinur-Banglaborno-Unicode.ttf");
-    src: url("../fonts/Li-Alinur-Banglaborno-Unicode.ttf?#iefix") format("embedded-opentype"), url("../fonts/Li-Alinur-Banglaborno-Unicode.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: local("Alinur Banglaborno"), local("Li-Alinur-Banglaborno-Unicode"),
+         url("{{ asset('public/frontEnd/fonts/Li-Alinur-Banglaborno-Unicode.ttf') }}") format("truetype");
 }
 
 p {

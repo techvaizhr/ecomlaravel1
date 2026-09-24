@@ -14,8 +14,9 @@
         <link rel="canonical" href="" />
         @stack('seo') 
         @stack('css')
-        <!-- High-Performance Self-Hosted Font (Zero Third-Party Latency) -->
+        <!-- High-Performance Self-Hosted Fonts (Zero Third-Party Latency) -->
         <link rel="preload" href="{{ asset('public/frontEnd/fonts/roboto.woff2') }}" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="{{ asset('public/frontEnd/fonts/Potro-Sans-Bangla-Regular.ttf') }}" as="font" type="font/ttf" crossorigin>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
         <link rel="preconnect" href="https://maxcdn.bootstrapcdn.com" crossorigin>
