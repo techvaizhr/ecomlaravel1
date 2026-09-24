@@ -461,7 +461,7 @@ class ProductController extends Controller
         }
 
         Toastr::success('Product created successfully!');
-        return redirect()->route('products.index');
+        return $this->getProductRedirect($request, $product);
     }
 
     // ================================
@@ -730,8 +730,78 @@ class ProductController extends Controller
             }
         }
 
+        // REORDER EXISTING IMAGES (ensure #0 is Main Image)
+        if ($request->filled('existing_image_order') && is_array($request->existing_image_order)) {
+            $orderedIds = $request->existing_image_order;
+            $existingImages = Productimage::where('product_id', $product->id)
+                ->whereIn('id', $orderedIds)
+                ->get()
+                ->keyBy('id');
+
+            $orderedPaths = [];
+            foreach ($orderedIds as $imgId) {
+                if (isset($existingImages[$imgId])) {
+                    $orderedPaths[] = $existingImages[$imgId]->image;
+                }
+            }
+
+            if (!empty($orderedPaths)) {
+                $dbRows = Productimage::where('product_id', $product->id)
+                    ->whereIn('id', $orderedIds)
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                foreach ($dbRows as $idx => $row) {
+                    if (isset($orderedPaths[$idx]) && $row->image !== $orderedPaths[$idx]) {
+                        $row->image = $orderedPaths[$idx];
+                        $row->save();
+                    }
+                }
+
+                if (!empty($orderedPaths[0])) {
+                    $product->update(['meta_image' => $orderedPaths[0]]);
+                }
+            }
+        }
+
         Toastr::success('Product updated successfully!');
-        return redirect()->route('products.index');
+        return $this->getProductRedirect($request, $product);
+    }
+
+    /**
+     * Get dynamic redirect response after product store/update.
+     * Returns to the referring list page (e.g. Inhouse, Wholesale, Vendor, Pending) or defaults cleanly.
+     */
+    protected function getProductRedirect(Request $request, Product $product)
+    {
+        $returnUrl = $request->input('return_url');
+
+        // Check if return_url is set, valid, and not the create/edit form itself
+        if (!empty($returnUrl)) {
+            $isCreate = str_contains($returnUrl, 'products/create');
+            $isEdit = preg_match('#/products/\d+/edit#', $returnUrl);
+            if (!$isCreate && !$isEdit) {
+                $host = parse_url($returnUrl, PHP_URL_HOST);
+                if (empty($host) || $host === $request->getHost()) {
+                    return redirect()->to($returnUrl);
+                }
+            }
+        }
+
+        // Dynamic fallback based on product origin:
+        if (!empty($product->vendor_id)) {
+            if ($product->approval_status === 'pending') {
+                return redirect()->route('products.pending');
+            }
+            return redirect()->route('products.index');
+        }
+
+        if ($product->is_wholesale) {
+            return redirect()->route('admin.products.wholesale');
+        }
+
+        // Default for inhouse / admin product: go to inhouse products!
+        return redirect()->route('inhouse.products.index');
     }
 
     // ================================

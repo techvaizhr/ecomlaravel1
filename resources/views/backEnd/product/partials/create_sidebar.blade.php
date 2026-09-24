@@ -83,38 +83,33 @@
                 </small>
             </div>
 
-            <div class="increment-wrapper">
-                <div class="gallery-item-row control-group increment image-row">
-                    <div class="row align-items-center g-2">
-                        <div class="col-9">
-                            <input type="file" name="image[]" class="form-control form-control-sm gallery-file-input" required accept="image/*">
-                        </div>
-                        <div class="col-3">
-                            <button class="btn btn-outline-primary btn-increment btn-sm w-100 d-flex align-items-center justify-content-center" type="button" title="Add Another Image">
-                                <i class="fa fa-plus me-1"></i> Add
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {{-- Local Image Upload Zone --}}
+            <div class="gallery-upload-zone mb-2">
+                <input type="file" id="local_gallery_file_input" multiple accept="image/*" class="d-none">
+                <button type="button" class="btn btn-outline-primary w-100 py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2 border-2" id="btn_pick_gallery_files" style="border-style:dashed;">
+                    <i class="fe-image fs-5"></i>
+                    <span class="fw-semibold">ছবি আপলোড করুন (একাধিক নির্বাচনযোগ্য)</span>
+                </button>
             </div>
 
-            {{-- Hidden Clone Template --}}
-            <div class="clone d-none">
-                <div class="gallery-item-row control-group image-row">
-                    <div class="row align-items-center g-2">
-                        <div class="col-9">
-                            <input type="file" name="image[]" class="form-control form-control-sm gallery-file-input" accept="image/*">
-                        </div>
-                        <div class="col-3">
-                            <button class="btn btn-outline-danger btn-remove-image btn-sm w-100 d-flex align-items-center justify-content-center" type="button" title="Remove">
-                                <i class="fa fa-trash me-1"></i> Del
-                            </button>
-                        </div>
-                    </div>
+            {{-- Local Uploaded Images Preview Grid with Drag & Drop --}}
+            <div id="local_images_preview_area" class="mb-2 d-none">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="text-muted small fw-semibold" style="font-size:11px;">
+                        গ্যালারি ছবি (<span id="local_images_count">0</span>) - টেনে সাজান বা প্রধান ছবি বাছুন
+                    </span>
+                    <button type="button" class="btn btn-xs btn-link text-danger p-0 text-decoration-none" id="btn_clear_local_images" style="font-size:11px;">
+                        <i class="fe-x"></i> সব মুছুন
+                    </button>
                 </div>
+                <div id="local_images_grid" class="d-flex flex-wrap gap-2 p-2 bg-light rounded border" style="min-height:90px;"></div>
             </div>
+
+            {{-- Hidden Actual File Input Synchronized by JavaScript --}}
+            <input type="file" name="image[]" id="final_gallery_file_input" multiple class="d-none">
+
             <small class="text-muted d-block mt-1" style="font-size:11px;">
-                <i class="fa fa-info-circle text-primary me-1"></i> প্রথম ছবিটি প্রধান প্রোডাক্ট ইমেজ হিসেবে প্রদর্শিত হবে।
+                <i class="fa fa-info-circle text-primary me-1"></i> ১ম ছবিটি স্বয়ংক্রিয়ভাবে <strong>Main Image</strong> হিসেবে থাকবে। মাউস দিয়ে ড্র্যাগ করে অথবা "⭐ Set Main" বাটনে ক্লিক করে পছন্দমতো প্রধান ছবি নির্ধারণ করুন।
             </small>
         </div>
 

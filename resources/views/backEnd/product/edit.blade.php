@@ -16,12 +16,13 @@
             <p class="pf-sub mb-0">{{ $edit_data->name }} — সকল অপশন ও ফিচার আগের মতোই থাকবে, শুধু UI আপডেট।</p>
         </div>
         <div class="pf-header-actions">
-            <a href="{{ route('products.index') }}" class="pf-btn-manage"><i class="fe-list"></i> প্রোডাক্ট তালিকা</a>
+            <a href="{{ request('return_url') ?? (empty($edit_data->vendor_id) ? route('inhouse.products.index') : route('products.index')) }}" class="pf-btn-manage"><i class="fe-list"></i> প্রোডাক্ট তালিকা</a>
         </div>
     </div>
     <form action="{{route('products.update')}}" method="POST" data-parsley-validate="" enctype="multipart/form-data" name="editForm">
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id" />
+        <input type="hidden" name="return_url" value="{{ request('return_url') ?? old('return_url') ?? '' }}" />
 
         <div class="row">
             <div class="col-lg-8">
@@ -872,5 +873,280 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 })();
 </script>
+
+{{-- Gallery Images Drag & Drop and Main Image Selection (Existing & New) --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ----------------------------------------------------
+    // 1. Existing Gallery Images Drag & Drop & Set Main
+    // ----------------------------------------------------
+    let draggedExistingCard = null;
+
+    function initExistingDragAndDrop() {
+        const cards = document.querySelectorAll('#existing_images_grid .existing-img-card');
+        cards.forEach(card => {
+            card.removeEventListener('dragstart', handleExistingDragStart);
+            card.removeEventListener('dragover', handleExistingDragOver);
+            card.removeEventListener('dragleave', handleExistingDragLeave);
+            card.removeEventListener('drop', handleExistingDrop);
+            card.removeEventListener('dragend', handleExistingDragEnd);
+
+            card.addEventListener('dragstart', handleExistingDragStart);
+            card.addEventListener('dragover', handleExistingDragOver);
+            card.addEventListener('dragleave', handleExistingDragLeave);
+            card.addEventListener('drop', handleExistingDrop);
+            card.addEventListener('dragend', handleExistingDragEnd);
+        });
+    }
+
+    function handleExistingDragStart(e) {
+        draggedExistingCard = this;
+        this.style.opacity = '0.4';
+        this.style.cursor = 'grabbing';
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.getAttribute('data-id'));
+    }
+
+    function handleExistingDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (this !== draggedExistingCard) {
+            this.style.transform = 'scale(1.05)';
+            this.style.borderColor = '#2563eb';
+        }
+    }
+
+    function handleExistingDragLeave() {
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+    }
+
+    function handleExistingDrop(e) {
+        e.preventDefault();
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+
+        const grid = document.getElementById('existing_images_grid');
+        if (draggedExistingCard && this !== draggedExistingCard && grid) {
+            const allCards = Array.from(grid.querySelectorAll('.existing-img-card'));
+            const draggedIdx = allCards.indexOf(draggedExistingCard);
+            const targetIdx = allCards.indexOf(this);
+
+            if (draggedIdx < targetIdx) {
+                this.after(draggedExistingCard);
+            } else {
+                this.before(draggedExistingCard);
+            }
+            updateExistingImageBadges();
+        }
+    }
+
+    function handleExistingDragEnd() {
+        this.style.opacity = '1';
+        this.style.cursor = 'grab';
+        document.querySelectorAll('#existing_images_grid .existing-img-card').forEach(card => {
+            card.style.transform = 'scale(1)';
+            card.style.borderColor = '#e2e8f0';
+        });
+        updateExistingImageBadges();
+    }
+
+    function updateExistingImageBadges() {
+        const cards = document.querySelectorAll('#existing_images_grid .existing-img-card');
+        cards.forEach((card, idx) => {
+            const footer = card.querySelector('.existing-card-footer');
+            if (!footer) return;
+
+            if (idx === 0) {
+                card.style.borderColor = '#2563eb';
+                card.style.boxShadow = '0 0 0 2px rgba(37,99,235,0.25)';
+                footer.innerHTML = `<span class="badge bg-primary w-100 py-0.5" style="font-size:8.5px; border-radius:3px;"><i class="fe-star me-0.5"></i> Main</span>`;
+            } else {
+                card.style.borderColor = '#e2e8f0';
+                card.style.boxShadow = 'none';
+                footer.innerHTML = `<button type="button" class="btn btn-xs btn-light w-100 py-0 border shadow-sm btn-set-existing-main" style="font-size:8px; font-weight:600; color:#1e293b; border-radius:3px;" title="প্রধান ছবি নির্ধারণ করুন"><i class="fe-star text-warning me-0.5"></i> Set Main</button>`;
+            }
+        });
+    }
+
+    // Click "⭐ Set Main" on an existing image
+    $(document).on('click', '.btn-set-existing-main', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const card = $(this).closest('.existing-img-card')[0];
+        const grid = document.getElementById('existing_images_grid');
+        if (card && grid) {
+            grid.prepend(card);
+            updateExistingImageBadges();
+            toastr.info('প্রধান ছবি নির্বাচন করা হয়েছে!');
+        }
+    });
+
+    initExistingDragAndDrop();
+    updateExistingImageBadges();
+
+    // ----------------------------------------------------
+    // 2. New Gallery Images Upload with Drag & Drop & Sync
+    // ----------------------------------------------------
+    let newGalleryFilesEdit = [];
+
+    $('#btn_pick_gallery_files_edit').on('click', function () {
+        $('#local_gallery_file_input_edit').click();
+    });
+
+    $('#local_gallery_file_input_edit').on('change', function () {
+        const files = Array.from(this.files);
+        if (files.length === 0) return;
+
+        files.forEach(file => {
+            if (file.type.startsWith('image/')) {
+                newGalleryFilesEdit.push(file);
+            }
+        });
+
+        this.value = '';
+        syncNewGalleryFilesEdit();
+        renderNewGalleryGridEdit();
+    });
+
+    function syncNewGalleryFilesEdit() {
+        try {
+            const dt = new DataTransfer();
+            newGalleryFilesEdit.forEach(file => dt.items.add(file));
+            const finalInput = document.getElementById('final_gallery_file_input_edit');
+            if (finalInput) {
+                finalInput.files = dt.files;
+            }
+        } catch (err) {
+            console.error('DataTransfer sync error:', err);
+        }
+    }
+
+    function renderNewGalleryGridEdit() {
+        const $area = $('#new_images_preview_area_edit');
+        const $grid = $('#new_images_grid_edit');
+        const $count = $('#new_images_count_edit');
+
+        $grid.empty();
+        $count.text(newGalleryFilesEdit.length);
+
+        if (newGalleryFilesEdit.length === 0) {
+            $area.addClass('d-none');
+            return;
+        }
+
+        $area.removeClass('d-none');
+
+        newGalleryFilesEdit.forEach((file, idx) => {
+            const url = URL.createObjectURL(file);
+            const cardHtml = `
+                <div class="position-relative border rounded p-1 bg-white new-edit-img-card" draggable="true" data-file-idx="${idx}" style="width: 80px; height: 80px; cursor: grab; user-select: none; transition: transform 0.15s, box-shadow 0.15s; border-radius: 8px;">
+                    <img src="${url}" alt="Preview" style="width:100%; height:100%; object-fit:cover; border-radius:5px; pointer-events: none;">
+                    <span class="position-absolute bg-dark bg-opacity-75 text-white rounded-circle d-flex align-items-center justify-content-center" style="top:3px; left:3px; width:17px; height:17px; font-size:9.5px; cursor:grab;" title="Drag to reorder"><i class="fe-move"></i></span>
+                    <button type="button" class="btn btn-xs btn-danger position-absolute btn-remove-new-edit-img" style="top:-5px; right:-5px; border-radius:50%; width:18px; height:18px; padding:0; display:flex; align-items:center; justify-content:center; z-index:3;" title="Remove image">
+                        <i class="fe-x" style="font-size:10px;"></i>
+                    </button>
+                    <div class="new-edit-card-footer position-absolute" style="bottom:3px; left:3px; right:3px; z-index:3;">
+                        <span class="badge bg-secondary w-100 py-0.5" style="font-size:8px; border-radius:3px;">New</span>
+                    </div>
+                </div>
+            `;
+            $grid.append(cardHtml);
+        });
+
+        initNewEditDragAndDrop();
+    }
+
+    let draggedNewEditCard = null;
+
+    function initNewEditDragAndDrop() {
+        const cards = document.querySelectorAll('#new_images_grid_edit .new-edit-img-card');
+        cards.forEach(card => {
+            card.removeEventListener('dragstart', handleNewEditDragStart);
+            card.removeEventListener('dragover', handleNewEditDragOver);
+            card.removeEventListener('dragleave', handleNewEditDragLeave);
+            card.removeEventListener('drop', handleNewEditDrop);
+            card.removeEventListener('dragend', handleNewEditDragEnd);
+
+            card.addEventListener('dragstart', handleNewEditDragStart);
+            card.addEventListener('dragover', handleNewEditDragOver);
+            card.addEventListener('dragleave', handleNewEditDragLeave);
+            card.addEventListener('drop', handleNewEditDrop);
+            card.addEventListener('dragend', handleNewEditDragEnd);
+        });
+    }
+
+    function handleNewEditDragStart(e) {
+        draggedNewEditCard = this;
+        this.style.opacity = '0.4';
+        this.style.cursor = 'grabbing';
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleNewEditDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (this !== draggedNewEditCard) {
+            this.style.transform = 'scale(1.05)';
+            this.style.borderColor = '#2563eb';
+        }
+    }
+
+    function handleNewEditDragLeave() {
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+    }
+
+    function handleNewEditDrop(e) {
+        e.preventDefault();
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+
+        const grid = document.getElementById('new_images_grid_edit');
+        if (draggedNewEditCard && this !== draggedNewEditCard && grid) {
+            const allCards = Array.from(grid.querySelectorAll('.new-edit-img-card'));
+            const draggedIdx = allCards.indexOf(draggedNewEditCard);
+            const targetIdx = allCards.indexOf(this);
+
+            const movedItem = newGalleryFilesEdit.splice(draggedIdx, 1)[0];
+            newGalleryFilesEdit.splice(targetIdx, 0, movedItem);
+
+            syncNewGalleryFilesEdit();
+            renderNewGalleryGridEdit();
+        }
+    }
+
+    function handleNewEditDragEnd() {
+        this.style.opacity = '1';
+        this.style.cursor = 'grab';
+        document.querySelectorAll('#new_images_grid_edit .new-edit-img-card').forEach(card => {
+            card.style.transform = 'scale(1)';
+            card.style.borderColor = '#e2e8f0';
+        });
+    }
+
+    // Remove single new image
+    $(document).on('click', '.btn-remove-new-edit-img', function (e) {
+        e.preventDefault();
+        const card = $(this).closest('.new-edit-img-card')[0];
+        const grid = document.getElementById('new_images_grid_edit');
+        if (card && grid) {
+            const allCards = Array.from(grid.querySelectorAll('.new-edit-img-card'));
+            const cardIdx = allCards.indexOf(card);
+            if (cardIdx !== -1) {
+                newGalleryFilesEdit.splice(cardIdx, 1);
+                syncNewGalleryFilesEdit();
+                renderNewGalleryGridEdit();
+            }
+        }
+    });
+
+    // Clear all new images in edit
+    $('#btn_clear_new_images_edit').on('click', function () {
+        newGalleryFilesEdit = [];
+        syncNewGalleryFilesEdit();
+        renderNewGalleryGridEdit();
+    });
+});
 @include('backEnd.product.partials.ai_description_script')
 @endsection

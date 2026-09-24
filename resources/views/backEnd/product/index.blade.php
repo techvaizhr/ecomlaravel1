@@ -176,7 +176,7 @@
             <a href="{{ route('products.pending') }}" class="btn btn-warning rounded-pill px-3 py-2 fw-bold text-dark shadow-sm">
                 <i class="fe-clock me-1"></i> Pending Approvals
             </a>
-            <a href="{{ route('products.create') }}" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-primary shadow-sm">
+            <a href="{{ route('products.create', ['return_url' => request()->fullUrl()]) }}" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-primary shadow-sm">
                 <i class="fe-plus-circle me-1"></i> Add Product
             </a>
         </div>
@@ -418,7 +418,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-prod">
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('products.edit', $value->id) }}">
+                                        <a class="dropdown-item" href="{{ route('products.edit', ['id' => $value->id, 'return_url' => request()->fullUrl()]) }}">
                                             <i class="fe-edit-2 text-primary"></i> Edit Product
                                         </a>
                                     </li>

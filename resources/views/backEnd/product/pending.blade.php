@@ -336,7 +336,7 @@
                                         </form>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('products.edit', $value->id) }}">
+                                        <a class="dropdown-item" href="{{ route('products.edit', ['id' => $value->id, 'return_url' => request()->fullUrl()]) }}">
                                             <i class="fe-edit-2 text-primary"></i> Review & Edit
                                         </a>
                                     </li>

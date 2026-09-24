@@ -170,7 +170,7 @@
             <p class="mb-0 text-white-50" style="font-size:14px;">নিজের স্টক এবং সরাসরি নিজস্ব ইনহাউজ পণ্যসমূহ পরিচালনা করুন।</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('products.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" style="background:#4f46e5;border-color:#4f46e5;">
+            <a href="{{ route('products.create', ['return_url' => request()->fullUrl()]) }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" style="background:#4f46e5;border-color:#4f46e5;">
                 <i class="fe-plus-circle me-1"></i> Add New Product
             </a>
         </div>
@@ -417,7 +417,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('products.edit', $value->id) }}">
+                                        <a class="dropdown-item" href="{{ route('products.edit', ['id' => $value->id, 'return_url' => request()->fullUrl()]) }}">
                                             <i class="fe-edit-2 text-primary"></i> Edit Product
                                         </a>
                                     </li>

@@ -62,6 +62,7 @@
 
     <form action="{{route('products.store')}}" method="POST" id="productForm" data-parsley-validate="" enctype="multipart/form-data">
         @csrf
+        <input type="hidden" name="return_url" value="{{ request('return_url') ?? old('return_url') ?? '' }}">
         <div class="row">
             {{-- Left Main Column --}}
             <div class="col-lg-8">
@@ -929,7 +930,205 @@
     $('#btn_clear_remote_images').on('click', function () {
         $('#remote_images_grid').empty();
         $('#remote_images_preview_area').addClass('d-none');
-        $('.gallery-file-input').first().attr('required', 'required');
+    });
+
+    // ==========================================
+    // LOCAL GALLERY FILES (Drag & Drop + Set Main)
+    // ==========================================
+    let localGalleryFiles = []; // Array of File objects in exact display order
+
+    $('#btn_pick_gallery_files').on('click', function() {
+        $('#local_gallery_file_input').click();
+    });
+
+    $('#local_gallery_file_input').on('change', function(e) {
+        const files = Array.from(this.files);
+        if (files.length === 0) return;
+
+        files.forEach(file => {
+            if (file.type.startsWith('image/')) {
+                localGalleryFiles.push(file);
+            }
+        });
+
+        this.value = '';
+        syncLocalGalleryFiles();
+        renderLocalGalleryGrid();
+    });
+
+    function syncLocalGalleryFiles() {
+        try {
+            const dt = new DataTransfer();
+            localGalleryFiles.forEach(file => dt.items.add(file));
+            const finalInput = document.getElementById('final_gallery_file_input');
+            if (finalInput) {
+                finalInput.files = dt.files;
+            }
+        } catch (err) {
+            console.error('DataTransfer sync error:', err);
+        }
+    }
+
+    function renderLocalGalleryGrid() {
+        const $area = $('#local_images_preview_area');
+        const $grid = $('#local_images_grid');
+        const $count = $('#local_images_count');
+
+        $grid.empty();
+        $count.text(localGalleryFiles.length);
+
+        if (localGalleryFiles.length === 0) {
+            $area.addClass('d-none');
+            return;
+        }
+
+        $area.removeClass('d-none');
+
+        localGalleryFiles.forEach((file, idx) => {
+            const url = URL.createObjectURL(file);
+            const cardHtml = `
+                <div class="position-relative border rounded p-1 bg-white local-img-card" draggable="true" data-file-idx="${idx}" style="width: 80px; height: 80px; cursor: grab; user-select: none; transition: transform 0.15s, box-shadow 0.15s; border-radius: 8px;">
+                    <img src="${url}" alt="Preview" style="width:100%; height:100%; object-fit:cover; border-radius:5px; pointer-events: none;">
+                    <span class="position-absolute bg-dark bg-opacity-75 text-white rounded-circle d-flex align-items-center justify-content-center" style="top:3px; left:3px; width:17px; height:17px; font-size:9.5px; cursor:grab;" title="Drag to reorder"><i class="fe-move"></i></span>
+                    <button type="button" class="btn btn-xs btn-danger position-absolute btn-remove-local-img" style="top:-5px; right:-5px; border-radius:50%; width:18px; height:18px; padding:0; display:flex; align-items:center; justify-content:center; z-index:3;" title="Remove image">
+                        <i class="fe-x" style="font-size:10px;"></i>
+                    </button>
+                    <div class="local-card-footer position-absolute" style="bottom:3px; left:3px; right:3px; z-index:3;"></div>
+                </div>
+            `;
+            $grid.append(cardHtml);
+        });
+
+        initLocalDragAndDrop();
+        updateLocalImageBadges();
+    }
+
+    let draggedLocalCard = null;
+
+    function initLocalDragAndDrop() {
+        const cards = document.querySelectorAll('#local_images_grid .local-img-card');
+        cards.forEach(card => {
+            card.removeEventListener('dragstart', handleLocalDragStart);
+            card.removeEventListener('dragover', handleLocalDragOver);
+            card.removeEventListener('dragleave', handleLocalDragLeave);
+            card.removeEventListener('drop', handleLocalDrop);
+            card.removeEventListener('dragend', handleLocalDragEnd);
+
+            card.addEventListener('dragstart', handleLocalDragStart);
+            card.addEventListener('dragover', handleLocalDragOver);
+            card.addEventListener('dragleave', handleLocalDragLeave);
+            card.addEventListener('drop', handleLocalDrop);
+            card.addEventListener('dragend', handleLocalDragEnd);
+        });
+    }
+
+    function handleLocalDragStart(e) {
+        draggedLocalCard = this;
+        this.style.opacity = '0.4';
+        this.style.cursor = 'grabbing';
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleLocalDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (this !== draggedLocalCard) {
+            this.style.transform = 'scale(1.05)';
+            this.style.borderColor = '#2563eb';
+        }
+    }
+
+    function handleLocalDragLeave() {
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+    }
+
+    function handleLocalDrop(e) {
+        e.preventDefault();
+        this.style.transform = 'scale(1)';
+        this.style.borderColor = '#e2e8f0';
+
+        const grid = document.getElementById('local_images_grid');
+        if (draggedLocalCard && this !== draggedLocalCard && grid) {
+            const allCards = Array.from(grid.querySelectorAll('.local-img-card'));
+            const draggedIdx = allCards.indexOf(draggedLocalCard);
+            const targetIdx = allCards.indexOf(this);
+
+            const movedItem = localGalleryFiles.splice(draggedIdx, 1)[0];
+            localGalleryFiles.splice(targetIdx, 0, movedItem);
+
+            syncLocalGalleryFiles();
+            renderLocalGalleryGrid();
+        }
+    }
+
+    function handleLocalDragEnd() {
+        this.style.opacity = '1';
+        this.style.cursor = 'grab';
+        document.querySelectorAll('#local_images_grid .local-img-card').forEach(card => {
+            card.style.transform = 'scale(1)';
+            card.style.borderColor = '#e2e8f0';
+        });
+    }
+
+    function updateLocalImageBadges() {
+        const cards = document.querySelectorAll('#local_images_grid .local-img-card');
+        cards.forEach((card, idx) => {
+            const footer = card.querySelector('.local-card-footer');
+            if (!footer) return;
+
+            if (idx === 0) {
+                card.style.borderColor = '#2563eb';
+                card.style.boxShadow = '0 0 0 2px rgba(37,99,235,0.25)';
+                footer.innerHTML = `<span class="badge bg-primary w-100 py-0.5" style="font-size:8.5px; border-radius:3px;"><i class="fe-star me-0.5"></i> Main</span>`;
+            } else {
+                card.style.borderColor = '#e2e8f0';
+                card.style.boxShadow = 'none';
+                footer.innerHTML = `<button type="button" class="btn btn-xs btn-light w-100 py-0 border shadow-sm btn-set-local-main" style="font-size:8px; font-weight:600; color:#1e293b; border-radius:3px;" title="প্রধান ছবি নির্ধারণ করুন"><i class="fe-star text-warning me-0.5"></i> Set Main</button>`;
+            }
+        });
+    }
+
+    // Set Local Main Image Button
+    $(document).on('click', '.btn-set-local-main', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const card = $(this).closest('.local-img-card')[0];
+        const grid = document.getElementById('local_images_grid');
+        if (card && grid) {
+            const allCards = Array.from(grid.querySelectorAll('.local-img-card'));
+            const cardIdx = allCards.indexOf(card);
+            if (cardIdx > 0) {
+                const movedItem = localGalleryFiles.splice(cardIdx, 1)[0];
+                localGalleryFiles.unshift(movedItem);
+                syncLocalGalleryFiles();
+                renderLocalGalleryGrid();
+                toastr.info('প্রধান ছবি নির্বাচন করা হয়েছে!');
+            }
+        }
+    });
+
+    // Remove single local image
+    $(document).on('click', '.btn-remove-local-img', function (e) {
+        e.preventDefault();
+        const card = $(this).closest('.local-img-card')[0];
+        const grid = document.getElementById('local_images_grid');
+        if (card && grid) {
+            const allCards = Array.from(grid.querySelectorAll('.local-img-card'));
+            const cardIdx = allCards.indexOf(card);
+            if (cardIdx !== -1) {
+                localGalleryFiles.splice(cardIdx, 1);
+                syncLocalGalleryFiles();
+                renderLocalGalleryGrid();
+            }
+        }
+    });
+
+    // Clear all local images
+    $('#btn_clear_local_images').on('click', function () {
+        localGalleryFiles = [];
+        syncLocalGalleryFiles();
+        renderLocalGalleryGrid();
     });
 
     // Fast URL Paste Button

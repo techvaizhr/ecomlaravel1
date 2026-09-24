@@ -52,44 +52,69 @@
         </div>
 
         <div class="pf-side-block">
-            <div class="pf-side-head"><i class="fe-image"></i> Media & Video</div>
-            <label class="form-label">Gallery</label>
-            <div class="increment-wrapper">
-                <div class="control-group increment image-row">
-                    <div class="row align-items-center g-1">
-                        <div class="col-9">
-                            <input type="file" name="image[]" class="form-control form-control-sm @error('image') is-invalid @enderror" accept="image/*" />
-                        </div>
-                        <div class="col-3">
-                            <button class="btn btn-success btn-increment btn-sm w-100" type="button"><i class="fa fa-plus"></i></button>
-                        </div>
-                    </div>
-                    @error('image')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+            <div class="pf-side-head">
+                <div class="pf-side-head-left">
+                    <i class="fe-image"></i>
+                    <span>Product Gallery</span>
                 </div>
             </div>
-            <div class="clone hide d-none" style="display: none;">
-                <div class="control-group image-row">
-                    <div class="row align-items-center g-1">
-                        <div class="col-9">
-                            <input type="file" name="image[]" class="form-control form-control-sm" accept="image/*" />
-                        </div>
-                        <div class="col-3">
-                            <button class="btn btn-danger btn-remove-image btn-sm w-100" type="button"><i class="fa fa-trash"></i></button>
+
+            {{-- 1. Existing Gallery Images with Drag & Drop & Set Main --}}
+            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">বর্তমান গ্যালারি ছবি</label>
+            <div id="existing_images_grid" class="d-flex flex-wrap gap-2 p-2 bg-light rounded border mb-3" style="min-height:80px;">
+                @php 
+                    $mainGalleryImgs = $edit_data->images->filter(fn($img) => !$img->color_id && !$img->size_id)->values(); 
+                @endphp
+                @forelse($mainGalleryImgs as $idx => $image)
+                    <div class="position-relative border rounded p-1 bg-white existing-img-card" draggable="true" data-id="{{ $image->id }}" style="width: 80px; height: 80px; cursor: grab; user-select: none; transition: transform 0.15s, box-shadow 0.15s; border-radius: 8px;">
+                        <img src="{{ asset($image->image) }}" alt="Preview" style="width:100%; height:100%; object-fit:cover; border-radius:5px; pointer-events: none;" loading="lazy">
+                        <input type="hidden" name="existing_image_order[]" value="{{ $image->id }}">
+                        
+                        <span class="position-absolute bg-dark bg-opacity-75 text-white rounded-circle d-flex align-items-center justify-content-center" style="top:3px; left:3px; width:17px; height:17px; font-size:9.5px; cursor:grab;" title="Drag to reorder"><i class="fe-move"></i></span>
+                        
+                        <a href="{{ route('products.image.destroy',['id'=>$image->id]) }}" class="btn btn-xs btn-danger position-absolute" style="top:-5px; right:-5px; border-radius:50%; width:18px; height:18px; padding:0; display:flex; align-items:center; justify-content:center; z-index:3;" title="Delete image" onclick="return confirm('Delete this image?')">
+                            <i class="mdi mdi-close" style="font-size:10px;"></i>
+                        </a>
+
+                        <div class="existing-card-footer position-absolute" style="bottom:3px; left:3px; right:3px; z-index:3;">
+                            @if($idx === 0)
+                                <span class="badge bg-primary w-100 py-0.5" style="font-size:8.5px; border-radius:3px;"><i class="fe-star me-0.5"></i> Main</span>
+                            @else
+                                <button type="button" class="btn btn-xs btn-light w-100 py-0 border shadow-sm btn-set-existing-main" style="font-size:8px; font-weight:600; color:#1e293b; border-radius:3px;" title="প্রধান ছবি নির্ধারণ করুন"><i class="fe-star text-warning me-0.5"></i> Set Main</button>
+                            @endif
                         </div>
                     </div>
+                @empty
+                    <p class="text-muted small mb-0 p-2">কোনো ছবি নেই। নিচে থেকে নতুন ছবি যোগ করুন।</p>
+                @endforelse
+            </div>
+
+            {{-- 2. Add New Gallery Images with Drag & Drop & Previews --}}
+            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">নতুন ছবি যোগ করুন</label>
+            <div class="gallery-upload-zone mb-2">
+                <input type="file" id="local_gallery_file_input_edit" multiple accept="image/*" class="d-none">
+                <button type="button" class="btn btn-outline-primary w-100 py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2 border-2" id="btn_pick_gallery_files_edit" style="border-style:dashed;">
+                    <i class="fe-image fs-5"></i>
+                    <span class="fw-semibold">নতুন ছবি নির্বাচন করুন (একাধিক)</span>
+                </button>
+            </div>
+
+            <div id="new_images_preview_area_edit" class="mb-2 d-none">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="text-muted small fw-semibold" style="font-size:11px;">নতুন বাছাইকৃত ছবি (<span id="new_images_count_edit">0</span>) - টেনে সাজান</span>
+                    <button type="button" class="btn btn-xs btn-link text-danger p-0 text-decoration-none" id="btn_clear_new_images_edit" style="font-size:11px;">
+                        <i class="fe-x"></i> সব মুছুন
+                    </button>
                 </div>
+                <div id="new_images_grid_edit" class="d-flex flex-wrap gap-2 p-2 bg-light rounded border" style="min-height:90px;"></div>
             </div>
-            <div class="product_img mt-1 d-flex flex-wrap">
-                @foreach($edit_data->images->filter(fn($img) => !$img->color_id && !$img->size_id) as $image)
-                    <div class="position-relative me-1 mb-1">
-                        <img src="{{asset($image->image)}}" class="edit-image border" alt="">
-                        <a href="{{route('products.image.destroy',['id'=>$image->id])}}"
-                           class="btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle"
-                           style="padding: 0px 4px; top: -5px; right: -5px;"
-                           onclick="return confirm('Delete this image?')"><i class="mdi mdi-close"></i></a>
-                    </div>
-                @endforeach
-            </div>
+
+            {{-- Hidden Actual File Input Synchronized by JavaScript --}}
+            <input type="file" name="image[]" id="final_gallery_file_input_edit" multiple class="d-none">
+
+            <small class="text-muted d-block mt-1" style="font-size:11px;">
+                <i class="fa fa-info-circle text-primary me-1"></i> ১ম ছবিটি স্বয়ংক্রিয়ভাবে <strong>Main Image</strong> হিসেবে থাকবে। মাউস দিয়ে ড্র্যাগ করে অথবা "⭐ Set Main" বাটনে ক্লিক করে পছন্দমতো প্রধান ছবি নির্ধারণ করুন।
+            </small>
             @php $colorSizeImages = $edit_data->images->filter(fn($img) => $img->color_id || $img->size_id); @endphp
             @if($colorSizeImages->isNotEmpty())
             <div class="mt-1">

@@ -183,7 +183,7 @@
             <p class="mb-0 text-white-50" style="font-size:14px;">পাইকারি মূল্যের টায়ার এবং বাল্ক অর্ডার বিক্রয়যোগ্য পণ্যসমূহ পরিচালনা করুন।</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('products.create') }}" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-success shadow-sm">
+            <a href="{{ route('products.create', ['return_url' => request()->fullUrl()]) }}" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-success shadow-sm">
                 <i class="fe-plus-circle me-1"></i> Add Wholesale Product
             </a>
         </div>
@@ -413,7 +413,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-prod">
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('products.edit', $product->id) }}">
+                                        <a class="dropdown-item" href="{{ route('products.edit', ['id' => $product->id, 'return_url' => request()->fullUrl()]) }}">
                                             <i class="fe-edit-2 text-primary"></i> Edit Product & Tiers
                                         </a>
                                     </li>
