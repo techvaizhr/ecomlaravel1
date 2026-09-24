@@ -45,14 +45,19 @@
                     </div>
                 </div>
                 <div class="col-lg-8">
-                    <div class="input-group">
-                        <input type="url" id="page_quick_import_url" class="form-control border-0" placeholder="প্রোডাক্ট লিঙ্ক পেস্ট করুন (যেমন: https://www.daraz.com.bd/... বা Alibaba)" style="border-radius: 8px 0 0 8px; font-size: 13.5px;">
-                        <button class="btn btn-light px-3 fw-bold text-dark border-0" type="button" id="btn_page_paste_url">
-                            <i class="fe-clipboard me-1"></i> Paste
-                        </button>
-                        <button class="btn btn-warning px-4 fw-bold text-dark border-0" type="button" id="btn_page_quick_fetch" style="border-radius: 0 8px 8px 0;">
-                            <span class="spinner-border spinner-border-sm me-1 d-none" id="page_fetch_spinner"></span>
-                            <span id="page_fetch_btn_text"><i class="fe-download-cloud me-1"></i> Fetch & Fill Form</span>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="input-group flex-grow-1">
+                            <input type="url" id="page_quick_import_url" class="form-control border-0" placeholder="প্রোডাক্ট লিঙ্ক পেস্ট করুন (যেমন: https://www.daraz.com.bd/... বা Alibaba)" style="border-radius: 8px 0 0 8px; font-size: 13.5px;">
+                            <button class="btn btn-light px-3 fw-bold text-dark border-0" type="button" id="btn_page_paste_url">
+                                <i class="fe-clipboard me-1"></i> Paste
+                            </button>
+                            <button class="btn btn-warning px-4 fw-bold text-dark border-0" type="button" id="btn_page_quick_fetch" style="border-radius: 0 8px 8px 0;">
+                                <span class="spinner-border spinner-border-sm me-1 d-none" id="page_fetch_spinner"></span>
+                                <span id="page_fetch_btn_text"><i class="fe-download-cloud me-1"></i> Fetch & Fill Form</span>
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-outline-light px-3 fw-bold border-white" data-bs-toggle="modal" data-bs-target="#importProductModal" id="btn_open_html_source_modal" style="border-radius: 8px; font-size: 12.5px;">
+                            <i class="fe-code me-1"></i> Paste HTML (Alibaba)
                         </button>
                     </div>
                 </div>
@@ -836,6 +841,18 @@
         }
     });
 
+    // Open HTML Import Modal directly to HTML Tab
+    $('#btn_open_html_source_modal').on('click', function () {
+        setTimeout(function () {
+            const tabTrigger = document.getElementById('tab-html-btn');
+            if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
+            const pageUrl = $('#page_quick_import_url').val().trim();
+            if (pageUrl && document.getElementById('import_html_source_url')) {
+                document.getElementById('import_html_source_url').value = pageUrl;
+            }
+        }, 200);
+    });
+
     // Fast URL Fetch & Auto-Fill Button
     $('#btn_page_quick_fetch').on('click', function () {
         const url = $('#page_quick_import_url').val().trim();
@@ -867,7 +884,21 @@
 
                 if (res.status === 'success' && res.data) {
                     applyPrefillData(res.data);
-                    toastr.success('✅ প্রোডাক্টের তথ্য সফলভাবে ফর্মে সেট হয়েছে! অনুগ্রহ করে যাচাই করুন।');
+                    
+                    // If Alibaba or blocked platform
+                    if (res.data.is_blocked || (res.data.source_platform === 'Alibaba' && (!res.data.images || res.data.images.length === 0))) {
+                        toastr.warning(res.data.block_warning || 'Alibaba রোবট চেক সার্ভার রিকোয়েস্ট আটকে দিয়েছে। ব্রাউজার থেকে পেজ সোর্স (Ctrl+U) কপি করে "Paste HTML" অপশন ব্যবহার করুন।', '', { timeOut: 8000 });
+                        $('#importProductModal').modal('show');
+                        setTimeout(function () {
+                            const tabTrigger = document.getElementById('tab-html-btn');
+                            if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
+                            if (document.getElementById('import_html_source_url')) {
+                                document.getElementById('import_html_source_url').value = url;
+                            }
+                        }, 250);
+                    } else {
+                        toastr.success('✅ প্রোডাক্টের তথ্য সফলভাবে ফর্মে সেট হয়েছে! অনুগ্রহ করে যাচাই করুন।');
+                    }
                 } else {
                     toastr.error(res.message || 'প্রোডাক্ট তথ্য পাওয়া যায়নি।');
                 }

@@ -32,7 +32,7 @@ class ProductController extends Controller
     function __construct()
     {
         $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
-        $this->middleware('permission:product-create', ['only' => ['create','store','fetchFromUrl','quickStoreFromUrl']]);
+        $this->middleware('permission:product-create', ['only' => ['create','store','fetchFromUrl','quickStoreFromUrl','parseHtml']]);
         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
         $this->middleware('permission:product-create|product-edit', ['only' => ['generateAIDescription']]);
@@ -264,7 +264,7 @@ class ProductController extends Controller
 
         $last_id = Product::max('id') + 1;
 
-        // proSize, proColor, image, meta_image, variant_price, variant_image, digital_file বাদ
+        // proSize, proColor, image, meta_image, variant_price, variant_image, digital_file, imported_remote_images বাদ
         $input = $request->except([
             'image',
             'image_color',
@@ -277,6 +277,7 @@ class ProductController extends Controller
             'proColor',
             'pro_video_source',
             'pro_video_file',
+            'imported_remote_images',
         ]);
 
         foreach ($input as $key => $val) {
@@ -355,6 +356,10 @@ class ProductController extends Controller
             $input['download_limit']      = null;
             $input['download_expire_days']= null;
         }
+
+        // ফিল্টার: products টেবিলের কলাম ছাড়া অন্য কোনো ইনপুট যেন SQL ক্র্যাশ না করায়
+        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('products');
+        $input = array_intersect_key($input, array_flip($tableColumns));
 
         // CREATE PRODUCT
         $product = Product::create($input);
@@ -550,6 +555,7 @@ class ProductController extends Controller
             'proColor',
             'pro_video_source',
             'pro_video_file',
+            'imported_remote_images',
         ]);
 
         foreach ($input as $key => $val) {
@@ -632,6 +638,10 @@ class ProductController extends Controller
             $input['download_limit']      = null;
             $input['download_expire_days']= null;
         }
+
+        // ফিল্টার: products টেবিলের কলাম ছাড়া অন্য কোনো ইনপুট যেন SQL ক্র্যাশ না করায়
+        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('products');
+        $input = array_intersect_key($input, array_flip($tableColumns));
 
         // PRODUCT UPDATE
         $product->update($input);
@@ -971,6 +981,31 @@ PROMPT;
             return response()->json([
                 'status'  => 'error',
                 'message' => $res['message'] ?? 'প্রোডাক্ট তথ্য সংগ্রহ করা যায়নি।',
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $res['data'],
+        ]);
+    }
+
+    // ================================
+    // IMPORT FROM URL: PARSE RAW HTML
+    // ================================
+    public function parseHtml(Request $request)
+    {
+        $request->validate([
+            'html'       => 'required|string',
+            'source_url' => 'nullable|string',
+        ]);
+
+        $res = ProductImportService::parseHtmlContent($request->html, $request->source_url ?? '');
+
+        if (!$res['success']) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $res['message'] ?? 'HTML পার্স করা সম্ভব হয়নি।',
             ], 422);
         }
 

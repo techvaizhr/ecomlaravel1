@@ -25,47 +25,138 @@
 
             <div class="modal-body p-4" style="background: #f8fafc;">
                 
-                {{-- STEP 1: URL INPUT CARD --}}
-                <div class="card border-0 shadow-sm mb-3" style="border-radius: 14px; background: #fff;">
-                    <div class="card-body p-3">
-                        <label class="form-label fw-bold text-dark mb-2" style="font-size: 13px;">
-                            <i class="fe-link text-primary me-1"></i> Product Webpage URL:
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fe-globe"></i></span>
-                            <input type="url" id="import_url_input" class="form-control form-control-lg border-start-0 border-end-0" placeholder="https://www.daraz.com.bd/products/... বা https://www.alibaba.com/product-detail/..." style="font-size: 14px;">
-                            <button class="btn btn-outline-secondary px-3" type="button" id="btn_paste_url" title="Paste from clipboard">
-                                <i class="fe-clipboard me-1"></i> Paste
-                            </button>
-                            <button class="btn btn-primary px-4 fw-bold" type="button" id="btn_fetch_product" style="background: linear-gradient(135deg, #2563eb, #4f46e5); border: none;">
-                                <span class="spinner-border spinner-border-sm me-1 d-none" id="fetch_spinner" role="status"></span>
-                                <span id="fetch_btn_text"><i class="fe-zap me-1"></i> Fetch Info</span>
-                            </button>
-                        </div>
-                        
-                        {{-- Supported Platforms Badges --}}
-                        <div class="d-flex align-items-center flex-wrap gap-2 mt-2 pt-1">
-                            <span class="text-muted small fw-semibold me-1" style="font-size: 11px;">Supported:</span>
-                            <span class="badge rounded-pill" style="background:#fff1f2; color:#e11d48; border:1px solid #fecdd3; font-size:11px;">
-                                <i class="fe-check-circle me-1"></i> Daraz (Bangladesh)
-                            </span>
-                            <span class="badge rounded-pill" style="background:#fff7ed; color:#ea580c; border:1px solid #fed7aa; font-size:11px;">
-                                <i class="fe-check-circle me-1"></i> Alibaba
-                            </span>
-                            <span class="badge rounded-pill" style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-size:11px;">
-                                <i class="fe-check-circle me-1"></i> AliExpress
-                            </span>
-                            <span class="badge rounded-pill" style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; font-size:11px;">
-                                <i class="fe-check-circle me-1"></i> Amazon
-                            </span>
-                            <span class="badge rounded-pill" style="background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; font-size:11px;">
-                                <i class="fe-check-circle me-1"></i> eBay
-                            </span>
-                            <span class="badge rounded-pill" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; font-size:11px;">
-                                <i class="fe-globe me-1"></i> Any E-Commerce Site
-                            </span>
+                {{-- TOP NAVIGATION TABS: URL vs HTML SOURCE --}}
+                <ul class="nav nav-pills mb-3 gap-2 bg-white p-2 rounded-4 shadow-sm border" id="importMethodTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill fw-bold px-3 py-2" id="tab-url-btn" data-bs-toggle="pill" data-bs-target="#tab-url-content" type="button" role="tab" style="font-size: 13px;">
+                            <i class="fe-link me-1"></i> ১. URL দিয়ে ইমপোর্ট (Daraz, Amazon, etc.)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-bold px-3 py-2" id="tab-html-btn" data-bs-toggle="pill" data-bs-target="#tab-html-content" type="button" role="tab" style="font-size: 13px;">
+                            <i class="fe-code me-1"></i> ২. পেজ সোর্স / HTML পেস্ট
+                            <span class="badge bg-warning text-dark ms-1" style="font-size: 10px;">Alibaba এর জন্য ১০০% কার্যকরী</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="importMethodTabContent">
+                    
+                    {{-- TAB 1: URL IMPORT --}}
+                    <div class="tab-pane fade show active" id="tab-url-content" role="tabpanel">
+                        <div class="card border-0 shadow-sm mb-3" style="border-radius: 14px; background: #fff;">
+                            <div class="card-body p-3">
+                                <label class="form-label fw-bold text-dark mb-2" style="font-size: 13px;">
+                                    <i class="fe-link text-primary me-1"></i> Product Webpage URL:
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fe-globe"></i></span>
+                                    <input type="url" id="import_url_input" class="form-control form-control-lg border-start-0 border-end-0" placeholder="https://www.daraz.com.bd/products/... বা https://www.alibaba.com/product-detail/..." style="font-size: 14px;">
+                                    <button class="btn btn-outline-secondary px-3" type="button" id="btn_paste_url" title="Paste from clipboard">
+                                        <i class="fe-clipboard me-1"></i> Paste
+                                    </button>
+                                    <button class="btn btn-primary px-4 fw-bold" type="button" id="btn_fetch_product" style="background: linear-gradient(135deg, #2563eb, #4f46e5); border: none;">
+                                        <span class="spinner-border spinner-border-sm me-1 d-none" id="fetch_spinner" role="status"></span>
+                                        <span id="fetch_btn_text"><i class="fe-zap me-1"></i> Fetch Info</span>
+                                    </button>
+                                </div>
+
+                                {{-- Notice for Alibaba / Blocked Sites --}}
+                                <div id="url_blocked_alert" class="alert alert-warning border-0 rounded-3 mt-3 p-3 d-none">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <i class="fe-alert-triangle fs-4 text-warning mt-0.5"></i>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1">Alibaba সার্ভার রিকোয়েস্ট রোবট চেকার দ্বারা আটকে দিয়েছে!</h6>
+                                            <p class="text-muted small mb-2">
+                                                Alibaba সরাসরি সার্ভার রিকোয়েস্টে ক্যাপচা দেয়, কিন্তু আপনার ব্রাউজারে পণ্যটির পেজ অলরেডি সম্পূর্ণ লোড করা আছে! পেজের সোর্স কোড (Ctrl+U) কপি করে পেস্ট করলেই সাথে সাথে সম্পূর্ণ আসল নাম, সব হাই-রেজুলুশন ছবি ও স্পেসিফিকেশন চলে আসবে।
+                                            </p>
+                                            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" id="btn_goto_html_tab">
+                                                <i class="fe-clipboard me-1"></i> "পেজ সোর্স / HTML পেস্ট" ট্যাবে যান (১ ক্লিকে সব চলে আসবে)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {{-- Supported Platforms Badges --}}
+                                <div class="d-flex align-items-center flex-wrap gap-2 mt-2 pt-1">
+                                    <span class="text-muted small fw-semibold me-1" style="font-size: 11px;">Supported:</span>
+                                    <span class="badge rounded-pill" style="background:#fff1f2; color:#e11d48; border:1px solid #fecdd3; font-size:11px;">
+                                        <i class="fe-check-circle me-1"></i> Daraz (Bangladesh)
+                                    </span>
+                                    <span class="badge rounded-pill" style="background:#fff7ed; color:#ea580c; border:1px solid #fed7aa; font-size:11px;">
+                                        <i class="fe-check-circle me-1"></i> Alibaba
+                                    </span>
+                                    <span class="badge rounded-pill" style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-size:11px;">
+                                        <i class="fe-check-circle me-1"></i> AliExpress
+                                    </span>
+                                    <span class="badge rounded-pill" style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; font-size:11px;">
+                                        <i class="fe-check-circle me-1"></i> Amazon
+                                    </span>
+                                    <span class="badge rounded-pill" style="background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; font-size:11px;">
+                                        <i class="fe-check-circle me-1"></i> eBay
+                                    </span>
+                                    <span class="badge rounded-pill" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; font-size:11px;">
+                                        <i class="fe-globe me-1"></i> Any E-Commerce Site
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {{-- TAB 2: PASTE HTML / SOURCE (ALIBABA FRIENDLY) --}}
+                    <div class="tab-pane fade" id="tab-html-content" role="tabpanel">
+                        <div class="card border-0 shadow-sm mb-3" style="border-radius: 14px; background: #fff;">
+                            <div class="card-body p-3">
+                                
+                                {{-- Instructions Guide --}}
+                                <div class="p-3 mb-3 rounded-3" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="badge bg-success rounded-pill px-2 py-1">সহজ ৩ ধাপ</span>
+                                        <h6 class="fw-bold text-success mb-0" style="font-size: 13.5px;">Alibaba বা যেকোনো সাইট থেকে ১০০% ছবি ও তথ্য পাওয়ার নিয়ম:</h6>
+                                    </div>
+                                    <ol class="small text-muted mb-0 ps-3 mt-2" style="line-height: 1.6; font-size: 12.5px;">
+                                        <li>আপনার ব্রাউজারে পণ্যটির ট্যাবে যান (যেখানে প্রোডাক্টটি সম্পূর্ণ দেখা যাচ্ছে)।</li>
+                                        <li>কীবোর্ডে <kbd style="background:#1e293b; color:#fff; padding:2px 6px; border-radius:4px;">Ctrl + U</kbd> চাপুন (অথবা রাইট ক্লিক করে <strong>View Page Source</strong>)।</li>
+                                        <li>নতুন ওপেন হওয়া পেজের কোড <kbd style="background:#1e293b; color:#fff; padding:2px 6px; border-radius:4px;">Ctrl + A</kbd> এবং <kbd style="background:#1e293b; color:#fff; padding:2px 6px; border-radius:4px;">Ctrl + C</kbd> চেপে কপি করে নিচের বক্সে পেস্ট করুন।</li>
+                                    </ol>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <label class="form-label fw-bold text-dark mb-0" style="font-size: 13px;">
+                                            <i class="fe-code text-primary me-1"></i> পেজ সোর্স কোড (HTML) পেস্ট করুন:
+                                        </label>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" id="btn_paste_html_clipboard" style="font-size: 11px;">
+                                                <i class="fe-clipboard me-1"></i> Paste from Clipboard
+                                            </button>
+                                            <button type="button" class="btn btn-xs btn-outline-danger py-0 px-2" id="btn_clear_html" style="font-size: 11px;">
+                                                <i class="fe-trash-2 me-1"></i> Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <textarea id="import_html_input" class="form-control" rows="6" placeholder="<!DOCTYPE html><html>... এখানে ব্রাউজার থেকে কপি করা পেজ সোর্স (Ctrl+U) পেস্ট করুন..." style="font-family: monospace; font-size: 12px;"></textarea>
+                                </div>
+
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-7">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-muted"><i class="fe-link"></i></span>
+                                            <input type="url" id="import_html_source_url" class="form-control" placeholder="প্রোডাক্ট পেজের আসল লিঙ্ক (অপশনাল, যেমন: https://www.alibaba.com/...)">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 text-end">
+                                        <button class="btn btn-success fw-bold px-4 w-100" type="button" id="btn_parse_html" style="background: linear-gradient(135deg, #16a34a, #059669); border: none;">
+                                            <span class="spinner-border spinner-border-sm me-1 d-none" id="parse_html_spinner" role="status"></span>
+                                            <span id="parse_html_btn_text"><i class="fe-zap me-1"></i> Extract All Info & HD Images</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 {{-- LOADING / STATUS STATE --}}
@@ -286,18 +377,87 @@ document.addEventListener("DOMContentLoaded", function () {
     
     let lastFetchedData = null;
 
-    // Paste from clipboard helper
+    // Elements for HTML Paste Mode
+    const htmlInput = document.getElementById('import_html_input');
+    const htmlSourceUrl = document.getElementById('import_html_source_url');
+    const parseHtmlBtn = document.getElementById('btn_parse_html');
+    const parseHtmlSpinner = document.getElementById('parse_html_spinner');
+    const parseHtmlBtnText = document.getElementById('parse_html_btn_text');
+    const pasteHtmlClipboardBtn = document.getElementById('btn_paste_html_clipboard');
+    const clearHtmlBtn = document.getElementById('btn_clear_html');
+    const urlBlockedAlert = document.getElementById('url_blocked_alert');
+    const gotoHtmlTabBtn = document.getElementById('btn_goto_html_tab');
+
+    // Tab Switch Helper
+    function switchToHtmlTab() {
+        const tabTrigger = document.getElementById('tab-html-btn');
+        if (tabTrigger) {
+            const tabInstance = new bootstrap.Tab(tabTrigger);
+            tabInstance.show();
+        }
+    }
+
+    if (gotoHtmlTabBtn) {
+        gotoHtmlTabBtn.addEventListener('click', function () {
+            switchToHtmlTab();
+            if (htmlInput) htmlInput.focus();
+        });
+    }
+
+    // Auto-detect HTML in URL input
+    urlInput.addEventListener('input', function () {
+        const val = this.value.trim();
+        if (val.startsWith('<') || val.includes('<!DOCTYPE') || val.includes('<html')) {
+            htmlInput.value = val;
+            this.value = '';
+            switchToHtmlTab();
+            toastr.info('HTML কোড শনাক্ত হয়েছে — "পেজ সোর্স পেস্ট" ট্যাবে সেট করা হয়েছে!');
+        }
+    });
+
+    // Paste from clipboard helper (URL)
     pasteBtn.addEventListener('click', async function () {
         try {
             const text = await navigator.clipboard.readText();
             if (text) {
-                urlInput.value = text.trim();
-                urlInput.focus();
+                const trimmed = text.trim();
+                if (trimmed.startsWith('<') || trimmed.includes('<!DOCTYPE') || trimmed.includes('<html')) {
+                    htmlInput.value = trimmed;
+                    switchToHtmlTab();
+                    toastr.info('HTML কোড শনাক্ত হয়েছে — "পেজ সোর্স পেস্ট" ট্যাবে সেট করা হয়েছে!');
+                } else {
+                    urlInput.value = trimmed;
+                    urlInput.focus();
+                }
             }
         } catch (e) {
             toastr.info('Please paste the URL directly into the field (Ctrl+V).');
         }
     });
+
+    // Paste from clipboard helper (HTML)
+    if (pasteHtmlClipboardBtn) {
+        pasteHtmlClipboardBtn.addEventListener('click', async function () {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    htmlInput.value = text.trim();
+                    toastr.success('ক্লিপবোর্ড থেকে HTML কোড পেস্ট করা হয়েছে!');
+                }
+            } catch (e) {
+                toastr.info('ক্লিপবোর্ড পড়ার অনুমতি দিন অথবা সরাসরি বক্সে Ctrl+V চেপে পেস্ট করুন।');
+            }
+        });
+    }
+
+    // Clear HTML helper
+    if (clearHtmlBtn) {
+        clearHtmlBtn.addEventListener('click', function () {
+            htmlInput.value = '';
+            if (htmlSourceUrl) htmlSourceUrl.value = '';
+            toastr.info('ক্লিয়ার করা হয়েছে।');
+        });
+    }
 
     // Enter key trigger
     urlInput.addEventListener('keypress', function (e) {
@@ -307,7 +467,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Fetch Product Handler
+    // Fetch Product by URL Handler
     fetchBtn.addEventListener('click', function () {
         const url = urlInput.value.trim();
         if (!url) {
@@ -316,11 +476,21 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        // Check if user accidentally pasted raw HTML here
+        if (url.startsWith('<') || url.includes('<!DOCTYPE') || url.includes('<html')) {
+            htmlInput.value = url;
+            urlInput.value = '';
+            switchToHtmlTab();
+            toastr.info('HTML কোড শনাক্ত হয়েছে — "পেজ সোর্স পেস্ট" ট্যাবে সেট করা হয়েছে!');
+            return;
+        }
+
         // UI state
         fetchSpinner.classList.remove('d-none');
         fetchBtn.disabled = true;
         loadingState.classList.remove('d-none');
         reviewArea.classList.add('d-none');
+        if (urlBlockedAlert) urlBlockedAlert.classList.add('d-none');
 
         $.ajax({
             type: "POST",
@@ -338,7 +508,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     lastFetchedData = res.data;
                     populateModalForm(res.data);
                     reviewArea.classList.remove('d-none');
-                    toastr.success('প্রোডাক্ট তথ্য সফলভাবে সংগ্রহ করা হয়েছে!');
+
+                    // If Alibaba served a captcha challenge or returned no images
+                    if (res.data.is_blocked || (res.data.source_platform === 'Alibaba' && (!res.data.images || res.data.images.length === 0))) {
+                        if (urlBlockedAlert) urlBlockedAlert.classList.remove('d-none');
+                        if (htmlSourceUrl) htmlSourceUrl.value = url;
+                        toastr.warning(res.data.block_warning || 'Alibaba রোবট চেক সক্রিয় রয়েছে। ব্রাউজারের পেজ সোর্স (Ctrl+U) কপি করে "HTML পেস্ট" অপশন ব্যবহার করুন।', '', { timeOut: 8000 });
+                    } else {
+                        toastr.success('প্রোডাক্ট তথ্য সফলভাবে সংগ্রহ করা হয়েছে!');
+                    }
                 } else {
                     toastr.error(res.message || 'প্রোডাক্ট তথ্য সংগ্রহ করা সম্ভব হয়নি।');
                 }
@@ -356,6 +534,66 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    // Parse Raw HTML Handler
+    if (parseHtmlBtn) {
+        parseHtmlBtn.addEventListener('click', function () {
+            const rawHtml = htmlInput.value.trim();
+            if (!rawHtml || rawHtml.length < 50) {
+                toastr.warning('অনুগ্রহ করে ব্রাউজার থেকে কপি করা সম্পূর্ণ পেজ সোর্স (Ctrl+U) এখানে পেস্ট করুন!');
+                htmlInput.focus();
+                return;
+            }
+
+            const srcUrl = htmlSourceUrl ? htmlSourceUrl.value.trim() : '';
+
+            // UI state
+            parseHtmlBtn.disabled = true;
+            parseHtmlSpinner.classList.remove('d-none');
+            parseHtmlBtnText.classList.add('d-none');
+            loadingState.classList.remove('d-none');
+            reviewArea.classList.add('d-none');
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('products.import_url_parse_html') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    html: rawHtml,
+                    source_url: srcUrl
+                },
+                success: function (res) {
+                    parseHtmlBtn.disabled = false;
+                    parseHtmlSpinner.classList.add('d-none');
+                    parseHtmlBtnText.classList.remove('d-none');
+                    loadingState.classList.add('d-none');
+
+                    if (res.status === 'success' && res.data) {
+                        lastFetchedData = res.data;
+                        populateModalForm(res.data);
+                        reviewArea.classList.remove('d-none');
+                        toastr.success('✅ পেজ সোর্স থেকে সফলভাবে সব ছবি ও তথ্য সংগ্রহ করা হয়েছে!');
+                        // Scroll down to review area smoothly
+                        reviewArea.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        toastr.error(res.message || 'HTML থেকে তথ্য পার্স করা সম্ভব হয়নি।');
+                    }
+                },
+                error: function (xhr) {
+                    parseHtmlBtn.disabled = false;
+                    parseHtmlSpinner.classList.add('d-none');
+                    parseHtmlBtnText.classList.remove('d-none');
+                    loadingState.classList.add('d-none');
+
+                    let msg = 'HTML পার্সিংয়ে সমস্যা হয়েছে।';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    toastr.error(msg);
+                }
+            });
+        });
+    }
 
     // Populate Modal Form with Scraped Data
     function populateModalForm(data) {

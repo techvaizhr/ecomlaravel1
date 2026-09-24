@@ -1006,6 +1006,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('ajax-wholesale-childcategory', [\App\Http\Controllers\Admin\WholesaleProductController::class, 'getChildcategory'])->name('admin.ajax.wholesale.childcategory');
     Route::post('products/save', [ProductController::class,'store'])->name('products.store');
     Route::post('products/import-url/fetch', [ProductController::class, 'fetchFromUrl'])->name('products.import_url_fetch');
+    Route::post('products/import-url/parse-html', [ProductController::class, 'parseHtml'])->name('products.import_url_parse_html');
     Route::post('products/import-url/quick-store', [ProductController::class, 'quickStoreFromUrl'])->name('products.import_url_quick_store');
     Route::post('products/generate-ai-description', [ProductController::class, 'generateAIDescription'])->name('products.generate_ai_description');
     Route::get('products/{id}/edit', [ProductController::class,'edit'])->name('products.edit');

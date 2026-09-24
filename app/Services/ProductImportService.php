@@ -93,6 +93,59 @@ class ProductImportService
     }
 
     /**
+     * Parse raw HTML content directly (useful for Alibaba / captcha-protected sites when pasted from browser).
+     */
+    public static function parseHtmlContent(string $html, string $sourceUrl = ''): array
+    {
+        $html = trim($html);
+        if (empty($html) || strlen($html) < 100) {
+            return ['success' => false, 'message' => 'পেস্ট করা HTML কন্টেন্ট খালি বা অসম্পূর্ণ।'];
+        }
+
+        $sourceUrl = trim($sourceUrl);
+        $host = '';
+        if (!empty($sourceUrl)) {
+            $host = strtolower(parse_url($sourceUrl, PHP_URL_HOST) ?? '');
+        }
+
+        // Auto-detect platform from HTML content if host not provided
+        if (empty($host)) {
+            if (str_contains($html, 'alibaba.com') || str_contains($html, 'alicdn.com')) {
+                $host = 'alibaba.com';
+            } elseif (str_contains($html, 'daraz.com') || str_contains($html, 'daraz-pwa')) {
+                $host = 'daraz.com.bd';
+            } elseif (str_contains($html, 'aliexpress.com')) {
+                $host = 'aliexpress.com';
+            } elseif (str_contains($html, 'amazon.com') || str_contains($html, 'media-amazon.com')) {
+                $host = 'amazon.com';
+            }
+        }
+
+        if (str_contains($host, 'daraz.') || str_contains($host, 'lazada.')) {
+            $parsed = self::parseDaraz($html, $sourceUrl);
+        } elseif (str_contains($host, 'alibaba.com')) {
+            $parsed = self::parseAlibaba($html, $sourceUrl);
+        } elseif (str_contains($host, 'aliexpress.')) {
+            $parsed = self::parseAliExpress($html, $sourceUrl);
+        } elseif (str_contains($host, 'amazon.')) {
+            $parsed = self::parseAmazon($html, $sourceUrl);
+        } elseif (str_contains($host, 'ebay.')) {
+            $parsed = self::parseEbay($html, $sourceUrl);
+        } else {
+            $parsed = self::parseGeneric($html, $sourceUrl);
+        }
+
+        $parsed = self::applySmartFallbacks($parsed, $html, $sourceUrl);
+        $parsed['suggested_category_id'] = self::findMatchingCategory($parsed['name'], $parsed['description']);
+        $parsed['brand_id'] = self::findMatchingBrand($parsed['brand'] ?? '', $parsed['name']);
+
+        return [
+            'success' => true,
+            'data'    => $parsed
+        ];
+    }
+
+    /**
      * PARSER: DARAZ & LAZADA
      */
     protected static function parseDaraz(string $html, string $url): array
@@ -239,16 +292,54 @@ class ProductImportService
             'source_url'      => $url,
         ];
 
-        // 1. Title from OG or Title tag
-        if (preg_match('/<meta\s+property="og:title"\s+content="([^"]+)"/i', $html, $m)) {
-            $t = html_entity_decode($m[1]);
-            $result['name'] = trim(preg_replace('/\s*-\s*Buy\s+.*Alibaba\.com$/i', '', $t));
-        } elseif (preg_match('/<title>([^<]+)<\/title>/i', $html, $m)) {
-            $t = html_entity_decode($m[1]);
-            $result['name'] = trim(preg_replace('/\s*-\s*Buy\s+.*Alibaba\.com$/i', '', $t));
+        // Check if Alibaba served punish / captcha challenge
+        $isPunish = str_contains($html, 'punish-component') || str_contains($html, 'sec.alibaba.com') || (str_contains($html, 'punish') && strlen($html) < 100000);
+        if ($isPunish) {
+            $result['is_blocked'] = true;
+            $result['block_warning'] = 'Alibaba-র সিকিউরিটি রোবট চেকার সার্ভার রিকোয়েস্ট সাময়িকভাবে আটকে দিয়েছে। সম্পূর্ণ তথ্য ও সব এইচডি ইমেজ পেতে ব্রাউজারের Alibaba পেজে গিয়ে পেজ সোর্স (Ctrl+U) কপি করে "Paste HTML / Source" অপশনে পেস্ট করুন, মুহূর্তেই সব পেয়ে যাবেন!';
         }
 
-        // 1b. Title from URL slug fallback
+        // 1. Title Extraction
+        // 1a. From JSON payload
+        if (preg_match('/"subject":\s*"([^"]+)"/i', $html, $m)) {
+            $result['name'] = trim(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        } elseif (preg_match('/"productSubject":\s*"([^"]+)"/i', $html, $m)) {
+            $result['name'] = trim(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        } elseif (preg_match('/"productTitle":\s*"([^"]+)"/i', $html, $m)) {
+            $result['name'] = trim(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }
+
+        // 1b. From H1 tags
+        if (empty($result['name'])) {
+            if (preg_match('/<h1[^>]*class="[^"]*product-title[^"]*"[^>]*>(.*?)<\/h1>/is', $html, $m)) {
+                $result['name'] = trim(strip_tags(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+            } elseif (preg_match('/<h1[^>]*>(.*?)<\/h1>/is', $html, $m)) {
+                $cleanH1 = trim(strip_tags(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+                if (strlen($cleanH1) > 10 && !stripos($cleanH1, 'alibaba')) {
+                    $result['name'] = $cleanH1;
+                }
+            }
+        }
+
+        // 1c. From Meta OG / Twitter / Title tag
+        if (empty($result['name'])) {
+            if (preg_match('/<meta\s+(?:property="og:title"|name="twitter:title")\s+content="([^"]+)"/i', $html, $m)) {
+                $t = html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $result['name'] = trim(preg_replace('/\s*-\s*Buy\s+.*Alibaba\.com.*$/i', '', $t));
+            } elseif (preg_match('/<title>([^<]+)<\/title>/i', $html, $m)) {
+                $t = html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $result['name'] = trim(preg_replace('/\s*-\s*Buy\s+.*Alibaba\.com.*$/i', '', $t));
+            }
+        }
+
+        // Clean any residual Alibaba brand suffix
+        if (!empty($result['name'])) {
+            $result['name'] = trim(preg_replace('/\s*-\s*Alibaba\.com.*$/i', '', $result['name']));
+            $result['name'] = trim(preg_replace('/\s*\|\s*Alibaba\.com.*$/i', '', $result['name']));
+            $result['name'] = trim(preg_replace('/\s*on\s+Alibaba\.com.*$/i', '', $result['name']));
+        }
+
+        // 1d. Fallback title from URL slug
         if (empty($result['name']) && preg_match('/\/product-detail\/([^_]+)[_-](\d+)\.html/i', $url, $m)) {
             $slugTitle = str_replace(['-', '_'], ' ', $m[1]);
             $result['name'] = ucwords(trim($slugTitle));
@@ -270,23 +361,82 @@ class ProductImportService
                 $result['old_price'] = round($result['new_price'] * 1.3);
                 $result['purchase_price'] = round($baseUsd * $usdRate * 0.8);
             }
+        } elseif (preg_match('/"formattedPrice":\s*"([^"]+)"/i', $html, $m)) {
+            $usd = (float) preg_replace('/[^\d\.]/', '', $m[1]);
+            if ($usd > 0) {
+                $result['new_price'] = round($usd * $usdRate);
+                $result['old_price'] = round($result['new_price'] * 1.25);
+                $result['purchase_price'] = round($result['new_price'] * 0.75);
+            }
+        } elseif (preg_match('/"minPrice":\s*([\d\.]+)/i', $html, $m)) {
+            $usd = (float) $m[1];
+            if ($usd > 0) {
+                $result['new_price'] = round($usd * $usdRate);
+                $result['old_price'] = round($result['new_price'] * 1.25);
+                $result['purchase_price'] = round($result['new_price'] * 0.75);
+            }
+        } elseif (preg_match('/"ladderPriceList":\s*(\[\{.+?\}\])/s', $html, $m)) {
+            $ladder = json_decode($m[1], true);
+            if (is_array($ladder) && !empty($ladder[0]['price'])) {
+                $usd = (float) preg_replace('/[^\d\.]/', '', (string) $ladder[0]['price']);
+                if ($usd > 0) {
+                    $result['new_price'] = round($usd * $usdRate);
+                    $result['old_price'] = round($result['new_price'] * 1.25);
+                    $result['purchase_price'] = round($result['new_price'] * 0.75);
+                }
+            }
         } elseif (preg_match('/data-price-product="([^"]+)"/i', $html, $m)) {
             $usd = (float) preg_replace('/[^\d\.]/', '', $m[1]);
-            $result['new_price'] = round($usd * $usdRate);
-            $result['old_price'] = round($result['new_price'] * 1.25);
-            $result['purchase_price'] = round($result['new_price'] * 0.75);
+            if ($usd > 0) {
+                $result['new_price'] = round($usd * $usdRate);
+                $result['old_price'] = round($result['new_price'] * 1.25);
+                $result['purchase_price'] = round($result['new_price'] * 0.75);
+            }
         }
 
-        // 3. Images
+        // 3. Images from HTML & JSON
+        // 3a. window.detailData imagePathList
+        if (preg_match('/"imagePathList":\s*(\[[^\]]+\])/i', $html, $m)) {
+            $paths = json_decode($m[1], true);
+            if (is_array($paths)) {
+                foreach ($paths as $p) {
+                    if (str_starts_with($p, '//')) $p = 'https:' . $p;
+                    $result['images'][] = self::cleanImageUrl($p);
+                }
+            }
+        }
+
+        // 3b. All alicdn product images ending in .jpg/.png/.webp
+        if (preg_match_all('/https?:\/\/[a-zA-Z0-9_.\/-]*alicdn\.com\/kf\/[a-zA-Z0-9_-]+\.(?:jpg|jpeg|png|webp)/i', $html, $m)) {
+            foreach ($m[0] as $img) {
+                // Filter out non-product assets
+                if (preg_match('/(express|super_buyer|flags|avatar|shield|badge|logo|icon)/i', $img)) {
+                    continue;
+                }
+                $result['images'][] = self::cleanImageUrl($img);
+            }
+        }
+
+        // 3c. Main image thumbnails
         if (preg_match_all('/(?:data-testid="main-image-thumbnail"[^>]*style="background-image:url\(([^)]+)\)|src="([^"]+alicdn\.com\/@sc04\/kf\/[^"]+)")/i', $html, $m)) {
             $all = array_filter(array_merge($m[1], $m[2]));
             foreach ($all as $img) {
                 $img = trim($img, '\'"');
                 if (str_starts_with($img, '//')) $img = 'https:' . $img;
-                $highRes = preg_replace('/_\d+x\d+[^.]*\.(jpg|png|webp)$/i', '', $img);
-                $result['images'][] = self::cleanImageUrl($highRes);
+                $result['images'][] = self::cleanImageUrl($img);
             }
         }
+
+        // 3d. Additional JSON imageUrls
+        if (preg_match_all('/"imageUrl":\s*"([^"]+alicdn\.com[^"]+)"/i', $html, $m)) {
+            foreach ($m[1] as $img) {
+                $img = stripslashes($img);
+                if (str_starts_with($img, '//')) $img = 'https:' . $img;
+                $result['images'][] = self::cleanImageUrl($img);
+            }
+        }
+
+        $result['images'] = array_values(array_unique(array_filter($result['images'])));
 
         // 4. Attributes / Description table
         if (preg_match('/data-testid="three-column-key-attributes">(.*?)<\/div><\/div>/s', $html, $m)) {
@@ -302,6 +452,8 @@ class ProductImportService
             }
             $specHtml .= '</tbody></table></div>';
             $result['description'] = $specHtml;
+        } elseif (preg_match('/<div[^>]*class="[^"]*(?:product-attribute|do-entry-list|key-attributes)[^"]*"[^>]*>(.*?)<\/div>/is', $html, $m)) {
+            $result['description'] = '<div class="product-attributes">' . $m[1] . '</div>';
         }
 
         return $result;
@@ -609,14 +761,19 @@ class ProductImportService
             $url = 'https:' . $url;
         }
 
-        // Remove Daraz / Lazada CDN resize patterns (e.g. _720x720q80.jpg_.webp)
-        $url = preg_replace('/_\d+x\d+[^.]*\.(jpg|jpeg|png|webp)(\_\.webp)?$/i', '', $url);
-
-        // Remove Alibaba CDN resize patterns (e.g. _80x80.jpg, _300x300.png)
-        $url = preg_replace('/_\d+x\d+[^.]*\.(jpg|jpeg|png|webp)$/i', '', $url);
-
         // Remove query parameters
         $clean = preg_replace('/\?.*/', '', $url);
+
+        // Remove trailing _.webp
+        $clean = preg_replace('/_\.webp$/i', '', $clean);
+
+        // Remove Daraz / Lazada / Alibaba resize suffixes (e.g. _720x720q80.jpg, _350x350.jpg, _Q90.jpg)
+        $clean = preg_replace('/_(?:\d+x\d+|Q\d+)[^.]*\.(jpg|jpeg|png|webp)$/i', '', $clean);
+
+        // If the URL ended up without a file extension, restore .jpg
+        if (!preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $clean)) {
+            $clean .= '.jpg';
+        }
 
         return $clean ?: $url;
     }
