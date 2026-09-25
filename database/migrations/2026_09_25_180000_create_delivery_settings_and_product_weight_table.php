@@ -16,9 +16,8 @@ return new class extends Migration
         if (!Schema::hasTable('delivery_settings')) {
             Schema::create('delivery_settings', function (Blueprint $table) {
                 $table->id();
-                $table->string('active_method', 50)->default('area_based'); // area_based, flat_rate, free_delivery, weight_based
+                $table->string('active_method', 50)->default('area_based'); // free_delivery, flat_rate, weight_based, area_based
                 $table->decimal('flat_rate_amount', 10, 2)->default(100.00);
-                $table->decimal('default_area_charge', 10, 2)->default(100.00);
                 $table->decimal('weight_base_cost', 10, 2)->default(60.00);
                 $table->decimal('weight_base_kg', 8, 2)->default(1.00);
                 $table->decimal('weight_extra_per_kg', 10, 2)->default(20.00);
@@ -31,7 +30,6 @@ return new class extends Migration
             DB::table('delivery_settings')->insert([
                 'active_method'       => 'area_based',
                 'flat_rate_amount'    => 100.00,
-                'default_area_charge' => 100.00,
                 'weight_base_cost'    => 60.00,
                 'weight_base_kg'      => 1.00,
                 'weight_extra_per_kg' => 20.00,
@@ -40,7 +38,18 @@ return new class extends Migration
             ]);
         }
 
-        // 2. Add delivery_charge column to divisions if not present
+        // 2. Create custom_delivery_charges table
+        if (!Schema::hasTable('custom_delivery_charges')) {
+            Schema::create('custom_delivery_charges', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->decimal('amount', 10, 2)->default(0.00);
+                $table->tinyInteger('status')->default(1);
+                $table->timestamps();
+            });
+        }
+
+        // 3. Add delivery_charge column to divisions if not present
         if (Schema::hasTable('divisions')) {
             if (!Schema::hasColumn('divisions', 'delivery_charge')) {
                 Schema::table('divisions', function (Blueprint $table) {
@@ -49,7 +58,7 @@ return new class extends Migration
             }
         }
 
-        // 3. Ensure delivery_charge column exists in districts
+        // 4. Ensure delivery_charge column exists in districts
         if (Schema::hasTable('districts')) {
             if (!Schema::hasColumn('districts', 'delivery_charge')) {
                 Schema::table('districts', function (Blueprint $table) {
@@ -58,7 +67,7 @@ return new class extends Migration
             }
         }
 
-        // 4. Add weight column to products table
+        // 5. Add weight column to products table
         if (Schema::hasTable('products')) {
             Schema::table('products', function (Blueprint $table) {
                 if (!Schema::hasColumn('products', 'weight')) {
@@ -74,6 +83,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('delivery_settings');
+        Schema::dropIfExists('custom_delivery_charges');
 
         if (Schema::hasTable('divisions') && Schema::hasColumn('divisions', 'delivery_charge')) {
             Schema::table('divisions', function (Blueprint $table) {
