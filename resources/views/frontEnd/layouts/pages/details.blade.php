@@ -137,6 +137,159 @@
     color: #fff !important;
 }
 
+/* 🚀 Floating Sticky Order Bar (when main button is off-screen) */
+.product-floating-order-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.12);
+    border-top: 1px solid #e2e8f0;
+    z-index: 10005;
+    padding: 10px 0;
+    transform: translateY(115%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+.product-floating-order-bar.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+.product-floating-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+.product-floating-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+.product-floating-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+.product-floating-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.product-floating-info {
+    min-width: 0;
+}
+.product-floating-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+.product-floating-price {
+    font-size: 17px;
+    font-weight: 800;
+    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+.product-floating-price del {
+    font-size: 13px;
+    font-weight: 500;
+    color: #94a3b8;
+}
+.product-floating-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.product-floating-cart-btn {
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1.5px solid {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+    background: transparent;
+    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.product-floating-cart-btn:hover {
+    background: {{ optional($generalsetting)->primary_color ?? '#e11d48' }}15;
+    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+}
+.product-floating-order-btn {
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 8px;
+    border: none;
+    background-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 15.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 14px {{ optional($generalsetting)->primary_color ?? '#e11d48' }}66;
+    animation: orderBtnShake 2.5s infinite ease-in-out !important;
+}
+.product-floating-order-btn:hover {
+    filter: brightness(0.92);
+    transform: scale(1.02);
+    color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+    .product-floating-order-bar {
+        padding: 8px 10px;
+    }
+    .product-floating-title {
+        display: none;
+    }
+    .product-floating-thumb {
+        width: 42px;
+        height: 42px;
+    }
+    .product-floating-price {
+        font-size: 16px;
+    }
+    .product-floating-cart-btn {
+        width: 42px;
+        padding: 0;
+        height: 42px;
+    }
+    .product-floating-order-btn {
+        padding: 0 16px;
+        height: 42px;
+        font-size: 14.5px;
+        flex: 1;
+    }
+    .product-floating-actions {
+        flex: 1;
+        justify-content: flex-end;
+    }
+}
+
 /* 🎨 Matching Border for Color Swatches (same as Size & Variant) */
 .pro-color .selector-item_label {
     min-width: 38px !important;
@@ -572,6 +725,7 @@
                                         </div>
                                         <div class="single_product col-12">
                                             <button type="submit"
+                                                id="main_add_cart_btn"
                                                 class="btn add_cart_btn cart_store"
                                                 data-id="{{ $details->id }}"
                                                 name="add_cart"
@@ -579,6 +733,7 @@
                                                 <i class="fa-solid fa-cart-shopping me-1"></i> কার্টে যোগ করুন
                                             </button>
                                             <button type="submit"
+                                                id="main_order_now_btn"
                                                 class="btn order_now_btn order_now_btn_m cart_store"
                                                 data-id="{{ $details->id }}"
                                                 name="order_now"
@@ -806,20 +961,6 @@
                     <div class="product_item wist_item">
 
                         <div class="product_item_inner">
-                            @if($value->old_price)
-                            <div class="sale-badge">
-                                <div class="sale-badge-inner">
-                                    <div class="sale-badge-box">
-                                        <span class="sale-badge-text">
-                                            <p>@php $discount=(((($value->old_price)-($value->new_price))*100) / ($value->old_price)) @endphp 
-                                               {{ number_format($discount, 0) }}%</p>
-                                            ছাড়
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
-
                             <div class="pro_img">
                                 <a href="{{ route('product', $value->slug) }}">
                                     <img src="{{ asset($value->image ? $value->image->image : '') }}"
@@ -856,8 +997,16 @@
 
                         <div class="pro_price">
                             <p>
-                                <del>৳ {{ $value->old_price }}</del>
+                                @if($value->old_price)
+                                    <del>৳ {{ $value->old_price }}</del>
+                                @endif
                                 ৳ {{ $value->new_price }}
+                                @if($value->old_price && $value->old_price > $value->new_price)
+                                    @php
+                                        $discount = round((($value->old_price - $value->new_price) * 100) / $value->old_price);
+                                    @endphp
+                                    <span class="pro_discount_tag">-{{ $discount }}%</span>
+                                @endif
                             </p>
                         </div>
 
@@ -917,6 +1066,40 @@
     </div>
 </section>
 
+{{-- 🚀 FLOATING STICKY ORDER BAR (Appears when main order button is off-screen) --}}
+<div id="product_floating_order_bar" class="product-floating-order-bar">
+    <div class="container product-floating-inner">
+        <div class="product-floating-left">
+            <div class="product-floating-thumb">
+                <img src="{{ asset($details->image ? $details->image->image : ($details->images->first() ? $details->images->first()->image : '')) }}" alt="{{ $details->name }}">
+            </div>
+            <div class="product-floating-info">
+                <div class="product-floating-title">{{ Str::limit($details->name, 45) }}</div>
+                <div class="product-floating-price">
+                    @if($details->old_price)
+                        <del class="floating-old-price">৳{{ $details->old_price }}</del>
+                    @endif
+                    <span class="floating-new-price" id="floating_bar_price">৳{{ $details->new_price }}</span>
+                    @if($details->old_price && $details->old_price > $details->new_price)
+                        @php
+                            $f_discount = round((($details->old_price - $details->new_price) * 100) / $details->old_price);
+                        @endphp
+                        <span class="pro_discount_tag">-{{ $f_discount }}%</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="product-floating-actions">
+            <button type="button" class="btn product-floating-cart-btn" id="floating_add_cart_btn" title="কার্টে যোগ করুন">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="d-none d-sm-inline ms-1">কার্ট</span>
+            </button>
+            <button type="button" class="btn product-floating-order-btn" id="floating_order_now_btn">
+                <i class="fa-solid fa-bolt me-1"></i> অর্ডার করুন
+            </button>
+        </div>
+    </div>
+</div>
 
 @endsection @push('script')
 <script src="{{ asset('public/frontEnd/js/owl.carousel.min.js') }}"></script>
@@ -1531,6 +1714,107 @@
     window.addEventListener('scroll', updateStickyVideo, { passive: true });
     window.addEventListener('resize', updateStickyVideo);
     updateStickyVideo();
+})();
+
+// 🚀 Floating Sticky Order Bar (Show when main order button is off-screen)
+(function () {
+    var mainOrderBtn = document.getElementById('main_order_now_btn');
+    var floatingBar = document.getElementById('product_floating_order_bar');
+    if (!mainOrderBtn || !floatingBar) return;
+
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    floatingBar.classList.add('is-visible');
+                } else {
+                    floatingBar.classList.remove('is-visible');
+                }
+            });
+        }, {
+            root: null,
+            threshold: 0.1
+        });
+        observer.observe(mainOrderBtn);
+    } else {
+        function checkVisibility() {
+            var rect = mainOrderBtn.getBoundingClientRect();
+            var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+            var inView = (rect.bottom > 0 && rect.top < windowHeight);
+            if (!inView) {
+                floatingBar.classList.add('is-visible');
+            } else {
+                floatingBar.classList.remove('is-visible');
+            }
+        }
+        window.addEventListener('scroll', checkVisibility, { passive: true });
+        window.addEventListener('resize', checkVisibility);
+        checkVisibility();
+    }
+
+    // Sync floating bar price when #newPrice changes
+    var mainPriceEl = document.getElementById('newPrice');
+    var floatingPriceEl = document.getElementById('floating_bar_price');
+    if (mainPriceEl && floatingPriceEl && 'MutationObserver' in window) {
+        var priceObserver = new MutationObserver(function () {
+            floatingPriceEl.textContent = mainPriceEl.textContent;
+        });
+        priceObserver.observe(mainPriceEl, { childList: true, characterData: true, subtree: true });
+    }
+
+    function checkVariantsSelected() {
+        var form = mainOrderBtn.closest('form');
+        if (!form) return true;
+        var colorRadios = form.querySelectorAll('input[name="product_color"]');
+        if (colorRadios.length > 0 && !form.querySelector('input[name="product_color"]:checked')) {
+            if (typeof toastr !== 'undefined') {
+                toastr.error('অনুগ্রহ করে একটি কালার সিলেক্ট করুন', 'ভ্যারিয়েন্ট নির্বাচন');
+            } else {
+                alert('অনুগ্রহ করে একটি কালার সিলেক্ট করুন');
+            }
+            var colorContainer = document.querySelector('.pro-color');
+            if (colorContainer) {
+                colorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return false;
+        }
+
+        var sizeRadios = form.querySelectorAll('input[name="product_size"]');
+        if (sizeRadios.length > 0 && !form.querySelector('input[name="product_size"]:checked')) {
+            if (typeof toastr !== 'undefined') {
+                toastr.warning('অনুগ্রহ করে একটি সাইজ সিলেক্ট করুন', 'ভ্যারিয়েন্ট নির্বাচন');
+            } else {
+                alert('অনুগ্রহ করে একটি সাইজ সিলেক্ট করুন');
+            }
+            var sizeContainer = document.querySelector('.pro-size');
+            if (sizeContainer) {
+                sizeContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return false;
+        }
+        return true;
+    }
+
+    var floatingOrderBtn = document.getElementById('floating_order_now_btn');
+    if (floatingOrderBtn) {
+        floatingOrderBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (checkVariantsSelected()) {
+                mainOrderBtn.click();
+            }
+        });
+    }
+
+    var floatingCartBtn = document.getElementById('floating_add_cart_btn');
+    var mainCartBtn = document.getElementById('main_add_cart_btn');
+    if (floatingCartBtn && mainCartBtn) {
+        floatingCartBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (checkVariantsSelected()) {
+                mainCartBtn.click();
+            }
+        });
+    }
 })();
 </script>
 @endpush

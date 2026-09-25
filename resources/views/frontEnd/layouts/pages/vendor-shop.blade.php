@@ -114,26 +114,6 @@
                     <div class="product_item wist_item">
 
                         <div class="product_item_inner">
-
-                            {{-- Discount badge --}}
-                            @if($value->old_price && $value->old_price > $value->new_price)
-                            <div class="sale-badge">
-                                <div class="sale-badge-inner">
-                                    <div class="sale-badge-box">
-                                        <span class="sale-badge-text">
-                                            <p>
-                                                @php
-                                                    $discount = ((($value->old_price - $value->new_price) * 100) / $value->old_price);
-                                                @endphp
-                                                {{ number_format($discount, 0) }}%
-                                            </p>
-                                            ছাড়
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
-
                             <div class="pro_img">
                                 <a href="{{ route('product', $value->slug) }}">
                                     <img src="{{ asset($value->image ? $value->image->image : '') }}"
@@ -177,6 +157,12 @@
                                     <del>৳ {{ $value->old_price }}</del>
                                 @endif
                                 ৳ {{ $value->new_price }}
+                                @if($value->old_price && $value->old_price > $value->new_price)
+                                    @php
+                                        $discount = round((($value->old_price - $value->new_price) * 100) / $value->old_price);
+                                    @endphp
+                                    <span class="pro_discount_tag">-{{ $discount }}%</span>
+                                @endif
                             </p>
                         </div>
 

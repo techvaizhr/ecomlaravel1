@@ -321,19 +321,20 @@ body {
         justify-content:center;
         align-items:center;
         width:100%;
-        height:38px;
-        padding:6px 10px;
+        height:40px;
+        padding:6px 12px;
         background:{{$generalsetting->primary_color}};
         border:2px solid {{$generalsetting->primary_color}};
         color:#fff !important;
-        border-radius:6px;
-        font-size:13px;
-        font-weight:600;
+        border-radius:7px;
+        font-size:15px;
+        font-weight:700;
         cursor:pointer;
         font-family:"Potro Sans Bangla",sans-serif;
         transition:all .2s ease;
         text-align:center;
         white-space:nowrap;
+        letter-spacing:0.3px;
     }
     .product_item .order-btn:hover,
     .product_item .order-btn-link:hover{
@@ -347,12 +348,12 @@ body {
         display:flex;
         justify-content:center;
         align-items:center;
-        width:40px;
-        min-width:40px;
-        height:38px;
+        width:42px;
+        min-width:42px;
+        height:40px;
         background:transparent;
         border:2px solid {{$generalsetting->secodery_color}};
-        border-radius:6px;
+        border-radius:7px;
         cursor:pointer;
         transition:all .2s ease;
         padding:0;
@@ -360,7 +361,7 @@ body {
     }
     .product_item .cart-icon-btn i,
     .product_item .cart-icon-link i{
-        font-size:15px;
+        font-size:17px;
         color:{{$generalsetting->primary_color}};
         transition:color .2s ease;
     }
@@ -3460,34 +3461,24 @@ section.product-inner {
 }
 
 .product_item_inner .sale-badge {
-    position: absolute;
-    top: 15px;
-    right: 4px;
-    z-index: 1;
+    display: none !important;
 }
 
-.product_item_inner .sale-badge-inner {
-    --sale-badge-width: 45px;
-    width: var(--sale-badge-width);
-    height: var(--sale-badge-width);
-}
-
-.product_item_inner .sale-badge-box {
-    background-color: #ff0000;
-    border-radius: 50%;
-    height: 40px;
-    width: 40px;
-    display: flex;
-    justify-content: center;
+/* 🏷️ Modern inline discount tag with price */
+.pro_discount_tag {
+    display: inline-flex !important;
     align-items: center;
-}
-
-.product_item_inner span.sale-badge-text {
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    font-family: "Lato", sans-serif;
-   
+    justify-content: center;
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 1.5px 6px !important;
+    border-radius: 4px !important;
+    line-height: 1.25 !important;
+    margin-left: 4px !important;
+    vertical-align: middle !important;
+    letter-spacing: 0.2px !important;
 }
 
 .wist_item {
@@ -6425,8 +6416,8 @@ section.pro_details_area {
         gap: 8px;
     }
     .add_cart_btn, .order_now_btn {
-        height: 42px;
-        font-size: 14px;
+        height: 46px !important;
+        font-size: 15.5px !important;
     }
     .indicator_thumb { gap: 5px; }
     .indicator-item { width: 52px; height: 52px; }
@@ -6451,17 +6442,18 @@ section.pro_details_area {
     max-width: 50% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
-    height: 46px !important;
-    padding: 0 10px !important;
-    font-size: 15px !important;
+    height: 50px !important;
+    padding: 0 12px !important;
+    font-size: 17px !important;
     font-weight: 700 !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
     white-space: nowrap !important;
     margin: 0 !important;
+    letter-spacing: 0.3px !important;
 }
 
 /* 🎨 Swatch Inner Padding - prevents color from bleeding/sticking to border */

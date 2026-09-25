@@ -476,6 +476,25 @@
         text-align: center;
     }
 
+    /* 🎯 Attention-Grabbing Shake / Vibration for Checkout Order Button ("ঝাঁকাঝাঁকি") */
+    @keyframes orderJhakajhaki {
+        0%, 65%, 100% {
+            transform: scale(1) translate3d(0, 0, 0);
+            box-shadow: 0 4px 18px rgba(233, 69, 96, 0.45);
+        }
+        68%, 76%, 84% {
+            transform: scale(1.025) translate3d(-3px, 0, 0) rotate(-1deg);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.7);
+        }
+        72%, 80%, 88% {
+            transform: scale(1.025) translate3d(3px, 0, 0) rotate(1deg);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.7);
+        }
+        92% {
+            transform: scale(1.01) translate3d(0, 0, 0) rotate(0deg);
+        }
+    }
+
     /* --- Submit Button --- */
     .btn-place-order {
         background: var(--secondary-color);
@@ -495,10 +514,97 @@
         justify-content: center;
         align-items: center;
         gap: 10px;
+        animation: orderJhakajhaki 2.8s infinite ease-in-out !important;
     }
     .btn-place-order:hover {
         background: var(--primary-color);
         transform: translateY(-2px);
+        animation: none !important;
+    }
+
+    /* 🚀 Floating Checkout Order Bar */
+    .checkout-floating-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #ffffff;
+        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.14);
+        border-top: 1px solid #e5e7eb;
+        z-index: 10005;
+        padding: 10px 20px;
+        transform: translateY(115%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+    .checkout-floating-bar.is-visible {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .checkout-floating-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+    .checkout-floating-total {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .checkout-floating-label {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 500;
+        margin-bottom: 1px;
+    }
+    .checkout-floating-amount {
+        font-size: 19px;
+        font-weight: 800;
+        color: var(--primary-color, #0f3460);
+        white-space: nowrap;
+    }
+    .checkout-floating-btn {
+        background: var(--secondary-color, #e94560);
+        color: #ffffff !important;
+        border: none;
+        padding: 13px 32px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        animation: orderJhakajhaki 2.8s infinite ease-in-out !important;
+        transition: 0.2s ease;
+    }
+    .checkout-floating-btn:hover {
+        animation: none !important;
+        background: var(--primary-color, #0f3460);
+        transform: translateY(-2px);
+    }
+    @media (max-width: 768px) {
+        .checkout-floating-bar {
+            padding: 8px 14px;
+        }
+        .checkout-floating-amount {
+            font-size: 16px;
+        }
+        .checkout-floating-btn {
+            padding: 11px 18px;
+            font-size: 14.5px;
+            flex: 1;
+            max-width: 250px;
+        }
     }
 
     /* --- Responsive Fixes --- */
@@ -1080,6 +1186,19 @@
             </div>
         </div>
         @endif
+
+    {{-- 🚀 FLOATING STICKY ORDER BAR FOR CHECKOUT --}}
+    <div id="checkout_floating_bar" class="checkout-floating-bar">
+        <div class="checkout-floating-container">
+            <div class="checkout-floating-total">
+                <span class="checkout-floating-label">সর্বমোট বিল</span>
+                <span class="checkout-floating-amount" id="checkoutFloatingGrandTotal">৳ {{ number_format($grand_total, 2) }}</span>
+            </div>
+            <button type="button" class="checkout-floating-btn" id="checkout_floating_submit_btn">
+                অর্ডার নিশ্চিত করুন <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+        </div>
+    </div>
 
     </div>
 </section>
@@ -1838,5 +1957,81 @@ $(document).ready(function () {
         });
     }
 });
+
+// 🚀 Floating Sticky Order Bar for Checkout Page
+(function () {
+    var floatingBar = document.getElementById('checkout_floating_bar');
+    if (!floatingBar) return;
+
+    function getActiveSubmitBtn() {
+        var btns = document.querySelectorAll('.btn-place-order');
+        for (var i = 0; i < btns.length; i++) {
+            if (btns[i].offsetParent !== null) {
+                return btns[i];
+            }
+        }
+        return btns.length ? btns[0] : null;
+    }
+
+    function checkSubmitVisibility() {
+        var btn = getActiveSubmitBtn();
+        if (!btn) return;
+        var rect = btn.getBoundingClientRect();
+        var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        var inView = (rect.bottom > 0 && rect.top < windowHeight);
+        if (!inView) {
+            floatingBar.classList.add('is-visible');
+        } else {
+            floatingBar.classList.remove('is-visible');
+        }
+    }
+
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+            var anyVisible = entries.some(function(entry) { return entry.isIntersecting; });
+            if (!anyVisible) {
+                floatingBar.classList.add('is-visible');
+            } else {
+                floatingBar.classList.remove('is-visible');
+            }
+        }, {
+            root: null,
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.btn-place-order').forEach(function (btn) {
+            observer.observe(btn);
+        });
+    } else {
+        window.addEventListener('scroll', checkSubmitVisibility, { passive: true });
+        window.addEventListener('resize', checkSubmitVisibility);
+        checkSubmitVisibility();
+    }
+
+    // Sync floating bar grand total when #grandTotalAmount changes
+    var mainGrandTotal = document.getElementById('grandTotalAmount');
+    var floatingGrandTotal = document.getElementById('checkoutFloatingGrandTotal');
+    if (mainGrandTotal && floatingGrandTotal && 'MutationObserver' in window) {
+        var totalObserver = new MutationObserver(function () {
+            floatingGrandTotal.textContent = mainGrandTotal.textContent;
+        });
+        totalObserver.observe(mainGrandTotal, { childList: true, characterData: true, subtree: true });
+    }
+
+    // Click handler for floating checkout submit button
+    var floatingSubmitBtn = document.getElementById('checkout_floating_submit_btn');
+    if (floatingSubmitBtn) {
+        floatingSubmitBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var btn = getActiveSubmitBtn();
+            if (btn) {
+                btn.click();
+            } else {
+                var f = document.getElementById('checkout-form');
+                if (f) f.submit();
+            }
+        });
+    }
+})();
 </script>
 @endpush
