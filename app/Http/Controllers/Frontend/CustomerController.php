@@ -962,6 +962,7 @@ public function order_save(Request $request)
         $shipping->order_id    = $order->id;
         $shipping->customer_id = $customer_id;
         $shipping->name        = $request->name;
+        $shipping->phone       = $request->phone;
         $composedAddress = trim((string) $request->address);
         if ($composedAddress === '') {
             if ($divisionId && $districtId) {
