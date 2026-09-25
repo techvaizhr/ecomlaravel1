@@ -40,18 +40,7 @@ return new class extends Migration
             ]);
         }
 
-        // 2. Create custom_delivery_charges table
-        if (!Schema::hasTable('custom_delivery_charges')) {
-            Schema::create('custom_delivery_charges', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->decimal('amount', 10, 2)->default(0.00);
-                $table->tinyInteger('status')->default(1);
-                $table->timestamps();
-            });
-        }
-
-        // 3. Add delivery_charge column to divisions if not present
+        // 2. Add delivery_charge column to divisions if not present
         if (Schema::hasTable('divisions')) {
             if (!Schema::hasColumn('divisions', 'delivery_charge')) {
                 Schema::table('divisions', function (Blueprint $table) {
@@ -60,7 +49,7 @@ return new class extends Migration
             }
         }
 
-        // 4. Ensure delivery_charge column exists in districts
+        // 3. Ensure delivery_charge column exists in districts
         if (Schema::hasTable('districts')) {
             if (!Schema::hasColumn('districts', 'delivery_charge')) {
                 Schema::table('districts', function (Blueprint $table) {
@@ -69,17 +58,11 @@ return new class extends Migration
             }
         }
 
-        // 5. Add weight & delivery override columns to products table
+        // 4. Add weight column to products table
         if (Schema::hasTable('products')) {
             Schema::table('products', function (Blueprint $table) {
                 if (!Schema::hasColumn('products', 'weight')) {
                     $table->decimal('weight', 8, 2)->default(0.00)->after('stock');
-                }
-                if (!Schema::hasColumn('products', 'delivery_charge_type')) {
-                    $table->string('delivery_charge_type', 50)->default('global')->after('free_delivery'); // global, free, custom, weight_based
-                }
-                if (!Schema::hasColumn('products', 'custom_delivery_charge_id')) {
-                    $table->unsignedBigInteger('custom_delivery_charge_id')->nullable()->after('delivery_charge_type');
                 }
             });
         }
@@ -91,7 +74,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('delivery_settings');
-        Schema::dropIfExists('custom_delivery_charges');
 
         if (Schema::hasTable('divisions') && Schema::hasColumn('divisions', 'delivery_charge')) {
             Schema::table('divisions', function (Blueprint $table) {
@@ -105,14 +87,9 @@ return new class extends Migration
             });
         }
 
-        if (Schema::hasTable('products')) {
+        if (Schema::hasTable('products') && Schema::hasColumn('products', 'weight')) {
             Schema::table('products', function (Blueprint $table) {
-                $cols = ['weight', 'delivery_charge_type', 'custom_delivery_charge_id'];
-                foreach ($cols as $c) {
-                    if (Schema::hasColumn('products', $c)) {
-                        $table->dropColumn($c);
-                    }
-                }
+                $table->dropColumn('weight');
             });
         }
     }

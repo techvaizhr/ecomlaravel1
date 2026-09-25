@@ -224,60 +224,19 @@
                 </div>
             </div>
 
-            {{-- Product Weight & Delivery Rules Section --}}
-            <div class="p-3 border rounded-3 mb-3 bg-light">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div class="d-flex align-items-center gap-1">
-                        <i class="fe-truck text-primary"></i>
-                        <strong style="font-size:12px;">ডেলিভারি ও ওজন সেটিংস</strong>
-                    </div>
-                    <a href="{{ route('admin.delivery.settings') }}" target="_blank" class="text-primary text-decoration-none" style="font-size:11px;" title="ডেলিভারি চার্জ সেটিংস ম্যানেজ করুন">
-                        <i class="fe-external-link"></i> সেটিংস
-                    </a>
+            {{-- Product Weight Section --}}
+            <div class="p-2 border rounded-3 mb-3 bg-light">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label mb-0 fw-bold" style="font-size:11.5px;">
+                        <i class="fe-package text-primary me-1"></i>প্রোডাক্টের ওজন (Weight - KG)
+                    </label>
                 </div>
-
-                <div class="row g-2 mb-1">
-                    <div class="col-5">
-                        <label class="form-label mb-1" style="font-size:11px;">ওজন (KG)</label>
-                        <div class="input-group input-group-sm">
-                            <input type="number" step="0.01" min="0" name="weight" class="form-control" placeholder="0.5" value="{{ old('weight', $edit_data->weight ?? '0.00') }}">
-                            <span class="input-group-text">KG</span>
-                        </div>
-                    </div>
-                    <div class="col-7">
-                        <label class="form-label mb-1" style="font-size:11px;">ডেলিভারি চার্জ নিয়ম</label>
-                        @php
-                            $savedType = old('delivery_charge_type');
-                            if (!$savedType) {
-                                if ($edit_data->delivery_charge_type === 'custom' && $edit_data->custom_delivery_charge_id) {
-                                    $savedType = 'custom:' . $edit_data->custom_delivery_charge_id;
-                                } elseif ($edit_data->delivery_charge_type) {
-                                    $savedType = $edit_data->delivery_charge_type;
-                                } elseif ($edit_data->free_delivery) {
-                                    $savedType = 'free';
-                                } else {
-                                    $savedType = 'global';
-                                }
-                            }
-                        @endphp
-                        <select class="form-select form-select-sm fw-semibold" name="delivery_charge_type">
-                            <option value="global" {{ $savedType == 'global' ? 'selected' : '' }}>🌐 সিস্টেম ডিফল্ট (Global)</option>
-                            <option value="free" {{ $savedType == 'free' ? 'selected' : '' }}>🎁 ফ্রি ডেলিভারি (Free - ৳0)</option>
-                            <option value="weight_based" {{ $savedType == 'weight_based' ? 'selected' : '' }}>⚖️ ওজন ভিত্তিক (Weight Based)</option>
-                            @if(isset($customCharges) && $customCharges->count() > 0)
-                                <optgroup label="🏷️ কাস্টম ডেলিভারি চার্জ">
-                                    @foreach($customCharges as $cc)
-                                        <option value="custom:{{ $cc->id }}" {{ $savedType == 'custom:'.$cc->id ? 'selected' : '' }}>
-                                            🏷️ {{ $cc->name }} (৳{{ number_format($cc->amount, 0) }})
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-                        </select>
-                    </div>
+                <div class="input-group input-group-sm">
+                    <input type="number" step="0.01" min="0" name="weight" class="form-control" placeholder="0.5" value="{{ old('weight', $edit_data->weight ?? '0.00') }}">
+                    <span class="input-group-text">KG</span>
                 </div>
-                <small class="text-muted" style="font-size:10.5px; display:block; line-height:1.3; margin-top:4px;">
-                    * 'সিস্টেম ডিফল্ট' দিলে গ্লোবাল সেটিংস (এরিয়া/ফ্ল্যাট) অনুযায়ী চার্জ প্রযোজ্য হবে।
+                <small class="text-muted" style="font-size:10.5px; display:block; margin-top:2px;">
+                    * ডেলিভারি চার্জ সেটিংস থেকে ওজনভিত্তিক মোড চালু থাকলে এটি হিসাব হবে।
                 </small>
             </div>
             <div id="digital_area" style="{{ $isDigital ? '' : 'display:none;' }}" class="p-2 border rounded mb-2 bg-light">

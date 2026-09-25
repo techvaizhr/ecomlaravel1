@@ -2,19 +2,17 @@
 
 namespace App\Services;
 
-use App\Models\CustomDeliveryCharge;
 use App\Models\DeliveryDistrict;
 use App\Models\DeliveryDivision;
 use App\Models\DeliverySetting;
 use App\Models\Product;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 class DeliveryChargeService
 {
     /**
-     * Calculate delivery charge for cart or item collection and given destination.
+     * Calculate delivery charge for cart or item collection based on Delivery Settings.
      *
      * @param Collection|array|null $items Items in cart (or default to Cart::instance('shopping')->content())
      * @param int|null $divisionId
@@ -52,7 +50,7 @@ class DeliveryChargeService
             ];
         }
 
-        // 1. Global Free Delivery Check
+        // 1. Global Free Delivery Mode
         if ($globalMethod === 'free_delivery') {
             return [
                 'charge'        => 0.0,
@@ -69,18 +67,28 @@ class DeliveryChargeService
         })->filter()->unique()->all();
 
         $productsMap = !empty($productIds)
-            ? Product::with('customDeliveryCharge')->whereIn('id', $productIds)->get()->keyBy('id')
+            ? Product::whereIn('id', $productIds)->get()->keyBy('id')
             : collect();
 
         // Check if all items are digital
         $allDigital = true;
+        $allPhysicalFree = true;
+        $totalWeight = 0.0;
+
         foreach ($itemsList as $it) {
             $pid = is_object($it) ? ($it->id ?? null) : ($it['id'] ?? null);
+            $qty = is_object($it) ? (int) ($it->qty ?? 1) : (int) ($it['qty'] ?? 1);
             $prod = $productsMap->get($pid);
-            $isDigital = (int) ($it->options->is_digital ?? $prod->is_digital ?? 0) === 1;
+
+            $isDigital = (int) ($it->options->is_digital ?? $prod?->is_digital ?? 0) === 1;
             if (!$isDigital) {
                 $allDigital = false;
-                break;
+                $pWeight = (float) ($prod?->weight ?? 0);
+                $totalWeight += ($pWeight * $qty);
+
+                if ((int) ($prod?->free_delivery ?? 0) !== 1) {
+                    $allPhysicalFree = false;
+                }
             }
         }
 
@@ -94,108 +102,43 @@ class DeliveryChargeService
             ];
         }
 
-        // Check physical items & calculate individual charges
-        $allPhysicalFree = true;
-        $totalWeight = 0.0;
-        $productCalculatedCharges = [];
-
-        foreach ($itemsList as $it) {
-            $pid = is_object($it) ? ($it->id ?? null) : ($it['id'] ?? null);
-            $qty = is_object($it) ? (int) ($it->qty ?? 1) : (int) ($it['qty'] ?? 1);
-            $prod = $productsMap->get($pid);
-            if (!$prod) continue;
-
-            $isDigital = (int) ($it->options->is_digital ?? $prod->is_digital ?? 0) === 1;
-            if ($isDigital) continue;
-
-            $pWeight = (float) ($prod->weight ?? 0);
-            $totalWeight += ($pWeight * $qty);
-
-            $pType = $prod->delivery_charge_type ?: 'global';
-            $isProdFree = ($pType === 'free' || (int) ($prod->free_delivery ?? 0) === 1);
-
-            if (!$isProdFree) {
-                $allPhysicalFree = false;
-            }
-
-            // Calculate per-product individual charge based on rule
-            $individualCharge = 0.0;
-            if ($isProdFree) {
-                $individualCharge = 0.0;
-            } elseif ($pType === 'custom' && $prod->custom_delivery_charge_id) {
-                $customCharge = $prod->customDeliveryCharge;
-                if ($customCharge && $customCharge->status) {
-                    $individualCharge = (float) $customCharge->amount;
-                } else {
-                    // Fallback to global if custom charge is inactive/deleted
-                    $individualCharge = self::resolveProductGlobalCharge($prod, $pWeight, $qty, $globalMethod, $divisionId, $districtId, $settings);
-                }
-            } elseif ($pType === 'weight_based') {
-                $individualCharge = self::calculateWeightCost($pWeight * $qty, $settings);
-            } else {
-                // Global method for this product
-                $individualCharge = self::resolveProductGlobalCharge($prod, $pWeight, $qty, $globalMethod, $divisionId, $districtId, $settings);
-            }
-
-            $productCalculatedCharges[] = [
-                'product_id' => $prod->id,
-                'name'       => $prod->name,
-                'type'       => $pType,
-                'charge'     => $individualCharge,
-            ];
-        }
-
         if ($allPhysicalFree) {
             return [
                 'charge'        => 0.0,
                 'active_method' => 'free_delivery',
                 'is_free'       => true,
                 'total_weight'  => $totalWeight,
-                'details'       => ['reason' => 'All physical products have Free Delivery'],
+                'details'       => ['reason' => 'All items have Free Delivery promotion'],
             ];
         }
 
-        // Global weight based calculation across combined cart weight
-        $globalWeightCharge = 0.0;
-        if ($globalMethod === 'weight_based') {
-            $globalWeightCharge = self::calculateWeightCost($totalWeight, $settings);
-        }
+        // Calculate delivery charge according to active mode in Settings
+        $finalCharge = 0.0;
 
-        // Multi-Product Rule:
-        // "sokol delivery charge er moddhe besi ta apply hobe" (Highest charge applies)
-        $maxCharge = 0.0;
-        foreach ($productCalculatedCharges as $pc) {
-            if ($pc['charge'] > $maxCharge) {
-                $maxCharge = $pc['charge'];
-            }
-        }
-
-        if ($globalMethod === 'weight_based' && $globalWeightCharge > $maxCharge) {
-            $maxCharge = $globalWeightCharge;
-        }
-
-        // If no custom charge was resolved, apply global resolution
-        if ($maxCharge <= 0 && !$allPhysicalFree) {
-            if ($globalMethod === 'flat_rate') {
-                $maxCharge = (float) $settings->flat_rate_amount;
-            } elseif ($globalMethod === 'area_based') {
-                $maxCharge = self::resolveAreaCharge($divisionId, $districtId, $settings);
-            } elseif ($globalMethod === 'weight_based') {
-                $maxCharge = self::calculateWeightCost($totalWeight, $settings);
-            }
+        if ($globalMethod === 'flat_rate') {
+            $finalCharge = (float) $settings->flat_rate_amount;
+        } elseif ($globalMethod === 'weight_based') {
+            $finalCharge = self::calculateWeightCost($totalWeight, $settings);
+        } else {
+            // Default: area_based (Division & District hierarchy)
+            $finalCharge = self::resolveAreaCharge($divisionId, $districtId, $settings);
         }
 
         return [
-            'charge'        => (float) $maxCharge,
+            'charge'        => (float) $finalCharge,
             'active_method' => $globalMethod,
-            'is_free'       => ($maxCharge <= 0),
+            'is_free'       => ($finalCharge <= 0),
             'total_weight'  => $totalWeight,
-            'details'       => $productCalculatedCharges,
+            'details'       => [
+                'method'       => $globalMethod,
+                'charge'       => $finalCharge,
+                'total_weight' => $totalWeight,
+            ],
         ];
     }
 
     /**
-     * Resolve area charge for division & district hierarchy without any legacy hardcoded dhaka checks.
+     * Resolve area charge for division & district hierarchy without any legacy hardcoded checks.
      */
     public static function resolveAreaCharge(?int $divisionId, ?int $districtId, ?DeliverySetting $settings = null): float
     {
@@ -227,28 +170,6 @@ class DeliveryChargeService
 
         // 3. Fallback to default area charge (e.g. 100 Tk)
         return (float) ($settings->default_area_charge ?: 100.00);
-    }
-
-    /**
-     * Helper to resolve global method charge for a product.
-     */
-    protected static function resolveProductGlobalCharge(
-        Product $prod,
-        float $pWeight,
-        int $qty,
-        string $globalMethod,
-        ?int $divisionId,
-        ?int $districtId,
-        DeliverySetting $settings
-    ): float {
-        if ($globalMethod === 'flat_rate') {
-            return (float) $settings->flat_rate_amount;
-        } elseif ($globalMethod === 'weight_based') {
-            return self::calculateWeightCost($pWeight * $qty, $settings);
-        } elseif ($globalMethod === 'area_based') {
-            return self::resolveAreaCharge($divisionId, $districtId, $settings);
-        }
-        return 0.0;
     }
 
     /**

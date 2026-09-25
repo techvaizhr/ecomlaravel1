@@ -221,11 +221,10 @@ class ProductController extends Controller
     public function create()
     {
         return view('backEnd.product.create', [
-            'categories'    => Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->with('childrenCategories')->get(),
-            'brands'        => Brand::where('status', 1)->select('id', 'name')->get(),
-            'colors'        => Color::where('status', 1)->get(),
-            'sizes'         => Size::where('status', 1)->get(),
-            'customCharges' => \App\Models\CustomDeliveryCharge::where('status', 1)->orderBy('name')->get(),
+            'categories' => Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->with('childrenCategories')->get(),
+            'brands'     => Brand::where('status', 1)->select('id', 'name')->get(),
+            'colors'     => Color::where('status', 1)->get(),
+            'sizes'      => Size::where('status', 1)->get(),
         ]);
     }
 
@@ -322,27 +321,8 @@ class ProductController extends Controller
         $input['feature_product'] = $request->feature_product ? 1 : 0;
         $input['product_code']    = 'P' . str_pad($last_id, 4, '0', STR_PAD_LEFT);
         
-        // Weight & Delivery Rules
+        // Product Weight (used if Weight Based delivery setting is active)
         $input['weight'] = $request->filled('weight') ? (float) $request->weight : 0.00;
-        
-        $rawDelType = $request->input('delivery_charge_type', 'global') ?: 'global';
-        if (str_starts_with($rawDelType, 'custom:')) {
-            $input['delivery_charge_type'] = 'custom';
-            $input['custom_delivery_charge_id'] = (int) str_replace('custom:', '', $rawDelType);
-            $input['free_delivery'] = 0;
-        } elseif ($rawDelType === 'free') {
-            $input['delivery_charge_type'] = 'free';
-            $input['custom_delivery_charge_id'] = null;
-            $input['free_delivery'] = 1;
-        } elseif ($rawDelType === 'weight_based') {
-            $input['delivery_charge_type'] = 'weight_based';
-            $input['custom_delivery_charge_id'] = null;
-            $input['free_delivery'] = 0;
-        } else {
-            $input['delivery_charge_type'] = 'global';
-            $input['custom_delivery_charge_id'] = null;
-            $input['free_delivery'] = 0;
-        }
         
         // Wholesale settings
         $input['is_wholesale'] = $request->is_wholesale ? 1 : 0;
@@ -530,7 +510,6 @@ class ProductController extends Controller
             'selectcolors'    => Productcolor::where('product_id', $id)->get(),
             'selectsizes'     => Productsize::where('product_id', $id)->get(),
             'wholesalePrices' => \App\Models\ProductWholesalePrice::where('product_id', $id)->get(),
-            'customCharges'   => \App\Models\CustomDeliveryCharge::where('status', 1)->orWhere('id', $edit->custom_delivery_charge_id)->orderBy('name')->get(),
         ]);
     }
 
@@ -618,27 +597,8 @@ class ProductController extends Controller
         $input['free_delivery']   = $request->free_delivery ? 1 : 0;
         $input['feature_product'] = $request->feature_product ? 1 : 0;
 
-        // Weight & Delivery Rules
+        // Product Weight (used if Weight Based delivery setting is active)
         $input['weight'] = $request->filled('weight') ? (float) $request->weight : 0.00;
-        
-        $rawDelType = $request->input('delivery_charge_type', 'global') ?: 'global';
-        if (str_starts_with($rawDelType, 'custom:')) {
-            $input['delivery_charge_type'] = 'custom';
-            $input['custom_delivery_charge_id'] = (int) str_replace('custom:', '', $rawDelType);
-            $input['free_delivery'] = 0;
-        } elseif ($rawDelType === 'free') {
-            $input['delivery_charge_type'] = 'free';
-            $input['custom_delivery_charge_id'] = null;
-            $input['free_delivery'] = 1;
-        } elseif ($rawDelType === 'weight_based') {
-            $input['delivery_charge_type'] = 'weight_based';
-            $input['custom_delivery_charge_id'] = null;
-            $input['free_delivery'] = 0;
-        } else {
-            $input['delivery_charge_type'] = 'global';
-            $input['custom_delivery_charge_id'] = null;
-            $input['free_delivery'] = 0;
-        }
 
         // VIDEO — YouTube or local upload
         $this->handleVideoInput($request, $input, $product);

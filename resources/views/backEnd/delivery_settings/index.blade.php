@@ -51,7 +51,6 @@
     .del-mode-icon.flat { background: #fef3c7; color: #d97706; }
     .del-mode-icon.free { background: #dcfce7; color: #16a34a; }
     .del-mode-icon.weight { background: #f3e8ff; color: #9333ea; }
-    .del-mode-icon.custom { background: #fee2e2; color: #dc2626; }
 
     .del-mode-title {
         font-size: 15px;
@@ -143,10 +142,10 @@
             <div class="page-title-box d-flex align-items-center justify-content-between">
                 <div>
                     <h4 class="mb-1 text-dark fw-bold">
-                        <i class="fe-truck text-primary me-2"></i>ডেলিভারি চার্জ ম্যানেজমেন্ট ও সেটিংস
+                        <i class="fe-truck text-primary me-2"></i>ডেলিভারি চার্জ সেটিংস ও ম্যানেজমেন্ট
                     </h4>
                     <p class="text-muted mb-0 small">
-                        বিভাগ ও জেলা অনুযায়ী এরিয়াভিত্তিক, ফিক্সড ফ্ল্যাট রেট, ফ্রি ডেলিভারি, ওজনভিত্তিক এবং মাল্টিপল কাস্টম ডেলিভারি চার্জ নির্ধারণ করুন।
+                        সারা দেশের জন্য এরিয়াভিত্তিক (বিভাগ ও জেলা ওভাররাইড), ফিক্সড ফ্ল্যাট রেট, ফ্রি ডেলিভারি কিংবা ওজনভিত্তিক ডেলিভারি চার্জ নির্ধারণ করুন।
                     </p>
                 </div>
                 <div class="d-flex gap-2">
@@ -183,7 +182,7 @@
                                     <i class="fe-map-pin"></i>
                                 </div>
                                 <div class="del-mode-title">এরিয়া ভিত্তিক (Area Based)</div>
-                                <p class="del-mode-desc">বিভাগ ও জেলা অনুযায়ী আলাদা নির্দিষ্ট ডেলিভারি চার্জ কার্যকর হবে।</p>
+                                <p class="del-mode-desc">বিভাগ ও জেলা অনুযায়ী আলাদা নির্দিষ্ট ডেলিভারি চার্জ স্বয়ংক্রিয়ভাবে কার্যকর হবে।</p>
                             </div>
                         </label>
                     </div>
@@ -197,7 +196,7 @@
                                     <i class="fe-layers"></i>
                                 </div>
                                 <div class="del-mode-title">ফ্ল্যাট রেট (Flat Rate)</div>
-                                <p class="del-mode-desc">সারা দেশের সকল জেলার অর্ডারে একটি ফিক্সড নির্দিষ্ট চার্জ।</p>
+                                <p class="del-mode-desc">সারা দেশের সকল জেলার অর্ডারে একটি ফিক্সড নির্দিষ্ট চার্জ প্রযোজ্য হবে।</p>
                             </div>
                         </label>
                     </div>
@@ -211,7 +210,7 @@
                                     <i class="fe-gift"></i>
                                 </div>
                                 <div class="del-mode-title">ফ্রি ডেলিভারি (Free Delivery)</div>
-                                <p class="del-mode-desc">সারা দেশে সকল অর্ডারে সম্পূর্ণ ফ্রি ডেলিভারি (৳০)।</p>
+                                <p class="del-mode-desc">সারা দেশে সকল অর্ডারে সম্পূর্ণ ফ্রি ডেলিভারি (৳০) কার্যকর হবে।</p>
                             </div>
                         </label>
                     </div>
@@ -225,7 +224,7 @@
                                     <i class="fe-shield"></i>
                                 </div>
                                 <div class="del-mode-title">ওজন ভিত্তিক (Weight Based)</div>
-                                <p class="del-mode-desc">কার্টের মোট ওজনের (কেজি) ওপর ভিত্তি করে চার্জ গণনা হবে।</p>
+                                <p class="del-mode-desc">কার্টের মোট ওজনের (কেজি) ওপর ভিত্তি করে ডেলিভারি চার্জ স্বয়ংক্রিয়ভাবে গণনা হবে।</p>
                             </div>
                         </label>
                     </div>
@@ -269,7 +268,7 @@
                                 <span class="input-group-text">৳</span>
                                 <input type="number" step="0.01" min="0" name="default_area_charge" class="form-control fw-bold" value="{{ old('default_area_charge', $setting->default_area_charge ?? 100.00) }}">
                             </div>
-                            <small class="text-muted d-block mt-1">বিভাগ বা জেলায় চার্জ উল্লেখ না থাকলে এটি কার্যকর হবে।</small>
+                            <small class="text-muted d-block mt-1">বিভাগ বা জেলায় আলাদা চার্জ উল্লেখ না থাকলে এটি কার্যকর হবে।</small>
                         </div>
                     </div>
 
@@ -302,7 +301,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <small class="text-muted d-block mt-2">১ম {{ $setting->weight_base_kg }} কেজির জন্য ৳{{ $setting->weight_base_cost }}, এরপর প্রতি কেজির জন্য অতিরিক্ত ৳{{ $setting->weight_extra_per_kg }} যোগ হবে।</small>
+                            <small class="text-muted d-block mt-2">১ম {{ $setting->weight_base_kg }} কেজির জন্য ৳{{ $setting->weight_base_cost }}, এরপর প্রতি অতিরিক্ত কেজির জন্য ৳{{ $setting->weight_extra_per_kg }} যোগ হবে।</small>
                         </div>
                     </div>
 
@@ -317,166 +316,13 @@
         </div>
     </form>
 
-    {{-- 3. Custom Delivery Charges Management Card --}}
-    <div class="config-card">
-        <div class="config-header">
-            <div>
-                <h5>
-                    <i class="fe-tag text-danger"></i>
-                    <span>৩. কাস্টম ডেলিভারি চার্জেস (Custom Delivery Charges)</span>
-                </h5>
-                <small class="text-muted">
-                    প্রোডাক্ট অ্যাড/এডিটের সময় নির্দিষ্ট পণ্যে এই কাস্টম চার্জ অ্যাসাইন করা যাবে (যেমন: এক্সপ্রেস ডেলিভারি, ভারী ফার্নিচার, ভঙ্গুর কাচের পণ্য ইত্যাদি)।
-                </small>
-            </div>
-            <div>
-                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addCustomChargeModal">
-                    <i class="fe-plus-circle me-1"></i> নতুন কাস্টম চার্জ যোগ করুন
-                </button>
-            </div>
-        </div>
-        <div class="config-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered mb-0 align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 50px;">#</th>
-                            <th>কাস্টম চার্জের নাম (Title)</th>
-                            <th style="width: 180px;">চার্জের পরিমাণ (Amount)</th>
-                            <th style="width: 120px;" class="text-center">স্ট্যাটাস</th>
-                            <th style="width: 140px;" class="text-center">অ্যাকশন</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($customCharges as $idx => $cc)
-                        <tr>
-                            <td>{{ $idx + 1 }}</td>
-                            <td>
-                                <strong class="text-dark">{{ $cc->name }}</strong>
-                            </td>
-                            <td>
-                                <span class="badge bg-soft-success text-success fs-6 px-2.5 py-1">
-                                    ৳{{ number_format($cc->amount, 2) }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                @if($cc->status)
-                                    <span class="badge bg-success">সক্রিয় (Active)</span>
-                                @else
-                                    <span class="badge bg-danger">নিষ্ক্রিয় (Inactive)</span>
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-xs btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editCustomChargeModal_{{ $cc->id }}" title="এডিট করুন">
-                                    <i class="fe-edit"></i>
-                                </button>
-                                <form action="{{ route('admin.delivery.settings.custom-charge.destroy', $cc->id) }}" method="POST" class="d-inline" onsubmit="return confirm('আপনি কি নিশ্চিত এই কাস্টম চার্জটি ডিলিট করতে চান?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-xs btn-outline-danger" title="ডিলিট করুন">
-                                        <i class="fe-trash-2"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-
-                        {{-- Edit Modal for each Custom Charge --}}
-                        <div class="modal fade" id="editCustomChargeModal_{{ $cc->id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <form action="{{ route('admin.delivery.settings.custom-charge.update', $cc->id) }}" method="POST">
-                                        @csrf
-                                        <div class="modal-header">
-                                            <h5 class="modal-title fw-bold">কাস্টম চার্জ এডিট করুন</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
-                                                <input type="text" name="name" class="form-control" required value="{{ $cc->name }}" placeholder="যেমন: এক্সপ্রেস ডেলিভারি">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold">ডেলিভারি চার্জ (৳) <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">৳</span>
-                                                    <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required value="{{ $cc->amount }}">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold">স্ট্যাটাস</label>
-                                                <select name="status" class="form-select">
-                                                    <option value="1" {{ $cc->status == 1 ? 'selected' : '' }}>সক্রিয় (Active)</option>
-                                                    <option value="0" {{ $cc->status == 0 ? 'selected' : '' }}>নিষ্ক্রিয় (Inactive)</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">বন্ধ করুন</button>
-                                            <button type="submit" class="btn btn-primary btn-sm">আপডেট করুন</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
-                                <i class="fe-info me-1"></i> এখনো কোনো কাস্টম ডেলিভারি চার্জ তৈরি করা হয়নি। উপরে <strong>নতুন কাস্টম চার্জ যোগ করুন</strong> বাটনে ক্লিক করে তৈরি করতে পারেন।
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    {{-- Modal: Add Custom Delivery Charge --}}
-    <div class="modal fade" id="addCustomChargeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form action="{{ route('admin.delivery.settings.custom-charge.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold"><i class="fe-plus-circle text-danger me-1"></i>নতুন কাস্টম ডেলিভারি চার্জ</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" required placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ভারী পণ্য, ভঙ্গুর আইটেম">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">ডেলিভারি চার্জের পরিমাণ (৳) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text">৳</span>
-                                <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required placeholder="150.00">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">স্ট্যাটাস</label>
-                            <select name="status" class="form-select">
-                                <option value="1" selected>সক্রিয় (Active)</option>
-                                <option value="0">নিষ্ক্রিয় (Inactive)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">বাতিল</button>
-                        <button type="submit" class="btn btn-danger btn-sm">সংরক্ষণ করুন</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- 4. Area Based Division & District Rates Management --}}
+    {{-- 3. Area Based Division & District Rates Management --}}
     <div class="config-card">
         <div class="config-header">
             <div>
                 <h5>
                     <i class="fe-map text-primary"></i>
-                    <span>৪. এরিয়া ভিত্তিক রেট কনফিগারেশন (Division & District Overrides)</span>
+                    <span>৩. এরিয়া ভিত্তিক রেট কনফিগারেশন (Division & District Overrides)</span>
                 </h5>
                 <small class="text-muted">
                     বিভাগে যে রেট দেবেন, ওই বিভাগের সকল জেলায় সেটি স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে। কোনো নির্দিষ্ট জেলায় ভিন্ন চার্জ চাইলে জেলার ঘরে লিখে দিন (যেমন: ঢাকা বিভাগ ১০০, কিন্তু গাজীপুর ৫০)।
