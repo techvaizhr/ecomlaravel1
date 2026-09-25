@@ -357,8 +357,10 @@ class ProductController extends Controller
             $input['download_expire_days']= null;
         }
 
-        // ফিল্টার: products টেবিলের কলাম ছাড়া অন্য কোনো ইনপুট যেন SQL ক্র্যাশ না করায়
-        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('products');
+        // ফিল্টার: products টেবিলের কলাম ছাড়া অন্য কোনো ইনপুট যেন SQL ক্র্যাশ না করায় (Cached schema listing)
+        $tableColumns = Cache::rememberForever('schema_columns_products', function () {
+            return \Illuminate\Support\Facades\Schema::getColumnListing('products');
+        });
         $input = array_intersect_key($input, array_flip($tableColumns));
 
         // CREATE PRODUCT
@@ -460,6 +462,7 @@ class ProductController extends Controller
             }
         }
 
+        Cache::forget('frontend_homepage_v4');
         Toastr::success('Product created successfully!');
         return $this->getProductRedirect($request, $product);
     }
@@ -639,13 +642,16 @@ class ProductController extends Controller
             $input['download_expire_days']= null;
         }
 
-        // ফিল্টার: products টেবিলের কলাম ছাড়া অন্য কোনো ইনপুট যেন SQL ক্র্যাশ না করায়
-        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing('products');
+        // ফিল্টার: products টেবিলের কলাম ছাড়া অন্য কোনো ইনপুট যেন SQL ক্র্যাশ না করায় (Cached schema listing)
+        $tableColumns = Cache::rememberForever('schema_columns_products', function () {
+            return \Illuminate\Support\Facades\Schema::getColumnListing('products');
+        });
         $input = array_intersect_key($input, array_flip($tableColumns));
 
         // PRODUCT UPDATE
         $product->update($input);
         Cache::forget('product_details_' . $product->slug);
+        Cache::forget('frontend_homepage_v4');
 
         // SIZE & COLOR
         $product->sizes()->sync($request->proSize ?? []);
@@ -758,12 +764,13 @@ class ProductController extends Controller
                     }
                 }
 
-                if (!empty($orderedPaths[0])) {
+                if (!empty($orderedPaths[0]) && $product->meta_image !== $orderedPaths[0]) {
                     $product->update(['meta_image' => $orderedPaths[0]]);
                 }
             }
         }
 
+        Cache::forget('frontend_homepage_v4');
         Toastr::success('Product updated successfully!');
         return $this->getProductRedirect($request, $product);
     }

@@ -241,6 +241,13 @@
                             <label class="form-label-pro">হোমপেজ সেকশন (On/Off)</label>
                             <div class="d-grid gap-2">
                                 <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="homepage_categories_enabled" value="1" id="homepageCategoriesEnabled"
+                                        {{ ($edit_data->homepage_categories_enabled ?? 1) == 1 ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="homepageCategoriesEnabled">
+                                        <strong>Categories (Hero Banner এর নিচে)</strong> — ব্যানার নিচে জনপ্রিয় ক্যাটাগরি সেকশন দেখাবে
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="homepage_brands_enabled" value="1" id="homepageBrandsEnabled"
                                         {{ ($edit_data->homepage_brands_enabled ?? 1) == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="homepageBrandsEnabled">

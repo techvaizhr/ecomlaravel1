@@ -74,6 +74,7 @@ class GeneralSettingController extends Controller
         $input['homepage_brands_enabled'] = $request->has('homepage_brands_enabled') ? 1 : 0;
         $input['homepage_vendors_enabled'] = $request->has('homepage_vendors_enabled') ? 1 : 0;
         $input['homepage_blogs_enabled'] = $request->has('homepage_blogs_enabled') ? 1 : 0;
+        $input['homepage_categories_enabled'] = $request->has('homepage_categories_enabled') ? 1 : 0;
         $input['checkout_location_enabled'] = $request->has('checkout_location_enabled') ? 1 : 0;
         $input['campaign_location_enabled'] = $request->has('campaign_location_enabled') ? 1 : 0;
 
@@ -150,6 +151,7 @@ class GeneralSettingController extends Controller
         $input['homepage_brands_enabled'] = $request->has('homepage_brands_enabled') ? 1 : 0;
         $input['homepage_vendors_enabled'] = $request->has('homepage_vendors_enabled') ? 1 : 0;
         $input['homepage_blogs_enabled'] = $request->has('homepage_blogs_enabled') ? 1 : 0;
+        $input['homepage_categories_enabled'] = $request->has('homepage_categories_enabled') ? 1 : 0;
         $input['checkout_location_enabled'] = $request->has('checkout_location_enabled') ? 1 : 0;
         $input['campaign_location_enabled'] = $request->has('campaign_location_enabled') ? 1 : 0;
 
@@ -165,6 +167,7 @@ class GeneralSettingController extends Controller
         Cache::forget('frontend_homepage_v1');
         Cache::forget('frontend_homepage_v2');
         Cache::forget('frontend_homepage_v3');
+        Cache::forget('frontend_homepage_v4');
         Cache::forget('side_categories');
         Cache::forget('menu_categories');
         Cache::forget('menu_categories_v4');

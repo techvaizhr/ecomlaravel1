@@ -77,10 +77,16 @@ class CatalogFeedService
     }
 
     /**
-     * Clear all catalog feed caches across domains
+     * Clear all catalog feed caches across domains (throttled to once per request lifecycle)
      */
+    protected static bool $clearedInThisRequest = false;
+
     public static function clearCache(): void
     {
+        if (static::$clearedInThisRequest) {
+            return;
+        }
+        static::$clearedInThisRequest = true;
         Cache::forget('catalog_feed_xml_facebook');
         Cache::forget('catalog_feed_xml_google');
         Cache::forget('catalog_feed_xml_universal');

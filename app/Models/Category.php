@@ -9,6 +9,24 @@ class Category extends Model
 {
     protected $guarded = [];
     
+    protected static function booted()
+    {
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('menu_categories_v4');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v1');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v2');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v3');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v4');
+        });
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('menu_categories_v4');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v1');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v2');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v3');
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v4');
+        });
+    }
+
     public function getRouteKeyName() {
         return 'slug';
     }

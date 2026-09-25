@@ -600,6 +600,16 @@
             var val = $(this).val().trim();
             $('#serp_desc_preview').text(val || 'Product description snippet will appear here on Google search results...');
         });
+
+        // Form Submit Loading Feedback
+        $('#productForm').on('submit', function () {
+            var $btn = $('#submit_product_btn');
+            if ($btn.length) {
+                setTimeout(function () {
+                    $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> প্রোডাক্ট সংরক্ষণ হচ্ছে...');
+                }, 10);
+            }
+        });
     });
 
     // ===== VIDEO LOGIC & 5MB FILE SIZE ENFORCEMENT =====

@@ -192,9 +192,23 @@ class FrontendController extends Controller
             }
         }
 
+        // 5b. POPULAR CATEGORIES (Hero banner এর নিচে - front_view = 1)
+        $hasFrontView = \Illuminate\Support\Facades\Schema::hasColumn('categories', 'front_view');
+        $hasIcon = \Illuminate\Support\Facades\Schema::hasColumn('categories', 'icon');
+        $catCols = array_filter(['id', 'name', 'slug', 'status', 'image', $hasIcon ? 'icon' : null, $hasFrontView ? 'front_view' : null]);
+        
+        $popular_categories = Category::where('status', 1)
+            ->when($hasFrontView, function ($q) {
+                $q->where('front_view', 1);
+            })
+            ->select(array_values($catCols))
+            ->orderBy('id', 'ASC')
+            ->get();
+
         return compact(
             'sliders', 'brands', 'blogs', 'hotdeal_top', 'homeproducts',
-            'sliderbottomads', 'homepageads2', 'hitdealsbaner', 'homepageads', 'vendors'
+            'sliderbottomads', 'homepageads2', 'hitdealsbaner', 'homepageads', 'vendors',
+            'popular_categories'
         );
     }
 

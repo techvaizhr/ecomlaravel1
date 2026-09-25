@@ -373,7 +373,14 @@
 </style>
 
 {{-- CATEGORY SECTION (PC: 8-Item Auto-Scroll Single Line Slider | Mobile: 4x3 Fresh White 12-Item Grid) --}}
-@if(isset($menucategories) && $menucategories->count() > 0)
+@php
+    $categoriesEnabled = ($generalsetting?->homepage_categories_enabled ?? 1) == 1;
+    $homeCategoriesList = isset($popular_categories) && $popular_categories->count() > 0 
+        ? $popular_categories 
+        : (isset($menucategories) ? $menucategories->filter(fn($c) => ($c->front_view ?? 1) == 1) : collect());
+@endphp
+
+@if($categoriesEnabled && $homeCategoriesList->count() > 0)
 <section class="homeproduct home-category-section">
     <div class="container">
         <div class="row">
@@ -397,7 +404,7 @@
             <div class="col-sm-12 d-none d-md-block">
                 <div class="cat_desktop_slider_wrap">
                     <div class="category-slider owl-carousel">
-                        @foreach ($menucategories as $value)
+                        @foreach ($homeCategoriesList as $value)
                             <div class="cat_slider_cell">
                                 <a href="{{ route('category', $value->slug) }}" class="cat_fresh_card">
                                     <div class="cat_fresh_img_box">
@@ -430,7 +437,7 @@
             {{-- 📱 Mobile Grid: 4x3 (4 Columns x 3 Rows = 12 Items total), Fresh White cards, 4-corner 2-radius, full picture, zero black gradient --}}
             <div class="col-sm-12 d-block d-md-none">
                 <div class="cat_mobile_4x3_grid">
-                    @foreach ($menucategories->take(12) as $value)
+                    @foreach ($homeCategoriesList->take(12) as $value)
                         <a href="{{ route('category', $value->slug) }}" class="cat_fresh_card">
                             <div class="cat_fresh_img_box">
                                 @if($value->image)

@@ -462,6 +462,16 @@
         });
 
         $(".select2").select2();
+
+        // Form Submit Loading Feedback
+        $('form[name="editForm"]').on('submit', function () {
+            var $btn = $(this).find('button[type="submit"]');
+            if ($btn.length) {
+                setTimeout(function () {
+                    $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> আপডেট হচ্ছে...');
+                }, 10);
+            }
+        });
     });
 </script>
 

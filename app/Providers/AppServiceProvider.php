@@ -111,7 +111,8 @@ class AppServiceProvider extends ServiceProvider
             $menucategories = Cache::remember('menu_categories_v4', 1800, function () {
                 try {
                     $hasIcon = \Illuminate\Support\Facades\Schema::hasColumn('categories', 'icon');
-                    $selectCols = array_filter(['id', 'name', 'slug', 'status', 'image', $hasIcon ? 'icon' : null]);
+                    $hasFrontView = \Illuminate\Support\Facades\Schema::hasColumn('categories', 'front_view');
+                    $selectCols = array_filter(['id', 'name', 'slug', 'status', 'image', $hasIcon ? 'icon' : null, $hasFrontView ? 'front_view' : null]);
                     return Category::where('status', 1)
                         ->where('parent_id', 0)
                         ->select(array_values($selectCols))

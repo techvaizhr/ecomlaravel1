@@ -833,6 +833,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('categories/update', [CategoryController::class,'update'])->name('categories.update');
     Route::post('categories/inactive', [CategoryController::class,'inactive'])->name('categories.inactive');
     Route::post('categories/active', [CategoryController::class,'active'])->name('categories.active');
+    Route::post('categories/toggle-front-view', [CategoryController::class,'toggleFrontView'])->name('categories.toggle_front_view');
     Route::post('categories/destroy', [CategoryController::class,'destroy'])->name('categories.destroy');
 
     // Subcategories

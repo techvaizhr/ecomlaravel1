@@ -205,6 +205,23 @@ class CategoryController extends Controller
         return redirect()->back();
     }
 
+    public function toggleFrontView(Request $request)
+    {
+        $category = Category::findOrFail($request->id);
+        $category->front_view = $category->front_view == 1 ? 0 : 1;
+        $category->save();
+
+        Cache::forget('menu_categories_v4');
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('frontend_homepage_v2');
+        Cache::forget('frontend_homepage_v3');
+        Cache::forget('frontend_homepage_v4');
+
+        $statusText = $category->front_view == 1 ? 'হোমপেজে প্রদর্শন চালু হয়েছে' : 'হোমপেজে প্রদর্শন বন্ধ করা হয়েছে';
+        Toastr::success('Success', $category->name . ' - ' . $statusText);
+        return redirect()->back();
+    }
+
     public function destroy(Request $request)
     {
         $request->validate(['hidden_id' => 'required']);

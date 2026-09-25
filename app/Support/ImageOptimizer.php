@@ -163,7 +163,11 @@ class ImageOptimizer
      */
     public static function indexMediaRow(string $fullPath, string $relativePath, string $filename): void
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('media')) {
+        static $hasMediaTable = null;
+        if ($hasMediaTable === null) {
+            $hasMediaTable = \Illuminate\Support\Facades\Schema::hasTable('media');
+        }
+        if (!$hasMediaTable) {
             return;
         }
 
@@ -238,51 +242,28 @@ class ImageOptimizer
         int $maxWidth = self::MAX_WIDTH,
         int $maxHeight = self::MAX_HEIGHT
     ): void {
-        $startQuality = self::START_QUALITY;
-        $size         = self::saveAtQuality($sourcePath, $fullPath, $startQuality, $maxWidth, $maxHeight);
-
-        if ($size <= $maxBytes) {
-            return;
-        }
-
-        // Calculate intelligent step-down quality if > target
-        $estimated = (int) round($startQuality * pow($maxBytes / max($size, 1), 0.72) * 0.98);
-        $estimated = max(55, min(89, $estimated));
-
-        if ($estimated < $startQuality) {
-            $size = self::saveAtQuality($sourcePath, $fullPath, $estimated, $maxWidth, $maxHeight);
-            if ($size <= $maxBytes) {
-                return;
-            }
-        }
-
-        $fallback = max(45, $estimated - 10);
-        if ($fallback < $estimated) {
-            self::saveAtQuality($sourcePath, $fullPath, $fallback, $maxWidth, $maxHeight);
-        }
-    }
-
-    private static function saveAtQuality(
-        string $sourcePath,
-        string $fullPath,
-        int $quality,
-        int $maxWidth = self::MAX_WIDTH,
-        int $maxHeight = self::MAX_HEIGHT
-    ): int {
+        // Load image and decode into memory once
         $image = Image::make($sourcePath);
         self::orientate($image);
 
-        // Auto proportional resize keeping aspect ratio & no upscaling
+        // Auto proportional resize in memory keeping aspect ratio & no upscaling
         $image->resize($maxWidth, $maxHeight, function ($constraint) {
             $constraint->aspectRatio();
             $constraint->upsize();
         });
 
+        // Fast high-quality WebP encoding (82 quality provides crystal-clear e-commerce photos with 60% smaller file size)
+        $quality = 82;
         $image->encode('webp', $quality);
         $image->save($fullPath);
-        $image->destroy();
 
-        return file_exists($fullPath) ? (int) filesize($fullPath) : 0;
+        // If file is exceptionally large (noisy/dense photo > maxBytes), step down quality from the already-resized in-memory resource
+        if (file_exists($fullPath) && filesize($fullPath) > $maxBytes) {
+            $image->encode('webp', 68);
+            $image->save($fullPath);
+        }
+
+        $image->destroy();
     }
 
     private static function orientate($image): void

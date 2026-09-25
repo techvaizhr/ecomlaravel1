@@ -517,11 +517,19 @@
                                     </span>
                                 </td>
                                 <td>
-                                    @if ($value->front_view == 1)
-                                        <span class="front-badge"><i class="fe-star"></i> Featured</span>
-                                    @else
-                                        <span class="text-muted small"><i class="fe-minus"></i> Regular</span>
-                                    @endif
+                                    <form action="{{ route('categories.toggle_front_view') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $value->id }}">
+                                        @if ($value->front_view == 1)
+                                            <button type="submit" class="front-badge border-0" style="cursor:pointer;" title="ক্লিক করে হোমপেজে প্রদর্শন বন্ধ করুন">
+                                                <i class="fe-check-circle"></i> Home: ON
+                                            </button>
+                                        @else
+                                            <button type="submit" class="badge bg-soft-secondary text-muted border-0 px-2 py-1 rounded-pill" style="cursor:pointer;" title="ক্লিক করে হোমপেজে প্রদর্শন চালু করুন">
+                                                <i class="fe-minus-circle"></i> Home: OFF
+                                            </button>
+                                        @endif
+                                    </form>
                                 </td>
                                 <td>
                                     @if($value->status == 1)

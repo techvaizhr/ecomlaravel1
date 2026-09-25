@@ -33,15 +33,15 @@ class FacebookPagePostService
             $template
         );
 
-        // Post with photo (image gets more engagement)
+        // Post with photo (image gets more engagement) - strict timeout ensures admin saving never hangs
         if ($imageUrl) {
-            $response = Http::post(self::GRAPH_API . "/{$setting->page_id}/photos", [
+            $response = Http::timeout(5)->connectTimeout(3)->post(self::GRAPH_API . "/{$setting->page_id}/photos", [
                 'url' => $imageUrl,
                 'message' => $message,
                 'access_token' => $setting->page_access_token,
             ]);
         } else {
-            $response = Http::post(self::GRAPH_API . "/{$setting->page_id}/feed", [
+            $response = Http::timeout(5)->connectTimeout(3)->post(self::GRAPH_API . "/{$setting->page_id}/feed", [
                 'message' => $message,
                 'link' => $productUrl,
                 'access_token' => $setting->page_access_token,

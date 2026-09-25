@@ -35,9 +35,11 @@ class Product extends Model
     {
         static::saved(function () {
             \App\Services\CatalogFeedService::clearCache();
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v4');
         });
         static::deleted(function () {
             \App\Services\CatalogFeedService::clearCache();
+            \Illuminate\Support\Facades\Cache::forget('frontend_homepage_v4');
         });
     }
 
