@@ -1155,7 +1155,7 @@ PROMPT;
                     'item_type'          => 2,
                     'special_instruction'=> 'Special note- product must be check after delivery',
                     'item_quantity'      => 1,
-                    'item_weight'        => 0.5,
+                    'item_weight'        => 0.2,
                     'amount_to_collect'  => !empty($order->customer_payable_amount) 
                         ? round($order->customer_payable_amount) 
                         : round($order->amount),
@@ -2189,7 +2189,7 @@ PROMPT;
                     'store_id'            => $request->store_id,
                     'delivery_type'       => (int) ($request->delivery_type ?: 1),
                     'product_type'        => (int) ($request->product_type ?: 1),
-                    'item_weight'         => (int) ($request->item_weight ?: 500),
+                    'item_weight'         => (int) ($request->item_weight ?: 200),
                     'collectable_amount'  => $request->collectable_amount,
                     'special_instruction' => $request->special_instruction ?: $order->note,
                     'product_description' => $request->product_description,
@@ -2328,7 +2328,7 @@ PROMPT;
                         'delivery_type'       => (int) ($request->delivery_type ?: 48),
                         'item_type'           => (int) ($request->product_type ?: 2),
                         'item_quantity'       => 1,
-                        'item_weight'         => ($request->item_weight ? ($request->item_weight / 1000) : 0.5),
+                        'item_weight'         => ($request->item_weight ? ($request->item_weight / 1000) : 0.2),
                         'amount_to_collect'   => (int) $codAmount,
                         'item_description'    => $request->product_description ?: ('Order #' . $order->invoice_id),
                         'special_instruction' => $request->special_instruction ?: ($order->note ?: 'Please check before receive'),
@@ -2392,7 +2392,7 @@ PROMPT;
                     'customer_address'       => $order->shipping ? ($order->shipping->full_address ?: $order->shipping->address) : ($order->customer->address ?? 'No address'),
                     'merchant_invoice_id'    => (string) $order->invoice_id,
                     'cash_collection_amount' => (string) $codAmount,
-                    'parcel_weight'          => (string) ($request->item_weight ?: 500),
+                    'parcel_weight'          => (string) ($request->item_weight ?: 200),
                     'instruction'            => $request->special_instruction ?: ($order->note ?? ''),
                     'value'                  => (string) $codAmount,
                 ];

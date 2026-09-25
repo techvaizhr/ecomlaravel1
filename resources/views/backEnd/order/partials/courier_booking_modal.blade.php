@@ -198,7 +198,7 @@
                         <div class="row g-2">
                             <div class="col-md-6 mb-2">
                                 <label class="form-label small fw-bold">পার্সেল ওজন (গ্রাম / Grams)</label>
-                                <input type="number" name="item_weight" class="form-control form-control-sm" value="500" min="50" max="25000" placeholder="500" />
+                                <input type="number" name="item_weight" class="form-control form-control-sm" value="200" min="50" max="25000" placeholder="200" />
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label class="form-label small fw-bold">ক্যাশ কালেকশন (COD ৳)</label>

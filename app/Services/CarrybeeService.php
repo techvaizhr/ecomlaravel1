@@ -261,9 +261,9 @@ class CarrybeeService
             $codAmount = (int) $options['collectable_amount'];
         }
 
-        // Weight in grams (1 to 25000)
-        $weightGrams = isset($options['item_weight']) ? (int) $options['item_weight'] : 500;
-        if ($weightGrams < 1) $weightGrams = 500;
+        // Weight in grams (1 to 25000), default 200g
+        $weightGrams = isset($options['item_weight']) && (int) $options['item_weight'] > 0 ? (int) $options['item_weight'] : 200;
+        if ($weightGrams < 1) $weightGrams = 200;
         if ($weightGrams > 25000) $weightGrams = 25000;
 
         // Delivery Type: 1 = Normal, 2 = Express
