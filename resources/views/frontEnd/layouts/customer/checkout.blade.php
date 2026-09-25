@@ -7,8 +7,8 @@
     $hasNewsTicker = $generalsetting
         && (int) ($generalsetting->news_ticker_enabled ?? 0) === 1
         && trim((string) ($generalsetting->top_headline ?? '')) !== '';
-    $checkoutMobilePadTop = $hasNewsTicker ? '138px' : '108px';
-    $checkoutDesktopPadTop = $hasNewsTicker ? '175px' : '145px';
+    $checkoutMobilePadTop = $hasNewsTicker ? '148px' : '118px';
+    $checkoutDesktopPadTop = $hasNewsTicker ? '208px' : '178px';
 @endphp
 @push('css')
 <link rel="stylesheet" href="{{ asset('public/frontEnd/css/select2.min.css') }}" />
@@ -28,12 +28,12 @@
     }
 
     body.checkout-page #content {
-        padding-top: var(--navbar-height, {{ $checkoutDesktopPadTop }}) !important;
+        padding-top: calc(var(--navbar-height, {{ $hasNewsTicker ? '180px' : '150px' }}) + 24px) !important;
     }
 
     .checkout-section {
         background-color: var(--bg-color);
-        padding: 16px 0 32px;
+        padding: 8px 0 32px;
         font-family: 'Poppins', sans-serif;
     }
 
@@ -719,11 +719,11 @@
     /* --- Responsive Fixes --- */
     @media (max-width: 991.98px) {
         body.checkout-page #content {
-            padding-top: var(--navbar-height, {{ $checkoutMobilePadTop }}) !important;
+            padding-top: calc(var(--navbar-height, {{ $checkoutMobilePadTop }}) + 12px) !important;
         }
 
         .checkout-section {
-            padding: 8px 0 24px;
+            padding: 6px 0 24px;
         }
 
         .checkout-layout-row {
