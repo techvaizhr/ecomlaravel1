@@ -7,6 +7,7 @@ use App\Support\ImageOptimizer;
 use Illuminate\Http\Request;
 use App\Models\BannerCategory;
 use App\Models\Banner;
+use Illuminate\Support\Facades\Cache;
 use Toastr;
 use File;
 
@@ -63,28 +64,40 @@ class BannerController extends Controller
         $categories = BannerCategory::orderBy('id','DESC')->select('id','name')->get();
         return view('backEnd.banner.create',compact('categories'));
     }
+
+    protected function clearHomepageCache(): void
+    {
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('frontend_homepage_v2');
+        Cache::forget('frontend_homepage_v3');
+        Cache::forget('frontend_homepage_v4');
+    }
+
     public function store(Request $request)
     {
         $this->validate($request, [
             'link' => 'required',
-            'status' => 'required',
+            'status' => 'nullable',
         ]);
 
         $fileUrl = ImageOptimizer::storeBanner($request->file('image'), 'public/uploads/banner/');
 
         $input = $request->all();
-        $input['status'] = $request->status?1:0;
+        $input['status'] = $request->status ? 1 : 0;
         $input['image'] = $fileUrl;
         Banner::create($input);
-        Toastr::success('Success','Data insert successfully');
+
+        $this->clearHomepageCache();
+
+        Toastr::success('Success', 'Data insert successfully');
         return redirect()->route('banners.index');
     }
     
     public function edit($id)
     {
         $edit_data = Banner::find($id);
-        $categories = BannerCategory::select('id','name')->get();
-        return view('backEnd.banner.edit',compact('edit_data','categories'));
+        $categories = BannerCategory::select('id', 'name')->get();
+        return view('backEnd.banner.edit', compact('edit_data', 'categories'));
     }
     
     public function update(Request $request)
@@ -92,43 +105,70 @@ class BannerController extends Controller
         $this->validate($request, [
             'link' => 'required',
         ]);
-        $update_data = Banner::find($request->id);
+        $update_data = Banner::findOrFail($request->id);
         $input = $request->all();
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $input['image'] = ImageOptimizer::storeBanner($request->file('image'), 'public/uploads/banner/');
-            File::delete($update_data->image);
-        }else{
+            if ($update_data->image && File::exists(public_path($update_data->image))) {
+                File::delete(public_path($update_data->image));
+            }
+        } else {
             $input['image'] = $update_data->image;
         }
 
-        $input['status'] = $request->status?1:0;
+        $input['status'] = $request->status ? 1 : 0;
         $update_data->update($input);
 
-        Toastr::success('Success','Data update successfully');
+        $this->clearHomepageCache();
+
+        Toastr::success('Success', 'Data update successfully');
         return redirect()->route('banners.index');
     }
  
     public function inactive(Request $request)
     {
-        $inactive = Banner::find($request->hidden_id);
-        $inactive->status = 0;
-        $inactive->save();
-        Toastr::success('Success','Data inactive successfully');
+        $id = $request->hidden_id ?? $request->id;
+        $inactive = Banner::find($id);
+        if ($inactive) {
+            $inactive->status = 0;
+            $inactive->save();
+            $this->clearHomepageCache();
+            Toastr::success('Success', 'Banner deactivated successfully');
+        } else {
+            Toastr::error('Error', 'Banner not found');
+        }
         return redirect()->back();
     }
+
     public function active(Request $request)
     {
-        $active = Banner::find($request->hidden_id);
-        $active->status = 1;
-        $active->save();
-        Toastr::success('Success','Data active successfully');
+        $id = $request->hidden_id ?? $request->id;
+        $active = Banner::find($id);
+        if ($active) {
+            $active->status = 1;
+            $active->save();
+            $this->clearHomepageCache();
+            Toastr::success('Success', 'Banner activated successfully');
+        } else {
+            Toastr::error('Error', 'Banner not found');
+        }
         return redirect()->back();
     }
+
     public function destroy(Request $request)
     {
-        $delete_data = Banner::find($request->hidden_id);
-        $delete_data->delete();
-        Toastr::success('Success','Data delete successfully');
+        $id = $request->hidden_id ?? $request->id;
+        $delete_data = Banner::find($id);
+        if ($delete_data) {
+            if ($delete_data->image && File::exists(public_path($delete_data->image))) {
+                File::delete(public_path($delete_data->image));
+            }
+            $delete_data->delete();
+            $this->clearHomepageCache();
+            Toastr::success('Success', 'Banner deleted successfully');
+        } else {
+            Toastr::error('Error', 'Banner not found');
+        }
         return redirect()->back();
     }
 }

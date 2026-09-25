@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BannerCategory;
+use Illuminate\Support\Facades\Cache;
 use Toastr;
 class BannerCategoryController extends Controller
 {
@@ -26,6 +27,14 @@ class BannerCategoryController extends Controller
         $categories = BannerCategory::orderBy('id','DESC')->select('id','name')->get();
         return view('backEnd.banner.category.create',compact('categories'));
     }
+    protected function clearHomepageCache(): void
+    {
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('frontend_homepage_v2');
+        Cache::forget('frontend_homepage_v3');
+        Cache::forget('frontend_homepage_v4');
+    }
+
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -34,6 +43,7 @@ class BannerCategoryController extends Controller
         ]);
         $input = $request->all();
         BannerCategory::create($input);
+        $this->clearHomepageCache();
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('banner_category.index');
     }
@@ -49,36 +59,51 @@ class BannerCategoryController extends Controller
         $this->validate($request, [
             'name' => 'required',
         ]);
-        $update_data = BannerCategory::find($request->id);
+        $update_data = BannerCategory::findOrFail($request->id);
         $input = $request->all();
-        $input['status'] = $request->status?1:0;
+        $input['status'] = $request->status ? 1 : 0;
         $update_data->update($input);
 
+        $this->clearHomepageCache();
         Toastr::success('Success','Data update successfully');
         return redirect()->route('banner_category.index');
     }
  
     public function inactive(Request $request)
     {
-        $inactive = BannerCategory::find($request->hidden_id);
-        $inactive->status = 0;
-        $inactive->save();
-        Toastr::success('Success','Data inactive successfully');
+        $id = $request->hidden_id ?? $request->id;
+        $inactive = BannerCategory::find($id);
+        if ($inactive) {
+            $inactive->status = 0;
+            $inactive->save();
+            $this->clearHomepageCache();
+            Toastr::success('Success','Data inactive successfully');
+        }
         return redirect()->back();
     }
+
     public function active(Request $request)
     {
-        $active = BannerCategory::find($request->hidden_id);
-        $active->status = 1;
-        $active->save();
-        Toastr::success('Success','Data active successfully');
+        $id = $request->hidden_id ?? $request->id;
+        $active = BannerCategory::find($id);
+        if ($active) {
+            $active->status = 1;
+            $active->save();
+            $this->clearHomepageCache();
+            Toastr::success('Success','Data active successfully');
+        }
         return redirect()->back();
     }
+
     public function destroy(Request $request)
     {
-        $delete_data = BannerCategory::find($request->hidden_id);
-        $delete_data->delete();
-        Toastr::success('Success','Data delete successfully');
+        $id = $request->hidden_id ?? $request->id;
+        $delete_data = BannerCategory::find($id);
+        if ($delete_data) {
+            $delete_data->delete();
+            $this->clearHomepageCache();
+            Toastr::success('Success','Data delete successfully');
+        }
         return redirect()->back();
     }
 }

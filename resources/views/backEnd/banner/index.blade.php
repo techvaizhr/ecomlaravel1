@@ -260,9 +260,21 @@
                             {{-- Status --}}
                             <td>
                                 @if($value->status == 1)
-                                    <span class="badge-soft badge-active"><i class="fas fa-check-circle"></i> Active</span>
+                                    <form action="{{ route('banners.inactive') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                        <button type="submit" class="badge-soft badge-active border-0" title="Click to Deactivate" style="cursor: pointer;">
+                                            <i class="fas fa-check-circle"></i> Active
+                                        </button>
+                                    </form>
                                 @else
-                                    <span class="badge-soft badge-inactive"><i class="fas fa-pause-circle"></i> Inactive</span>
+                                    <form action="{{ route('banners.active') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                        <button type="submit" class="badge-soft badge-inactive border-0" title="Click to Activate" style="cursor: pointer;">
+                                            <i class="fas fa-pause-circle"></i> Inactive
+                                        </button>
+                                    </form>
                                 @endif
                             </td>
 
@@ -274,6 +286,24 @@
                             {{-- Actions --}}
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
+                                    @if($value->status == 1)
+                                        <form action="{{ route('banners.inactive') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                            <button type="submit" class="btn-action-icon text-warning" title="Deactivate Banner">
+                                                <i data-feather="pause-circle" style="width:14px; height:14px;"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('banners.active') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                            <button type="submit" class="btn-action-icon text-success" title="Activate Banner">
+                                                <i data-feather="check-circle" style="width:14px; height:14px;"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+
                                     <a href="{{ route('banners.edit', $value->id) }}" class="btn-action-icon text-primary" title="Edit Banner">
                                         <i data-feather="edit-2" style="width:14px; height:14px;"></i>
                                     </a>
@@ -281,6 +311,7 @@
                                     <form action="{{ route('banners.destroy') }}" method="POST" class="d-inline"
                                           onsubmit="return confirm('Are you sure you want to delete this banner?');">
                                         @csrf
+                                        <input type="hidden" name="hidden_id" value="{{ $value->id }}">
                                         <input type="hidden" name="id" value="{{ $value->id }}">
                                         <button type="submit" class="btn-action-icon text-danger" title="Delete Banner">
                                             <i data-feather="trash-2" style="width:14px; height:14px;"></i>

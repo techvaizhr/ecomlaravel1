@@ -18,12 +18,19 @@
 @endpush
 
 @section('content')
-<section class="slider-section">
+@php
+    $hasSliders = isset($sliders) && $sliders->count() > 0;
+    $hasMenuCategories = isset($menucategories) && $menucategories->count() > 0;
+@endphp
+
+@if($hasSliders || $hasMenuCategories)
+<section class="slider-section {{ !$hasSliders ? 'd-none d-sm-block' : '' }}">
     <div class="container">
         <div class="row">
 
             {{-- LEFT SIDEBAR CATEGORY MENU --}}
-            <div class="col-sm-3 hidetosm">
+            @if($hasMenuCategories)
+            <div class="{{ $hasSliders ? 'col-sm-3 hidetosm' : 'col-sm-12' }}">
                 <div class="sidebar-menu home-category-sidebar">
                     <ul class="hideshow home-cat-list">
                         @foreach ($menucategories as $key => $category)
@@ -81,9 +88,11 @@
                     </ul>
                 </div>
             </div>
+            @endif
 
             {{-- MAIN SLIDER --}}
-            <div class="col-sm-9">
+            @if($hasSliders)
+            <div class="{{ $hasMenuCategories ? 'col-sm-9' : 'col-sm-12' }}">
                 <div class="home-slider-container">
                     <div class="main_slider owl-carousel">
                         @foreach ($sliders as $key => $value)
@@ -97,10 +106,12 @@
                     </div>
                 </div>
             </div>
+            @endif
 
         </div>
     </div>
 </section>
+@endif
 <!-- slider end -->
 
 {{-- BOTTOM SLIDER ADS --}}
@@ -362,6 +373,7 @@
 </style>
 
 {{-- CATEGORY SECTION (PC: 8-Item Auto-Scroll Single Line Slider | Mobile: 4x3 Fresh White 12-Item Grid) --}}
+@if(isset($menucategories) && $menucategories->count() > 0)
 <section class="homeproduct home-category-section">
     <div class="container">
         <div class="row">
@@ -448,8 +460,10 @@
         </div>
     </div>
 </section>
+@endif
 
 {{-- HOT DEALS BANNER --}}
+@if(isset($hitdealsbaner) && count($hitdealsbaner) > 0)
 <section>
     <div class="container">
         <div class="row">
@@ -466,8 +480,10 @@
         </div>
     </div>
 </section>
+@endif
 
 {{-- HOT DEAL SECTION --}}
+@if(isset($hotdeal_top) && $hotdeal_top->count() > 0)
 <section class="homeproduct">
     <div class="container">
         <div class="row">
@@ -597,10 +613,12 @@
         </div>
     </div>
 </section>
+@endif
 
 
 
 {{-- HOMEPAGE ADS --}}
+@if(isset($homepageads) && count($homepageads) > 0)
 <section class="homepage-ads-block">
     <div class="container">
         <div class="row">
@@ -617,10 +635,12 @@
         </div>
     </div>
 </section>
+@endif
 
 {{-- CATEGORY WISE HOME PRODUCTS --}}
 @if($homeproducts && $homeproducts->count() > 0)
     @foreach ($homeproducts as $homecat)
+        @if(isset($homecat->products) && $homecat->products->count() > 0)
         <section class="homeproduct category-wise-product-section">
             <div class="container">
                 <div class="row">
@@ -745,10 +765,12 @@
                 </div>
             </div>
         </section>
+        @endif
     @endforeach
 @endif
 
 {{-- HOMEPAGE ADS 2 --}}
+@if(isset($homepageads2) && count($homepageads2) > 0)
 <section class="homepage-ads-block">
     <div class="container">
         <div class="row">
@@ -765,6 +787,7 @@
         </div>
     </div>
 </section>
+@endif
 
 
 

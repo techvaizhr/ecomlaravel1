@@ -17,6 +17,7 @@ use App\Models\District;
 use App\Models\CreatePage;
 use App\Models\Campaign;
 use App\Models\Banner;
+use App\Models\BannerCategory;
 use App\Models\ShippingCharge;
 use App\Models\DeliveryDistrict;
 use App\Models\Productcolor;
@@ -49,9 +50,14 @@ class FrontendController extends Controller
 {
     public function index()
     {
-        $cacheKey = 'frontend_homepage_v3';
-        $cacheMinutes = 15;
-        $data = Cache::remember($cacheKey, $cacheMinutes * 60, function () {
+        // When logged in as admin or testing with ?refresh or ?nocache, skip cache for instant real-time preview
+        if (auth()->guard('admin')->check() || request()->has('refresh') || request()->has('nocache')) {
+            $data = $this->getHomepageData();
+            return view('frontEnd.layouts.pages.index', $data);
+        }
+
+        $cacheKey = 'frontend_homepage_v4';
+        $data = Cache::remember($cacheKey, 300, function () {
             return $this->getHomepageData();
         });
         return view('frontEnd.layouts.pages.index', $data);
@@ -62,24 +68,75 @@ class FrontendController extends Controller
      */
     protected function getHomepageData()
     {
-        $allBanners = Banner::where('status', 1)
-            ->whereIn('category_id', [1, 5, 9, 10, 11])
-            ->select('id', 'image', 'link', 'category_id')
-            ->orderBy('id', 'ASC')
-            ->get()
-            ->groupBy('category_id');
+        // 1. DYNAMICALLY LOAD ACTIVE BANNERS
+        $activeCategories = BannerCategory::where('status', 1)->get();
 
-        $sliders = $allBanners->get(1, collect());
-        $sliderbottomads = $allBanners->get(5, collect())->take(3);
-        $hitdealsbaner = $allBanners->get(9, collect())->take(1);
-        $homepageads = $allBanners->get(10, collect())->take(1);
-        $homepageads2 = $allBanners->get(11, collect())->take(1);
+        $sliderCatIds = $activeCategories->filter(function ($c) {
+            $name = strtolower($c->name);
+            return $c->id == 1 || (str_contains($name, 'slider') && !str_contains($name, 'bottom'));
+        })->pluck('id')->toArray();
 
+        $bottomAdsCatIds = $activeCategories->filter(function ($c) {
+            $name = strtolower($c->name);
+            return $c->id == 5 || str_contains($name, 'bottom');
+        })->pluck('id')->toArray();
+
+        $hotdealCatIds = $activeCategories->filter(function ($c) {
+            $name = strtolower($c->name);
+            return $c->id == 9 || str_contains($name, 'hotdeal') || str_contains($name, 'hot deal');
+        })->pluck('id')->toArray();
+
+        $homeAds1CatIds = $activeCategories->filter(function ($c) {
+            $name = strtolower($c->name);
+            return $c->id == 10 || (str_contains($name, 'home ads') && !str_contains($name, '2')) || (str_contains($name, 'home ad') && !str_contains($name, '2'));
+        })->pluck('id')->toArray();
+
+        $homeAds2CatIds = $activeCategories->filter(function ($c) {
+            $name = strtolower($c->name);
+            return $c->id == 11 || (str_contains($name, 'home ads') && str_contains($name, '2')) || (str_contains($name, 'home ad') && str_contains($name, '2'));
+        })->pluck('id')->toArray();
+
+        $allActiveCategoryIds = array_unique(array_merge(
+            $sliderCatIds, $bottomAdsCatIds, $hotdealCatIds, $homeAds1CatIds, $homeAds2CatIds
+        ));
+
+        $allBanners = !empty($allActiveCategoryIds)
+            ? Banner::where('status', 1)
+                ->whereIn('category_id', $allActiveCategoryIds)
+                ->select('id', 'image', 'link', 'category_id')
+                ->orderBy('id', 'ASC')
+                ->get()
+            : collect();
+
+        $sliders = !empty($sliderCatIds)
+            ? $allBanners->whereIn('category_id', $sliderCatIds)->values()
+            : collect();
+
+        $sliderbottomads = !empty($bottomAdsCatIds)
+            ? $allBanners->whereIn('category_id', $bottomAdsCatIds)->take(3)->values()
+            : collect();
+
+        $hitdealsbaner = !empty($hotdealCatIds)
+            ? $allBanners->whereIn('category_id', $hotdealCatIds)->take(1)->values()
+            : collect();
+
+        $homepageads = !empty($homeAds1CatIds)
+            ? $allBanners->whereIn('category_id', $homeAds1CatIds)->take(1)->values()
+            : collect();
+
+        $homepageads2 = !empty($homeAds2CatIds)
+            ? $allBanners->whereIn('category_id', $homeAds2CatIds)->take(1)->values()
+            : collect();
+
+        // 2. BRANDS
         $brands = Brand::where('status', 1)->select('id', 'name', 'slug', 'image')->orderBy('id', 'ASC')->limit(12)->get();
+
+        // 3. BLOGS
         $blogs = Blog::where('status', 1)->latest()->limit(3)->get();
 
         $generalsetting = GeneralSetting::where('status', 1)->limit(1)->first();
 
+        // 4. HOT DEALS
         $hotdeal_top = Product::where(['status' => 1, 'approval_status' => 'approved', 'topsale' => 1])
             ->orderBy('id', 'DESC')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock')
@@ -87,9 +144,13 @@ class FrontendController extends Controller
             ->withAvg(['reviews as reviews_avg_ratting' => fn ($q) => $q->where('status', 'active')], 'ratting')
             ->limit(12)->get();
 
+        // 5. CATEGORY-WISE PRODUCTS (Only categories that actually have active products)
         if ($generalsetting && $generalsetting->show_category_wise_products) {
             $homeproducts = Category::where(['front_view' => 1, 'status' => 1])
                 ->orderBy('id', 'ASC')
+                ->whereHas('products', function ($q) {
+                    $q->where('status', 1)->where('approval_status', 'approved');
+                })
                 ->with(['products' => function ($q) {
                     $q->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'category_id')
                         ->where('status', 1)->where('approval_status', 'approved')
@@ -100,11 +161,16 @@ class FrontendController extends Controller
                 ->map(function ($query) {
                     $query->setRelation('products', $query->products->take(12));
                     return $query;
-                });
+                })
+                ->filter(function ($cat) {
+                    return $cat->products && $cat->products->count() > 0;
+                })
+                ->values();
         } else {
-            $homeproducts = null;
+            $homeproducts = collect();
         }
 
+        // 6. VENDORS
         $vendors = Vendor::where('status', 1)
             ->select('id', 'shop_name', 'slug', 'logo', 'banner', 'status', 'verification_status')
             ->orderBy('id', 'DESC')->limit(20)->get();

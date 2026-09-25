@@ -131,17 +131,43 @@
                                 </td>
                                 <td>
                                     @if($value->status==1)
-                                        <span class="status-badge status-active">
-                                            <i class="mdi mdi-check-circle me-1"></i> Active
-                                        </span> 
+                                        <form action="{{ route('banner_category.inactive') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="hidden_id" value="{{$value->id}}">
+                                            <button type="submit" class="status-badge status-active border-0" title="Click to deactivate" style="cursor: pointer;">
+                                                <i class="mdi mdi-check-circle me-1"></i> Active
+                                            </button>
+                                        </form>
                                     @else 
-                                        <span class="status-badge status-inactive">
-                                            <i class="mdi mdi-close-circle me-1"></i> Inactive
-                                        </span> 
+                                        <form action="{{ route('banner_category.active') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="hidden_id" value="{{$value->id}}">
+                                            <button type="submit" class="status-badge status-inactive border-0" title="Click to activate" style="cursor: pointer;">
+                                                <i class="mdi mdi-close-circle me-1"></i> Inactive
+                                            </button>
+                                        </form>
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    <div class="d-flex justify-content-end">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        @if($value->status == 1)
+                                            <form action="{{ route('banner_category.inactive') }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                                <button type="submit" class="btn-action text-warning border" style="background:#fffbeb;" title="Deactivate Category">
+                                                    <i class="fe-pause-circle" style="font-size: 16px;"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('banner_category.active') }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" name="hidden_id" value="{{ $value->id }}">
+                                                <button type="submit" class="btn-action text-success border" style="background:#ecfdf5;" title="Activate Category">
+                                                    <i class="fe-check-circle" style="font-size: 16px;"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+
                                         <a href="{{route('banner_category.edit',$value->id)}}" class="btn-action btn-edit" title="Edit">
                                             <i class="fe-edit-1" style="font-size: 16px;"></i>
                                         </a>
