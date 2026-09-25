@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\CustomDeliveryCharge;
 use App\Models\DeliveryDistrict;
 use App\Models\DeliveryDivision;
 use App\Models\DeliverySetting;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Toastr;
@@ -29,7 +32,11 @@ class DeliverySettingController extends Controller
             ? CustomDeliveryCharge::orderBy('id', 'desc')->get()
             : collect();
 
-        return view('backEnd.delivery_settings.index', compact('setting', 'divisions', 'customCharges'));
+        $categories = Category::where('status', 1)->select('id', 'name')->orderBy('name')->get();
+        $brands     = Brand::where('status', 1)->select('id', 'name')->orderBy('name')->get();
+        $products   = Product::where('status', 1)->select('id', 'name', 'product_code')->orderBy('name')->get();
+
+        return view('backEnd.delivery_settings.index', compact('setting', 'divisions', 'customCharges', 'categories', 'brands', 'products'));
     }
 
     public function update(Request $request)
@@ -125,15 +132,21 @@ class DeliverySettingController extends Controller
     public function storeCustomCharge(Request $request)
     {
         $request->validate([
-            'name'   => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
-            'status' => 'nullable|in:0,1',
+            'name'         => 'required|string|max:255',
+            'amount'       => 'required|numeric|min:0',
+            'category_ids' => 'nullable|array',
+            'brand_ids'    => 'nullable|array',
+            'product_ids'  => 'nullable|array',
+            'status'       => 'nullable|in:0,1',
         ]);
 
         CustomDeliveryCharge::create([
-            'name'   => trim($request->name),
-            'amount' => (float) $request->amount,
-            'status' => $request->has('status') ? (int) $request->status : 1,
+            'name'         => trim($request->name),
+            'amount'       => (float) $request->amount,
+            'category_ids' => $request->category_ids ? array_values(array_filter($request->category_ids)) : null,
+            'brand_ids'    => $request->brand_ids ? array_values(array_filter($request->brand_ids)) : null,
+            'product_ids'  => $request->product_ids ? array_values(array_filter($request->product_ids)) : null,
+            'status'       => $request->has('status') ? (int) $request->status : 1,
         ]);
 
         DeliverySetting::clearCache();
@@ -145,16 +158,22 @@ class DeliverySettingController extends Controller
     public function updateCustomCharge(Request $request, $id)
     {
         $request->validate([
-            'name'   => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
-            'status' => 'nullable|in:0,1',
+            'name'         => 'required|string|max:255',
+            'amount'       => 'required|numeric|min:0',
+            'category_ids' => 'nullable|array',
+            'brand_ids'    => 'nullable|array',
+            'product_ids'  => 'nullable|array',
+            'status'       => 'nullable|in:0,1',
         ]);
 
         $custom = CustomDeliveryCharge::findOrFail($id);
         $custom->update([
-            'name'   => trim($request->name),
-            'amount' => (float) $request->amount,
-            'status' => $request->has('status') ? (int) $request->status : 1,
+            'name'         => trim($request->name),
+            'amount'       => (float) $request->amount,
+            'category_ids' => $request->category_ids ? array_values(array_filter($request->category_ids)) : null,
+            'brand_ids'    => $request->brand_ids ? array_values(array_filter($request->brand_ids)) : null,
+            'product_ids'  => $request->product_ids ? array_values(array_filter($request->product_ids)) : null,
+            'status'       => $request->has('status') ? (int) $request->status : 1,
         ]);
 
         DeliverySetting::clearCache();

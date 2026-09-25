@@ -44,8 +44,23 @@ return new class extends Migration
                 $table->id();
                 $table->string('name');
                 $table->decimal('amount', 10, 2)->default(0.00);
+                $table->json('category_ids')->nullable();
+                $table->json('brand_ids')->nullable();
+                $table->json('product_ids')->nullable();
                 $table->tinyInteger('status')->default(1);
                 $table->timestamps();
+            });
+        } else {
+            Schema::table('custom_delivery_charges', function (Blueprint $table) {
+                if (!Schema::hasColumn('custom_delivery_charges', 'category_ids')) {
+                    $table->json('category_ids')->nullable()->after('amount');
+                }
+                if (!Schema::hasColumn('custom_delivery_charges', 'brand_ids')) {
+                    $table->json('brand_ids')->nullable()->after('category_ids');
+                }
+                if (!Schema::hasColumn('custom_delivery_charges', 'product_ids')) {
+                    $table->json('product_ids')->nullable()->after('brand_ids');
+                }
             });
         }
 

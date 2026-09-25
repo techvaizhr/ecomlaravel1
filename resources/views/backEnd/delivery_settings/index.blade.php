@@ -429,7 +429,7 @@
                     <span>২. কাস্টম ডেলিভারি চার্জেস (Custom Delivery Charges)</span>
                 </h5>
                 <small class="text-muted">
-                    একাধিক কাস্টম চার্জ তৈরি, এডিট বা পরিচালনা করুন (যেমন: এক্সপ্রেস ডেলিভারি, ভারী পণ্য, ভঙ্গুর কাচের পণ্য ইত্যাদি)।
+                    ক্যাটাগরি, ব্র্যান্ড বা নির্দিষ্ট প্রোডাক্টের জন্য আলাদা কাস্টম ডেলিভারি চার্জ নির্ধারণ করুন। পণ্যগুলোতে স্বয়ংক্রিয়ভাবে এই চার্জ প্রাধান্য পাবে।
                 </small>
             </div>
             <div>
@@ -443,19 +443,62 @@
                 <table class="table table-hover table-bordered mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 50px;">#</th>
-                            <th>কাস্টম চার্জের নাম (Title)</th>
-                            <th style="width: 180px;">চার্জের পরিমাণ (Amount)</th>
-                            <th style="width: 120px;" class="text-center">স্ট্যাটাস</th>
-                            <th style="width: 140px;" class="text-center">অ্যাকশন</th>
+                            <th style="width: 45px;">#</th>
+                            <th>কাস্টম চার্জের নাম</th>
+                            <th>প্রযোজ্য শর্ত (ক্যাটাগরি / ব্র্যান্ড / প্রোডাক্ট)</th>
+                            <th style="width: 140px;">চার্জের পরিমাণ</th>
+                            <th style="width: 100px;" class="text-center">স্ট্যাটাস</th>
+                            <th style="width: 110px;" class="text-center">অ্যাকশন</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($customCharges as $idx => $cc)
+                        @php
+                            $ccCatIds  = is_array($cc->category_ids) ? $cc->category_ids : [];
+                            $ccBrandIds = is_array($cc->brand_ids) ? $cc->brand_ids : [];
+                            $ccProdIds  = is_array($cc->product_ids) ? $cc->product_ids : [];
+
+                            $matchedCats   = !empty($ccCatIds) ? $categories->whereIn('id', $ccCatIds) : collect();
+                            $matchedBrands = !empty($ccBrandIds) ? $brands->whereIn('id', $ccBrandIds) : collect();
+                            $matchedProds  = !empty($ccProdIds) ? $products->whereIn('id', $ccProdIds) : collect();
+                            $hasConditions = $matchedCats->isNotEmpty() || $matchedBrands->isNotEmpty() || $matchedProds->isNotEmpty();
+                        @endphp
                         <tr>
                             <td>{{ $idx + 1 }}</td>
                             <td>
                                 <strong class="text-dark">{{ $cc->name }}</strong>
+                            </td>
+                            <td>
+                                @if(!$hasConditions)
+                                    <span class="badge bg-light text-muted border">কোনো নির্দিষ্ট শর্ত নেই (সাধারণ)</span>
+                                @else
+                                    <div class="d-flex flex-wrap gap-1 align-items-center">
+                                        @if($matchedCats->isNotEmpty())
+                                            <div class="mb-1">
+                                                <small class="text-muted fw-bold d-block" style="font-size: 11px;">ক্যাটাগরি:</small>
+                                                @foreach($matchedCats as $c)
+                                                    <span class="badge bg-soft-primary text-primary me-1">{{ $c->name }}</span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                        @if($matchedBrands->isNotEmpty())
+                                            <div class="mb-1 ms-2">
+                                                <small class="text-muted fw-bold d-block" style="font-size: 11px;">ব্র্যান্ড:</small>
+                                                @foreach($matchedBrands as $b)
+                                                    <span class="badge bg-soft-success text-success me-1">{{ $b->name }}</span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                        @if($matchedProds->isNotEmpty())
+                                            <div class="mb-1 ms-2">
+                                                <small class="text-muted fw-bold d-block" style="font-size: 11px;">নির্দিষ্ট প্রোডাক্ট:</small>
+                                                @foreach($matchedProds as $p)
+                                                    <span class="badge bg-soft-warning text-dark me-1" title="{{ $p->name }}">{{ \Illuminate\Support\Str::limit($p->name, 25) }}</span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 <span class="badge bg-soft-success text-success fs-6 px-2.5 py-1">
@@ -464,9 +507,9 @@
                             </td>
                             <td class="text-center">
                                 @if($cc->status)
-                                    <span class="badge bg-success">সক্রিয় (Active)</span>
+                                    <span class="badge bg-success">সক্রিয়</span>
                                 @else
-                                    <span class="badge bg-danger">নিষ্ক্রিয় (Inactive)</span>
+                                    <span class="badge bg-danger">নিষ্ক্রিয়</span>
                                 @endif
                             </td>
                             <td class="text-center">
@@ -485,7 +528,7 @@
 
                         {{-- Edit Modal for each Custom Charge --}}
                         <div class="modal fade" id="editCustomChargeModal_{{ $cc->id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
                                 <div class="modal-content">
                                     <form action="{{ route('admin.delivery.settings.custom-charge.update', $cc->id) }}" method="POST">
                                         @csrf
@@ -494,23 +537,71 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
-                                                <input type="text" name="name" class="form-control" required value="{{ $cc->name }}" placeholder="যেমন: এক্সপ্রেস ডেলিভারি">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold">ডেলিভারি চার্জ (৳) <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">৳</span>
-                                                    <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required value="{{ $cc->amount }}">
+                                            <div class="row g-3">
+                                                <div class="col-md-7">
+                                                    <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
+                                                    <input type="text" name="name" class="form-control" required value="{{ $cc->name }}" placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ফার্নিচার ইত্যাদি">
                                                 </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold">স্ট্যাটাস</label>
-                                                <select name="status" class="form-select">
-                                                    <option value="1" {{ $cc->status == 1 ? 'selected' : '' }}>সক্রিয় (Active)</option>
-                                                    <option value="0" {{ $cc->status == 0 ? 'selected' : '' }}>নিষ্ক্রিয় (Inactive)</option>
-                                                </select>
+                                                <div class="col-md-5">
+                                                    <label class="form-label fw-semibold">ডেলিভারি চার্জ (৳) <span class="text-danger">*</span></label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">৳</span>
+                                                        <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required value="{{ $cc->amount }}">
+                                                    </div>
+                                                </div>
+
+                                                {{-- Multi-select Categories --}}
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold text-primary">
+                                                        <i class="fe-grid me-1"></i>প্রযোজ্য ক্যাটাগরি (ঐচ্ছিক - এক বা একাধিক)
+                                                    </label>
+                                                    <select name="category_ids[]" class="form-control select2-modal" multiple data-placeholder="ক্যাটাগরি নির্বাচন করুন...">
+                                                        @foreach($categories as $cat)
+                                                            <option value="{{ $cat->id }}" {{ in_array($cat->id, $ccCatIds) ? 'selected' : '' }}>
+                                                                {{ $cat->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <small class="text-muted">এই ক্যাটাগরির সকল প্রোডাক্টে এই ডেলিভারি চার্জ কার্যকর হবে।</small>
+                                                </div>
+
+                                                {{-- Multi-select Brands --}}
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold text-success">
+                                                        <i class="fe-award me-1"></i>প্রযোজ্য ব্র্যান্ড (ঐচ্ছিক - এক বা একাধিক)
+                                                    </label>
+                                                    <select name="brand_ids[]" class="form-control select2-modal" multiple data-placeholder="ব্র্যান্ড নির্বাচন করুন...">
+                                                        @foreach($brands as $b)
+                                                            <option value="{{ $b->id }}" {{ in_array($b->id, $ccBrandIds) ? 'selected' : '' }}>
+                                                                {{ $b->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <small class="text-muted">এই ব্র্যান্ডের সকল প্রোডাক্টে এই ডেলিভারি চার্জ কার্যকর হবে।</small>
+                                                </div>
+
+                                                {{-- Multi-select Products --}}
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold text-warning">
+                                                        <i class="fe-box me-1"></i>নির্দিষ্ট প্রোডাক্ট (ঐচ্ছিক - এক বা একাধিক)
+                                                    </label>
+                                                    <select name="product_ids[]" class="form-control select2-modal" multiple data-placeholder="প্রোডাক্ট নির্বাচন করুন...">
+                                                        @foreach($products as $p)
+                                                            <option value="{{ $p->id }}" {{ in_array($p->id, $ccProdIds) ? 'selected' : '' }}>
+                                                                {{ $p->name }} {{ $p->product_code ? '('.$p->product_code.')' : '' }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <small class="text-muted">সিলেক্ট করা নির্দিষ্ট প্রোডাক্টসমূহে এই চার্জ কার্যকর হবে।</small>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">স্ট্যাটাস</label>
+                                                    <select name="status" class="form-select">
+                                                        <option value="1" {{ $cc->status == 1 ? 'selected' : '' }}>সক্রিয় (Active)</option>
+                                                        <option value="0" {{ $cc->status == 0 ? 'selected' : '' }}>নিষ্ক্রিয় (Inactive)</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -523,7 +614,7 @@
                         </div>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
+                            <td colspan="6" class="text-center py-4 text-muted">
                                 <i class="fe-info me-1"></i> এখনো কোনো কাস্টম ডেলিভারি চার্জ তৈরি করা হয়নি। উপরে <strong>নতুন কাস্টম চার্জ যোগ করুন</strong> বাটনে ক্লিক করে তৈরি করতে পারেন।
                             </td>
                         </tr>
@@ -536,7 +627,7 @@
 
     {{-- Modal: Add Custom Delivery Charge --}}
     <div class="modal fade" id="addCustomChargeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <form action="{{ route('admin.delivery.settings.custom-charge.store') }}" method="POST">
                     @csrf
@@ -545,23 +636,67 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" required placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ভারী পণ্য, ভঙ্গুর আইটেম">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">ডেলিভারি চার্জের পরিমাণ (৳) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text">৳</span>
-                                <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required placeholder="150.00">
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="form-control" required placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ফার্নিচার, কাচের সামগ্রী">
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">স্ট্যাটাস</label>
-                            <select name="status" class="form-select">
-                                <option value="1" selected>সক্রিয় (Active)</option>
-                                <option value="0">নিষ্ক্রিয় (Inactive)</option>
-                            </select>
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">ডেলিভারি চার্জের পরিমাণ (৳) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">৳</span>
+                                    <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required placeholder="150.00">
+                                </div>
+                            </div>
+
+                            {{-- Multi-select Categories --}}
+                            <div class="col-12">
+                                <label class="form-label fw-semibold text-primary">
+                                    <i class="fe-grid me-1"></i>প্রযোজ্য ক্যাটাগরি (ঐচ্ছিক - এক বা একাধিক)
+                                </label>
+                                <select name="category_ids[]" class="form-control select2-modal" multiple data-placeholder="ক্যাটাগরি নির্বাচন করুন...">
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">এই ক্যাটাগরির অন্তর্ভুক্ত সকল পণ্যে এই ডেলিভারি চার্জ স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে।</small>
+                            </div>
+
+                            {{-- Multi-select Brands --}}
+                            <div class="col-12">
+                                <label class="form-label fw-semibold text-success">
+                                    <i class="fe-award me-1"></i>প্রযোজ্য ব্র্যান্ড (ঐচ্ছিক - এক বা একাধিক)
+                                </label>
+                                <select name="brand_ids[]" class="form-control select2-modal" multiple data-placeholder="ব্র্যান্ড নির্বাচন করুন...">
+                                    @foreach($brands as $b)
+                                        <option value="{{ $b->id }}">{{ $b->name }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">এই ব্র্যান্ডের অন্তর্ভুক্ত সকল পণ্যে এই ডেলিভারি চার্জ স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে।</small>
+                            </div>
+
+                            {{-- Multi-select Products --}}
+                            <div class="col-12">
+                                <label class="form-label fw-semibold text-warning">
+                                    <i class="fe-box me-1"></i>নির্দিষ্ট প্রোডাক্ট (ঐচ্ছিক - এক বা একাধিক)
+                                </label>
+                                <select name="product_ids[]" class="form-control select2-modal" multiple data-placeholder="প্রোডাক্ট নির্বাচন করুন...">
+                                    @foreach($products as $p)
+                                        <option value="{{ $p->id }}">
+                                            {{ $p->name }} {{ $p->product_code ? '('.$p->product_code.')' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">সিলেক্ট করা নির্দিষ্ট পণ্যগুলোতে এই ডেলিভারি চার্জ কার্যকর হবে।</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">স্ট্যাটাস</label>
+                                <select name="status" class="form-select">
+                                    <option value="1" selected>সক্রিয় (Active)</option>
+                                    <option value="0">নিষ্ক্রিয় (Inactive)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -603,6 +738,15 @@ function selectDeliveryMode(mode) {
 }
 
 $(document).ready(function() {
+    // Initialize Select2 in Modals when opened
+    $('.modal').on('shown.bs.modal', function () {
+        $(this).find('.select2-modal').select2({
+            dropdownParent: $(this),
+            width: '100%',
+            allowClear: true
+        });
+    });
+
     // District Quick Search Filter
     $('#districtFilterInput').on('keyup', function() {
         var query = $(this).val().toLowerCase().trim();
