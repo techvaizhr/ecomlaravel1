@@ -100,7 +100,7 @@
                                         </td>
 
                                         {{-- 2. Invoice with Copy Icon & Traffic Source Below --}}
-                                        <td class="align-middle text-nowrap" style="padding-left: 4px; padding-right: 4px;">
+                                        <td class="align-middle text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">
                                             <div class="d-flex align-items-center" style="gap: 3px; line-height: 1.2;">
                                                 <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" class="oi-invoice-link fw-bold text-primary" style="font-size: 13px;">#{{ $value->invoice_id }}</a>
                                                 <button type="button" class="btn btn-xs p-0 border-0 text-secondary copy-invoice-btn d-inline-flex align-items-center justify-content-center" data-invoice="{{ $value->invoice_id }}" style="width: 15px; height: 15px;" title="ইনভয়েস কপি করুন">
@@ -132,20 +132,20 @@
                                         </td>
 
                                         {{-- 3. Date & Time --}}
-                                        <td class="align-middle text-nowrap" style="font-size: 12px;">
+                                        <td class="align-middle text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px; font-size: 11.5px; line-height: 1.2;">
                                             <div>{{ date('d-m-Y', strtotime($value->updated_at)) }}</div>
-                                            <small class="text-muted">{{ date('h:i:s A', strtotime($value->updated_at)) }}</small>
+                                            <small class="text-muted" style="font-size: 10.5px;">{{ date('h:i:s A', strtotime($value->updated_at)) }}</small>
                                         </td>
 
                                         {{-- 4. Customer with Call, WhatsApp, Copy & Full Address --}}
-                                        <td class="align-middle" style="min-width: 210px;">
+                                        <td class="align-middle" style="padding-left: 6px; padding-right: 6px;">
                                             @php
                                                 $custName = $value->shipping ? $value->shipping->name : ($value->customer ? $value->customer->name : 'N/A');
                                                 $custPhone = $value->shipping ? $value->shipping->phone : ($value->customer ? $value->customer->phone : '');
                                                 $custAddr = $value->shipping ? $value->shipping->full_address : ($value->customer ? $value->customer->address : '');
-                                             @endphp
-                                             <div class="fw-bold text-dark" style="font-size: 13px; line-height: 1.2;">{{ $custName }}</div>
-                                             @if($custPhone)
+                                            @endphp
+                                            <div class="fw-bold text-dark" style="font-size: 13px; line-height: 1.2;">{{ $custName }}</div>
+                                            @if($custPhone)
                                                 <div class="d-flex align-items-center" style="gap: 3px; margin-top: 2px; line-height: 1.15;">
                                                     <span class="text-secondary fw-semibold" style="font-size: 11.5px;">{{ $custPhone }}</span>
                                                     <a href="tel:{{ $custPhone }}" class="btn btn-xs p-0 border-0 text-primary d-inline-flex align-items-center justify-content-center" style="width: 15px; height: 15px;" title="কল করুন">
@@ -166,12 +166,12 @@
                                                         <i class="far fa-copy" style="font-size: 9.5px;"></i>
                                                     </button>
                                                 </div>
-                                             @endif
-                                             @if(!empty($custAddr))
+                                            @endif
+                                            @if(!empty($custAddr))
                                                 <div class="text-muted" style="font-size: 11px; line-height: 1.25; margin-top: 2px; max-width: 250px;">
                                                     <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 9px;"></i>{{ $custAddr }}
                                                 </div>
-                                             @endif
+                                            @endif
                                         </td>
 
                                         {{-- 5. Product (Image + 20 char Title + Collapse for multiples + Image Click Zoom) --}}

@@ -79,11 +79,11 @@
                 <table id="datatable-buttons" class="table oi-table order-index-table w-100 mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 45px; text-align: center;"><input type="checkbox" class="form-check-input checkall" value="" aria-label="সব সিলেক্ট"></th>
-                            <th style="width: 110px;">ইনভয়েস</th>
-                            <th style="width: 100px;">তারিখ</th>
-                            <th style="min-width: 170px;">গ্রাহক</th>
-                            <th style="min-width: 160px;">পণ্য</th>
+                            <th style="width: 42px; text-align: center; padding-left: 2px; padding-right: 2px;"><input type="checkbox" class="form-check-input checkall" value="" aria-label="সব সিলেক্ট"></th>
+                            <th class="text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">ইনভয়েস</th>
+                            <th class="text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">তারিখ</th>
+                            <th style="padding-left: 6px; padding-right: 6px;">গ্রাহক</th>
+                            <th style="padding-left: 6px; padding-right: 6px;">পণ্য</th>
                             <th class="text-end text-nowrap" style="width: 1%; padding-left: 6px; padding-right: 4px;">পরিমাণ</th>
                             <th class="text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">স্ট্যাটাস</th>
                             <th class="text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 2px;">ফ্রড চেক</th>
