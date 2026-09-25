@@ -534,6 +534,9 @@ class ShoppingController extends Controller
         ]);
 
         self::refreshCartWholesalePrices();
+
+        $calc = \App\Services\DeliveryChargeService::calculate(null, null, Session::get('shipping_district_id'));
+        Session::put('shipping', (float) $calc['charge']);
     }
 
     protected function cartFragmentView(Request $request): \Illuminate\Contracts\View\View

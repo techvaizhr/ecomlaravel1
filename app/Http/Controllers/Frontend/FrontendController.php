@@ -1286,11 +1286,11 @@ class FrontendController extends Controller
             ShoppingController::setCampaignCartProduct($product, null, null);
         }
 
-        $shippingcharge = ShippingCharge::where('status', 1)->get();
-        $select_charge  = ShippingCharge::where('status', 1)->first();
-        if ($select_charge) {
-            Session::put('shipping', $select_charge->amount);
-        }
+        $calc = \App\Services\DeliveryChargeService::calculate();
+        Session::put('shipping', (float) $calc['charge']);
+        Session::put('shipping_district_id', null);
+
+        $shippingcharge = collect();
 
         $divisions = \App\Models\DeliveryDivision::active()->ordered()->get();
         $generalsetting = GeneralSetting::first();

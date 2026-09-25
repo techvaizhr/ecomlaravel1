@@ -728,9 +728,12 @@ class CustomerController extends Controller
             }
         }
 
-        if (! $requiresPhysicalShipping || $hasAllFreeDelivery) {
+        if (! $requiresPhysicalShipping) {
             Session::put('shipping', 0);
             Session::put('shipping_district_id', null);
+        } else {
+            $initialCalc = \App\Services\DeliveryChargeService::calculate(null, null, Session::get('shipping_district_id'));
+            Session::put('shipping', (float) $initialCalc['charge']);
         }
 
         $advanceTotal = \App\Http\Controllers\Frontend\ShoppingController::getCartAdvanceAmount();
