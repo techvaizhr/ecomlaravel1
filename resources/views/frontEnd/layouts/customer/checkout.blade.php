@@ -2,20 +2,23 @@
 @section('title', 'Customer Checkout')
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
+    $primaryColor = $generalsetting->primary_color ?? '#0d6efd';
+    $secondaryColor = $generalsetting->secodery_color ?? $primaryColor;
     $hasNewsTicker = $generalsetting
         && (int) ($generalsetting->news_ticker_enabled ?? 0) === 1
         && trim((string) ($generalsetting->top_headline ?? '')) !== '';
-    $checkoutMobilePadTop = $hasNewsTicker ? '158px' : '128px';
+    $checkoutMobilePadTop = $hasNewsTicker ? '104px' : '76px';
 @endphp
 @push('css')
 <link rel="stylesheet" href="{{ asset('public/frontEnd/css/select2.min.css') }}" />
 <style>
     /* ================================================================
-       MODERN CHECKOUT STYLES - PROFESSIONAL E-COMMERCE LOOK
+       MODERN COMPACT CHECKOUT STYLES - BRAND THEME
     ================================================================ */
     :root {
-        --primary-color: #0f3460;
-        --secondary-color: #e94560;
+        --primary-color: {{ $primaryColor }};
+        --secondary-color: {{ $secondaryColor }};
+        --brand-color: {{ $primaryColor }};
         --success-color: #28a745;
         --border-color: #e5e7eb;
         --bg-color: #f8f9fa;
@@ -25,7 +28,7 @@
 
     .checkout-section {
         background-color: var(--bg-color);
-        padding: 32px 0 48px;
+        padding: 16px 0 32px;
         font-family: 'Poppins', sans-serif;
     }
 
@@ -54,8 +57,8 @@
     @media (min-width: 992px) {
         .checkout-layout-row {
             display: grid !important;
-            grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
-            gap: 24px;
+            grid-template-columns: minmax(0, 1.15fr) minmax(300px, 420px);
+            gap: 16px;
             align-items: stretch !important;
             margin-left: 0 !important;
             margin-right: 0 !important;
@@ -126,84 +129,86 @@
         overflow: visible !important;
     }
 
-    /* --- Card Design --- */
+    /* --- Card Design (Compact) --- */
     .checkout-card {
         background: #ffffff;
         border: 1px solid var(--border-color);
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+        margin-bottom: 12px;
         overflow: hidden;
     }
 
     .checkout-header {
         background: #fff;
-        padding: 20px 24px;
+        padding: 10px 16px;
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
     }
     .checkout-header i {
-        color: var(--secondary-color);
-        font-size: 22px;
+        color: {{ $primaryColor }};
+        font-size: 16px;
     }
     .checkout-header h6 {
         margin: 0;
-        font-size: 18px;
+        font-size: 14.5px;
         font-weight: 700;
         color: var(--primary-color);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
     }
 
     .card-body-custom {
-        padding: 30px;
+        padding: 14px 16px;
     }
 
-    /* --- Form Inputs --- */
-    .form-group { margin-bottom: 20px; }
+    /* --- Form Inputs (Tight) --- */
+    .form-group { margin-bottom: 10px; }
     .form-label-custom {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         color: var(--text-dark);
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         display: block;
     }
     .form-control-custom {
         width: 100%;
-        height: 50px;
+        height: 40px;
+        min-height: 40px;
         border: 1.5px solid #cbd5e1 !important;
-        border-radius: 8px !important;
-        padding: 0 16px;
-        font-size: 15px;
+        border-radius: 6px !important;
+        padding: 0 12px;
+        font-size: 13.5px;
         color: #1e293b !important;
         transition: all 0.2s ease;
         background-color: #fff !important;
     }
     .form-control-custom:focus {
         border-color: var(--primary-color, #303d6e) !important;
-        box-shadow: 0 0 0 3.5px rgba(48, 61, 110, 0.16) !important;
+        box-shadow: 0 0 0 3px rgba(48, 61, 110, 0.12) !important;
         outline: none !important;
         background-color: #fff !important;
     }
     textarea.form-control-custom {
         height: auto;
-        padding: 15px;
-        line-height: 1.5;
+        min-height: 56px;
+        padding: 8px 12px;
+        line-height: 1.4;
     }
 
-    /* --- Payment Methods (Interactive Box) --- */
+    /* --- Payment Methods (Compact Box) --- */
     .payment-option-label {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border: 2px solid var(--border-color);
-        border-radius: 10px;
-        padding: 16px;
+        border: 1.5px solid var(--border-color);
+        border-radius: 8px;
+        padding: 7px 12px;
         cursor: pointer;
         transition: all 0.2s ease;
-        margin-bottom: 15px;
+        margin-bottom: 6px;
         background: #fff;
         position: relative;
     }
@@ -225,27 +230,28 @@
     .payment-content {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 10px;
         width: 100%;
     }
     .pay-logo {
-        width: 40px;
-        height: 40px;
+        width: 30px;
+        height: 30px;
         object-fit: contain;
         flex-shrink: 0;
     }
     .pay-info strong {
         display: block;
-        font-size: 16px;
+        font-size: 13.5px;
         color: var(--text-dark);
+        line-height: 1.2;
     }
     .pay-info small {
-        font-size: 13px;
+        font-size: 11.5px;
         color: var(--text-light);
     }
     .check-circle {
-        width: 22px;
-        height: 22px;
+        width: 18px;
+        height: 18px;
         border: 2px solid #ccc;
         border-radius: 50%;
         position: relative;
@@ -261,17 +267,17 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         background: #fff;
         border-radius: 50%;
     }
 
-    /* --- Cart Items (Scrollable) --- */
+    /* --- Cart Items (Scrollable & Compact) --- */
     .cart-items-scroll {
-        max-height: 320px;
+        max-height: 280px;
         overflow-y: auto;
-        padding-right: 5px;
+        padding-right: 4px;
     }
 
     .cart-items-scroll.is-empty {
@@ -280,14 +286,14 @@
         padding: 0;
         margin: 0;
     }
-    .cart-items-scroll::-webkit-scrollbar { width: 5px; }
+    .cart-items-scroll::-webkit-scrollbar { width: 4px; }
     .cart-items-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
-    .cart-items-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 5px; }
+    .cart-items-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
     .checkout-item {
         display: flex;
-        gap: 15px;
-        padding: 15px 0;
+        gap: 10px;
+        padding: 8px 0;
         border-bottom: 1px dashed var(--border-color);
         position: relative;
         align-items: center;
@@ -295,70 +301,77 @@
     .checkout-item:last-child { border-bottom: none; }
     
     .checkout-pro-img {
-        width: 70px;
-        height: 70px;
-        border-radius: 8px;
+        width: 50px;
+        height: 50px;
+        border-radius: 6px;
         border: 1px solid #eee;
         object-fit: cover;
+        flex-shrink: 0;
     }
     .checkout-pro-info h6 {
-        font-size: 15px;
+        font-size: 13.5px;
         font-weight: 600;
         color: var(--text-dark);
-        margin: 0 0 5px;
-        line-height: 1.4;
+        margin: 0 0 3px;
+        line-height: 1.35;
     }
     .checkout-pro-info .meta {
-        font-size: 12px;
+        font-size: 11.5px;
         color: var(--text-light);
     }
     .remove-item-btn {
         color: #ef4444;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 14px;
         position: absolute;
-        top: 15px;
+        top: 8px;
         right: 0;
         transition: 0.2s;
     }
-    .remove-item-btn:hover { color: #dc2626; transform: scale(1.1); }
+    .remove-item-btn:hover { color: #dc2626; transform: scale(1.15); }
 
-    /* Quantity Control */
+    /* Quantity Control (Tight & Compact) */
     .qty-box {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        background: #f3f4f6;
-        border-radius: 6px;
-        padding: 3px;
-        margin-top: 8px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 5px;
+        padding: 1px;
+        margin-top: 3px;
+        height: 25px;
         width: fit-content;
     }
     .qty-btn {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 21px;
         border: none;
         background: #fff;
-        border-radius: 4px;
+        border-radius: 3px;
         color: var(--primary-color);
         font-weight: bold;
         cursor: pointer;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06);
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 0;
+        transition: 0.15s ease;
     }
     .qty-btn:hover { background: var(--primary-color); color: #fff; }
     .qty-val {
-        width: 30px;
+        width: 22px;
         text-align: center;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 21px;
+        color: #1e293b;
     }
 
-    /* --- COUPON BOX (TIGHT, COMPACT & 100% RESPONSIVE) --- */
+    /* --- COUPON BOX (TIGHT & COMPACT) --- */
     .coupon-wrapper {
         background: #f8fafc;
-        padding: 10px 14px;
+        padding: 6px 14px;
         border-top: 1px dashed #e2e8f0;
         border-bottom: 1px dashed #e2e8f0;
         margin: 0;
@@ -367,7 +380,7 @@
         display: flex;
         align-items: stretch;
         width: 100%;
-        height: 38px;
+        height: 32px;
         border: 1.5px solid #cbd5e1;
         border-radius: 6px;
         overflow: hidden;
@@ -376,21 +389,21 @@
     }
     .coupon-group-modern:focus-within {
         border-color: var(--primary-color, #0f3460);
-        box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.08);
+        box-shadow: 0 0 0 2px rgba(15, 52, 96, 0.08);
     }
     .coupon-input-modern {
         flex: 1 1 0;
         min-width: 0;
         border: none;
-        padding: 0 12px;
-        font-size: 13px;
+        padding: 0 10px;
+        font-size: 12.5px;
         color: #1e293b;
         background: transparent;
         outline: none !important;
     }
     .coupon-input-modern::placeholder {
         color: #94a3b8;
-        font-size: 12.5px;
+        font-size: 12px;
     }
     .coupon-btn-modern {
         flex-shrink: 0;
@@ -400,10 +413,10 @@
         background: var(--text-dark, #0f3460);
         color: #ffffff !important;
         border: none;
-        padding: 0 16px;
+        padding: 0 14px;
         font-weight: 700;
-        font-size: 12px;
-        letter-spacing: 0.5px;
+        font-size: 11px;
+        letter-spacing: 0.4px;
         text-transform: uppercase;
         cursor: pointer;
         transition: background 0.2s ease;
@@ -416,12 +429,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding: 6px 12px;
+        gap: 6px;
+        padding: 4px 10px;
         background: #ecfdf5;
         border: 1px solid #a7f3d0;
-        border-radius: 6px;
-        font-size: 12.5px;
+        border-radius: 5px;
+        font-size: 12px;
         color: #065f46;
     }
     .coupon-applied-text {
@@ -433,10 +446,10 @@
     .coupon-remove-btn {
         flex-shrink: 0;
         color: #dc2626 !important;
-        font-size: 11.5px;
+        font-size: 11px;
         font-weight: 700;
         text-decoration: none;
-        padding: 2px 6px;
+        padding: 1px 5px;
         border-radius: 4px;
         background: #fee2e2;
         transition: background 0.2s ease;
@@ -445,23 +458,23 @@
         background: #fecaca;
     }
 
-    /* --- Totals Area --- */
+    /* --- Totals Area (Compact) --- */
     .summary-totals {
-        padding: 24px;
+        padding: 10px 14px;
         background: #fff;
     }
     .total-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 12px;
-        font-size: 15px;
+        margin-bottom: 5px;
+        font-size: 13.5px;
         color: var(--text-dark);
     }
     .total-row.final {
-        border-top: 2px dashed #e5e7eb;
-        margin-top: 15px;
-        padding-top: 15px;
-        font-size: 20px;
+        border-top: 1.5px dashed #e5e7eb;
+        margin-top: 6px;
+        padding-top: 6px;
+        font-size: 16px;
         font-weight: 800;
         color: var(--primary-color);
     }
@@ -470,9 +483,9 @@
     .advance-alert {
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
-        border-radius: 8px;
-        padding: 15px;
-        margin-top: 15px;
+        border-radius: 6px;
+        padding: 6px 10px;
+        margin-top: 6px;
         text-align: center;
     }
 
@@ -480,44 +493,45 @@
     @keyframes orderJhakajhaki {
         0%, 65%, 100% {
             transform: scale(1) translate3d(0, 0, 0);
-            box-shadow: 0 4px 18px rgba(233, 69, 96, 0.45);
+            box-shadow: 0 3px 12px {{ $primaryColor }}55;
         }
         68%, 76%, 84% {
-            transform: scale(1.025) translate3d(-3px, 0, 0) rotate(-1deg);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.7);
+            transform: scale(1.02) translate3d(-2px, 0, 0) rotate(-0.8deg);
+            box-shadow: 0 5px 18px {{ $primaryColor }}80;
         }
         72%, 80%, 88% {
-            transform: scale(1.025) translate3d(3px, 0, 0) rotate(1deg);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.7);
+            transform: scale(1.02) translate3d(2px, 0, 0) rotate(0.8deg);
+            box-shadow: 0 5px 18px {{ $primaryColor }}80;
         }
         92% {
             transform: scale(1.01) translate3d(0, 0, 0) rotate(0deg);
         }
     }
 
-    /* --- Submit Button --- */
+    /* --- Submit Button (Branding Color & Compact) --- */
     .btn-place-order {
-        background: var(--secondary-color);
-        color: #fff;
+        background: {{ $primaryColor }};
+        color: #fff !important;
         width: 100%;
         border: none;
-        padding: 18px;
-        border-radius: 10px;
-        font-size: 17px;
+        padding: 12px 18px;
+        border-radius: 8px;
+        font-size: 15px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: 0.3s;
-        box-shadow: 0 10px 25px rgba(233, 69, 96, 0.3);
+        letter-spacing: 0.5px;
+        transition: 0.25s;
+        box-shadow: 0 6px 18px {{ $primaryColor }}40;
         cursor: pointer;
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         animation: orderJhakajhaki 2.8s infinite ease-in-out !important;
     }
     .btn-place-order:hover {
-        background: var(--primary-color);
+        background: {{ $primaryColor }};
+        filter: brightness(0.9);
         transform: translateY(-2px);
         animation: none !important;
     }
@@ -529,10 +543,10 @@
         left: 0;
         width: 100%;
         background: #ffffff;
-        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.14);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
         border-top: 1px solid #e5e7eb;
         z-index: 10005;
-        padding: 10px 20px;
+        padding: 8px 16px;
         transform: translateY(115%);
         opacity: 0;
         pointer-events: none;
@@ -549,7 +563,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
+        gap: 12px;
     }
     .checkout-floating-total {
         display: flex;
@@ -557,69 +571,70 @@
         min-width: 0;
     }
     .checkout-floating-label {
-        font-size: 12px;
+        font-size: 11.5px;
         color: #6b7280;
         font-weight: 500;
-        margin-bottom: 1px;
+        margin-bottom: 0px;
     }
     .checkout-floating-amount {
-        font-size: 19px;
+        font-size: 16px;
         font-weight: 800;
-        color: var(--primary-color, #0f3460);
+        color: {{ $primaryColor }};
         white-space: nowrap;
     }
     .checkout-floating-btn {
-        background: var(--secondary-color, #e94560);
+        background: {{ $primaryColor }};
         color: #ffffff !important;
         border: none;
-        padding: 13px 32px;
-        border-radius: 10px;
-        font-size: 16px;
+        padding: 9px 22px;
+        border-radius: 8px;
+        font-size: 14px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        gap: 6px;
+        box-shadow: 0 4px 12px {{ $primaryColor }}40;
         animation: orderJhakajhaki 2.8s infinite ease-in-out !important;
         transition: 0.2s ease;
     }
     .checkout-floating-btn:hover {
         animation: none !important;
-        background: var(--primary-color, #0f3460);
+        background: {{ $primaryColor }};
+        filter: brightness(0.9);
         transform: translateY(-2px);
     }
     @media (max-width: 768px) {
         .checkout-floating-bar {
-            padding: 8px 14px;
+            padding: 6px 12px;
         }
         .checkout-floating-amount {
-            font-size: 16px;
+            font-size: 15px;
         }
         .checkout-floating-btn {
-            padding: 11px 18px;
-            font-size: 14.5px;
+            padding: 8px 14px;
+            font-size: 13.5px;
             flex: 1;
-            max-width: 250px;
+            max-width: 220px;
         }
     }
 
-    /* --- OUTLINED / NOTCHED BORDER LABEL FORM STYLING --- */
+    /* --- OUTLINED / NOTCHED BORDER LABEL FORM STYLING (COMPACT) --- */
     .modern-outline-group {
         position: relative;
-        margin-top: 14px;
-        margin-bottom: 16px;
+        margin-top: 8px;
+        margin-bottom: 8px;
     }
     .modern-outline-group .modern-outline-label {
         position: absolute;
-        top: -9px;
-        left: 12px;
+        top: -8px;
+        left: 10px;
         background: #ffffff;
-        padding: 0 6px;
-        font-size: 12px;
+        padding: 0 5px;
+        font-size: 11.5px;
         font-weight: 600;
         color: #374151;
         z-index: 2;
@@ -633,12 +648,13 @@
     .modern-outline-group .form-control-custom,
     .modern-outline-group .form-control {
         width: 100%;
-        min-height: 48px;
-        padding: 10px 14px;
+        min-height: 40px;
+        height: 40px;
+        padding: 6px 12px;
         background: #ffffff;
         border: 1.5px solid #d1d5db !important;
-        border-radius: 8px !important;
-        font-size: 14px;
+        border-radius: 6px !important;
+        font-size: 13.5px;
         color: #111827;
         outline: none !important;
         transition: all 0.2s ease;
@@ -654,8 +670,8 @@
     .modern-outline-group textarea.modern-outline-input,
     .modern-outline-group textarea.form-control-custom,
     .modern-outline-group textarea.form-control {
-        min-height: 72px;
-        padding-top: 12px;
+        min-height: 56px;
+        padding-top: 8px;
         resize: vertical;
     }
     .modern-outline-group input::placeholder,
@@ -664,27 +680,27 @@
     .modern-outline-group .form-control::placeholder {
         color: #9ca3af !important;
         opacity: 0.55 !important;
-        font-size: 13.5px !important;
+        font-size: 13px !important;
         font-weight: 400 !important;
     }
 
     /* Order note collapsible button */
     .order-note-collapse-wrapper {
-        margin-top: 6px;
-        margin-bottom: 12px;
+        margin-top: 2px;
+        margin-bottom: 4px;
     }
     .order-note-toggle-btn {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         color: #4f46e5;
-        font-size: 13.5px;
+        font-size: 12.5px;
         font-weight: 600;
         text-decoration: none;
         cursor: pointer;
         background: transparent;
         border: none;
-        padding: 4px 0;
+        padding: 2px 0;
         transition: color 0.15s ease;
     }
     .order-note-toggle-btn:hover {
@@ -692,7 +708,7 @@
         text-decoration: underline;
     }
     .order-note-toggle-btn i {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     /* --- Responsive Fixes --- */
@@ -702,13 +718,14 @@
         }
 
         .checkout-section {
-            padding: 12px 0 40px;
+            padding: 6px 0 24px;
         }
 
         .checkout-layout-row {
             display: flex !important;
             flex-direction: column;
             align-items: flex-start !important;
+            gap: 10px !important;
         }
 
         .checkout-summary-col {
@@ -718,7 +735,7 @@
             height: auto !important;
             min-height: 0 !important;
             display: block !important;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
 
         .checkout-form-col {
@@ -858,7 +875,7 @@
             } catch (e) {}
             </script>
             
-            <div class="row checkout-layout-row g-4" id="checkoutLayoutRow">
+            <div class="row checkout-layout-row g-3" id="checkoutLayoutRow">
                 
                 {{-- LEFT COLUMN: Shipping & Payment --}}
                 <div class="col-lg-7 col-md-12 checkout-form-col">
@@ -963,7 +980,7 @@
                             
                             <div class="card-body-custom p-0">
                                 {{-- Products List (Scrollable) --}}
-                                <div class="cart-items-scroll px-4 pt-3 cartlist {{ Cart::instance('shopping')->count() ? '' : 'is-empty' }}" style="overflow-y: auto;">
+                                <div class="cart-items-scroll px-3 pt-2 cartlist {{ Cart::instance('shopping')->count() ? '' : 'is-empty' }}" style="overflow-y: auto;">
                                     @foreach (Cart::instance('shopping')->content() as $value)
                                         <div class="checkout-item" data-rowid="{{ $value->rowId }}">
                                             {{-- Remove --}}
@@ -1053,7 +1070,7 @@
                                 </div>
 
                                 {{-- PAYMENT METHODS (Directly below summary totals without separate label) --}}
-                                <div class="px-4 pb-2 border-top pt-3">
+                                <div class="px-3 pb-1 border-top pt-2">
                                     @if($hasAdvance)
                                         <div class="alert alert-warning border-0 shadow-sm mb-3" style="border-left: 5px solid #ffc107 !important; background-color: #fff8e1;">
                                             <div class="d-flex gap-3 align-items-center">
@@ -1192,7 +1209,7 @@
                                 </div>
 
                                 {{-- SUBMIT BUTTON (VISIBLE ON ALL SCREENS) --}}
-                                <div class="checkout-submit-wrap p-4 pt-2">
+                                <div class="checkout-submit-wrap p-3 pt-2">
                                     <button type="submit" class="btn-place-order">
                                         অর্ডার নিশ্চিত করুন <i class="fas fa-check-circle"></i>
                                     </button>
@@ -1506,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
                             cartItems = cartItems.filter(function(it) { return it.rowId !== id; });
                             baseSubtotal = parseFloat(res.subtotal) || 0;
-                            $('#subtotalAmount').text('৳ ' + baseSubtotal.toFixed(2));
+                            $('#subtotalAmount').text('৳ ' + Math.round(baseSubtotal));
                             applyShippingToDomAndSession();
                             if (typeof cart_count === 'function') cart_count();
                             if (typeof mobile_cart === 'function') mobile_cart();
@@ -1551,7 +1568,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         $qtyBox.find('.qty-val').text(res.item_qty);
                         $itemRow.find('.item-total-price').text('৳ ' + Math.round(res.item_total).toLocaleString());
                         baseSubtotal = parseFloat(res.subtotal) || 0;
-                        $('#subtotalAmount').text('৳ ' + baseSubtotal.toFixed(2));
+                        $('#subtotalAmount').text('৳ ' + Math.round(baseSubtotal));
 
                         var foundItem = cartItems.find(function(it) { return it.rowId === rowId; });
                         if (foundItem) { foundItem.qty = res.item_qty; }
