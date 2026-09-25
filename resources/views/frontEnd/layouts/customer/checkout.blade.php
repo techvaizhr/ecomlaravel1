@@ -826,7 +826,7 @@
                                             <select name="area" id="checkout_area" class="form-control-custom" required>
                                                 <option value="">ডেলিভারি এরিয়া নির্বাচন করুন</option>
                                                 @foreach(($shippingcharges ?? collect()) as $sc)
-                                                    <option value="{{ $sc->id }}" data-charge="{{ $sc->amount }}" {{ $loop->first ? 'selected' : '' }}>{{ $sc->name }} (৳{{ $sc->amount }})</option>
+                                                    <option value="{{ $sc->id }}" data-charge="{{ $sc->amount }}" {{ $loop->first ? 'selected' : '' }}>{{ $sc->name }} (৳{{ round($sc->amount) }})</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -870,7 +870,7 @@
                     <i class="fas fa-exclamation-triangle text-warning fs-4"></i>
                     <div>
                         <strong>অগ্রিম পেমেন্ট প্রয়োজন!</strong>
-                        <p class="mb-0 small">এই অর্ডারে <b>৳ {{ number_format($advance_amount,2) }}</b> অগ্রিম পেমেন্ট করতে হবে।</p>
+                        <p class="mb-0 small">এই অর্ডারে <b>৳ {{ number_format($advance_amount, 0) }}</b> অগ্রিম পেমেন্ট করতে হবে।</p>
                     </div>
                 </div>
             </div>
@@ -1103,17 +1103,17 @@
 
                                 {{-- Calculation --}}
                                 <div class="summary-totals">
-                                    <div class="total-row"><span>সাবটোটাল</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
-                                    <div class="total-row"><span>ডেলিভারি চার্জ</span> <span id="shippingAmount">৳ {{ number_format($shipping, 2) }}</span></div>
+                                    <div class="total-row"><span>সাবটোটাল</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 0) }}</span></div>
+                                    <div class="total-row"><span>ডেলিভারি চার্জ</span> <span id="shippingAmount">৳ {{ number_format($shipping, 0) }}</span></div>
                                     @if($discount > 0)
-                                        <div class="total-row text-success"><span>কুপন ছাড়</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
+                                        <div class="total-row text-success"><span>কুপন ছাড়</span> <span id="discountAmount">- ৳ {{ number_format($discount, 0) }}</span></div>
                                     @endif
-                                    <div class="total-row final"><span>সর্বমোট</span> <span id="grandTotalAmount">৳ {{ number_format($grand_total, 2) }}</span></div>
+                                    <div class="total-row final"><span>সর্বমোট</span> <span id="grandTotalAmount">৳ {{ number_format($grand_total, 0) }}</span></div>
 
                                     @if($hasAdvance)
                                         <div class="advance-alert">
-                                            <div class="total-row text-success fw-bold"><span>অগ্রিম (পেইড):</span> <span id="advanceAmountCell">৳ {{ number_format($advance_amount,2) }}</span></div>
-                                            <div class="total-row text-danger fw-bold mb-0"><span>বাকি (ডিউ):</span> <span id="dueAmountCell">৳ {{ number_format($due_amount,2) }}</span></div>
+                                            <div class="total-row text-success fw-bold"><span>অগ্রিম (পেইড):</span> <span id="advanceAmountCell">৳ {{ number_format($advance_amount, 0) }}</span></div>
+                                            <div class="total-row text-danger fw-bold mb-0"><span>বাকি (ডিউ):</span> <span id="dueAmountCell">৳ {{ number_format($due_amount, 0) }}</span></div>
                                         </div>
                                     @endif
                                 </div>
@@ -1173,7 +1173,7 @@
         <div class="checkout-floating-container">
             <div class="checkout-floating-total">
                 <span class="checkout-floating-label">সর্বমোট বিল</span>
-                <span class="checkout-floating-amount" id="checkoutFloatingGrandTotal">৳ {{ number_format($grand_total, 2) }}</span>
+                <span class="checkout-floating-amount" id="checkoutFloatingGrandTotal">৳ {{ number_format($grand_total, 0) }}</span>
             </div>
             <button type="button" class="checkout-floating-btn" id="checkout_floating_submit_btn">
                 অর্ডার নিশ্চিত করুন <i class="fas fa-arrow-right ms-1"></i>
@@ -1526,7 +1526,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         $qtyBox.find('.qty-val').text(res.item_qty);
                         $itemRow.find('.item-total-price').text('৳ ' + Math.round(res.item_total).toLocaleString());
                         baseSubtotal = parseFloat(res.subtotal) || 0;
-                        $('#subtotalAmount').text('৳ ' + baseSubtotal.toFixed(2));
+                        $('#subtotalAmount').text('৳ ' + Math.round(baseSubtotal));
 
                         var foundItem = cartItems.find(function(it) { return it.rowId === rowId; });
                         if (foundItem) { foundItem.qty = res.item_qty; }
@@ -1595,12 +1595,12 @@ document.addEventListener('DOMContentLoaded', function () {
             var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
             var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
 
-            $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
-            $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
+            $('#shippingAmount').text('৳ ' + Math.round(shippingCharge));
+            $('#grandTotalAmount').text('৳ ' + Math.round(grandTotal));
 
             if (hasAdvance) {
-                $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                $('#dueAmountText').text(dueAmount.toFixed(2));
+                $('#dueAmountCell').text('৳ ' + Math.round(dueAmount));
+                $('#dueAmountText').text(Math.round(dueAmount));
             }
 
             if (!requiresShipping) {
@@ -1689,11 +1689,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 var grandTotal = baseSubtotal + currentShipping - baseDiscount;
                 var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
 
-                $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
+                $('#grandTotalAmount').text('৳ ' + Math.round(grandTotal));
 
                 if (hasAdvance) {
-                    $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                    $('#dueAmountText').text(dueAmount.toFixed(2));
+                    $('#dueAmountCell').text('৳ ' + Math.round(dueAmount));
+                    $('#dueAmountText').text(Math.round(dueAmount));
                 }
 
                 var did = $('#checkout_district').val();
@@ -1784,7 +1784,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 var isFreeDelivery = checkFreeDelivery();
                 var shippingCharge = isFreeDelivery ? 0 : districtChargeFromSelect();
-                var total = (baseSubtotal + shippingCharge - baseDiscount).toFixed(2);
+                var total = Math.round(baseSubtotal + shippingCharge - baseDiscount);
                 var meta = buildCheckoutMeta(shippingCharge);
 
                 $.ajax({

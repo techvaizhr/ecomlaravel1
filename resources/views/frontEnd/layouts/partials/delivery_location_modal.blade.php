@@ -516,68 +516,48 @@
     text-align: center;
     padding: 30px 0;
     color: #94a3b8;
-    font-size: 14px;
-}
-
-/* Mobile responsive (Bottom Sheet) */
-@media (max-width: 768px) {
-    .delivery-location-dialog {
-        width: 100%;
-        max-width: 100%;
-        max-height: 88vh;
-        border-radius: 20px 20px 0 0;
-        position: fixed;
-        bottom: 0;
-        animation: modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes modalSlideUp {
-        from { transform: translateY(100%); }
-        to { transform: translateY(0); }
-    }
-    .delivery-grid-list {
-        grid-template-columns: 1fr;
-    }
-    .delivery-location-body {
-        max-height: 58vh;
-    }
-}
-</style>
-
-{{-- SCRIPT COMPONENT --}}
+ {{-- SCRIPT COMPONENT (100% Standalone Vanilla JS - No jQuery dependency) --}}
 <script>
-(function ($) {
-    $(function () {
+(function () {
+    function initDeliveryLocationPicker() {
         var prefix = '{{ $prefix }}';
-        var $trigger = $('#' + prefix + '_delivery_area_trigger');
-        var $modal = $('#' + prefix + '_delivery_location_modal');
-        var $backdrop = $('#' + prefix + '_modal_backdrop');
-        var $closeBtn = $('#' + prefix + '_modal_close_btn');
-        var $searchInput = $('#' + prefix + '_location_search');
-        var $searchClear = $('#' + prefix + '_search_clear');
-        var $noResults = $('#' + prefix + '_no_results');
-        var $loading = $('#' + prefix + '_location_loading');
+        var trigger = document.getElementById(prefix + '_delivery_area_trigger');
+        var modal = document.getElementById(prefix + '_delivery_location_modal');
+        var backdrop = document.getElementById(prefix + '_modal_backdrop');
+        var closeBtn = document.getElementById(prefix + '_modal_close_btn');
+        var searchInput = document.getElementById(prefix + '_location_search');
+        var searchClear = document.getElementById(prefix + '_search_clear');
+        var noResults = document.getElementById(prefix + '_no_results');
+        var loading = document.getElementById(prefix + '_location_loading');
 
-        var $inputDiv = $('#' + prefix + '_division_id');
-        var $inputDist = $('#' + prefix + '_district_id');
-        var $inputUpa = $('#' + prefix + '_upazila_id');
-        var $displayLabel = $('#' + prefix + '_delivery_area_label');
-        var $badge = $('#' + prefix + '_delivery_area_badge');
-        var $chevron = $('#' + prefix + '_delivery_area_chevron');
+        var inputDiv = document.getElementById(prefix + '_division_id');
+        var inputDist = document.getElementById(prefix + '_district_id');
+        var inputUpa = document.getElementById(prefix + '_upazila_id');
+        var displayLabel = document.getElementById(prefix + '_delivery_area_label');
+        var badge = document.getElementById(prefix + '_delivery_area_badge');
+        var chevron = document.getElementById(prefix + '_delivery_area_chevron');
 
-        var $stepNav1 = $('#' + prefix + '_step_nav_1');
-        var $stepNav2 = $('#' + prefix + '_step_nav_2');
-        var $stepNav3 = $('#' + prefix + '_step_nav_3');
+        var stepNav1 = document.getElementById(prefix + '_step_nav_1');
+        var stepNav2 = document.getElementById(prefix + '_step_nav_2');
+        var stepNav3 = document.getElementById(prefix + '_step_nav_3');
 
-        var $paneStep1 = $('#' + prefix + '_pane_step_1');
-        var $paneStep2 = $('#' + prefix + '_pane_step_2');
-        var $paneStep3 = $('#' + prefix + '_pane_step_3');
+        var stepLabel1 = document.getElementById(prefix + '_step_label_1');
+        var stepLabel2 = document.getElementById(prefix + '_step_label_2');
+        var stepLabel3 = document.getElementById(prefix + '_step_label_3');
 
-        var $districtsList = $('#' + prefix + '_districts_list');
-        var $upazilasList = $('#' + prefix + '_upazilas_list');
+        var paneStep1 = document.getElementById(prefix + '_pane_step_1');
+        var paneStep2 = document.getElementById(prefix + '_pane_step_2');
+        var paneStep3 = document.getElementById(prefix + '_pane_step_3');
 
-        var $pathBar = $('#' + prefix + '_current_path_bar');
-        var $pathText = $('#' + prefix + '_current_path_text');
-        var $stepBackBtn = $('#' + prefix + '_step_back_btn');
+        var divisionsList = document.getElementById(prefix + '_divisions_list');
+        var districtsList = document.getElementById(prefix + '_districts_list');
+        var upazilasList = document.getElementById(prefix + '_upazilas_list');
+
+        var pathBar = document.getElementById(prefix + '_current_path_bar');
+        var pathText = document.getElementById(prefix + '_current_path_text');
+        var stepBackBtn = document.getElementById(prefix + '_step_back_btn');
+
+        if (!trigger || !modal) return;
 
         var currentStep = 1;
         var selectedDiv = { id: null, name: '' };
@@ -587,106 +567,113 @@
         var districtCache = {};
         var upazilaCache = {};
 
-        // Initial setup from old input or user profile if present
-        var initDivId = $inputDiv.val();
-        var initDistId = $inputDist.val();
-        var initUpaId = $inputUpa.val();
+        var initDivId = inputDiv ? inputDiv.value : '';
+        var initDistId = inputDist ? inputDist.value : '';
+        var initUpaId = inputUpa ? inputUpa.value : '';
 
         function openModal() {
-            $modal.show();
-            $('body').addClass('modal-open').css('overflow', 'hidden');
-            $trigger.removeClass('is-invalid');
-            if (currentStep === 1) {
-                setTimeout(function () { $searchInput.focus(); }, 150);
+            modal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
+            trigger.classList.remove('is-invalid');
+            if (searchInput) {
+                setTimeout(function () { searchInput.focus(); }, 120);
             }
         }
 
         function closeModal() {
-            $modal.hide();
-            $('body').removeClass('modal-open').css('overflow', '');
-            $searchInput.val('');
-            $searchClear.addClass('d-none');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            if (searchInput) searchInput.value = '';
+            if (searchClear) searchClear.classList.add('d-none');
             filterItems('');
         }
 
-        $trigger.on('click', openModal);
-        $backdrop.on('click', closeModal);
-        $closeBtn.on('click', closeModal);
+        trigger.addEventListener('click', openModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
-        $(document).on('keydown', function (e) {
-            if (e.key === 'Escape' && $modal.is(':visible')) {
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && modal.style.display !== 'none') {
                 closeModal();
             }
         });
 
         function updateStepUI(step) {
             currentStep = step;
-            $searchInput.val('');
-            $searchClear.addClass('d-none');
-            $noResults.addClass('d-none');
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.placeholder = step === 1 ? 'বিভাগ সার্চ করুন...' : (step === 2 ? 'জেলা সার্চ করুন...' : 'থানা / উপজেলা সার্চ করুন...');
+            }
+            if (searchClear) searchClear.classList.add('d-none');
+            if (noResults) noResults.classList.add('d-none');
 
-            // Nav stepper update
-            $stepNav1.removeClass('active completed disabled');
-            $stepNav2.removeClass('active completed disabled');
-            $stepNav3.removeClass('active completed disabled');
+            [stepNav1, stepNav2, stepNav3].forEach(function (el) {
+                if (el) el.classList.remove('active', 'completed', 'disabled');
+            });
 
             if (step === 1) {
-                $stepNav1.addClass('active');
-                $stepNav2.addClass('disabled');
-                $stepNav3.addClass('disabled');
-                $pathBar.addClass('d-none');
+                if (stepNav1) stepNav1.classList.add('active');
+                if (stepNav2) stepNav2.classList.add('disabled');
+                if (stepNav3) stepNav3.classList.add('disabled');
+                if (pathBar) pathBar.classList.add('d-none');
             } else if (step === 2) {
-                $stepNav1.addClass('completed');
-                $stepNav2.addClass('active');
-                $stepNav3.addClass('disabled');
-                $pathBar.removeClass('d-none');
-                $pathText.text(selectedDiv.name);
+                if (stepNav1) stepNav1.classList.add('completed');
+                if (stepNav2) stepNav2.classList.add('active');
+                if (stepNav3) stepNav3.classList.add('disabled');
+                if (pathBar) pathBar.classList.remove('d-none');
+                if (pathText) pathText.textContent = selectedDiv.name;
             } else if (step === 3) {
-                $stepNav1.addClass('completed');
-                $stepNav2.addClass('completed');
-                $stepNav3.addClass('active');
-                $pathBar.removeClass('d-none');
-                $pathText.text(selectedDiv.name + ' > ' + selectedDist.name);
+                if (stepNav1) stepNav1.classList.add('completed');
+                if (stepNav2) stepNav2.classList.add('completed');
+                if (stepNav3) stepNav3.classList.add('active');
+                if (pathBar) pathBar.classList.remove('d-none');
+                if (pathText) pathText.textContent = selectedDiv.name + ' > ' + selectedDist.name;
             }
 
-            // Panes update
-            $paneStep1.hide();
-            $paneStep2.hide();
-            $paneStep3.hide();
+            if (paneStep1) paneStep1.style.display = (step === 1) ? 'block' : 'none';
+            if (paneStep2) paneStep2.style.display = (step === 2) ? 'block' : 'none';
+            if (paneStep3) paneStep3.style.display = (step === 3) ? 'block' : 'none';
 
-            if (step === 1) $paneStep1.show();
-            else if (step === 2) $paneStep2.show();
-            else if (step === 3) $paneStep3.show();
+            var currentList = (step === 1) ? divisionsList : ((step === 2) ? districtsList : upazilasList);
+            if (currentList) currentList.scrollTop = 0;
         }
 
-        // Stepper nav clicks
-        $stepNav1.on('click', function () {
-            if (!$stepNav1.hasClass('disabled')) updateStepUI(1);
+        if (stepNav1) stepNav1.addEventListener('click', function () {
+            if (!stepNav1.classList.contains('disabled')) updateStepUI(1);
         });
-        $stepNav2.on('click', function () {
-            if (!$stepNav2.hasClass('disabled') && selectedDiv.id) updateStepUI(2);
+        if (stepNav2) stepNav2.addEventListener('click', function () {
+            if (!stepNav2.classList.contains('disabled') && selectedDiv.id) updateStepUI(2);
         });
-        $stepNav3.on('click', function () {
-            if (!$stepNav3.hasClass('disabled') && selectedDist.id) updateStepUI(3);
+        if (stepNav3) stepNav3.addEventListener('click', function () {
+            if (!stepNav3.classList.contains('disabled') && selectedDist.id) updateStepUI(3);
         });
 
-        $stepBackBtn.on('click', function () {
+        if (stepBackBtn) stepBackBtn.addEventListener('click', function () {
             if (currentStep === 3) updateStepUI(2);
             else if (currentStep === 2) updateStepUI(1);
         });
 
-        // 1. Division selection
-        $(document).on('click', '#' + prefix + '_divisions_list .delivery-option-item', function () {
-            var divId = $(this).data('id');
-            var divName = $(this).data('name');
-            selectedDiv = { id: divId, name: divName };
-            $('#' + prefix + '_step_label_1').text(divName);
+        // 1. Division Click
+        if (divisionsList) {
+            divisionsList.addEventListener('click', function (e) {
+                var item = e.target.closest('.delivery-option-item');
+                if (!item) return;
 
-            $('#' + prefix + '_divisions_list .delivery-option-item').removeClass('selected');
-            $(this).addClass('selected');
+                var divId = item.getAttribute('data-id');
+                var divName = item.getAttribute('data-name');
+                selectedDiv = { id: divId, name: divName };
+                if (stepLabel1) stepLabel1.textContent = divName;
 
-            loadDistricts(divId);
-        });
+                divisionsList.querySelectorAll('.delivery-option-item').forEach(function (el) {
+                    el.classList.remove('selected');
+                });
+                item.classList.add('selected');
+
+                loadDistricts(divId);
+            });
+        }
 
         // 2. Load Districts
         function loadDistricts(divId) {
@@ -696,51 +683,65 @@
                 return;
             }
 
-            $loading.removeClass('d-none');
-            $districtsList.empty();
+            if (loading) loading.classList.remove('d-none');
+            if (districtsList) districtsList.innerHTML = '';
 
-            $.get('{{ url("/ajax/delivery/districts") }}/' + divId, function (res) {
-                $loading.addClass('d-none');
+            fetch('{{ url("/ajax/delivery/districts") }}/' + divId, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (res) {
+                if (loading) loading.classList.add('d-none');
                 var items = (res && res.data) ? res.data : [];
                 districtCache[divId] = items;
                 renderDistricts(items);
-            }).fail(function () {
-                $loading.addClass('d-none');
-                $districtsList.html('<div class="text-danger py-3 text-center">জেলা লোড করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</div>');
+            })
+            .catch(function () {
+                if (loading) loading.classList.add('d-none');
+                if (districtsList) districtsList.innerHTML = '<div class="text-danger py-3 text-center">জেলা লোড করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</div>';
             });
         }
 
         function renderDistricts(items) {
+            if (!districtsList) return;
             if (!items.length) {
-                $districtsList.html('<div class="text-muted py-3 text-center">এই বিভাগে কোনো জেলা পাওয়া যায়নি</div>');
+                districtsList.innerHTML = '<div class="text-muted py-3 text-center">এই বিভাগে কোনো জেলা পাওয়া যায়নি</div>';
                 return;
             }
             var html = '';
             items.forEach(function (dist) {
-                var chargeBadge = (dist.delivery_charge > 0) ? '<span class="option-charge">৳' + dist.delivery_charge + '</span>' : '';
-                html += '<div class="delivery-option-item" data-id="' + dist.id + '" data-name="' + dist.name + '" data-charge="' + (dist.delivery_charge || 0) + '">'
+                var chargeVal = parseFloat(dist.delivery_charge) || 0;
+                var chargeBadge = (chargeVal > 0) ? '<span class="option-charge">৳' + Math.round(chargeVal) + '</span>' : '';
+                html += '<div class="delivery-option-item" data-id="' + dist.id + '" data-name="' + dist.name + '" data-charge="' + chargeVal + '">'
                       + '<div class="option-icon"><i class="fas fa-city"></i></div>'
                       + '<div class="option-name">' + dist.name + '</div>'
                       + chargeBadge
                       + '<div class="option-arrow"><i class="fas fa-chevron-right"></i></div>'
                       + '</div>';
             });
-            $districtsList.html(html);
+            districtsList.innerHTML = html;
         }
 
-        // District click
-        $(document).on('click', '#' + prefix + '_districts_list .delivery-option-item', function () {
-            var distId = $(this).data('id');
-            var distName = $(this).data('name');
-            var distCharge = $(this).data('charge');
-            selectedDist = { id: distId, name: distName, charge: distCharge };
-            $('#' + prefix + '_step_label_2').text(distName);
+        // District Click
+        if (districtsList) {
+            districtsList.addEventListener('click', function (e) {
+                var item = e.target.closest('.delivery-option-item');
+                if (!item) return;
 
-            $('#' + prefix + '_districts_list .delivery-option-item').removeClass('selected');
-            $(this).addClass('selected');
+                var distId = item.getAttribute('data-id');
+                var distName = item.getAttribute('data-name');
+                var distCharge = parseFloat(item.getAttribute('data-charge')) || 0;
+                selectedDist = { id: distId, name: distName, charge: distCharge };
+                if (stepLabel2) stepLabel2.textContent = distName;
 
-            loadUpazilas(distId);
-        });
+                districtsList.querySelectorAll('.delivery-option-item').forEach(function (el) {
+                    el.classList.remove('selected');
+                });
+                item.classList.add('selected');
+
+                loadUpazilas(distId);
+            });
+        }
 
         // 3. Load Upazilas
         function loadUpazilas(distId) {
@@ -750,23 +751,29 @@
                 return;
             }
 
-            $loading.removeClass('d-none');
-            $upazilasList.empty();
+            if (loading) loading.classList.remove('d-none');
+            if (upazilasList) upazilasList.innerHTML = '';
 
-            $.get('{{ url("/ajax/delivery/upazilas") }}/' + distId, function (res) {
-                $loading.addClass('d-none');
+            fetch('{{ url("/ajax/delivery/upazilas") }}/' + distId, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (res) {
+                if (loading) loading.classList.add('d-none');
                 var items = (res && res.data) ? res.data : [];
                 upazilaCache[distId] = items;
                 renderUpazilas(items);
-            }).fail(function () {
-                $loading.addClass('d-none');
-                $upazilasList.html('<div class="text-danger py-3 text-center">উপজেলা লোড করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</div>');
+            })
+            .catch(function () {
+                if (loading) loading.classList.add('d-none');
+                if (upazilasList) upazilasList.innerHTML = '<div class="text-danger py-3 text-center">উপজেলা লোড করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</div>';
             });
         }
 
         function renderUpazilas(items) {
+            if (!upazilasList) return;
             if (!items.length) {
-                $upazilasList.html('<div class="text-muted py-3 text-center">এই জেলায় কোনো উপজেলা পাওয়া যায়নি</div>');
+                upazilasList.innerHTML = '<div class="text-muted py-3 text-center">এই জেলায় কোনো উপজেলা পাওয়া যায়নি</div>';
                 return;
             }
             var html = '';
@@ -777,133 +784,159 @@
                       + '<div class="option-arrow"><i class="fas fa-check text-success"></i></div>'
                       + '</div>';
             });
-            $upazilasList.html(html);
+            upazilasList.innerHTML = html;
         }
 
-        // Upazila click -> COMPLETE SELECTION!
-        $(document).on('click', '#' + prefix + '_upazilas_list .delivery-option-item', function () {
-            var upaId = $(this).data('id');
-            var upaName = $(this).data('name');
-            selectedUpa = { id: upaId, name: upaName };
-            $('#' + prefix + '_step_label_3').text(upaName);
+        // Upazila Click -> Complete Selection!
+        if (upazilasList) {
+            upazilasList.addEventListener('click', function (e) {
+                var item = e.target.closest('.delivery-option-item');
+                if (!item) return;
 
-            applyCompletedSelection();
-        });
+                var upaId = item.getAttribute('data-id');
+                var upaName = item.getAttribute('data-name');
+                selectedUpa = { id: upaId, name: upaName };
+                if (stepLabel3) stepLabel3.textContent = upaName;
+
+                applyCompletedSelection();
+            });
+        }
 
         function applyCompletedSelection() {
-            // Set form values
-            $inputDiv.val(selectedDiv.id);
-            $inputDist.val(selectedDist.id);
-            $inputUpa.val(selectedUpa.id);
+            if (inputDiv) inputDiv.value = selectedDiv.id;
+            if (inputDist) inputDist.value = selectedDist.id;
+            if (inputUpa) inputUpa.value = selectedUpa.id;
 
-            // Display string: বিভাগ > জেলা > থানা
             var displayPath = selectedDiv.name + ' > ' + selectedDist.name + ' > ' + selectedUpa.name;
-            $displayLabel.text(displayPath);
-            $trigger.addClass('has-value').removeClass('is-invalid');
-            $badge.removeClass('d-none');
-            $chevron.addClass('d-none');
+            if (displayLabel) displayLabel.textContent = displayPath;
+            if (trigger) {
+                trigger.classList.add('has-value');
+                trigger.classList.remove('is-invalid');
+            }
+            if (badge) badge.classList.remove('d-none');
+            if (chevron) chevron.classList.add('d-none');
 
-            // Sync with delivery area charge select (Inside Dhaka vs Outside Dhaka)
+            // Synchronize delivery area charge select (Inside Dhaka vs Outside Dhaka)
             syncAreaChargeWithDistrict(selectedDist.name);
 
             closeModal();
 
-            // Trigger incomplete order save if function exists
-            if (typeof saveIncompleteOrder === 'function') {
-                saveIncompleteOrder();
+            if (typeof window.saveIncompleteOrder === 'function') {
+                window.saveIncompleteOrder();
             }
         }
 
         function syncAreaChargeWithDistrict(districtName) {
-            var $areaSelect = $('#checkout_area, #area');
-            if (!$areaSelect.length) return;
+            var areaSelect = document.getElementById('checkout_area') || document.getElementById('area');
+            if (!areaSelect) return;
 
             var distLower = (districtName || '').toLowerCase().trim();
             var isDhaka = distLower.indexOf('ঢাকা') !== -1 || distLower.indexOf('dhaka') !== -1;
 
             var matchedVal = null;
-            $areaSelect.find('option').each(function () {
-                var txt = ($(this).text() || '').toLowerCase();
-                var val = $(this).val();
-                if (!val) return;
+            for (var i = 0; i < areaSelect.options.length; i++) {
+                var opt = areaSelect.options[i];
+                var txt = (opt.text || '').toLowerCase();
+                var val = opt.value;
+                if (!val) continue;
 
                 if (isDhaka) {
                     if (txt.indexOf('ঢাকা') !== -1 && (txt.indexOf('ভিতরে') !== -1 || txt.indexOf('inside') !== -1 || txt.indexOf('সিটি') !== -1)) {
                         matchedVal = val;
-                        return false;
+                        break;
                     }
                 } else {
                     if (txt.indexOf('বাইরে') !== -1 || txt.indexOf('outside') !== -1 || (txt.indexOf('ঢাকা') === -1 && txt.indexOf('সমগ্র') !== -1)) {
                         matchedVal = val;
-                        return false;
+                        break;
                     }
                 }
-            });
+            }
 
             if (matchedVal) {
-                $areaSelect.val(matchedVal).trigger('change');
+                areaSelect.value = matchedVal;
+                var evt = new Event('change', { bubbles: true });
+                areaSelect.dispatchEvent(evt);
+                if (window.jQuery) {
+                    window.jQuery(areaSelect).trigger('change');
+                }
             }
         }
 
         // Search Filter
         function filterItems(query) {
             var q = (query || '').toLowerCase().trim();
-            var $currentPane = null;
-            if (currentStep === 1) $currentPane = $paneStep1;
-            else if (currentStep === 2) $currentPane = $paneStep2;
-            else if (currentStep === 3) $currentPane = $paneStep3;
+            var currentPane = null;
+            if (currentStep === 1) currentPane = paneStep1;
+            else if (currentStep === 2) currentPane = paneStep2;
+            else if (currentStep === 3) currentPane = paneStep3;
 
-            if (!$currentPane) return;
+            if (!currentPane) return;
 
-            var $items = $currentPane.find('.delivery-option-item');
+            var items = currentPane.querySelectorAll('.delivery-option-item');
             var matchedCount = 0;
 
             if (!q) {
-                $items.show();
-                $noResults.addClass('d-none');
+                items.forEach(function (el) { el.style.display = 'flex'; });
+                if (noResults) noResults.classList.add('d-none');
                 return;
             }
 
-            $items.each(function () {
-                var text = ($(this).data('name') || '').toString().toLowerCase();
+            items.forEach(function (el) {
+                var text = (el.getAttribute('data-name') || '').toLowerCase();
                 if (text.indexOf(q) !== -1) {
-                    $(this).show();
+                    el.style.display = 'flex';
                     matchedCount++;
                 } else {
-                    $(this).hide();
+                    el.style.display = 'none';
                 }
             });
 
-            if (matchedCount === 0) {
-                $noResults.removeClass('d-none');
-            } else {
-                $noResults.addClass('d-none');
+            if (noResults) {
+                if (matchedCount === 0) noResults.classList.remove('d-none');
+                else noResults.classList.add('d-none');
             }
         }
 
-        $searchInput.on('input', function () {
-            var val = $(this).val();
-            $searchClear.toggleClass('d-none', !val);
-            filterItems(val);
-        });
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                var val = searchInput.value;
+                if (searchClear) searchClear.classList.toggle('d-none', !val);
+                filterItems(val);
+            });
+        }
 
-        $searchClear.on('click', function () {
-            $searchInput.val('').focus();
-            $(this).addClass('d-none');
-            filterItems('');
-        });
+        if (searchClear) {
+            searchClear.addEventListener('click', function () {
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.focus();
+                }
+                searchClear.classList.add('d-none');
+                filterItems('');
+            });
+        }
 
-        // Initialize label if existing values exist on load
+        // Initial fetch if values are already set
         if (initDivId && initDistId) {
-            $.get('{{ url("/ajax/delivery/districts") }}/' + initDivId, function (dRes) {
+            fetch('{{ url("/ajax/delivery/districts") }}/' + initDivId, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(res){ return res.json(); })
+            .then(function(dRes){
                 var dItems = (dRes && dRes.data) ? dRes.data : [];
                 districtCache[initDivId] = dItems;
                 var foundDist = dItems.find(function(d) { return String(d.id) === String(initDistId); });
                 var distName = foundDist ? foundDist.name : '';
-                var divName = $('#' + prefix + '_divisions_list .delivery-option-item[data-id="' + initDivId + '"]').data('name') || '';
+                var divItem = divisionsList ? divisionsList.querySelector('.delivery-option-item[data-id="' + initDivId + '"]') : null;
+                var divName = divItem ? divItem.getAttribute('data-name') : '';
 
                 if (initUpaId) {
-                    $.get('{{ url("/ajax/delivery/upazilas") }}/' + initDistId, function (uRes) {
+                    fetch('{{ url("/ajax/delivery/upazilas") }}/' + initDistId, {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(function(res){ return res.json(); })
+                    .then(function(uRes){
                         var uItems = (uRes && uRes.data) ? uRes.data : [];
                         upazilaCache[initDistId] = uItems;
                         var foundUpa = uItems.find(function(u) { return String(u.id) === String(initUpaId); });
@@ -912,20 +945,26 @@
                             selectedDiv = { id: initDivId, name: divName };
                             selectedDist = { id: initDistId, name: distName };
                             selectedUpa = { id: initUpaId, name: upaName };
-                            $displayLabel.text(divName + ' > ' + distName + ' > ' + upaName);
-                            $trigger.addClass('has-value');
-                            $badge.removeClass('d-none');
-                            $chevron.addClass('d-none');
+                            if (displayLabel) displayLabel.textContent = divName + ' > ' + distName + ' > ' + upaName;
+                            if (trigger) trigger.classList.add('has-value');
+                            if (badge) badge.classList.remove('d-none');
+                            if (chevron) chevron.classList.add('d-none');
                         }
                     });
                 } else if (divName && distName) {
-                    $displayLabel.text(divName + ' > ' + distName);
-                    $trigger.addClass('has-value');
-                    $badge.removeClass('d-none');
-                    $chevron.addClass('d-none');
+                    if (displayLabel) displayLabel.textContent = divName + ' > ' + distName;
+                    if (trigger) trigger.classList.add('has-value');
+                    if (badge) badge.classList.remove('d-none');
+                    if (chevron) chevron.classList.add('d-none');
                 }
             });
         }
-    });
-})(jQuery);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDeliveryLocationPicker);
+    } else {
+        initDeliveryLocationPicker();
+    }
+})();
 </script>

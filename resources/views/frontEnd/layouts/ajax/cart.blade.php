@@ -39,7 +39,7 @@
             </div>
            </div>
           </td>
-          <td><span class="alinur">৳ </span><strong>{{$value->price}}</strong></td>
+          <td><span class="alinur">৳ </span><strong>{{ round($value->price * $value->qty) }}</strong></td>
          </tr>
          @endforeach
         </tbody>
@@ -47,27 +47,27 @@
          <tr>
           <th colspan="3" class="text-end px-4">মোট</th>
           <td>
-           <span id="net_total"><span class="alinur">৳ </span><strong>{{$subtotal}}</strong></span>
+           <span id="net_total"><span class="alinur">৳ </span><strong>{{ round($subtotal) }}</strong></span>
           </td>
          </tr>
          <tr>
           <th colspan="3" class="text-end px-4">ডেলিভারি চার্জ</th>
           <td>
-           <span id="cart_shipping_cost"><span class="alinur">৳ </span><strong>{{$shipping}}</strong></span>
+           <span id="cart_shipping_cost"><span class="alinur">৳ </span><strong>{{ round($shipping) }}</strong></span>
           </td>
          </tr>
          @if(Session::get('discount', 0) > 0)
          <tr>
             <th colspan="3" class="text-end px-4">কুপন ছাড়</th>
             <td>
-                <span id="discount"><span class="alinur">৳ </span><strong>{{ Session::get('discount', 0) }}</strong></span>
+                <span id="discount"><span class="alinur">৳ </span><strong>{{ round(Session::get('discount', 0)) }}</strong></span>
             </td>
         </tr>
         @endif
          <tr>
           <th colspan="3" class="text-end px-4">সর্বমোট</th>
           <td>
-           <span id="grand_total"><span class="alinur">৳ </span><strong>{{$subtotal+$shipping-Session::get('discount', 0)}}</strong></span>
+           <span id="grand_total"><span class="alinur">৳ </span><strong>{{ round($subtotal + $shipping - Session::get('discount', 0)) }}</strong></span>
           </td>
          </tr>
         </tfoot>

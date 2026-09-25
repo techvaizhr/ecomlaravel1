@@ -106,6 +106,9 @@
     background-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
     border-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
     color: #fff !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    padding: 10px 18px !important;
 }
 
 .order_now_btn:hover, 
@@ -122,9 +125,13 @@
     background: transparent !important;
     border: 2px solid {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
     color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    padding: 10px 18px !important;
 }
 .add_cart_btn i {
     color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    font-size: 18px !important;
 }
 .add_cart_btn:hover,
 .add_cart_btn:active {
@@ -137,6 +144,34 @@
     color: #fff !important;
 }
 
+/* WhatsApp Integration Button */
+.product-whatsapp-btn {
+    background-color: #25D366 !important;
+    border: 1px solid #1ebe57 !important;
+    color: #ffffff !important;
+    font-size: 15.5px !important;
+    font-weight: 700 !important;
+    padding: 11px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 3px 10px rgba(37, 211, 102, 0.25) !important;
+}
+.product-whatsapp-btn:hover {
+    background-color: #20ba59 !important;
+    border-color: #1a9e4b !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 5px 14px rgba(37, 211, 102, 0.4) !important;
+}
+.product-whatsapp-btn i {
+    font-size: 20px !important;
+    color: #ffffff !important;
+}
+
 /* 🚀 Floating Sticky Order Bar (when main button is off-screen) */
 .product-floating-order-bar {
     position: fixed;
@@ -144,7 +179,7 @@
     left: 0;
     width: 100%;
     background: #ffffff;
-    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.15);
     border-top: 1px solid #e2e8f0;
     z-index: 10005;
     padding: 10px 0;
@@ -162,18 +197,18 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
+    gap: 12px;
 }
 .product-floating-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     min-width: 0;
-    flex: 1;
+    flex-shrink: 0;
 }
 .product-floating-thumb {
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
     border-radius: 8px;
     overflow: hidden;
     flex-shrink: 0;
@@ -187,106 +222,139 @@
 }
 .product-floating-info {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 .product-floating-title {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #1e293b;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.3;
+    line-height: 1.25;
+    margin-bottom: 2px;
 }
-.product-floating-price {
-    font-size: 17px;
+.product-floating-price-wrap {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+.floating-primary-price .floating-new-price {
+    font-size: 18px;
     font-weight: 800;
     color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+    letter-spacing: -0.3px;
+}
+.floating-discount-line {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 2px;
+    gap: 5px;
+    margin-top: 1px;
 }
-.product-floating-price del {
-    font-size: 13px;
+.floating-discount-line .floating-old-price {
+    font-size: 12px;
     font-weight: 500;
     color: #94a3b8;
+    text-decoration: line-through;
+}
+.floating-discount-badge {
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    line-height: 1.2;
 }
 .product-floating-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
 }
 .product-floating-cart-btn {
     height: 44px;
-    padding: 0 16px;
+    min-width: 44px;
+    padding: 0 14px;
     border-radius: 8px;
-    border: 1.5px solid {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
-    background: transparent;
-    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
-    font-weight: 600;
-    font-size: 14px;
+    border: 2px solid {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
+    background: #f8fafc !important;
+    color: {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
+    font-weight: 700;
+    font-size: 15px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+.product-floating-cart-btn i {
+    font-size: 18px !important;
+    color: {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
 }
 .product-floating-cart-btn:hover {
-    background: {{ optional($generalsetting)->primary_color ?? '#e11d48' }}15;
-    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+    background: {{ optional($generalsetting)->secodery_color ?? '#198754' }} !important;
+    color: #ffffff !important;
+}
+.product-floating-cart-btn:hover i {
+    color: #ffffff !important;
 }
 .product-floating-order-btn {
     height: 44px;
-    padding: 0 24px;
+    padding: 0 20px;
     border-radius: 8px;
-    border: none;
-    background-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }};
+    border: none !important;
+    background-color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
     color: #ffffff !important;
-    font-weight: 700;
-    font-size: 15.5px;
+    font-weight: 800 !important;
+    font-size: 16px !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     letter-spacing: 0.3px;
-    box-shadow: 0 4px 14px {{ optional($generalsetting)->primary_color ?? '#e11d48' }}66;
-    animation: orderBtnShake 2.5s infinite ease-in-out !important;
+    box-shadow: 0 4px 15px {{ optional($generalsetting)->primary_color ?? '#e11d48' }}80 !important;
+    animation: orderBtnShake 2.2s infinite ease-in-out !important;
+    flex: 1;
+    max-width: 240px;
 }
 .product-floating-order-btn:hover {
     filter: brightness(0.92);
-    transform: scale(1.02);
     color: #ffffff !important;
 }
 
 @media (max-width: 768px) {
     .product-floating-order-bar {
-        padding: 8px 10px;
+        padding: 7px 10px;
     }
-    .product-floating-title {
-        display: none;
+    .product-floating-inner {
+        gap: 8px;
     }
     .product-floating-thumb {
-        width: 42px;
-        height: 42px;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
     }
-    .product-floating-price {
+    .floating-primary-price .floating-new-price {
         font-size: 16px;
     }
     .product-floating-cart-btn {
         width: 42px;
-        padding: 0;
+        min-width: 42px;
         height: 42px;
+        padding: 0;
+    }
+    .product-floating-cart-btn i {
+        font-size: 17px !important;
     }
     .product-floating-order-btn {
-        padding: 0 16px;
         height: 42px;
-        font-size: 14.5px;
-        flex: 1;
-    }
-    .product-floating-actions {
-        flex: 1;
-        justify-content: flex-end;
+        padding: 0 12px;
+        font-size: 15px !important;
+        max-width: none;
     }
 }
 
@@ -577,9 +645,9 @@
                                 {{-- Price --}}
                                 <p class="details-price">
                                     @if ($details->old_price)
-                                        <del>৳{{ $details->old_price }}</del>
+                                        <del>৳{{ round($details->old_price) }}</del>
                                     @endif
-                                    <span id="newPrice">৳{{ $details->new_price }}</span>
+                                    <span id="newPrice">৳{{ round($details->new_price) }}</span>
                                 </p>
 
                                 {{-- Rating + Brand (same row) --}}
@@ -624,7 +692,7 @@
                                                     data-price="{{ $tier->wholesale_price }}"
                                                     style="cursor:pointer; transition:background 0.2s;">
                                                     <td style="padding:8px 12px;">{{ $tier->min_quantity }}{{ $tier->max_quantity ? ' - '.$tier->max_quantity : '+' }} pcs</td>
-                                                    <td style="padding:8px 12px; font-weight:600; color:#28a745;">৳{{ number_format($tier->wholesale_price, 2) }}</td>
+                                                    <td style="padding:8px 12px; font-weight:600; color:#28a745;">৳{{ number_format($tier->wholesale_price, 0) }}</td>
                                                     <td style="padding:8px 12px; color:{{ ($tier->stock ?? 0) > 0 ? '#28a745' : '#dc3545' }};">{{ $tier->stock ?? 0 }} pcs</td>
                                                 </tr>
                                                 @endforeach
@@ -743,18 +811,29 @@
                                         </div>
                                     </div>
 
-                                    {{-- Phone / WhatsApp --}}
+                                    {{-- WhatsApp Query Button --}}
+                                    @php
+                                        $rawWa = $contact->whatsapp ?? $contact->phone ?? $contact->hotline ?? '';
+                                        $cleanWa = preg_replace('/[^\d]/', '', (string)$rawWa);
+                                        if (!empty($cleanWa)) {
+                                            if (str_starts_with($cleanWa, '0')) {
+                                                $cleanWa = '88' . $cleanWa;
+                                            } elseif (!str_starts_with($cleanWa, '880') && strlen($cleanWa) == 10) {
+                                                $cleanWa = '880' . $cleanWa;
+                                            }
+                                        }
+                                        $waMessage = 'হ্যালো, আমি "' . ($details->name ?? 'এই পণ্যটি') . '" সম্পর্কে জানতে চাই। লিংক: ' . Request::url();
+                                    @endphp
+                                    @if(!empty($cleanWa))
                                     <div class="mt-2">
-                                        <a class="btn btn-success w-100 call_now_btn mb-2"
-                                            href="tel: {{ $contact->hotline }}">
-                                            <i class="fa fa-phone-square me-2"></i>{{ $contact->hotline }}
-                                        </a>
-                                        <a class="btn btn-success w-100 call_now_btn"
-                                            href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
-                                            target="_blank">
-                                            <i class="fab fa-whatsapp me-2"></i>এই পণ্যটি সম্পর্কে জিজ্ঞাসা করুন
+                                        <a class="btn w-100 product-whatsapp-btn"
+                                            href="https://wa.me/{{ $cleanWa }}?text={{ rawurlencode($waMessage) }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            <i class="fa-brands fa-whatsapp me-2"></i>এই পণ্যটি সম্পর্কে WhatsApp-এ জিজ্ঞাসা করুন
                                         </a>
                                     </div>
+                                    @endif
 
                                 </form>
 
@@ -1067,6 +1146,7 @@
 </section>
 
 {{-- 🚀 FLOATING STICKY ORDER BAR (Appears when main order button is off-screen) --}}
+{{-- 🚀 Floating Sticky Order Bar (when main button is off-screen) --}}
 <div id="product_floating_order_bar" class="product-floating-order-bar">
     <div class="container product-floating-inner">
         <div class="product-floating-left">
@@ -1074,17 +1154,23 @@
                 <img src="{{ asset($details->image ? $details->image->image : ($details->images->first() ? $details->images->first()->image : '')) }}" alt="{{ $details->name }}">
             </div>
             <div class="product-floating-info">
-                <div class="product-floating-title">{{ Str::limit($details->name, 45) }}</div>
-                <div class="product-floating-price">
-                    @if($details->old_price)
-                        <del class="floating-old-price">৳{{ $details->old_price }}</del>
-                    @endif
-                    <span class="floating-new-price" id="floating_bar_price">৳{{ $details->new_price }}</span>
+                <div class="product-floating-title d-none d-md-block">{{ Str::limit($details->name, 45) }}</div>
+                <div class="product-floating-price-wrap">
+                    <div class="floating-primary-price">
+                        <span class="floating-new-price" id="floating_bar_price">৳{{ round($details->new_price) }}</span>
+                    </div>
                     @if($details->old_price && $details->old_price > $details->new_price)
                         @php
                             $f_discount = round((($details->old_price - $details->new_price) * 100) / $details->old_price);
                         @endphp
-                        <span class="pro_discount_tag">-{{ $f_discount }}%</span>
+                        <div class="floating-discount-line">
+                            <del class="floating-old-price">৳{{ round($details->old_price) }}</del>
+                            <span class="floating-discount-badge">-{{ $f_discount }}%</span>
+                        </div>
+                    @elseif($details->old_price)
+                        <div class="floating-discount-line">
+                            <del class="floating-old-price">৳{{ round($details->old_price) }}</del>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -1092,7 +1178,7 @@
         <div class="product-floating-actions">
             <button type="button" class="btn product-floating-cart-btn" id="floating_add_cart_btn" title="কার্টে যোগ করুন">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span class="d-none d-sm-inline ms-1">কার্ট</span>
+                <span class="d-none d-md-inline ms-1 fw-bold">কার্ট</span>
             </button>
             <button type="button" class="btn product-floating-order-btn" id="floating_order_now_btn">
                 <i class="fa-solid fa-bolt me-1"></i> অর্ডার করুন
@@ -1204,7 +1290,7 @@
         highlightWholesaleTier(qty);
         @endif
 
-        $('#newPrice').text('৳' + basePrice.toFixed(2));
+        $('#newPrice').text('৳' + Math.round(basePrice));
     }
 
     $(document).ready(function() {

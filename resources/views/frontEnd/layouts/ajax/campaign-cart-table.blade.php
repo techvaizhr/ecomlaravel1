@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 </td>
-                <td><span class="alinur">৳</span> {{ $value->price * $value->qty }}</td>
+                <td><span class="alinur">৳</span> {{ round($value->price * $value->qty) }}</td>
             </tr>
         @endforeach
     </tbody>
@@ -44,19 +44,19 @@
         <tr>
             <th colspan="2" class="text-end px-4">মোট</th>
             <td>
-                <span id="net_total"><span class="alinur">৳ </span><strong>{{ $subtotal }}</strong></span>
+                <span id="net_total"><span class="alinur">৳ </span><strong>{{ round($subtotal) }}</strong></span>
             </td>
         </tr>
         <tr>
             <th colspan="2" class="text-end px-4">ডেলিভারি চার্জ</th>
             <td>
-                <span id="cart_shipping_cost"><span class="alinur">৳ </span><strong>{{ $shipping }}</strong></span>
+                <span id="cart_shipping_cost"><span class="alinur">৳ </span><strong>{{ round($shipping) }}</strong></span>
             </td>
         </tr>
         <tr>
             <th colspan="2" class="text-end px-4">সর্বমোট</th>
             <td>
-                <span id="grand_total"><span class="alinur">৳ </span><strong>{{ $subtotal + $shipping }}</strong></span>
+                <span id="grand_total"><span class="alinur">৳ </span><strong>{{ round($subtotal + $shipping) }}</strong></span>
             </td>
         </tr>
     </tfoot>

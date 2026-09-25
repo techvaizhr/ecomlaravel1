@@ -253,19 +253,20 @@
     }
     .product_item .order-btn,
     .product_item .order-btn-link {
-        height: 33px !important;
-        font-size: 12px !important;
-        padding: 3px 6px !important;
+        height: 36px !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        padding: 4px 6px !important;
     }
     .product_item .cart-icon-btn,
     .product_item .cart-icon-link {
-        height: 33px !important;
-        flex: 0 0 36px !important;
-        max-width: 36px !important;
+        height: 36px !important;
+        flex: 0 0 38px !important;
+        max-width: 38px !important;
     }
     .product_item .cart-icon-btn i,
     .product_item .cart-icon-link i {
-        font-size: 15px !important;
+        font-size: 16.5px !important;
     }
 	.qty-cart {
 		grid-template-columns: 130px auto;

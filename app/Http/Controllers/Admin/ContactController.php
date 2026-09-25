@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Contact;
+use Illuminate\Support\Facades\Cache;
 use Toastr;
 class ContactController extends Controller
 {
@@ -29,6 +30,7 @@ class ContactController extends Controller
                 'address' => '',
                 'status' => 1,
             ]);
+            Cache::forget('contact_info');
         }
         
         return view('backEnd.contact.index', compact('contact'));
@@ -47,6 +49,7 @@ class ContactController extends Controller
         ]);
         $input = $request->all();
         Contact::create($input);
+        Cache::forget('contact_info');
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('contact.index');
     }
@@ -75,6 +78,7 @@ class ContactController extends Controller
             return redirect()->back();
         }
         $update_data->update($input);
+        Cache::forget('contact_info');
 
         Toastr::success('Success','Contact details updated successfully');
         return redirect()->route('contact.index');
@@ -89,6 +93,7 @@ class ContactController extends Controller
         }
         $inactive->status = 0;
         $inactive->save();
+        Cache::forget('contact_info');
         Toastr::success('Success','Data inactive successfully');
         return redirect()->back();
     }
@@ -101,6 +106,7 @@ class ContactController extends Controller
         }
         $active->status = 1;
         $active->save();
+        Cache::forget('contact_info');
         Toastr::success('Success','Data active successfully');
         return redirect()->back();
     }
@@ -112,6 +118,7 @@ class ContactController extends Controller
             return redirect()->back();
         }
         $delete_data->delete();
+        Cache::forget('contact_info');
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();
     }

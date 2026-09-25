@@ -720,7 +720,7 @@
                                                     <img src="{{ asset(optional($product->image)->image ?? 'public/uploads/default.webp') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 100px; object-fit: cover;">
                                                     <div class="card-body p-1 text-center">
                                                         <div class="card-title">{{ Str::limit($product->name, 20) }}</div>
-                                                        <div class="card-text mb-1">৳{{ $product->new_price }} <del>৳{{ $product->old_price }}</del></div>
+                                                        <div class="card-text mb-1">৳{{ round($product->new_price) }} @if($product->old_price)<del>৳{{ round($product->old_price) }}</del>@endif</div>
                                                     </div>
                                                 </label>
                                             </div>
