@@ -851,10 +851,22 @@
                                         </div>
                                     </div>
                                     <!-- col-end -->
+                                    <!-- 3-IN-1 DELIVERY LOCATION PICKER (বিভাগ > জেলা > থানা) -->
+                                    <div class="col-sm-12">
+                                        @include('frontEnd.layouts.partials.delivery_location_modal', [
+                                            'prefix' => 'campaign',
+                                            'divisions' => $divisions,
+                                            'selectedDivisionId' => old('division_id'),
+                                            'selectedDistrictId' => old('district_id'),
+                                            'selectedUpazilaId'  => old('upazila_id')
+                                        ])
+                                    </div>
+
+                                    <!-- DELIVERY LOCATION / FULL ADDRESS (OPTIONAL) -->
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="address">আপনার ঠিকানা লিখুন *</label>
-                                            <input type="text" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="রোড নং, বাসা নং, গ্রাম বা এলাকা" name="address" value="{{old('address')}}" required>
+                                            <label for="address">সম্পূর্ণ ঠিকানা / ডেলিভারির স্থান (ঐচ্ছিক)</label>
+                                            <input type="text" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="কোথায় ডেলিভারি নিবেন (যেমন: বাসা নং, রোড নং, এলাকা)..." name="address" value="{{old('address')}}">
                                             @error('address')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -862,9 +874,10 @@
                                             @enderror
                                         </div>
                                     </div>
+
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="area">আপনার এরিয়া সিলেক্ট করুন *</label>
+                                            <label for="area">ডেলিভারি চার্জ *</label>
                                             <select id="area" class="form-control @error('area') is-invalid @enderror" name="area" required>
                                                 @foreach($shippingcharge as $key=>$value)
                                                 <option value="{{$value->id}}" {{ $loop->first ? 'selected' : '' }}>{{$value->name}}</option>
@@ -877,51 +890,6 @@
                                             @enderror
                                         </div>
                                     </div>
-
-                                    @if(($generalsetting->campaign_location_enabled ?? 0) == 1)
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="campaign_division">বিভাগ নির্বাচন করুন (ঐচ্ছিক)</label>
-                                            <select id="campaign_division" name="division_id" class="form-control @error('division_id') is-invalid @enderror">
-                                                <option value="">বিভাগ নির্বাচন করুন</option>
-                                                @foreach(($divisions ?? collect()) as $div)
-                                                    <option value="{{ $div->id }}">{{ $div->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('division_id')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="campaign_district">জেলা নির্বাচন করুন (ঐচ্ছিক)</label>
-                                            <select id="campaign_district" name="district_id" class="form-control @error('district_id') is-invalid @enderror" disabled>
-                                                <option value="">আগে বিভাগ সিলেক্ট করুন</option>
-                                            </select>
-                                            @error('district_id')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="campaign_upazila">উপজেলা / থানা নির্বাচন করুন (ঐচ্ছিক)</label>
-                                            <select id="campaign_upazila" name="upazila_id" class="form-control @error('upazila_id') is-invalid @enderror" disabled>
-                                                <option value="">আগে জেলা সিলেক্ট করুন</option>
-                                            </select>
-                                            @error('upazila_id')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    @endif
                                     <!-- col-end -->
                                     <div class="col-sm-12">
                                         <div class="form-group">
@@ -1363,7 +1331,23 @@
 
             $(document).ready(function() {
                 // ========== InitiateCheckout + Lead — Order Form Submit ==========
-                $('form[action="{{ route("customer.ordersave") }}"]').on('submit', function() {
+                $('form[action="{{ route("customer.ordersave") }}"]').on('submit', function(e) {
+                    // ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) ভ্যালিডেশন
+                    var divVal = $('#campaign_division_id').val();
+                    var distVal = $('#campaign_district_id').val();
+                    var upaVal = $('#campaign_upazila_id').val();
+                    if (!divVal || !distVal || !upaVal) {
+                        e.preventDefault();
+                        $('#campaign_delivery_area_trigger').addClass('is-invalid');
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('অনুগ্রহ করে আপনার ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) নির্বাচন করুন', 'এরিয়া নির্বাচন');
+                        } else {
+                            alert('অনুগ্রহ করে আপনার ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) নির্বাচন করুন');
+                        }
+                        $('#campaign_delivery_area_trigger').trigger('click');
+                        return false;
+                    }
+
                     var subtotalVal   = parseFloat($('#net_total strong').text().replace(/[^0-9.]/g, '')) || 0;
                     var currentProdId = String(getCurrentCampaignProductId() || window._singleCampaignProductId || '');
                     var selProd       = window._campaignProducts
@@ -1406,13 +1390,11 @@
                         if (rawPhone) fbUserData.ph = rawPhone;
                         if (nameParts[0]) fbUserData.fn = nameParts[0].toLowerCase();
                         if (nameParts.slice(1).join(' ')) fbUserData.ln = nameParts.slice(1).join(' ').toLowerCase();
-                        var selectedDist = $('#campaign_district option:selected').text();
-                        var selectedDiv = $('#campaign_division option:selected').text();
-                        if (selectedDist && $('#campaign_district').val()) {
-                            fbUserData.ct = selectedDist.replace(/\s*\(৳[^)]*\)\s*/g, '').trim().toLowerCase();
-                        }
-                        if (selectedDiv && $('#campaign_division').val()) {
-                            fbUserData.st = selectedDiv.trim().toLowerCase();
+                        var selectedLocation = $('#campaign_delivery_area_label').text();
+                        if (selectedLocation && selectedLocation.indexOf('>') !== -1) {
+                            var locParts = selectedLocation.split('>');
+                            if (locParts[1]) fbUserData.ct = locParts[1].trim().toLowerCase();
+                            if (locParts[0]) fbUserData.st = locParts[0].trim().toLowerCase();
                         }
                         try { fbq('set', 'userData', fbUserData); } catch(e) {}
 

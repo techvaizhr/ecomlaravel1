@@ -962,8 +962,15 @@ public function order_save(Request $request)
         $shipping->order_id    = $order->id;
         $shipping->customer_id = $customer_id;
         $shipping->name        = $request->name;
-        $shipping->phone       = $request->phone;
-        $shipping->address     = $request->address;
+        $composedAddress = trim((string) $request->address);
+        if ($composedAddress === '') {
+            if ($divisionId && $districtId) {
+                $composedAddress = \App\Support\DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId);
+            } else {
+                $composedAddress = $resolvedAreaName ?: 'N/A';
+            }
+        }
+        $shipping->address     = $composedAddress;
         $shipping->division_id = $divisionId;
         $shipping->district_id = $districtId;
         $shipping->upazila_id  = $upazilaId;

@@ -292,18 +292,6 @@
                                         <strong>Checkout OTP (SMS)</strong> — চেকআউট জমার সময় কাস্টমারের মোবাইলে OTP পাঠিয়ে ভেরিফাই করুন। বন্ধ থাকলে আগের মতো সরাসরি অর্ডার হবে।
                                     </label>
                                 </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="checkout_location_enabled" value="1" id="checkoutLocationEnabled" {{ ($edit_data->checkout_location_enabled ?? 1) == 1 ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="checkoutLocationEnabled">
-                                        <strong>Checkout Location (বিভাগ/জেলা/থানা)</strong> — চেকআউটে বিভাগ, জেলা ও থানা ড্রপডাউন আবশ্যক থাকবে। বন্ধ থাকলে সাধারণ ঠিকানা ইনপুট দিয়ে অর্ডার হবে।
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="campaign_location_enabled" value="1" id="campaignLocationEnabled" {{ ($edit_data->campaign_location_enabled ?? 0) == 1 ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="campaignLocationEnabled">
-                                        <strong>Campaign LP Location (বিভাগ/জেলা/থানা)</strong> — ক্যাম্পেইন ল্যান্ডিং পেজে বিভাগ, জেলা ও থানা ড্রপডাউন দেখাবে। বন্ধ থাকলে সাধারণ ঠিকানা ফিল্ড দিয়ে সরাসরি অর্ডার হবে।
-                                    </label>
-                                </div>
                             </div>
                             <small class="text-muted">When disabled, these features will be hidden from the system</small>
                         </div>

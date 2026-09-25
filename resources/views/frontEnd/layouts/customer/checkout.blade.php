@@ -797,14 +797,29 @@
                                             value="{{ Auth::guard('customer')->user()->phone ?? old('phone') }}" placeholder="017xxxxxxxx" required>
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label class="form-label-custom">সম্পূর্ণ ঠিকানা *</label>
-                                        <input type="text" name="address" class="form-control-custom" 
-                                            value="{{ Auth::guard('customer')->user()->address ?? old('address') }}" placeholder="বাসা নং, রোড নং, এলাকা, জেলা" required>
-                                    </div>
-                                </div>
                                 @if($requires_shipping)
+                                    {{-- 3-IN-1 DELIVERY LOCATION PICKER (বিভাগ > জেলা > থানা) --}}
+                                    <div class="col-12">
+                                        @include('frontEnd.layouts.partials.delivery_location_modal', [
+                                            'prefix' => 'checkout',
+                                            'divisions' => $divisions,
+                                            'selectedDivisionId' => old('division_id', Auth::guard('customer')->user()->division_id ?? null),
+                                            'selectedDistrictId' => old('district_id', Auth::guard('customer')->user()->district_id ?? null),
+                                            'selectedUpazilaId'  => old('upazila_id', Auth::guard('customer')->user()->upazila_id ?? null)
+                                        ])
+                                    </div>
+
+                                    {{-- DELIVERY LOCATION / FULL ADDRESS (OPTIONAL) --}}
+                                    <div class="col-12">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label-custom">সম্পূর্ণ ঠিকানা / ডেলিভারির স্থান (ঐচ্ছিক)</label>
+                                            <input type="text" name="address" id="checkout_detailed_address" class="form-control-custom" 
+                                                value="{{ Auth::guard('customer')->user()->address ?? old('address') }}" 
+                                                placeholder="কোথায় ডেলিভারি নিবেন (যেমন: বাসা নং, রোড নং, এলাকা)...">
+                                        </div>
+                                    </div>
+
+                                    {{-- DELIVERY CHARGE --}}
                                     <div class="col-12">
                                         <div class="form-group mb-0 mb-md-2">
                                             <label class="form-label-custom">ডেলিভারি এরিয়া / চার্জ *</label>
@@ -816,50 +831,16 @@
                                             </select>
                                         </div>
                                     </div>
-
-                                    @if(($generalsetting->checkout_location_enabled ?? 0) == 1)
-                                    <div class="col-12 mt-2">
-                                        <div class="row g-2 g-md-3 align-items-end checkout-location-fields">
-                                            <div class="col-12 col-md-4">
-                                                <div class="form-group mb-0 mb-md-2">
-                                                    <label class="form-label-custom">বিভাগ (ঐচ্ছিক)</label>
-                                                    <select name="division_id" id="checkout_division" class="form-control-custom">
-                                                        <option value="">বিভাগ নির্বাচন করুন</option>
-                                                        @foreach(($divisions ?? collect()) as $d)
-                                                            <option value="{{ $d->id }}">{{ $d->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <div class="form-group mb-0 mb-md-2">
-                                                    <label class="form-label-custom">জেলা (ঐচ্ছিক)</label>
-                                                    <select name="district_id" id="checkout_district" class="form-control-custom" disabled>
-                                                        <option value="">আগে বিভাগ সিলেক্ট করুন</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <div class="form-group mb-0 mb-md-2">
-                                                    <label class="form-label-custom">উপজেলা / থানা (ঐচ্ছিক)</label>
-                                                    <select name="upazila_id" id="checkout_upazila" class="form-control-custom" disabled>
-                                                        <option value="">আগে জেলা সিলেক্ট করুন</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                @else
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label-custom">ডেলিভারি এরিয়া</label>
+                                            <input type="text" class="form-control-custom" value="ডিজিটাল / ফ্রি শিপিং — লোকেশন লাগবে না" readonly disabled style="background:#f3f4f6;">
+                                            <input type="hidden" name="division_id" value="">
+                                            <input type="hidden" name="district_id" value="">
+                                            <input type="hidden" name="upazila_id" value="">
                                         </div>
                                     </div>
-                                    @endif
-                                @else
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label class="form-label-custom">বিভাগ *</label>
-                                        <input type="text" class="form-control-custom" value="ডিজিটাল / ফ্রি শিপিং — লোকেশন লাগবে না" readonly disabled style="background:#f3f4f6;">
-                                        <input type="hidden" name="division_id" value="">
-                                        <input type="hidden" name="district_id" value="">
-                                        <input type="hidden" name="upazila_id" value="">
-                                    </div>
-                                </div>
                                 @endif
                                 <div class="col-12">
                                     <div class="form-group">
@@ -1738,13 +1719,18 @@ document.addEventListener('DOMContentLoaded', function () {
             var street = ($('input[name="address"]').val() || '').trim();
             var parts = [];
             if (requiresShipping) {
-                var div = selectedLocationText($('#checkout_division'));
-                var dist = selectedLocationText($('#checkout_district'));
-                var upa = selectedLocationText($('#checkout_upazila'));
+                var locText = ($('#checkout_delivery_area_label').text() || '').trim();
+                if (locText && locText.indexOf('>') !== -1) {
+                    parts.push(locText);
+                } else {
+                    var div = selectedLocationText($('#checkout_division'));
+                    var dist = selectedLocationText($('#checkout_district'));
+                    var upa = selectedLocationText($('#checkout_upazila'));
+                    if (div) parts.push(div);
+                    if (dist) parts.push(dist);
+                    if (upa) parts.push(upa);
+                }
                 var area = selectedLocationText($('#checkout_area'));
-                if (div) parts.push(div);
-                if (dist) parts.push(dist);
-                if (upa) parts.push(upa);
                 if (area) parts.push(area);
             }
             if (street) parts.unshift(street);
@@ -1759,17 +1745,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 order_note: ($('#order_note').val() || '').trim()
             };
             if (requiresShipping) {
-                meta.division_id = $('#checkout_division').val() || null;
-                meta.district_id = $('#checkout_district').val() || null;
-                meta.upazila_id = $('#checkout_upazila').val() || null;
-                var loc = [];
-                var div = selectedLocationText($('#checkout_division'));
-                var dist = selectedLocationText($('#checkout_district'));
-                var upa = selectedLocationText($('#checkout_upazila'));
-                if (upa) loc.push(upa);
-                if (dist) loc.push(dist);
-                if (div) loc.push(div);
-                meta.location_label = loc.join(', ');
+                meta.division_id = $('#checkout_division_id').val() || $('#checkout_division').val() || null;
+                meta.district_id = $('#checkout_district_id').val() || $('#checkout_district').val() || null;
+                meta.upazila_id = $('#checkout_upazila_id').val() || $('#checkout_upazila').val() || null;
+                var locText = ($('#checkout_delivery_area_label').text() || '').trim();
+                if (locText && locText.indexOf('>') !== -1) {
+                    meta.location_label = locText;
+                } else {
+                    var loc = [];
+                    var div = selectedLocationText($('#checkout_division'));
+                    var dist = selectedLocationText($('#checkout_district'));
+                    var upa = selectedLocationText($('#checkout_upazila'));
+                    if (upa) loc.push(upa);
+                    if (dist) loc.push(dist);
+                    if (div) loc.push(div);
+                    meta.location_label = loc.join(', ');
+                }
             }
             return meta;
         }
@@ -1829,6 +1820,20 @@ document.addEventListener('DOMContentLoaded', function () {
         // ==========================================
 
         $('#checkout-form').on('submit', function(e) {
+            // ১. ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) ভ্যালিডেশন
+            if (requiresShipping) {
+                var divVal = $('#checkout_division_id').val();
+                var distVal = $('#checkout_district_id').val();
+                var upaVal = $('#checkout_upazila_id').val();
+                if (!divVal || !distVal || !upaVal) {
+                    e.preventDefault();
+                    $('#checkout_delivery_area_trigger').addClass('is-invalid');
+                    toastr.error('অনুগ্রহ করে আপনার ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) নির্বাচন করুন', 'এরিয়া নির্বাচন');
+                    $('#checkout_delivery_area_trigger').trigger('click');
+                    $('.btn-place-order').prop('disabled', false);
+                    return false;
+                }
+            }
             // পেমেন্ট মেথড চেক
             var paymentMethod = $('input[name="payment_method"]:checked').val();
             

@@ -8,12 +8,14 @@ ALTER TABLE `divisions` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode
 ALTER TABLE `districts` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ALTER TABLE `upazilas` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- ২. General Settings এ টগল ফিল্ড যুক্ত করা ও ডিফল্টভাবে 0 (OFF) রাখা
-ALTER TABLE `general_settings` 
-ADD COLUMN IF NOT EXISTS `checkout_location_enabled` TINYINT NOT NULL DEFAULT 0 COMMENT '1 = Location Cascade ON, 0 = OFF (Address only)',
-ADD COLUMN IF NOT EXISTS `campaign_location_enabled` TINYINT NOT NULL DEFAULT 0 COMMENT '1 = Location Cascade ON, 0 = OFF (Address only)';
+-- ২. Shippings টেবিলের address nullable করা ও General Settings এ টগল ফিল্ড ১ (ON) রাখা
+ALTER TABLE `shippings` MODIFY COLUMN `address` VARCHAR(256) NULL DEFAULT NULL;
 
-UPDATE `general_settings` SET `checkout_location_enabled` = 0, `campaign_location_enabled` = 0;
+ALTER TABLE `general_settings` 
+ADD COLUMN IF NOT EXISTS `checkout_location_enabled` TINYINT NOT NULL DEFAULT 1 COMMENT '1 = Location Cascade ON',
+ADD COLUMN IF NOT EXISTS `campaign_location_enabled` TINYINT NOT NULL DEFAULT 1 COMMENT '1 = Location Cascade ON';
+
+UPDATE `general_settings` SET `checkout_location_enabled` = 1, `campaign_location_enabled` = 1;
 
 UPDATE `divisions` SET `name` = 'বরিশাল' WHERE `id` = 1;
 UPDATE `divisions` SET `name` = 'চট্টগ্রাম' WHERE `id` = 2;

@@ -75,8 +75,8 @@ class GeneralSettingController extends Controller
         $input['homepage_vendors_enabled'] = $request->has('homepage_vendors_enabled') ? 1 : 0;
         $input['homepage_blogs_enabled'] = $request->has('homepage_blogs_enabled') ? 1 : 0;
         $input['homepage_categories_enabled'] = $request->has('homepage_categories_enabled') ? 1 : 0;
-        $input['checkout_location_enabled'] = $request->has('checkout_location_enabled') ? 1 : 0;
-        $input['campaign_location_enabled'] = $request->has('campaign_location_enabled') ? 1 : 0;
+        $input['checkout_location_enabled'] = 1;
+        $input['campaign_location_enabled'] = 1;
 
         GeneralSetting::create($input);
 
@@ -152,8 +152,8 @@ class GeneralSettingController extends Controller
         $input['homepage_vendors_enabled'] = $request->has('homepage_vendors_enabled') ? 1 : 0;
         $input['homepage_blogs_enabled'] = $request->has('homepage_blogs_enabled') ? 1 : 0;
         $input['homepage_categories_enabled'] = $request->has('homepage_categories_enabled') ? 1 : 0;
-        $input['checkout_location_enabled'] = $request->has('checkout_location_enabled') ? 1 : 0;
-        $input['campaign_location_enabled'] = $request->has('campaign_location_enabled') ? 1 : 0;
+        $input['checkout_location_enabled'] = 1;
+        $input['campaign_location_enabled'] = 1;
 
         $update_data->update($input);
 
