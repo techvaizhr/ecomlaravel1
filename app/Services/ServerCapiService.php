@@ -11,7 +11,7 @@ class ServerCapiService
     /**
      * Track ViewContent event on Server-side (Meta CAPI + TikTok CAPI).
      */
-    public static function trackViewContent(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null): void
+    public static function trackViewContent(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null, ?string $testEventCode = null): void
     {
         try {
             $eventId = $eventId ?: ('vc_' . ($data['content_ids'][0] ?? 'p') . '_' . time() . '_' . mt_rand(100, 999));
@@ -43,6 +43,7 @@ class ServerCapiService
                 ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
+                    'test_event_code'  => $testEventCode,
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('ServerCapi FB ViewContent error: ' . $e->getMessage());
@@ -66,6 +67,7 @@ class ServerCapiService
                 ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
+                    'test_event_code'  => $testEventCode,
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('ServerCapi TikTok ViewContent error: ' . $e->getMessage());
@@ -79,7 +81,7 @@ class ServerCapiService
     /**
      * Track AddToCart event on Server-side (Meta CAPI + TikTok CAPI).
      */
-    public static function trackAddToCart(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null): void
+    public static function trackAddToCart(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null, ?string $testEventCode = null): void
     {
         try {
             $eventId = $eventId ?: ('atc_' . time() . '_' . mt_rand(100, 999));
@@ -102,6 +104,7 @@ class ServerCapiService
                 ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
+                    'test_event_code'  => $testEventCode,
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('ServerCapi FB AddToCart error: ' . $e->getMessage());
@@ -124,6 +127,7 @@ class ServerCapiService
                 ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
+                    'test_event_code'  => $testEventCode,
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('ServerCapi TikTok AddToCart error: ' . $e->getMessage());
@@ -137,7 +141,7 @@ class ServerCapiService
     /**
      * Track InitiateCheckout event on Server-side (Meta CAPI + TikTok CAPI).
      */
-    public static function trackInitiateCheckout(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null): void
+    public static function trackInitiateCheckout(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null, ?string $testEventCode = null): void
     {
         try {
             $eventId = $eventId ?: ('ic_' . time() . '_' . mt_rand(100, 999));
@@ -160,6 +164,7 @@ class ServerCapiService
                 ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
+                    'test_event_code'  => $testEventCode,
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('ServerCapi FB InitiateCheckout error: ' . $e->getMessage());
@@ -182,6 +187,7 @@ class ServerCapiService
                 ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
+                    'test_event_code'  => $testEventCode,
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('ServerCapi TikTok InitiateCheckout error: ' . $e->getMessage());

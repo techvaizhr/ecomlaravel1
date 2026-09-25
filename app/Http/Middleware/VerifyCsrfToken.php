@@ -62,6 +62,9 @@ class VerifyCsrfToken extends Middleware
         if (str_contains($path, 'steadfast/webhook')) {
             return true;
         }
+        if (str_contains($path, 'tracking/capi-event')) {
+            return true;
+        }
 
         return parent::inExceptArray($request);
     }

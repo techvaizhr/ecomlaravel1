@@ -94,13 +94,20 @@
         tiktokIdentify(user);
     }
 
+    function getQueryParam(name) {
+        var m = window.location.search.match(new RegExp('[?&]' + name + '=([^&#]*)'));
+        return m ? decodeURIComponent(m[1]) : '';
+    }
+
     function sendServerCapi(eventName, eventData, eventId, user) {
         try {
             var url = '{{ url('/ajax/tracking/capi-event') }}';
+            var testCode = getQueryParam('test_event_code') || getQueryParam('test_code') || getCookie('fb_test_event_code') || getCookie('test_event_code') || '';
             var payload = {
                 event_name: eventName,
                 event_id: eventId,
                 source_url: window.location.href,
+                test_event_code: testCode,
                 event_data: eventData || {},
                 user_data: buildUserPayload(user) || {}
             };

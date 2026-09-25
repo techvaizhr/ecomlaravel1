@@ -50,18 +50,24 @@ class TrackingController extends Controller
             $userData['ttclid'] = $request->cookie('ttclid') ?: ($raw['ttclid'] ?? $request->input('ttclid'));
         }
 
+        $testEventCode = $raw['test_event_code'] ?? $request->input('test_event_code');
+        if (empty($testEventCode) && !empty($sourceUrl) && str_contains($sourceUrl, 'test_event_code=')) {
+            parse_str(parse_url($sourceUrl, PHP_URL_QUERY) ?? '', $queryParams);
+            $testEventCode = $queryParams['test_event_code'] ?? null;
+        }
+
         try {
             switch ($eventName) {
                 case 'ViewContent':
-                    ServerCapiService::trackViewContent($eventData, $userData, $eventId, $sourceUrl);
+                    ServerCapiService::trackViewContent($eventData, $userData, $eventId, $sourceUrl, $testEventCode);
                     break;
 
                 case 'AddToCart':
-                    ServerCapiService::trackAddToCart($eventData, $userData, $eventId, $sourceUrl);
+                    ServerCapiService::trackAddToCart($eventData, $userData, $eventId, $sourceUrl, $testEventCode);
                     break;
 
                 case 'InitiateCheckout':
-                    ServerCapiService::trackInitiateCheckout($eventData, $userData, $eventId, $sourceUrl);
+                    ServerCapiService::trackInitiateCheckout($eventData, $userData, $eventId, $sourceUrl, $testEventCode);
                     break;
 
                 default:

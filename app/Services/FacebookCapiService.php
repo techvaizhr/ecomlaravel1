@@ -128,13 +128,19 @@ class FacebookCapiService
                 $eventPayload['event_id'] = $data['event_id'];
             }
 
-            // Allow test_event_code from options, query param, cookie, or session
+            // Allow test_event_code from options, query param, cookie, session, or source URL
             $runtimeTestCode = $options['test_event_code']
+                ?? request()->input('test_event_code')
                 ?? request()->query('test_event_code')
-                ?? $_COOKIE['fb_test_event_code']
-                ?? $_COOKIE['test_event_code']
+                ?? ($_COOKIE['fb_test_event_code'] ?? null)
+                ?? ($_COOKIE['test_event_code'] ?? null)
                 ?? session('fb_test_event_code')
                 ?? null;
+
+            if (empty($runtimeTestCode) && !empty($options['event_source_url']) && str_contains($options['event_source_url'], 'test_event_code=')) {
+                parse_str(parse_url($options['event_source_url'], PHP_URL_QUERY) ?? '', $urlParams);
+                $runtimeTestCode = $urlParams['test_event_code'] ?? null;
+            }
 
             $lastSuccessResponse = null;
 
@@ -142,7 +148,7 @@ class FacebookCapiService
                 $testCode = !empty($cfg['test_event_code']) ? $cfg['test_event_code'] : $runtimeTestCode;
 
                 $requestPayload = [
-                    'data' => [$eventPayload],
+                    'data'         => [$eventPayload],
                     'access_token' => $cfg['access_token'],
                 ];
 
@@ -151,9 +157,6 @@ class FacebookCapiService
                 }
 
                 $url = "https://graph.facebook.com/v21.0/{$cfg['pixel_id']}/events";
-                if (!empty($testCode)) {
-                    $url .= '?test_event_code=' . urlencode($testCode);
-                }
 
                 try {
                     $response = Http::timeout(5)->post($url, $requestPayload);
