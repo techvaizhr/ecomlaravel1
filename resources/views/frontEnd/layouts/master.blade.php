@@ -40,8 +40,7 @@
         <link rel="stylesheet" href="{{ url('/style.css') }}?v=8">
         <link rel="stylesheet" href="{{ url('/responsive.css') }}?v=7">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" media="print" onload="this.media='all'" />
-        <noscript><link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" /></noscript>
+        <link rel="stylesheet" href="{{asset('public/frontEnd/css/news-ticker.css')}}" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" media="print" onload="this.media='all'" />
         <meta name="facebook-domain-verification" content="38f1w8335btoklo88dyfl63ba3st2e" />
         <style>
