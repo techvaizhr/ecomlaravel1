@@ -155,14 +155,6 @@ class DeliveryChargeService
             ];
         }
 
-            $productCalculatedCharges[] = [
-                'product_id' => $prod->id,
-                'name'       => $prod->name,
-                'charge'     => $itemCharge,
-                'method'     => $itemMethod,
-            ];
-        }
-
         // Multi-Product Rule:
         // Highest (maximum) delivery charge among items in cart applies
         $maxCharge = 0.0;
