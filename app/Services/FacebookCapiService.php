@@ -24,80 +24,61 @@ class FacebookCapiService
     {
         $configs = [];
 
-        // 1. Find default access token and test code from FacebookCapiSetting, EcomPixel, or env
-        $defaultToken = null;
-        $defaultTestCode = null;
-
+        // 1. Direct fetch from FacebookCapiSetting
         try {
-            $settings = Cache::remember('facebook_capi_active_settings', 1800, function () {
-                return FacebookCapiSetting::all();
-            });
-
+            $settings = FacebookCapiSetting::all();
             foreach ($settings as $setting) {
-                $t = trim((string)($setting->access_token ?? ''));
-                if ($t !== '' && $t !== '0' && $t !== 'your_long_lived_access_token') {
-                    $defaultToken = $t;
-                }
-                $tc = trim((string)($setting->test_event_code ?? ''));
-                if ($tc !== '') {
-                    $defaultTestCode = $tc;
-                }
-
                 $pid = trim((string)($setting->pixel_id ?? ''));
-                if ($pid !== '' && $pid !== '0' && $pid !== 'your_pixel_id' && $defaultToken && ($setting->status == 1 || is_null($setting->status))) {
+                $token = trim((string)($setting->access_token ?? ''));
+                $testCode = trim((string)($setting->test_event_code ?? ''));
+
+                if ($pid !== '' && $pid !== '0' && $token !== '' && $token !== '0' && ($setting->status == 1 || is_null($setting->status))) {
                     $configs[$pid] = [
                         'pixel_id'        => $pid,
-                        'access_token'    => $defaultToken,
-                        'test_event_code' => $defaultTestCode,
+                        'access_token'    => $token,
+                        'test_event_code' => $testCode ?: null,
                     ];
                 }
             }
         } catch (\Throwable $e) {
-            Log::error('FacebookCapi getActiveConfigs FacebookCapiSetting error: ' . $e->getMessage());
-        }
-
-        if (!$defaultToken) {
-            $envToken = config('services.facebook.access_token') ?: env('FACEBOOK_ACCESS_TOKEN');
-            if ($envToken && $envToken !== 'your_long_lived_access_token') {
-                $defaultToken = trim($envToken);
-            }
-        }
-        if (!$defaultTestCode) {
-            $defaultTestCode = config('services.facebook.test_event_code') ?: env('FACEBOOK_TEST_EVENT_CODE');
+            Log::warning('FacebookCapi getActiveConfigs FacebookCapiSetting error: ' . $e->getMessage());
         }
 
         // 2. Also check all active EcomPixel records
         try {
             $ecomPixels = \App\Models\EcomPixel::where('status', 1)->get();
+            $defaultToken = !empty($configs) ? reset($configs)['access_token'] : (config('services.facebook.access_token') ?: env('FACEBOOK_ACCESS_TOKEN'));
+            $defaultTestCode = !empty($configs) ? reset($configs)['test_event_code'] : (config('services.facebook.test_event_code') ?: env('FACEBOOK_TEST_EVENT_CODE'));
+
             foreach ($ecomPixels as $ep) {
                 $code = trim((string)($ep->code ?? ''));
-                if ($code === '' || $code === '0') {
-                    continue;
-                }
+                if ($code === '' || $code === '0') continue;
+
                 $epToken = !empty($ep->access_token) && $ep->access_token !== '0' ? trim($ep->access_token) : $defaultToken;
                 $epTestCode = !empty($ep->test_event_code) ? trim($ep->test_event_code) : $defaultTestCode;
 
-                if ($epToken) {
+                if ($epToken && !isset($configs[$code])) {
                     $configs[$code] = [
                         'pixel_id'        => $code,
                         'access_token'    => $epToken,
-                        'test_event_code' => $epTestCode,
+                        'test_event_code' => $epTestCode ?: null,
                     ];
                 }
             }
         } catch (\Throwable $e) {
-            Log::error('FacebookCapi getActiveConfigs EcomPixel error: ' . $e->getMessage());
+            Log::warning('FacebookCapi getActiveConfigs EcomPixel error: ' . $e->getMessage());
         }
 
         // 3. Fallback to env/config
         if (empty($configs)) {
             $pixelId = config('services.facebook.pixel_id') ?: env('FACEBOOK_PIXEL_ID');
-            $token = $defaultToken;
+            $token = config('services.facebook.access_token') ?: env('FACEBOOK_ACCESS_TOKEN');
+            $testCode = config('services.facebook.test_event_code') ?: env('FACEBOOK_TEST_EVENT_CODE');
             if ($pixelId && $token && $pixelId !== 'your_pixel_id') {
                 $configs[trim($pixelId)] = [
                     'pixel_id'        => trim($pixelId),
                     'access_token'    => trim($token),
-                    'test_event_code' => $defaultTestCode,
+                    'test_event_code' => $testCode ?: null,
                 ];
             }
         }
@@ -170,6 +151,9 @@ class FacebookCapiService
                 }
 
                 $url = "https://graph.facebook.com/v21.0/{$cfg['pixel_id']}/events";
+                if (!empty($testCode)) {
+                    $url .= '?test_event_code=' . urlencode($testCode);
+                }
 
                 try {
                     $response = Http::timeout(5)->post($url, $requestPayload);

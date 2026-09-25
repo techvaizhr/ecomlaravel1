@@ -15,15 +15,23 @@ class TrackingController extends Controller
      */
     public function handleCapiEvent(Request $request)
     {
-        $eventName = trim((string) $request->input('event_name', ''));
+        $raw = $request->all();
+        if (empty($raw)) {
+            $content = $request->getContent();
+            if (!empty($content)) {
+                $raw = json_decode($content, true) ?: [];
+            }
+        }
+
+        $eventName = trim((string) ($raw['event_name'] ?? $request->input('event_name', '')));
         if (empty($eventName)) {
             return response()->json(['status' => 'error', 'message' => 'Missing event_name'], 400);
         }
 
-        $eventId   = $request->input('event_id');
-        $sourceUrl = $request->input('source_url') ?: $request->headers->get('referer') ?: url('/');
-        $eventData = (array) $request->input('event_data', []);
-        $userData  = (array) $request->input('user_data', []);
+        $eventId   = $raw['event_id'] ?? $request->input('event_id');
+        $sourceUrl = ($raw['source_url'] ?? null) ?: ($request->headers->get('referer') ?: url('/'));
+        $eventData = (array) ($raw['event_data'] ?? $request->input('event_data', []));
+        $userData  = (array) ($raw['user_data'] ?? $request->input('user_data', []));
 
         // Auto-inject client IP, User-Agent, cookies if not present
         if (empty($userData['client_ip_address'])) {
@@ -33,13 +41,13 @@ class TrackingController extends Controller
             $userData['client_user_agent'] = $request->userAgent();
         }
         if (empty($userData['fbp'])) {
-            $userData['fbp'] = $request->cookie('_fbp') ?: $request->input('fbp');
+            $userData['fbp'] = $request->cookie('_fbp') ?: ($raw['fbp'] ?? $request->input('fbp'));
         }
         if (empty($userData['fbc'])) {
-            $userData['fbc'] = $request->cookie('_fbc') ?: ($request->cookie('fbc') ?: $request->input('fbc'));
+            $userData['fbc'] = $request->cookie('_fbc') ?: ($request->cookie('fbc') ?: ($raw['fbc'] ?? $request->input('fbc')));
         }
         if (empty($userData['ttclid'])) {
-            $userData['ttclid'] = $request->cookie('ttclid') ?: $request->input('ttclid');
+            $userData['ttclid'] = $request->cookie('ttclid') ?: ($raw['ttclid'] ?? $request->input('ttclid'));
         }
 
         try {
@@ -57,11 +65,14 @@ class TrackingController extends Controller
                     break;
 
                 default:
-                    // Generic handling
                     break;
             }
 
-            return response()->json(['status' => 'success', 'event' => $eventName, 'event_id' => $eventId]);
+            return response()->json([
+                'status'   => 'success',
+                'event'    => $eventName,
+                'event_id' => $eventId,
+            ]);
         } catch (\Throwable $e) {
             Log::warning('TrackingController handleCapiEvent error: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);

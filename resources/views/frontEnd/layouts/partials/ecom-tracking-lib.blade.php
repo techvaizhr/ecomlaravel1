@@ -105,16 +105,16 @@
                 user_data: buildUserPayload(user) || {}
             };
 
-            if (navigator.sendBeacon) {
-                var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-                navigator.sendBeacon(url, blob);
-            } else {
+            if (typeof fetch === 'function') {
                 fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(payload),
                     keepalive: true
                 }).catch(function () {});
+            } else if (navigator.sendBeacon) {
+                var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                navigator.sendBeacon(url, blob);
             }
         } catch (e) {}
     }
