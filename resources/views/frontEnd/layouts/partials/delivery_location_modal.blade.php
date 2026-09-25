@@ -4,28 +4,40 @@
     $selectedDistrictId = $selectedDistrictId ?? old('district_id', Auth::guard('customer')->user()->district_id ?? null);
     $selectedUpazilaId  = $selectedUpazilaId ?? old('upazila_id', Auth::guard('customer')->user()->upazila_id ?? null);
     $deliveryDivisions  = $divisions ?? \App\Models\DeliveryDivision::active()->ordered()->get();
+
+    // Server-side lookup of initial location label for instantaneous display
+    $initLabel = null;
+    if ($selectedDivisionId && $selectedDistrictId && $selectedUpazilaId) {
+        $initLabel = \App\Support\DeliveryLocation::shippingLabel($selectedDivisionId, $selectedDistrictId, $selectedUpazilaId);
+    } elseif ($selectedDivisionId && $selectedDistrictId) {
+        $sDiv = \App\Models\DeliveryDivision::find($selectedDivisionId);
+        $sDist = \App\Models\DeliveryDistrict::find($selectedDistrictId);
+        if ($sDiv && $sDist) {
+            $initLabel = $sDiv->name . ' > ' . $sDist->name;
+        }
+    }
 @endphp
 
 {{-- ======================================================================
      3-IN-1 DELIVERY LOCATION PICKER (DIVISION > DISTRICT > THANA)
      ====================================================================== --}}
-<div class="delivery-area-field-wrapper mb-3" id="{{ $prefix }}_delivery_area_wrapper">
-    <label class="form-label-custom fw-semibold mb-1" for="{{ $prefix }}_delivery_area_trigger">
-        ডেলিভারি এরিয়া (বিভাগ, জেলা ও থানা) <span class="text-danger">*</span>
+<div class="delivery-area-field-wrapper modern-outline-group mb-3" id="{{ $prefix }}_delivery_area_wrapper">
+    <label class="modern-outline-label" for="{{ $prefix }}_delivery_area_trigger">
+        {{ $fieldLabel ?? 'ডেলিভারি এরিয়া' }} <span class="text-danger">*</span>
     </label>
-    <div class="delivery-area-picker-trigger" id="{{ $prefix }}_delivery_area_trigger" role="button" tabindex="0" title="ক্লিক করে বিভাগ, জেলা ও থানা সিলেক্ট করুন">
+    <div class="delivery-area-picker-trigger modern-outline-input {{ $initLabel ? 'has-value' : '' }}" id="{{ $prefix }}_delivery_area_trigger" role="button" tabindex="0" title="ক্লিক করে বিভাগ, জেলা ও থানা সিলেক্ট করুন">
         <div class="delivery-area-trigger-content">
             <div class="delivery-area-text-wrap">
                 <span class="delivery-area-pin-icon"><i class="fas fa-map-marker-alt"></i></span>
-                <span class="delivery-area-label" id="{{ $prefix }}_delivery_area_label">
-                    ডেলিভারি এরিয়া নির্বাচন করুন (বিভাগ > জেলা > থানা)
+                <span class="delivery-area-label {{ $initLabel ? '' : 'is-placeholder' }}" id="{{ $prefix }}_delivery_area_label">
+                    {{ $initLabel ?: 'নির্বাচন করতে ক্লিক করুন (বিভাগ > জেলা > থানা)' }}
                 </span>
             </div>
             <div class="delivery-area-action-wrap">
-                <span class="delivery-area-badge d-none" id="{{ $prefix }}_delivery_area_badge">
+                <span class="delivery-area-badge {{ $initLabel ? '' : 'd-none' }}" id="{{ $prefix }}_delivery_area_badge">
                     <i class="fas fa-check-circle text-success me-1"></i>পরিবর্তন <i class="fas fa-pencil-alt ms-1 small"></i>
                 </span>
-                <span class="delivery-area-chevron" id="{{ $prefix }}_delivery_area_chevron">
+                <span class="delivery-area-chevron {{ $initLabel ? 'd-none' : '' }}" id="{{ $prefix }}_delivery_area_chevron">
                     <i class="fas fa-chevron-right"></i>
                 </span>
             </div>
@@ -133,20 +145,47 @@
 
 {{-- STYLES --}}
 <style>
+/* Outlined / Notched Border Label Form Styling */
+.modern-outline-group {
+    position: relative;
+    margin-top: 14px;
+    margin-bottom: 16px;
+}
+.modern-outline-group .modern-outline-label {
+    position: absolute;
+    top: -9px;
+    left: 12px;
+    background: #ffffff;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1.2;
+    border-radius: 2px;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
 /* Trigger box */
 .delivery-area-picker-trigger {
     background: #ffffff;
-    border: 1.5px solid #cbd5e1;
+    border: 1.5px solid #d1d5db;
     border-radius: 8px;
-    padding: 11px 14px;
+    padding: 12px 14px;
+    min-height: 48px;
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
 }
 .delivery-area-picker-trigger:hover,
 .delivery-area-picker-trigger:focus {
-    border-color: #0f3460;
-    box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
     outline: none;
 }
 .delivery-area-picker-trigger.is-invalid {
@@ -163,6 +202,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    width: 100%;
 }
 .delivery-area-text-wrap {
     display: flex;
@@ -173,20 +213,28 @@
 }
 .delivery-area-pin-icon {
     color: #e94560;
-    font-size: 17px;
+    font-size: 16px;
     flex-shrink: 0;
 }
 .delivery-area-label {
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 500;
-    color: #475569;
+    color: #111827;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.delivery-area-label.is-placeholder {
+    color: #9ca3af !important;
+    opacity: 0.55 !important;
+    font-size: 13.5px !important;
+    font-weight: 400 !important;
+}
 .delivery-area-picker-trigger.has-value .delivery-area-label {
-    color: #0f172a !important;
-    font-weight: 600;
+    color: #111827 !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
 }
 .delivery-area-action-wrap {
     display: flex;
@@ -830,18 +878,45 @@
         }
 
         function applyCompletedSelection() {
-            if (inputDiv) inputDiv.value = selectedDiv.id;
-            if (inputDist) inputDist.value = selectedDist.id;
-            if (inputUpa) inputUpa.value = selectedUpa.id;
+            if (inputDiv) {
+                inputDiv.value = selectedDiv.id;
+                inputDiv.dispatchEvent(new Event('change', { bubbles: true }));
+                if (window.jQuery) window.jQuery(inputDiv).trigger('change');
+            }
+            if (inputDist) {
+                inputDist.value = selectedDist.id;
+                inputDist.dispatchEvent(new Event('change', { bubbles: true }));
+                if (window.jQuery) window.jQuery(inputDist).trigger('change');
+            }
+            if (inputUpa) {
+                inputUpa.value = selectedUpa.id;
+                inputUpa.dispatchEvent(new Event('change', { bubbles: true }));
+                if (window.jQuery) window.jQuery(inputUpa).trigger('change');
+            }
 
             var displayPath = selectedDiv.name + ' > ' + selectedDist.name + ' > ' + selectedUpa.name;
-            if (displayLabel) displayLabel.textContent = displayPath;
+            if (displayLabel) {
+                displayLabel.textContent = displayPath;
+                displayLabel.classList.remove('is-placeholder');
+            }
             if (trigger) {
                 trigger.classList.add('has-value');
                 trigger.classList.remove('is-invalid');
             }
             if (badge) badge.classList.remove('d-none');
             if (chevron) chevron.classList.add('d-none');
+
+            // Dispatch global custom event for external listeners (e.g. admin pos or custom checkout)
+            try {
+                document.dispatchEvent(new CustomEvent('deliveryLocationSelected', {
+                    detail: {
+                        prefix: prefix,
+                        division: selectedDiv,
+                        district: selectedDist,
+                        upazila: selectedUpa
+                    }
+                }));
+            } catch(e) {}
 
             // Synchronize delivery area charge select (Inside Dhaka vs Outside Dhaka)
             syncAreaChargeWithDistrict(selectedDist.name);

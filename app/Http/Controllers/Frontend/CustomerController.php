@@ -783,7 +783,7 @@ public function order_save(Request $request)
         $this->validate($request,[
             'name'=>'required',
             'phone'=>'required',
-            'address'=>'required',
+            'address'=>'nullable',
         ]);
 
         if(Cart::instance('shopping')->count() <= 0) {
@@ -911,17 +911,37 @@ public function order_save(Request $request)
         // =========================================================
         // ⭐ ফিক্সড লজিক: গেটওয়েতে কত টাকা পাঠাবো?
         // =========================================================
-        // যদি এডভান্স থাকে, তাহলে শুধু এডভান্স এমাউন্ট পে করতে হবে।
-        // যদি না থাকে, তাহলে পুরো গ্র্যান্ড টোটাল পে করতে হবে।
         $payable_amount = ($advanceTotal > 0) ? $advanceTotal : $grandTotal;
 
         // Customer ঠিক করা
+        $composedAddress = trim((string) $request->address);
+        if ($composedAddress === '') {
+            if ($divisionId && $districtId) {
+                $composedAddress = \App\Support\DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId);
+            } else {
+                $composedAddress = $resolvedAreaName ?: 'N/A';
+            }
+        }
+
         if(Auth::guard('customer')->user()){
             $customer_id = Auth::guard('customer')->user()->id;
+            $cust = Customer::find($customer_id);
+            if ($cust) {
+                if ($divisionId) $cust->division_id = $divisionId;
+                if ($districtId) $cust->district_id = $districtId;
+                if ($upazilaId)  $cust->upazila_id  = $upazilaId;
+                if (!empty($composedAddress)) $cust->address = $composedAddress;
+                $cust->save();
+            }
         }else{
-            $exist = Customer::where('phone',$request->phone)->select('id')->first();
+            $exist = Customer::where('phone',$request->phone)->first();
             if($exist){
                 $customer_id = $exist->id;
+                if ($divisionId) $exist->division_id = $divisionId;
+                if ($districtId) $exist->district_id = $districtId;
+                if ($upazilaId)  $exist->upazila_id  = $upazilaId;
+                if (!empty($composedAddress)) $exist->address = $composedAddress;
+                $exist->save();
             }else{
                 $password = rand(111111,999999);
                 $store = new Customer();
@@ -931,6 +951,10 @@ public function order_save(Request $request)
                 $store->password = bcrypt($password);
                 $store->verify = 1;
                 $store->status = 'active';
+                $store->division_id = $divisionId;
+                $store->district_id = $districtId;
+                $store->upazila_id  = $upazilaId;
+                $store->address = $composedAddress;
                 $store->save();
                 $customer_id = $store->id;
             }
@@ -944,7 +968,7 @@ public function order_save(Request $request)
         $order->customer_id     = $customer_id;
         $order->order_status    = 1;
         $order->note            = $request->note;
-        $order->order_note      = $request->order_note;
+        $order->order_note      = $request->order_note ?? $request->note;
         $order->payment_status  = 'pending';
         $order->coupon_code     = Session::get('coupon_code') ?? null;
         $order->discount        = $discount ?? 0;
@@ -963,19 +987,13 @@ public function order_save(Request $request)
         $shipping->customer_id = $customer_id;
         $shipping->name        = $request->name;
         $shipping->phone       = $request->phone;
-        $composedAddress = trim((string) $request->address);
-        if ($composedAddress === '') {
-            if ($divisionId && $districtId) {
-                $composedAddress = \App\Support\DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId);
-            } else {
-                $composedAddress = $resolvedAreaName ?: 'N/A';
-            }
-        }
         $shipping->address     = $composedAddress;
         $shipping->division_id = $divisionId;
         $shipping->district_id = $districtId;
         $shipping->upazila_id  = $upazilaId;
-        $shipping->area        = $resolvedAreaName ?: 'Digital / Free Shipping';
+        $shipping->area        = ($divisionId && $districtId && $upazilaId)
+            ? \App\Support\DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId)
+            : ($resolvedAreaName ?: 'Digital / Free Shipping');
         $shipping->save();
 
         // BD Courier — ফোন অনুযায়ী সফলতার হার অর্ডার লিস্টে দেখাতে (চেকআউট রেসপন্স ব্লক না করে রিকোয়েস্ট শেষ হওয়ার পর রান)

@@ -367,6 +367,90 @@
                     transform: scale(0.95); /* Back to original scale */
                 }
             }
+
+            /* --- OUTLINED / NOTCHED BORDER LABEL FORM STYLING --- */
+            .modern-outline-group {
+                position: relative;
+                margin-top: 14px;
+                margin-bottom: 16px;
+            }
+            .modern-outline-group .modern-outline-label {
+                position: absolute;
+                top: -9px;
+                left: 12px;
+                background: #ffffff;
+                padding: 0 6px;
+                font-size: 12px;
+                font-weight: 600;
+                color: #374151;
+                z-index: 2;
+                pointer-events: none;
+                line-height: 1.2;
+                border-radius: 2px;
+                margin-bottom: 0;
+                white-space: nowrap;
+            }
+            .modern-outline-group .modern-outline-input,
+            .modern-outline-group .form-control {
+                width: 100%;
+                min-height: 48px;
+                padding: 10px 14px;
+                background: #ffffff;
+                border: 1.5px solid #d1d5db !important;
+                border-radius: 8px !important;
+                font-size: 14px;
+                color: #111827;
+                outline: none !important;
+                transition: all 0.2s ease;
+                box-sizing: border-box;
+                box-shadow: none !important;
+            }
+            .modern-outline-group .modern-outline-input:focus,
+            .modern-outline-group .form-control:focus {
+                border-color: #6366f1 !important;
+                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+            }
+            .modern-outline-group textarea.modern-outline-input,
+            .modern-outline-group textarea.form-control {
+                min-height: 72px;
+                padding-top: 12px;
+                resize: vertical;
+            }
+            .modern-outline-group input::placeholder,
+            .modern-outline-group textarea::placeholder,
+            .modern-outline-group .form-control::placeholder {
+                color: #9ca3af !important;
+                opacity: 0.55 !important;
+                font-size: 13.5px !important;
+                font-weight: 400 !important;
+            }
+
+            /* Order note collapsible button */
+            .order-note-collapse-wrapper {
+                margin-top: 6px;
+                margin-bottom: 12px;
+            }
+            .order-note-toggle-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                color: #4f46e5;
+                font-size: 13.5px;
+                font-weight: 600;
+                text-decoration: none;
+                cursor: pointer;
+                background: transparent;
+                border: none;
+                padding: 4px 0;
+                transition: color 0.15s ease;
+            }
+            .order-note-toggle-btn:hover {
+                color: #3730a3;
+                text-decoration: underline;
+            }
+            .order-note-toggle-btn i {
+                font-size: 14px;
+            }
         
             .button-animated-border:hover {
                 color: #fff; /* Change text color on hover */
@@ -827,10 +911,11 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
+                                    {{-- ১. আপনার নাম * --}}
                                     <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="name">আপনার নাম লিখুন * </label>
-                                            <input type="text" id="name" class="form-control @error('name') is-invalid @enderror" name="name" value="{{old('name')}}" placeholder="নাম" required>
+                                        <div class="modern-outline-group">
+                                            <label class="modern-outline-label">আপনার নাম <span class="text-danger">*</span></label>
+                                            <input type="text" id="name" class="modern-outline-input form-control @error('name') is-invalid @enderror" name="name" value="{{old('name')}}" placeholder="আপনার সম্পূর্ণ নাম লিখুন" required>
                                             @error('name')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -838,11 +923,12 @@
                                             @enderror
                                         </div>
                                     </div>
-                                    <!-- col-end -->
+
+                                    {{-- ২. মোবাইল নাম্বার * --}}
                                     <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="phone">আপনার মোবাইল লিখুন *</label>
-                                            <input type="tel" id="phone" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="01XXXXXXXXX" pattern="0[0-9]{10}" maxlength="11" minlength="11" required>
+                                        <div class="modern-outline-group">
+                                            <label class="modern-outline-label">মোবাইল নাম্বার <span class="text-danger">*</span></label>
+                                            <input type="tel" id="phone" class="modern-outline-input form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="01XXXXXXXXX" pattern="0[0-9]{10}" maxlength="11" minlength="11" required>
                                             @error('phone')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -850,11 +936,12 @@
                                             @enderror
                                         </div>
                                     </div>
-                                    <!-- col-end -->
-                                    <!-- 3-IN-1 DELIVERY LOCATION PICKER (বিভাগ > জেলা > থানা) -->
+
+                                    {{-- ৩. ডেলিভারি এরিয়া * (3-in-1 modal) --}}
                                     <div class="col-sm-12">
                                         @include('frontEnd.layouts.partials.delivery_location_modal', [
                                             'prefix' => 'campaign',
+                                            'fieldLabel' => 'ডেলিভারি এরিয়া',
                                             'divisions' => $divisions,
                                             'selectedDivisionId' => old('division_id'),
                                             'selectedDistrictId' => old('district_id'),
@@ -862,11 +949,11 @@
                                         ])
                                     </div>
 
-                                    <!-- DELIVERY LOCATION / FULL ADDRESS (OPTIONAL) -->
+                                    {{-- ৪. ডেলিভারির স্থান --}}
                                     <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="address">সম্পূর্ণ ঠিকানা / ডেলিভারির স্থান (ঐচ্ছিক)</label>
-                                            <input type="text" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="কোথায় ডেলিভারি নিবেন (যেমন: বাসা নং, রোড নং, এলাকা)..." name="address" value="{{old('address')}}">
+                                        <div class="modern-outline-group">
+                                            <label class="modern-outline-label">ডেলিভারির স্থান</label>
+                                            <input type="text" id="address" class="modern-outline-input form-control @error('address') is-invalid @enderror" placeholder="বাসা নং, রোড নং, এলাকা ইত্যাদি (ঐচ্ছিক)" name="address" value="{{old('address')}}">
                                             @error('address')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -875,24 +962,33 @@
                                         </div>
                                     </div>
 
+                                    {{-- ডেলিভারি এরিয়া / চার্জ * (UI থেকে রিমুভ, ব্যাকএন্ড ও শিপিং সিঙ্কের জন্য হিডেন) --}}
+                                    <div style="display: none !important;">
+                                        <select id="area" name="area">
+                                            @foreach($shippingcharge as $key=>$value)
+                                            <option value="{{$value->id}}" {{ $loop->first ? 'selected' : '' }}>{{$value->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    {{-- ৫. + অর্ডার নোট (কোল্যাপসিবল) --}}
                                     <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="area">ডেলিভারি চার্জ *</label>
-                                            <select id="area" class="form-control @error('area') is-invalid @enderror" name="area" required>
-                                                @foreach($shippingcharge as $key=>$value)
-                                                <option value="{{$value->id}}" {{ $loop->first ? 'selected' : '' }}>{{$value->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('area')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
+                                        <div class="order-note-collapse-wrapper">
+                                            <button type="button" class="order-note-toggle-btn" id="toggle_campaign_order_note">
+                                                <i class="fas {{ old('note', old('order_note')) ? 'fa-minus-circle' : 'fa-plus-circle' }}" id="campaign_note_icon"></i>
+                                                <span id="campaign_note_text">{{ old('note', old('order_note')) ? 'অর্ডার নোট বন্ধ করুন' : 'অর্ডার নোট' }}</span>
+                                            </button>
+                                            <div id="campaign_note_collapse_box" class="modern-outline-group mt-2" style="{{ old('note', old('order_note')) ? '' : 'display: none;' }}">
+                                                <label class="modern-outline-label">অর্ডার নোট</label>
+                                                <textarea name="note" id="campaign_order_note" class="modern-outline-input form-control" rows="2" 
+                                                    placeholder="অর্ডার সম্পর্কে কোনো বিশেষ নির্দেশনা থাকলে লিখুন...">{{ old('note', old('order_note')) }}</textarea>
+                                            </div>
                                         </div>
                                     </div>
-                                    <!-- col-end -->
+
+                                    {{-- সাবমিট বাটন --}}
                                     <div class="col-sm-12">
-                                        <div class="form-group">
+                                        <div class="form-group mt-2">
                                             <button class="order_place" type="submit">অর্ডার কন্ফার্ম করুন </button>
                                         </div>
                                     </div>
@@ -957,6 +1053,22 @@
                     dataType: "html",
                     success: function(response){
                         $('#campaign-cartlist').html(response);
+                    }
+                });
+            // Collapsible Order Note Toggle
+            $(document).on('click', '#toggle_campaign_order_note', function(e) {
+                e.preventDefault();
+                var $box = $('#campaign_note_collapse_box');
+                var $icon = $('#campaign_note_icon');
+                var $text = $('#campaign_note_text');
+                $box.slideToggle(200, function() {
+                    if ($box.is(':visible')) {
+                        $icon.removeClass('fa-plus-circle').addClass('fa-minus-circle');
+                        $text.text('অর্ডার নোট বন্ধ করুন');
+                        $box.find('textarea').focus();
+                    } else {
+                        $icon.removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                        $text.text('অর্ডার নোট');
                     }
                 });
             });

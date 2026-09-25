@@ -2212,14 +2212,13 @@ PROMPT;
         $validator = Validator::make($request->all(), [
             'name'        => 'required',
             'phone'       => 'required',
-            'address'     => 'required',
+            'address'     => 'nullable',
             'division_id' => 'required|exists:divisions,id',
             'district_id' => 'required|exists:districts,id',
             'upazila_id'  => 'required|exists:upazilas,id',
         ], [
             'name.required'        => 'কাস্টমার এর নাম প্রদান করুন।',
             'phone.required'       => 'মোবাইল নম্বর প্রদান করুন।',
-            'address.required'     => 'ডেলিভারি ঠিকানা প্রদান করুন।',
             'division_id.required' => 'বিভাগ নির্বাচন করুন।',
             'division_id.exists'   => 'নির্বাচিত বিভাগটি সঠিক নয়।',
             'district_id.required' => 'জেলা নির্বাচন করুন।',
@@ -2265,11 +2264,21 @@ PROMPT;
         $shippingfee    = DeliveryLocation::chargeForDistrictId($districtId);
         $grandAmount    = max(0, ($subtotal + $shippingfee) - $totalDiscount);
 
+        $composedAddress = trim((string) $request->address);
+        if ($composedAddress === '') {
+            $composedAddress = DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId);
+        }
+
         $exits_customer = Customer::where('phone', $request->phone)
             ->select('phone', 'id')->first();
 
         if ($exits_customer) {
             $customer_id = $exits_customer->id;
+            $exits_customer->division_id = $divisionId;
+            $exits_customer->district_id = $districtId;
+            $exits_customer->upazila_id  = $upazilaId;
+            if (!empty($composedAddress)) $exits_customer->address = $composedAddress;
+            $exits_customer->save();
         } else {
             $password        = rand(111111, 999999);
             $store           = new Customer();
@@ -2279,6 +2288,10 @@ PROMPT;
             $store->password = bcrypt($password);
             $store->verify   = 1;
             $store->status   = 'active';
+            $store->division_id = $divisionId;
+            $store->district_id = $districtId;
+            $store->upazila_id  = $upazilaId;
+            $store->address     = $composedAddress;
             $store->save();
             $customer_id = $store->id;
         }
@@ -2298,7 +2311,7 @@ PROMPT;
         $shipping->customer_id = $customer_id;
         $shipping->name        = $request->name;
         $shipping->phone       = $request->phone;
-        $shipping->address     = $request->address;
+        $shipping->address     = $composedAddress;
         $shipping->division_id = $divisionId;
         $shipping->district_id = $districtId;
         $shipping->upazila_id  = $upazilaId;
@@ -2705,9 +2718,9 @@ PROMPT;
     public function order_update(Request $request)
     {
         $this->validate($request, [
-            'name'    => 'required',
-            'phone'   => 'required',
-            'address' => 'required',
+            'name'        => 'required',
+            'phone'       => 'required',
+            'address'     => 'nullable',
             'division_id' => 'required|exists:divisions,id',
             'district_id' => 'required|exists:districts,id',
             'upazila_id'  => 'required|exists:upazilas,id',
@@ -2738,16 +2751,32 @@ PROMPT;
         $shipAmt = DeliveryLocation::chargeForDistrictId($districtId);
         $grandAmount = max(0, ($subtotal + $shipAmt) - $discount);
 
+        $composedAddress = trim((string) $request->address);
+        if ($composedAddress === '') {
+            $composedAddress = DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId);
+        }
+
         $customer = Customer::firstOrCreate(
             ['phone' => $request->phone],
             [
-                'name'     => $request->name,
-                'slug'     => $request->name,
-                'password' => bcrypt(rand(111111, 999999)),
-                'verify'   => 1,
-                'status'   => 'active'
+                'name'        => $request->name,
+                'slug'        => $request->name,
+                'password'    => bcrypt(rand(111111, 999999)),
+                'verify'      => 1,
+                'status'      => 'active',
+                'division_id' => $divisionId,
+                'district_id' => $districtId,
+                'upazila_id'  => $upazilaId,
+                'address'     => $composedAddress,
             ]
         );
+        if ($customer) {
+            $customer->division_id = $divisionId;
+            $customer->district_id = $districtId;
+            $customer->upazila_id  = $upazilaId;
+            if (!empty($composedAddress)) $customer->address = $composedAddress;
+            $customer->save();
+        }
 
         $order                  = Order::findOrFail($request->order_id);
         $order->amount          = $grandAmount;
@@ -2760,7 +2789,7 @@ PROMPT;
         $shipping           = Shipping::where('order_id', $order->id)->firstOrFail();
         $shipping->name     = $request->name;
         $shipping->phone    = $request->phone;
-        $shipping->address  = $request->address;
+        $shipping->address  = $composedAddress;
         $shipping->division_id = $divisionId;
         $shipping->district_id = $districtId;
         $shipping->upazila_id  = $upazilaId;

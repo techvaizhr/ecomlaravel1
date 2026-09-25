@@ -607,6 +607,94 @@
         }
     }
 
+    /* --- OUTLINED / NOTCHED BORDER LABEL FORM STYLING --- */
+    .modern-outline-group {
+        position: relative;
+        margin-top: 14px;
+        margin-bottom: 16px;
+    }
+    .modern-outline-group .modern-outline-label {
+        position: absolute;
+        top: -9px;
+        left: 12px;
+        background: #ffffff;
+        padding: 0 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        z-index: 2;
+        pointer-events: none;
+        line-height: 1.2;
+        border-radius: 2px;
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+    .modern-outline-group .modern-outline-input,
+    .modern-outline-group .form-control-custom,
+    .modern-outline-group .form-control {
+        width: 100%;
+        min-height: 48px;
+        padding: 10px 14px;
+        background: #ffffff;
+        border: 1.5px solid #d1d5db !important;
+        border-radius: 8px !important;
+        font-size: 14px;
+        color: #111827;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        box-shadow: none !important;
+    }
+    .modern-outline-group .modern-outline-input:focus,
+    .modern-outline-group .form-control-custom:focus,
+    .modern-outline-group .form-control:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+    }
+    .modern-outline-group textarea.modern-outline-input,
+    .modern-outline-group textarea.form-control-custom,
+    .modern-outline-group textarea.form-control {
+        min-height: 72px;
+        padding-top: 12px;
+        resize: vertical;
+    }
+    .modern-outline-group input::placeholder,
+    .modern-outline-group textarea::placeholder,
+    .modern-outline-group .form-control-custom::placeholder,
+    .modern-outline-group .form-control::placeholder {
+        color: #9ca3af !important;
+        opacity: 0.55 !important;
+        font-size: 13.5px !important;
+        font-weight: 400 !important;
+    }
+
+    /* Order note collapsible button */
+    .order-note-collapse-wrapper {
+        margin-top: 6px;
+        margin-bottom: 12px;
+    }
+    .order-note-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #4f46e5;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 4px 0;
+        transition: color 0.15s ease;
+    }
+    .order-note-toggle-btn:hover {
+        color: #3730a3;
+        text-decoration: underline;
+    }
+    .order-note-toggle-btn i {
+        font-size: 14px;
+    }
+
     /* --- Responsive Fixes --- */
     @media (max-width: 991.98px) {
         body.checkout-page #content {
@@ -624,17 +712,17 @@
         }
 
         .checkout-summary-col {
-            order: -1;
+            order: 0 !important;
             flex: 0 0 auto !important;
             width: 100% !important;
             height: auto !important;
             min-height: 0 !important;
             display: block !important;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
         }
 
         .checkout-form-col {
-            order: 0;
+            order: 0 !important;
             flex: 0 0 auto !important;
             width: 100% !important;
         }
@@ -654,8 +742,8 @@
             width: 100% !important;
         }
 
-        .mobile-submit-btn { display: block !important; margin-top: 25px; }
-        .desktop-submit-btn { display: none !important; }
+        .mobile-submit-btn { display: none !important; }
+        .desktop-submit-btn { display: block !important; }
     }
     @media (min-width: 992px) {
         .mobile-submit-btn { display: none !important; }
@@ -783,25 +871,30 @@
                         </div>
                         <div class="card-body-custom">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label-custom">আপনার নাম *</label>
-                                        <input type="text" name="name" class="form-control-custom" 
-                                            value="{{ Auth::guard('customer')->user()->name ?? old('name') }}" placeholder="সম্পূর্ণ নাম লিখুন" required>
+                                {{-- ১. আপনার নাম * --}}
+                                <div class="col-md-6 col-12">
+                                    <div class="modern-outline-group">
+                                        <label class="modern-outline-label">আপনার নাম <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" id="name" class="modern-outline-input form-control-custom" 
+                                            value="{{ Auth::guard('customer')->user()->name ?? old('name') }}" placeholder="আপনার সম্পূর্ণ নাম লিখুন" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label-custom">মোবাইল নাম্বার *</label>
-                                        <input type="text" name="phone" class="form-control-custom" minlength="11" maxlength="11" pattern="0[0-9]+" 
-                                            value="{{ Auth::guard('customer')->user()->phone ?? old('phone') }}" placeholder="017xxxxxxxx" required>
+
+                                {{-- ২. মোবাইল নাম্বার * --}}
+                                <div class="col-md-6 col-12">
+                                    <div class="modern-outline-group">
+                                        <label class="modern-outline-label">মোবাইল নাম্বার <span class="text-danger">*</span></label>
+                                        <input type="tel" name="phone" id="phone" class="modern-outline-input form-control-custom" minlength="11" maxlength="11" pattern="0[0-9]+" 
+                                            value="{{ Auth::guard('customer')->user()->phone ?? old('phone') }}" placeholder="01XXXXXXXXX" required>
                                     </div>
                                 </div>
+
                                 @if($requires_shipping)
-                                    {{-- 3-IN-1 DELIVERY LOCATION PICKER (বিভাগ > জেলা > থানা) --}}
+                                    {{-- ৩. ডেলিভারি এরিয়া * (3-in-1 modal) --}}
                                     <div class="col-12">
                                         @include('frontEnd.layouts.partials.delivery_location_modal', [
                                             'prefix' => 'checkout',
+                                            'fieldLabel' => 'ডেলিভারি এরিয়া',
                                             'divisions' => $divisions,
                                             'selectedDivisionId' => old('division_id', Auth::guard('customer')->user()->division_id ?? null),
                                             'selectedDistrictId' => old('district_id', Auth::guard('customer')->user()->district_id ?? null),
@@ -809,222 +902,63 @@
                                         ])
                                     </div>
 
-                                    {{-- DELIVERY LOCATION / FULL ADDRESS (OPTIONAL) --}}
+                                    {{-- ৪. ডেলিভারির স্থান --}}
                                     <div class="col-12">
-                                        <div class="form-group mb-3">
-                                            <label class="form-label-custom">সম্পূর্ণ ঠিকানা / ডেলিভারির স্থান (ঐচ্ছিক)</label>
-                                            <input type="text" name="address" id="checkout_detailed_address" class="form-control-custom" 
+                                        <div class="modern-outline-group">
+                                            <label class="modern-outline-label">ডেলিভারির স্থান</label>
+                                            <input type="text" name="address" id="checkout_detailed_address" class="modern-outline-input form-control-custom" 
                                                 value="{{ Auth::guard('customer')->user()->address ?? old('address') }}" 
-                                                placeholder="কোথায় ডেলিভারি নিবেন (যেমন: বাসা নং, রোড নং, এলাকা)...">
+                                                placeholder="বাসা নং, রোড নং, এলাকা ইত্যাদি (ঐচ্ছিক)">
                                         </div>
                                     </div>
 
-                                    {{-- DELIVERY CHARGE --}}
-                                    <div class="col-12">
-                                        <div class="form-group mb-0 mb-md-2">
-                                            <label class="form-label-custom">ডেলিভারি এরিয়া / চার্জ *</label>
-                                            <select name="area" id="checkout_area" class="form-control-custom" required>
-                                                <option value="">ডেলিভারি এরিয়া নির্বাচন করুন</option>
-                                                @foreach(($shippingcharges ?? collect()) as $sc)
-                                                    <option value="{{ $sc->id }}" data-charge="{{ $sc->amount }}" {{ $loop->first ? 'selected' : '' }}>{{ $sc->name }} (৳{{ round($sc->amount) }})</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                    {{-- ডেলিভারি এরিয়া / চার্জ * (UI থেকে রিমুভ, ব্যাকএন্ড ও শিপিং সিঙ্কের জন্য হিডেন) --}}
+                                    <div style="display: none !important;">
+                                        <select name="area" id="checkout_area">
+                                            @foreach(($shippingcharges ?? collect()) as $sc)
+                                                <option value="{{ $sc->id }}" data-charge="{{ $sc->amount }}" {{ $loop->first ? 'selected' : '' }}>{{ $sc->name }} (৳{{ round($sc->amount) }})</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 @else
                                     <div class="col-12">
-                                        <div class="form-group">
-                                            <label class="form-label-custom">ডেলিভারি এরিয়া</label>
-                                            <input type="text" class="form-control-custom" value="ডিজিটাল / ফ্রি শিপিং — লোকেশন লাগবে না" readonly disabled style="background:#f3f4f6;">
+                                        <div class="modern-outline-group">
+                                            <label class="modern-outline-label">ডেলিভারির স্থান</label>
+                                            <input type="text" class="modern-outline-input form-control-custom" value="ডিজিটাল / ফ্রি শিপিং — লোকেশন লাগবে না" readonly disabled style="background:#f3f4f6;">
                                             <input type="hidden" name="division_id" value="">
                                             <input type="hidden" name="district_id" value="">
                                             <input type="hidden" name="upazila_id" value="">
                                         </div>
                                     </div>
                                 @endif
+
+                                {{-- ৫. + অর্ডার নোট (কোল্যাপসিবল) --}}
                                 <div class="col-12">
-                                    <div class="form-group">
-                                        <label class="form-label-custom">অর্ডার নোট (ঐচ্ছিক)</label>
-                                        <textarea name="order_note" id="order_note" class="form-control-custom" rows="2" style="height:auto; resize:none;" 
-                                            placeholder="ডেলিভারি সম্পর্কে বিশেষ কিছু বলার থাকলে লিখুন...">{{ $order_note ?? '' }}</textarea>
+                                    <div class="order-note-collapse-wrapper">
+                                        <button type="button" class="order-note-toggle-btn" id="toggle_checkout_order_note">
+                                            <i class="fas {{ old('order_note', $order_note ?? '') ? 'fa-minus-circle' : 'fa-plus-circle' }}" id="checkout_note_icon"></i>
+                                            <span id="checkout_note_text">{{ old('order_note', $order_note ?? '') ? 'অর্ডার নোট বন্ধ করুন' : 'অর্ডার নোট' }}</span>
+                                        </button>
+                                        <div id="checkout_note_collapse_box" class="modern-outline-group mt-2" style="{{ old('order_note', $order_note ?? '') ? '' : 'display: none;' }}">
+                                            <label class="modern-outline-label">অর্ডার নোট</label>
+                                            <textarea name="order_note" id="order_note" class="modern-outline-input form-control-custom" rows="2" 
+                                                placeholder="অর্ডার সম্পর্কে কোনো বিশেষ নির্দেশনা থাকলে লিখুন...">{{ old('order_note', $order_note ?? '') }}</textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- 2. PAYMENT METHOD CARD --}}
-                    
-
-{{-- 2. PAYMENT METHOD CARD --}}
-<div class="checkout-card">
-    <div class="checkout-header">
-        <i class="fas fa-wallet"></i>
-        <h6>পেমেন্ট মেথড নির্বাচন করুন</h6>
-    </div>
-    <div class="card-body-custom">
-        
-        @if($hasAdvance)
-            <div class="alert alert-warning border-0 shadow-sm mb-4" style="border-left: 5px solid #ffc107 !important; background-color: #fff8e1;">
-                <div class="d-flex gap-3 align-items-center">
-                    <i class="fas fa-exclamation-triangle text-warning fs-4"></i>
-                    <div>
-                        <strong>অগ্রিম পেমেন্ট প্রয়োজন!</strong>
-                        <p class="mb-0 small">এই অর্ডারে <b>৳ {{ number_format($advance_amount, 0) }}</b> অগ্রিম পেমেন্ট করতে হবে।</p>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        {{-- Payment Options List --}}
-        <div class="payment-options-list">
-            
-            {{-- COD Option --}}
-            @if(!$hasDigital && !$hasAdvance)
-                <label class="payment-option-label">
-                    <input type="radio" name="payment_method" value="cod" checked required>
-                    <div class="payment-content">
-                        <div class="text-center" style="width: 40px;"><i class="fas fa-truck text-success fs-2"></i></div>
-                        <div class="pay-info">
-                            <strong>Cash On Delivery</strong>
-                            <small>পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</small>
-                        </div>
-                    </div>
-                    <div class="check-circle"></div>
-                </label>
-            @endif
-
-            {{-- Bkash --}}
-            @if($bkash_gateway)
-                <label class="payment-option-label">
-                    {{-- required যুক্ত করা হয়েছে --}}
-                    <input type="radio" name="payment_method" value="bkash" required> 
-                    <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" class="pay-logo" alt="bKash">
-                        <div class="pay-info">
-                            <strong>bKash Payment</strong>
-                            <small>বিকাশ অ্যাপ বা গেটওয়ে দ্বারা পেমেন্ট</small>
-                        </div>
-                    </div>
-                    <div class="check-circle"></div>
-                </label>
-            @endif
-
-            {{-- ShurjoPay --}}
-            @if($shurjopay_gateway)
-                <label class="payment-option-label">
-                    {{-- required যুক্ত করা হয়েছে --}}
-                    <input type="radio" name="payment_method" value="shurjopay" required>
-                    <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" class="pay-logo" alt="ShurjoPay">
-                        <div class="pay-info">
-                            <strong>Online Payment</strong>
-                            <small>ShurjoPay (Card/Mobile Banking)</small>
-                        </div>
-                    </div>
-                    <div class="check-circle"></div>
-                </label>
-            @endif
-
-            {{-- UddoktaPay --}}
-            @if($uddoktapay_gateway)
-                <label class="payment-option-label">
-                    {{-- required যুক্ত করা হয়েছে --}}
-                    <input type="radio" name="payment_method" value="uddoktapay" required>
-                    <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" class="pay-logo" alt="UddoktaPay">
-                        <div class="pay-info">
-                            <strong>UddoktaPay</strong>
-                            <small>মোবাইল ব্যাংকিং পেমেন্ট গেটওয়ে</small>
-                        </div>
-                    </div>
-                    <div class="check-circle"></div>
-                </label>
-            @endif
-
-            {{-- aamarPay --}}
-            @if($aamarpay_gateway)
-                <label class="payment-option-label">
-                    <input type="radio" name="payment_method" value="aamarpay" required>
-                    <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/aamarpay.png') }}" class="pay-logo" alt="aamarPay" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="pay-info" style="display: none;">
-                            <i class="fas fa-credit-card text-primary fs-4"></i>
-                        </div>
-                        <div class="pay-info">
-                            <strong>aamarPay</strong>
-                            <small>কার্ড ও মোবাইল ব্যাংকিং পেমেন্ট</small>
-                        </div>
-                    </div>
-                    <div class="check-circle"></div>
-                </label>
-            @endif
-
-            @foreach($manual_gateways ?? [] as $mg)
-                <label class="payment-option-label">
-                    <input type="radio" name="payment_method" value="manual_{{ $mg->id }}" required>
-                    <div class="payment-content">
-                        @if($mg->logo_asset_url)
-                            <img src="{{ $mg->logo_asset_url }}" class="pay-logo" alt="{{ $mg->title }}">
-                        @else
-                            <div class="text-center" style="width: 40px;"><i class="fas fa-money-check-alt text-primary fs-2"></i></div>
-                        @endif
-                        <div class="pay-info">
-                            <strong>{{ $mg->title }}</strong>
-                            <small>ম্যানুয়াল পেমেন্ট — নির্দেশনা অনুযায়ী টাকা পাঠিয়ে ট্রানজেকশন আইডি দিন</small>
-                        </div>
-                    </div>
-                    <div class="check-circle"></div>
-                </label>
-            @endforeach
-
-        </div>
-        <div id="manual-payment-fields" class="mt-3 p-3 rounded-3 border border-warning bg-light" style="display:none;">
-            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-info-circle text-warning me-1"></i> ম্যানুয়াল পেমেন্ট নির্দেশনা</h6>
-            <div id="manual-instructions-body" class="small text-secondary mb-3" style="white-space:pre-wrap;"></div>
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <label class="form-label small fw-semibold">ট্রানজেকশন আইডি / রেফারেন্স <span class="text-danger">*</span></label>
-                    <input type="text" name="manual_trx_id" id="manual_trx_id" class="form-control form-control-custom" value="{{ old('manual_trx_id') }}" maxlength="55" placeholder="TrxID">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label small fw-semibold">যে নম্বর থেকে পাঠিয়েছেন (ঐচ্ছিক)</label>
-                    <input type="text" name="manual_sender_number" class="form-control form-control-custom" value="{{ old('manual_sender_number') }}" maxlength="55" placeholder="01xxx">
-                </div>
-            </div>
-        </div>
-        <script>
-            window.MANUAL_GATEWAYS = @json(($manual_gateways ?? collect())->map(fn ($g) => [
-                'code' => 'manual_'.$g->id,
-                'instructions' => (string) ($g->instructions ?? ''),
-            ])->values()->all());
-        </script>
-        {{-- Error message placeholder --}}
-        <div id="payment-error" class="text-danger fw-bold mt-2 text-center" style="display:none;">
-            <i class="fas fa-exclamation-circle"></i> অনুগ্রহ করে একটি পেমেন্ট মেথড সিলেক্ট করুন।
-        </div>
-    </div>
-</div>
-
-                    {{-- MOBILE SUBMIT BUTTON (Only Visible on Mobile) --}}
-                    <div class="mobile-submit-btn">
-                        <button type="submit" class="btn-place-order">
-                            অর্ডার নিশ্চিত করুন <i class="fas fa-arrow-right"></i>
-                        </button>
-                        <div class="text-center text-muted small mt-3">
-                            <i class="fas fa-shield-alt"></i> ১০০% নিরাপদ এবং সিকিউর চেকআউট
-                        </div>
-                    </div>
-
                 </div>
 
-                {{-- RIGHT SIDE: Order Summary --}}
+                {{-- RIGHT SIDE: ORDER SUMMARY (WITH INTEGRATED PAYMENT METHODS) --}}
                 <div class="col-lg-5 col-md-12 checkout-summary-col" id="checkoutSummaryCol">
                     <div class="checkout-summary-sticky" id="checkoutSummarySticky">
-                        <div class="checkout-card">
+                        <div class="checkout-card checkout-summary-card">
                             <div class="checkout-header">
                                 <i class="fas fa-shopping-bag"></i>
-                                <h6>অর্ডার সামারি ({{ Cart::instance('shopping')->count() }})</h6>
+                                <h6>অর্ডার সামারি ({{ Cart::instance('shopping')->count() }}টি পণ্য)</h6>
                             </div>
                             
                             <div class="card-body-custom p-0">
@@ -1072,7 +1006,7 @@
                                     @endforeach
                                 </div>
 
-                                {{-- COUPON SECTION (Only show if active coupon exists or already applied) --}}
+                                {{-- COUPON SECTION --}}
 @php
     $todayDate = date('Y-m-d');
     $hasActiveCoupon = \App\Models\Coupon::where('status', 1)
@@ -1118,8 +1052,147 @@
                                     @endif
                                 </div>
 
-                                {{-- DESKTOP SUBMIT BUTTON (Only Visible on Desktop) --}}
-                                <div class="desktop-submit-btn p-4">
+                                {{-- PAYMENT METHODS (Directly below summary totals without separate label) --}}
+                                <div class="px-4 pb-2 border-top pt-3">
+                                    @if($hasAdvance)
+                                        <div class="alert alert-warning border-0 shadow-sm mb-3" style="border-left: 5px solid #ffc107 !important; background-color: #fff8e1;">
+                                            <div class="d-flex gap-3 align-items-center">
+                                                <i class="fas fa-exclamation-triangle text-warning fs-4"></i>
+                                                <div>
+                                                    <strong>অগ্রিম পেমেন্ট প্রয়োজন!</strong>
+                                                    <p class="mb-0 small">এই অর্ডারে <b>৳ {{ number_format($advance_amount, 0) }}</b> অগ্রিম পেমেন্ট করতে হবে।</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <div class="payment-options-list">
+                                        {{-- COD Option --}}
+                                        @if(!$hasDigital && !$hasAdvance)
+                                            <label class="payment-option-label">
+                                                <input type="radio" name="payment_method" value="cod" checked required>
+                                                <div class="payment-content">
+                                                    <div class="text-center" style="width: 36px;"><i class="fas fa-truck text-success fs-3"></i></div>
+                                                    <div class="pay-info">
+                                                        <strong>Cash On Delivery</strong>
+                                                        <small>পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</small>
+                                                    </div>
+                                                </div>
+                                                <div class="check-circle"></div>
+                                            </label>
+                                        @endif
+
+                                        {{-- Bkash --}}
+                                        @if($bkash_gateway)
+                                            <label class="payment-option-label">
+                                                <input type="radio" name="payment_method" value="bkash" required> 
+                                                <div class="payment-content">
+                                                    <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" class="pay-logo" alt="bKash">
+                                                    <div class="pay-info">
+                                                        <strong>bKash Payment</strong>
+                                                        <small>বিকাশ অ্যাপ বা গেটওয়ে দ্বারা পেমেন্ট</small>
+                                                    </div>
+                                                </div>
+                                                <div class="check-circle"></div>
+                                            </label>
+                                        @endif
+
+                                        {{-- ShurjoPay --}}
+                                        @if($shurjopay_gateway)
+                                            <label class="payment-option-label">
+                                                <input type="radio" name="payment_method" value="shurjopay" required>
+                                                <div class="payment-content">
+                                                    <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" class="pay-logo" alt="ShurjoPay">
+                                                    <div class="pay-info">
+                                                        <strong>Online Payment</strong>
+                                                        <small>ShurjoPay (Card/Mobile Banking)</small>
+                                                    </div>
+                                                </div>
+                                                <div class="check-circle"></div>
+                                            </label>
+                                        @endif
+
+                                        {{-- UddoktaPay --}}
+                                        @if($uddoktapay_gateway)
+                                            <label class="payment-option-label">
+                                                <input type="radio" name="payment_method" value="uddoktapay" required>
+                                                <div class="payment-content">
+                                                    <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" class="pay-logo" alt="UddoktaPay">
+                                                    <div class="pay-info">
+                                                        <strong>UddoktaPay</strong>
+                                                        <small>মোবাইল ব্যাংকিং পেমেন্ট গেটওয়ে</small>
+                                                    </div>
+                                                </div>
+                                                <div class="check-circle"></div>
+                                            </label>
+                                        @endif
+
+                                        {{-- aamarPay --}}
+                                        @if($aamarpay_gateway)
+                                            <label class="payment-option-label">
+                                                <input type="radio" name="payment_method" value="aamarpay" required>
+                                                <div class="payment-content">
+                                                    <img src="{{ asset('public/frontEnd/images/aamarpay.png') }}" class="pay-logo" alt="aamarPay" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <div class="pay-info" style="display: none;">
+                                                        <i class="fas fa-credit-card text-primary fs-4"></i>
+                                                    </div>
+                                                    <div class="pay-info">
+                                                        <strong>aamarPay</strong>
+                                                        <small>কার্ড ও মোবাইল ব্যাংকিং পেমেন্ট</small>
+                                                    </div>
+                                                </div>
+                                                <div class="check-circle"></div>
+                                            </label>
+                                        @endif
+
+                                        @foreach($manual_gateways ?? [] as $mg)
+                                            <label class="payment-option-label">
+                                                <input type="radio" name="payment_method" value="manual_{{ $mg->id }}" required>
+                                                <div class="payment-content">
+                                                    @if($mg->logo_asset_url)
+                                                        <img src="{{ $mg->logo_asset_url }}" class="pay-logo" alt="{{ $mg->title }}">
+                                                    @else
+                                                        <div class="text-center" style="width: 36px;"><i class="fas fa-money-check-alt text-primary fs-3"></i></div>
+                                                    @endif
+                                                    <div class="pay-info">
+                                                        <strong>{{ $mg->title }}</strong>
+                                                        <small>ম্যানুয়াল পেমেন্ট — ট্রানজেকশন আইডি দিন</small>
+                                                    </div>
+                                                </div>
+                                                <div class="check-circle"></div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                    <div id="manual-payment-fields" class="mt-3 p-3 rounded-3 border border-warning bg-light" style="display:none;">
+                                        <h6 class="fw-bold text-dark mb-2"><i class="fas fa-info-circle text-warning me-1"></i> ম্যানুয়াল পেমেন্ট নির্দেশনা</h6>
+                                        <div id="manual-instructions-body" class="small text-secondary mb-3" style="white-space:pre-wrap;"></div>
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold">ট্রানজেকশন আইডি / রেফারেন্স <span class="text-danger">*</span></label>
+                                                <input type="text" name="manual_trx_id" id="manual_trx_id" class="form-control form-control-custom" value="{{ old('manual_trx_id') }}" maxlength="55" placeholder="TrxID">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold">যে নম্বর থেকে পাঠিয়েছেন (ঐচ্ছিক)</label>
+                                                <input type="text" name="manual_sender_number" class="form-control form-control-custom" value="{{ old('manual_sender_number') }}" maxlength="55" placeholder="01xxx">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <script>
+                                        window.MANUAL_GATEWAYS = @json(($manual_gateways ?? collect())->map(fn ($g) => [
+                                            'code' => 'manual_'.$g->id,
+                                            'instructions' => (string) ($g->instructions ?? ''),
+                                        ])->values()->all());
+                                    </script>
+
+                                    <div id="payment-error" class="text-danger fw-bold mt-2 text-center" style="display:none;">
+                                        <i class="fas fa-exclamation-circle"></i> অনুগ্রহ করে একটি পেমেন্ট মেথড সিলেক্ট করুন।
+                                    </div>
+                                </div>
+
+                                {{-- SUBMIT BUTTON (VISIBLE ON ALL SCREENS) --}}
+                                <div class="checkout-submit-wrap p-4 pt-2">
                                     <button type="submit" class="btn-place-order">
                                         অর্ডার নিশ্চিত করুন <i class="fas fa-check-circle"></i>
                                     </button>
@@ -1815,6 +1888,24 @@ document.addEventListener('DOMContentLoaded', function () {
              }
         });
 
+        // Collapsible Order Note Toggle
+        $(document).on('click', '#toggle_checkout_order_note', function(e) {
+            e.preventDefault();
+            var $box = $('#checkout_note_collapse_box');
+            var $icon = $('#checkout_note_icon');
+            var $text = $('#checkout_note_text');
+            $box.slideToggle(200, function() {
+                if ($box.is(':visible')) {
+                    $icon.removeClass('fa-plus-circle').addClass('fa-minus-circle');
+                    $text.text('অর্ডার নোট বন্ধ করুন');
+                    $box.find('textarea').focus();
+                } else {
+                    $icon.removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                    $text.text('অর্ডার নোট');
+                }
+            });
+        });
+
         // ==========================================
         // 4. FORM SUBMISSION & VALIDATION
         // ==========================================
@@ -1841,7 +1932,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 toastr.error('অর্ডার সম্পন্ন করতে পেমেন্ট মেথড নির্বাচন করুন।', 'Error');
                 $('#payment-error').show();
-                $('html, body').animate({ scrollTop: $(".checkout-card .fa-wallet").offset().top - 150 }, 500);
+                if ($(".payment-options-list").length) {
+                    $('html, body').animate({ scrollTop: $(".payment-options-list").offset().top - 150 }, 500);
+                }
                 $('.btn-place-order').prop('disabled', false);
                 return false;
             } else {

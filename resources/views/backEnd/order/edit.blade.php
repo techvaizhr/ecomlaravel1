@@ -370,65 +370,32 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label small fw-semibold text-dark">ডেলিভারি ঠিকানা <span class="text-danger">*</span></label>
+                                <label class="form-label small fw-semibold text-dark">সম্পূর্ণ ঠিকানা / ডেলিভারির স্থান (ঐচ্ছিক)</label>
                                 <input type="text"
                                        id="address"
                                        class="form-control form-control-sm @error('address') is-invalid @enderror"
-                                       placeholder="বাসা/হোল্ডিং, রোড, এলাকা ইত্যাদি বিস্তারিত ঠিকানা"
+                                       placeholder="কোথায় ডেলিভারি দিবেন (বাসা/হোল্ডিং, রোড, এলাকা ইত্যাদি বিস্তারিত ঠিকানা)"
                                        name="address"
-                                       value="{{ old('address', $shippinginfo->address ?? '') }}"
-                                       required>
+                                       value="{{ old('address', $shippinginfo->address ?? '') }}">
                                 @error('address')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                             </div>
                         </div>
 
                         <div class="form-section-title">
-                            <i class="fas fa-map-marker-alt"></i> ডেলিভারি লোকেশন ও চার্জ
+                            <i class="fas fa-map-marker-alt"></i> ডেলিভারি লোকেশন ও এরিয়া
                         </div>
 
-                        <div class="row g-2 mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label small fw-semibold text-dark">বিভাগ <span class="text-danger">*</span></label>
-                                <select id="adm_pos_division"
-                                        class="form-select form-select-sm @error('division_id') is-invalid @enderror"
-                                        name="division_id" required>
-                                    <option value="">বিভাগ নির্বাচন...</option>
-                                    @foreach(($divisions ?? []) as $d)
-                                    <option value="{{ $d->id }}" {{ (int) old('division_id', $admEdDiv) === (int) $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('division_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label small fw-semibold text-dark">জেলা <span class="text-danger">*</span></label>
-                                <select id="adm_pos_district"
-                                        class="form-select form-select-sm @error('district_id') is-invalid @enderror"
-                                        name="district_id" required>
-                                    <option value="">জেলা নির্বাচন...</option>
-                                    @foreach($editDistricts as $dist)
-                                        @if($admEdDiv && (int)$dist->division_id === $admEdDiv)
-                                        <option value="{{ $dist->id }}" {{ (int) old('district_id', $admEdDist) === (int) $dist->id ? 'selected' : '' }}>{{ $dist->name }} (৳{{ $dist->delivery_charge }})</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                                @error('district_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label small fw-semibold text-dark">উপজেলা / থানা <span class="text-danger">*</span></label>
-                                <select id="adm_pos_upazila"
-                                        class="form-select form-select-sm @error('upazila_id') is-invalid @enderror"
-                                        name="upazila_id" required>
-                                    <option value="">উপজেলা নির্বাচন...</option>
-                                    @foreach($editUpazilas as $upz)
-                                        @if($admEdDist && (int)$upz->district_id === $admEdDist)
-                                        <option value="{{ $upz->id }}" {{ (int) old('upazila_id', $admEdUp) === (int) $upz->id ? 'selected' : '' }}>{{ $upz->name }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                                @error('upazila_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
-                            </div>
+                        <div class="mb-3">
+                            @include('frontEnd.layouts.partials.delivery_location_modal', [
+                                'prefix' => 'pos_edit',
+                                'divisions' => $divisions,
+                                'selectedDivisionId' => old('division_id', $admEdDiv),
+                                'selectedDistrictId' => old('district_id', $admEdDist),
+                                'selectedUpazilaId'  => old('upazila_id', $admEdUp)
+                            ])
+                            @error('division_id')<span class="text-danger small d-block"><strong>{{ $message }}</strong></span>@enderror
+                            @error('district_id')<span class="text-danger small d-block"><strong>{{ $message }}</strong></span>@enderror
+                            @error('upazila_id')<span class="text-danger small d-block"><strong>{{ $message }}</strong></span>@enderror
                         </div>
 
                         <div class="mb-0">
@@ -735,59 +702,38 @@
         updateCartVariant(rowId, productId, undefined, colorId);
     });
 
-    // -------- DELIVERY LOCATION CASCADING (বিভাগ / জেলা / উপজেলা) ----------
-    function admPosFillDistricts(divId, preselect, cb) {
-        var $d = $('#adm_pos_district');
-        var $u = $('#adm_pos_upazila');
-        $d.prop('disabled', !divId).html(divId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে বিভাগ নির্বাচন করুন</option>');
-        $u.html('<option value="">আগে জেলা নির্বাচন করুন</option>').prop('disabled', true);
-        if (!divId) { if (cb) cb(); return; }
-        $.get('{{ url('/ajax/delivery/districts') }}/' + divId, function (res) {
-            var opts = '<option value="">জেলা নির্বাচন করুন...</option>';
-            (res.data || []).forEach(function (r) {
-                opts += '<option value="' + r.id + '" data-charge="' + r.delivery_charge + '">' + r.name + ' (ডেলিভারি চার্জ: ৳' + r.delivery_charge + ')</option>';
-            });
-            $d.html(opts).prop('disabled', false);
-            if (preselect) $d.val(String(preselect));
-            if (cb) cb();
-        });
-    }
-
-    function admPosFillUpazilas(distId, preselect, cb) {
-        var $u = $('#adm_pos_upazila');
-        $u.prop('disabled', !distId).html(distId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে জেলা নির্বাচন করুন</option>');
-        if (!distId) { if (cb) cb(); return; }
-        $.get('{{ url('/ajax/delivery/upazilas') }}/' + distId, function (res) {
-            var opts = '<option value="">উপজেলা নির্বাচন করুন...</option>';
-            (res.data || []).forEach(function (r) { opts += '<option value="' + r.id + '">' + r.name + '</option>'; });
-            $u.html(opts).prop('disabled', false);
-            if (preselect) $u.val(String(preselect));
-            if (cb) cb();
-        });
-    }
-
-    $(document).on("change", "#adm_pos_division", function () {
-        admPosFillDistricts($(this).val(), null, function () {
-            reloadCartViews();
-        });
+    // -------- DELIVERY LOCATION SYNC & SHIPPING ----------
+    // Sync shipping charge when location modal selects district
+    document.addEventListener('deliveryLocationSelected', function (e) {
+        if (e.detail && e.detail.prefix === 'pos_edit') {
+            var distId = e.detail.district ? e.detail.district.id : null;
+            if (distId) {
+                $.ajax({
+                    type: "GET",
+                    data: { id: distId },
+                    url: "{{ route('admin.order.cart_shipping') }}",
+                    dataType: "json",
+                    complete: function () {
+                        reloadCartViews();
+                    }
+                });
+            }
+        }
     });
 
-    $(document).on("change", "#adm_pos_district", function () {
+    $(document).on("change", "#pos_edit_district_id", function () {
         var id = $(this).val();
         if (id) {
             $.ajax({
                 type: "GET",
                 data: { id: id },
-                url: "{{route('admin.order.cart_shipping')}}",
+                url: "{{ route('admin.order.cart_shipping') }}",
                 dataType: "json",
                 complete: function () {
                     reloadCartViews();
                 }
             });
         }
-        admPosFillUpazilas(id, null, function () {
-            reloadCartViews();
-        });
     });
 
     // -------- FORM VALIDATION & SUBMISSION ----------
@@ -822,20 +768,11 @@
             return false;
         }
 
-        // ২. ফিল্ড ভ্যালিডেশন
+        // ২. কাস্টমার ও ডেলিভারি তথ্য ফিল্ড ভ্যালিডেশন
         var $name = $("#name");
         var $phone = $("#phone");
-        var $address = $("#address");
-        var $division = $("#adm_pos_division");
-        var $district = $("#adm_pos_district");
-        var $upazila = $("#adm_pos_upazila");
-
         var nameVal = $.trim($name.val());
         var phoneVal = $.trim($phone.val());
-        var addrVal = $.trim($address.val());
-        var divVal = $division.val();
-        var distVal = $district.val();
-        var upzVal = $upazila.val();
 
         if (!nameVal) {
             showFieldError($name, 'কাস্টমারের নাম প্রদান করুন।');
@@ -854,40 +791,28 @@
             clearFieldError($phone);
         }
 
-        if (!addrVal) {
-            showFieldError($address, 'কাস্টমারের ডেলিভারি ঠিকানা প্রদান করুন।');
+        // ৩. ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) ভ্যালিডেশন
+        var divVal = $("#pos_edit_division_id").val();
+        var distVal = $("#pos_edit_district_id").val();
+        var upzVal = $("#pos_edit_upazila_id").val();
+
+        if (!divVal || !distVal || !upzVal) {
+            if (typeof toastr !== 'undefined') {
+                toastr.error('অনুগ্রহ করে কাস্টমারের ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) নির্বাচন করুন', 'এরিয়া নির্বাচন');
+            } else {
+                alert('অনুগ্রহ করে কাস্টমারের ডেলিভারি এরিয়া (বিভাগ > জেলা > থানা) নির্বাচন করুন');
+            }
+            $('#pos_edit_delivery_area_trigger').addClass('is-invalid');
+            $('#pos_edit_delivery_area_trigger').trigger('click');
             return false;
-        } else {
-            clearFieldError($address);
         }
 
-        if (!divVal) {
-            showFieldError($division, 'বিভাগ নির্বাচন করুন।');
-            return false;
-        } else {
-            clearFieldError($division);
-        }
-
-        if (!distVal) {
-            showFieldError($district, 'জেলা নির্বাচন করুন।');
-            return false;
-        } else {
-            clearFieldError($district);
-        }
-
-        if (!upzVal) {
-            showFieldError($upazila, 'উপজেলা নির্বাচন করুন।');
-            return false;
-        } else {
-            clearFieldError($upazila);
-        }
-
-        // ৩. সাবমিট
+        // ৪. সাবমিট
         posFormSubmitting = true;
         form.submit();
     });
 
-    $(document).on("input change", "#name, #phone, #address, #adm_pos_division, #adm_pos_district, #adm_pos_upazila", function () {
+    $(document).on("input change", "#name, #phone, #address", function () {
         if ($.trim($(this).val())) {
             $(this).removeClass("is-invalid");
         }
