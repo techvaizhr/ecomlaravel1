@@ -203,19 +203,30 @@
         line-height: 1.4;
     }
 
-    /* --- Payment Methods (Compact Box) --- */
-    .payment-option-label {
+    /* --- Payment Methods (Responsive 2-Column Grid & Full Width if Single) --- */
+    .payment-options-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .payment-options-list .payment-option-label {
         display: flex;
         align-items: center;
         justify-content: space-between;
         border: 1.5px solid var(--border-color);
         border-radius: 8px;
-        padding: 7px 12px;
+        padding: 8px 10px;
         cursor: pointer;
         transition: all 0.2s ease;
-        margin-bottom: 6px;
+        margin-bottom: 0;
         background: #fff;
         position: relative;
+        min-height: 50px;
+        height: 100%;
+    }
+    /* ১টি পেমেন্ট মেথড এক্টিভ থাকলে সম্পূর্ণ ফুল উইডথ (100% width) হবে */
+    .payment-options-list .payment-option-label:only-child {
+        grid-column: 1 / -1;
     }
     .payment-option-label:hover {
         border-color: #9ca3af;
@@ -235,28 +246,41 @@
     .payment-content {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         width: 100%;
+        min-width: 0;
     }
     .pay-logo {
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         object-fit: contain;
         flex-shrink: 0;
     }
+    .pay-info {
+        min-width: 0;
+        flex: 1;
+    }
     .pay-info strong {
         display: block;
-        font-size: 13.5px;
+        font-size: 13px;
         color: var(--text-dark);
         line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .pay-info small {
-        font-size: 11.5px;
+        font-size: 11px;
         color: var(--text-light);
+        display: block;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .check-circle {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         border: 2px solid #ccc;
         border-radius: 50%;
         position: relative;

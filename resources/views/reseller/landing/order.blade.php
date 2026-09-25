@@ -128,18 +128,18 @@
             {{-- Payment --}}
             <div class="bg-white rounded-xl shadow p-4 sm:p-6">
                 <h2 class="font-bold text-gray-800 mb-4"><i class="fa-solid fa-credit-card mr-2 text-blue-600"></i> পেমেন্ট মেথড</h2>
-                <div class="space-y-3">
-                    <label class="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                <div class="grid grid-cols-2 gap-3 [&>*:only-child]:col-span-2">
+                    <label class="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
                         <input type="radio" name="payment_method" value="cod" {{ old('payment_method', 'cod') == 'cod' ? 'checked' : '' }} required>
-                        <span class="font-medium">ক্যাশ অন ডেলিভারি (COD)</span>
+                        <span class="font-medium text-xs sm:text-sm truncate">ক্যাশ অন ডেলিভারি (COD)</span>
                     </label>
-                    <label class="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                    <label class="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
                         <input type="radio" name="payment_method" value="bkash" {{ old('payment_method') == 'bkash' ? 'checked' : '' }}>
-                        <span class="font-medium">bKash</span>
+                        <span class="font-medium text-xs sm:text-sm truncate">bKash</span>
                     </label>
-                    <label class="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                    <label class="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
                         <input type="radio" name="payment_method" value="shurjopay" {{ old('payment_method') == 'shurjopay' ? 'checked' : '' }}>
-                        <span class="font-medium">ShurjoPay</span>
+                        <span class="font-medium text-xs sm:text-sm truncate">ShurjoPay</span>
                     </label>
                 </div>
             </div>

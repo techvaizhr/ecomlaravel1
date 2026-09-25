@@ -91,19 +91,30 @@
         line-height: 1.5;
     }
 
-    /* --- Payment Methods (Interactive Box) --- */
-    .payment-option-label {
+    /* --- Payment Methods (Interactive Responsive 2-Column Grid) --- */
+    .payment-options-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .payment-options-list .payment-option-label {
         display: flex;
         align-items: center;
         justify-content: space-between;
         border: 2px solid var(--border-color);
         border-radius: 10px;
-        padding: 16px;
+        padding: 12px;
         cursor: pointer;
         transition: all 0.2s ease;
-        margin-bottom: 15px;
+        margin-bottom: 0;
         background: #fff;
         position: relative;
+        min-height: 54px;
+        height: 100%;
+    }
+    /* ১টি পেমেন্ট মেথড এক্টিভ থাকলে সম্পূর্ণ ফুল উইডথ (100% width) হবে */
+    .payment-options-list .payment-option-label:only-child {
+        grid-column: 1 / -1;
     }
     .payment-option-label:hover {
         border-color: #9ca3af;
@@ -123,27 +134,41 @@
     .payment-content {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 10px;
         width: 100%;
+        min-width: 0;
     }
     .pay-logo {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         object-fit: contain;
         flex-shrink: 0;
     }
+    .pay-info {
+        min-width: 0;
+        flex: 1;
+    }
     .pay-info strong {
         display: block;
-        font-size: 16px;
+        font-size: 14px;
         color: var(--text-dark);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .pay-info small {
-        font-size: 13px;
+        font-size: 11.5px;
         color: var(--text-light);
+        display: block;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .check-circle {
-        width: 22px;
-        height: 22px;
+        width: 18px;
+        height: 18px;
         border: 2px solid #ccc;
         border-radius: 50%;
         position: relative;
@@ -159,8 +184,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
         background: #fff;
         border-radius: 50%;
     }
