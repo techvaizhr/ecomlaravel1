@@ -2112,11 +2112,17 @@ $(document).ready(function () {
     var coupon = @json(Session::get('coupon_code', null));
 
     function checkoutUserFromForm() {
+        var districtText = ($('#checkout_district option:selected').text() || $('select[name="district_id"] option:selected').text() || '').replace(/\s*\(৳[^)]*\)\s*/g, '').trim();
+        if (!districtText || districtText.indexOf('সিলেক্ট') !== -1 || districtText.indexOf('লোড') !== -1) districtText = '';
+        var divisionText = ($('#checkout_division option:selected').text() || $('select[name="division_id"] option:selected').text() || '').trim();
+        if (!divisionText || divisionText.indexOf('সিলেক্ট') !== -1) divisionText = '';
+
         return {
             name: ($('input[name="name"]').val() || '').trim(),
             phone: ($('input[name="phone"]').val() || '').trim(),
             address: ($('input[name="address"]').val() || '').trim(),
-            city: ($('#checkout_district option:selected').text() || '').replace(/\s*\(৳[^)]*\)\s*/g, '').trim()
+            city: districtText || divisionText || 'Dhaka',
+            state: divisionText || districtText || 'Dhaka'
         };
     }
 
@@ -2124,19 +2130,20 @@ $(document).ready(function () {
         EcomTracking.initiateCheckout({
             items: items,
             value: payableNow,
-            coupon: coupon
+            coupon: coupon,
+            user: checkoutUserFromForm()
         });
     }
 
     var identifyTimer;
-    $('#checkout-form input[name="name"], #checkout-form input[name="phone"]').on('input blur', function () {
+    $('#checkout-form input[name="name"], #checkout-form input[name="phone"], #checkout-form input[name="address"], #checkout_district, #checkout_division').on('input blur change', function () {
         clearTimeout(identifyTimer);
         identifyTimer = setTimeout(function () {
             var u = checkoutUserFromForm();
             if (u.phone && String(u.phone).replace(/\D/g, '').length >= 11) {
                 EcomTracking.identify(u);
             }
-        }, 800);
+        }, 600);
     });
 
     @auth('customer')

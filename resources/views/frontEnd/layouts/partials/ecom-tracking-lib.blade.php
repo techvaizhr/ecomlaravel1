@@ -4,6 +4,7 @@
     'use strict';
 
     var CURRENCY = 'BDT';
+    var currentUser = null;
 
     function dl() {
         w.dataLayer = w.dataLayer || [];
@@ -30,8 +31,8 @@
     }
 
     function buildUserPayload(user) {
-        if (!user) return null;
-        user = user || {};
+        if (!user && !currentUser) return null;
+        user = Object.assign({}, currentUser || {}, user || {});
         var nm = splitName(user.name || ((user.first_name || '') + ' ' + (user.last_name || '')).trim());
         var phone = normPhone(user.phone || '');
         var payload = {
@@ -46,6 +47,7 @@
             address: user.address || '',
             area: user.area || user.city || '',
             country: 'bd',
+            country_code: 'bd',
             fbp: user.fbp || getCookie('_fbp'),
             fbc: user.fbc || getCookie('_fbc') || getCookie('fbc'),
             ttclid: user.ttclid || getCookie('ttclid')
@@ -82,6 +84,7 @@
     }
 
     function setPixelUser(user) {
+        if (user) currentUser = Object.assign({}, currentUser || {}, user);
         var fb = fbUserData(user);
         if (typeof w.fbq === 'function' && Object.keys(fb).length) {
             try {
@@ -89,6 +92,31 @@
             } catch (e) {}
         }
         tiktokIdentify(user);
+    }
+
+    function sendServerCapi(eventName, eventData, eventId, user) {
+        try {
+            var url = '{{ url('/ajax/tracking/capi-event') }}';
+            var payload = {
+                event_name: eventName,
+                event_id: eventId,
+                source_url: window.location.href,
+                event_data: eventData || {},
+                user_data: buildUserPayload(user) || {}
+            };
+
+            if (navigator.sendBeacon) {
+                var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                navigator.sendBeacon(url, blob);
+            } else {
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    keepalive: true
+                }).catch(function () {});
+            }
+        } catch (e) {}
     }
 
     function pushEvent(eventName, payload) {
@@ -152,8 +180,10 @@
             }
             value = Math.max(0.01, Math.round(value * 100) / 100);
 
+            var eventId = opts.event_id || ('vc_' + (ga4[0] ? ga4[0].item_id : 'p') + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4));
+
             if (ga4.length) {
-                pushEvent('view_item', { ecommerce: { currency: CURRENCY, value: value, items: ga4 } });
+                pushEvent('view_item', { ecommerce: { currency: CURRENCY, value: value, items: ga4 }, event_id: eventId });
             }
             if (typeof w.fbq === 'function' && ga4.length) {
                 w.fbq('track', 'ViewContent', {
@@ -164,7 +194,7 @@
                     contents: lineToFbContents(items),
                     value: value,
                     currency: CURRENCY
-                });
+                }, { eventID: eventId });
             }
             if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function' && ga4.length) {
                 w.ttq.track('ViewContent', {
@@ -174,7 +204,18 @@
                     value: value,
                     currency: CURRENCY,
                     contents: lineToTtContents(items)
-                });
+                }, { event_id: eventId });
+            }
+
+            // Server-side CAPI ViewContent Dispatch
+            if (ga4.length) {
+                sendServerCapi('ViewContent', {
+                    content_ids: ga4.map(function (i) { return i.item_id; }),
+                    content_name: ga4[0].item_name,
+                    content_category: ga4[0].item_category || '',
+                    value: value,
+                    contents: lineToFbContents(items)
+                }, eventId, opts.user);
             }
         },
 
@@ -185,7 +226,6 @@
             var listId = opts.item_list_id || listName;
             var ga4 = lineToGa4(items);
 
-            // Compute positive decimal value from items for ROAS calculation
             var value = Number(opts.value || 0);
             if (!value && ga4.length) {
                 value = ga4.reduce(function (sum, it) {
@@ -274,7 +314,9 @@
             var items = opts.items || [];
             var value = Number(opts.value || 0);
             var ga4 = lineToGa4(items);
-            pushEvent('add_to_cart', { ecommerce: { currency: CURRENCY, value: value, items: ga4 } });
+            var eventId = opts.event_id || ('atc_' + (ga4[0] ? ga4[0].item_id : 'c') + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4));
+
+            pushEvent('add_to_cart', { ecommerce: { currency: CURRENCY, value: value, items: ga4 }, event_id: eventId });
             if (typeof w.fbq === 'function') {
                 w.fbq('track', 'AddToCart', {
                     value: value,
@@ -283,7 +325,7 @@
                     content_name: ga4.length ? ga4[0].item_name : undefined,
                     content_type: 'product',
                     contents: lineToFbContents(items)
-                });
+                }, { eventID: eventId });
             }
             if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('AddToCart', {
@@ -292,8 +334,16 @@
                     value: value,
                     currency: CURRENCY,
                     contents: lineToTtContents(items)
-                });
+                }, { event_id: eventId });
             }
+
+            // Server-side CAPI AddToCart Dispatch
+            sendServerCapi('AddToCart', {
+                content_ids: ga4.map(function (i) { return i.item_id; }),
+                content_name: ga4.length ? ga4[0].item_name : '',
+                value: value,
+                contents: lineToFbContents(items)
+            }, eventId, opts.user);
         },
 
         removeFromCart: function (opts) {
@@ -343,8 +393,11 @@
             var items = opts.items || [];
             var value = Number(opts.value || 0);
             var ga4 = lineToGa4(items);
+            var eventId = opts.event_id || ('ic_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4));
+
             pushEvent('begin_checkout', {
-                ecommerce: { currency: CURRENCY, value: value, coupon: opts.coupon || null, items: ga4 }
+                ecommerce: { currency: CURRENCY, value: value, coupon: opts.coupon || null, items: ga4 },
+                event_id: eventId
             });
             if (typeof w.fbq === 'function') {
                 w.fbq('track', 'InitiateCheckout', {
@@ -354,7 +407,7 @@
                     content_ids: ga4.map(function (i) { return i.item_id; }),
                     contents: lineToFbContents(items),
                     coupon: opts.coupon || undefined
-                });
+                }, { eventID: eventId });
             }
             if (typeof w.ttq !== 'undefined' && typeof w.ttq.track === 'function') {
                 w.ttq.track('InitiateCheckout', {
@@ -362,8 +415,15 @@
                     value: value,
                     currency: CURRENCY,
                     contents: lineToTtContents(items)
-                });
+                }, { event_id: eventId });
             }
+
+            // Server-side CAPI InitiateCheckout Dispatch
+            sendServerCapi('InitiateCheckout', {
+                content_ids: ga4.map(function (i) { return i.item_id; }),
+                value: value,
+                contents: lineToFbContents(items)
+            }, eventId, opts.user);
         },
 
         addPaymentInfo: function (opts) {
@@ -452,7 +512,8 @@
         },
 
         normPhone: normPhone,
-        getCookie: getCookie
+        getCookie: getCookie,
+        sendServerCapi: sendServerCapi
     };
 
     w.EcomTracking = EcomTracking;

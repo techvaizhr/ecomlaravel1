@@ -291,9 +291,12 @@ class FacebookCapiService
             }
         }
 
-        // Country code (2-letter ISO code)
+        // Country code (hashed lowercase 2-letter ISO code)
         if (isset($userData['country_code'])) {
-            $prepared['country'] = strtoupper($userData['country_code']);
+            $country = strtolower(trim($userData['country_code']));
+            if (!empty($country)) {
+                $prepared['country'] = hash('sha256', $country);
+            }
         }
 
         // External ID (hashed)

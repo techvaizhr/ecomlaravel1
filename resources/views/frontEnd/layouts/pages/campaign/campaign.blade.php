@@ -207,6 +207,7 @@
         </script>
         @endif
         <!-- ========== End TikTok Pixel ========== -->
+        @include('frontEnd.layouts.partials.ecom-tracking-lib')
         <style>
             /* Style for selected product card */
             .product-card.selected {

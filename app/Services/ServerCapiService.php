@@ -3,17 +3,197 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Support\EcommerceTrackingUser;
 use Illuminate\Support\Facades\Log;
 
 class ServerCapiService
 {
     /**
+     * Track ViewContent event on Server-side (Meta CAPI + TikTok CAPI).
+     */
+    public static function trackViewContent(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null): void
+    {
+        try {
+            $eventId = $eventId ?: ('vc_' . ($data['content_ids'][0] ?? 'p') . '_' . time() . '_' . mt_rand(100, 999));
+            $url = $sourceUrl ?: request()->fullUrl();
+            $value = (float) ($data['value'] ?? 0);
+            $contentIds = array_map('strval', (array) ($data['content_ids'] ?? []));
+            $contents = $data['contents'] ?? [];
+
+            if (empty($contents) && !empty($contentIds)) {
+                $contents = [[
+                    'id'         => (string) $contentIds[0],
+                    'quantity'   => 1,
+                    'item_price' => $value,
+                ]];
+            }
+
+            $user = EcommerceTrackingUser::forCapi($userData);
+
+            // 1. Meta CAPI
+            try {
+                app(FacebookCapiService::class)->sendEvent('ViewContent', [
+                    'currency'         => 'BDT',
+                    'value'            => $value,
+                    'content_ids'      => $contentIds,
+                    'content_name'     => (string) ($data['content_name'] ?? ''),
+                    'content_category' => (string) ($data['content_category'] ?? ''),
+                    'content_type'     => 'product',
+                    'contents'         => $contents,
+                ], $user, [
+                    'event_id'         => $eventId,
+                    'event_source_url' => $url,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('ServerCapi FB ViewContent error: ' . $e->getMessage());
+            }
+
+            // 2. TikTok CAPI
+            try {
+                $ttContents = array_map(fn($c) => [
+                    'id'         => (string) ($c['id'] ?? ''),
+                    'name'       => (string) ($c['name'] ?? ($data['content_name'] ?? '')),
+                    'quantity'   => (int) ($c['quantity'] ?? 1),
+                    'item_price' => (float) ($c['item_price'] ?? $value),
+                ], $contents);
+
+                app(TikTokCapiService::class)->sendEvent('ViewContent', [
+                    'currency'     => 'BDT',
+                    'value'        => $value,
+                    'content_type' => 'product',
+                    'content_id'   => $contentIds[0] ?? '',
+                    'contents'     => $ttContents,
+                ], $user, [
+                    'event_id'         => $eventId,
+                    'event_source_url' => $url,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('ServerCapi TikTok ViewContent error: ' . $e->getMessage());
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('ServerCapi trackViewContent exception: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Track AddToCart event on Server-side (Meta CAPI + TikTok CAPI).
+     */
+    public static function trackAddToCart(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null): void
+    {
+        try {
+            $eventId = $eventId ?: ('atc_' . time() . '_' . mt_rand(100, 999));
+            $url = $sourceUrl ?: request()->fullUrl();
+            $value = (float) ($data['value'] ?? 0);
+            $contentIds = array_map('strval', (array) ($data['content_ids'] ?? []));
+            $contents = $data['contents'] ?? [];
+
+            $user = EcommerceTrackingUser::forCapi($userData);
+
+            // 1. Meta CAPI
+            try {
+                app(FacebookCapiService::class)->sendEvent('AddToCart', [
+                    'currency'     => 'BDT',
+                    'value'        => $value,
+                    'content_ids'  => $contentIds,
+                    'content_name' => (string) ($data['content_name'] ?? ''),
+                    'content_type' => 'product',
+                    'contents'     => $contents,
+                ], $user, [
+                    'event_id'         => $eventId,
+                    'event_source_url' => $url,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('ServerCapi FB AddToCart error: ' . $e->getMessage());
+            }
+
+            // 2. TikTok CAPI
+            try {
+                $ttContents = array_map(fn($c) => [
+                    'id'         => (string) ($c['id'] ?? ''),
+                    'name'       => (string) ($c['name'] ?? ($data['content_name'] ?? '')),
+                    'quantity'   => (int) ($c['quantity'] ?? 1),
+                    'item_price' => (float) ($c['item_price'] ?? 0),
+                ], $contents);
+
+                app(TikTokCapiService::class)->sendEvent('AddToCart', [
+                    'currency'     => 'BDT',
+                    'value'        => $value,
+                    'content_type' => 'product',
+                    'contents'     => $ttContents,
+                ], $user, [
+                    'event_id'         => $eventId,
+                    'event_source_url' => $url,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('ServerCapi TikTok AddToCart error: ' . $e->getMessage());
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('ServerCapi trackAddToCart exception: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Track InitiateCheckout event on Server-side (Meta CAPI + TikTok CAPI).
+     */
+    public static function trackInitiateCheckout(array $data, array $userData = [], ?string $eventId = null, ?string $sourceUrl = null): void
+    {
+        try {
+            $eventId = $eventId ?: ('ic_' . time() . '_' . mt_rand(100, 999));
+            $url = $sourceUrl ?: request()->fullUrl();
+            $value = (float) ($data['value'] ?? 0);
+            $contentIds = array_map('strval', (array) ($data['content_ids'] ?? []));
+            $contents = $data['contents'] ?? [];
+
+            $user = EcommerceTrackingUser::forCapi($userData);
+
+            // 1. Meta CAPI
+            try {
+                app(FacebookCapiService::class)->sendEvent('InitiateCheckout', [
+                    'currency'     => 'BDT',
+                    'value'        => $value,
+                    'content_ids'  => $contentIds,
+                    'num_items'    => count($contents) ?: count($contentIds),
+                    'content_type' => 'product',
+                    'contents'     => $contents,
+                ], $user, [
+                    'event_id'         => $eventId,
+                    'event_source_url' => $url,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('ServerCapi FB InitiateCheckout error: ' . $e->getMessage());
+            }
+
+            // 2. TikTok CAPI
+            try {
+                $ttContents = array_map(fn($c) => [
+                    'id'         => (string) ($c['id'] ?? ''),
+                    'name'       => (string) ($c['name'] ?? ''),
+                    'quantity'   => (int) ($c['quantity'] ?? 1),
+                    'item_price' => (float) ($c['item_price'] ?? 0),
+                ], $contents);
+
+                app(TikTokCapiService::class)->sendEvent('InitiateCheckout', [
+                    'currency'     => 'BDT',
+                    'value'        => $value,
+                    'content_type' => 'product',
+                    'contents'     => $ttContents,
+                ], $user, [
+                    'event_id'         => $eventId,
+                    'event_source_url' => $url,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('ServerCapi TikTok InitiateCheckout error: ' . $e->getMessage());
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('ServerCapi trackInitiateCheckout exception: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Track Purchase event simultaneously across Facebook CAPI and TikTok Events API (CAPI).
-     *
-     * @param Order|object $order
-     * @param array $userData Customer data (email, phone, fbp, fbc, ttclid, etc.)
-     * @param object|null $payment
-     * @param string|null $sourceUrl
      */
     public static function trackPurchase($order, array $userData = [], $payment = null, ?string $sourceUrl = null): void
     {
@@ -44,6 +224,8 @@ class ServerCapiService
             $amount = (float) ($payment->amount ?? $order->amount ?? 0);
             $url = $sourceUrl ?: url('customer/order-success/' . $order->id);
 
+            $user = !empty($userData) ? EcommerceTrackingUser::forCapi($userData) : EcommerceTrackingUser::fromOrder($order);
+
             // 1. Meta (Facebook) CAPI
             try {
                 app(FacebookCapiService::class)->sendEvent('Purchase', [
@@ -54,7 +236,7 @@ class ServerCapiService
                     'contents'     => $fbContents,
                     'num_items'    => count($fbContents),
                     'content_type' => 'product',
-                ], $userData, [
+                ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
                 ]);
@@ -69,7 +251,7 @@ class ServerCapiService
                     'value'    => $amount,
                     'order_id' => $invoiceId,
                     'contents' => $ttContents,
-                ], $userData, [
+                ], $user, [
                     'event_id'         => $eventId,
                     'event_source_url' => $url,
                 ]);

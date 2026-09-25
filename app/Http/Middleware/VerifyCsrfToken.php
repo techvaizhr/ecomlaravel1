@@ -34,6 +34,9 @@ class VerifyCsrfToken extends Middleware
         // Steadfast Webhook
         'api/steadfast/webhook',
         'steadfast/webhook',
+        // Server CAPI beacon / async tracking
+        'ajax/tracking/capi-event',
+        'api/tracking/capi-event',
     ];
 
     /**

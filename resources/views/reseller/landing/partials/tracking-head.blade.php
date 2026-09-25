@@ -60,3 +60,4 @@ ttq.page();
 @endif
 @endif
 @include('frontEnd.layouts.partials.traffic-attribution')
+@include('frontEnd.layouts.partials.ecom-tracking-lib')

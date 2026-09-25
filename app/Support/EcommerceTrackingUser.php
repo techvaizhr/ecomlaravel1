@@ -8,6 +8,203 @@ use App\Models\Order;
 class EcommerceTrackingUser
 {
     /**
+     * Complete District to Division & English Romanization Map for 64 Districts of Bangladesh.
+     */
+    protected static array $districtMap = [
+        // Dhaka Division
+        'ঢাকা' => ['city' => 'Dhaka', 'state' => 'Dhaka'],
+        'dhaka' => ['city' => 'Dhaka', 'state' => 'Dhaka'],
+        'gazipur' => ['city' => 'Gazipur', 'state' => 'Dhaka'],
+        'গাজীপুর' => ['city' => 'Gazipur', 'state' => 'Dhaka'],
+        'narayanganj' => ['city' => 'Narayanganj', 'state' => 'Dhaka'],
+        'নারায়ণগঞ্জ' => ['city' => 'Narayanganj', 'state' => 'Dhaka'],
+        'narshingdi' => ['city' => 'Narsingdi', 'state' => 'Dhaka'],
+        'narsingdi' => ['city' => 'Narsingdi', 'state' => 'Dhaka'],
+        'নরসিংদী' => ['city' => 'Narsingdi', 'state' => 'Dhaka'],
+        'tangail' => ['city' => 'Tangail', 'state' => 'Dhaka'],
+        'টাঙ্গাইল' => ['city' => 'Tangail', 'state' => 'Dhaka'],
+        'kishoreganj' => ['city' => 'Kishoreganj', 'state' => 'Dhaka'],
+        'কিশোরগঞ্জ' => ['city' => 'Kishoreganj', 'state' => 'Dhaka'],
+        'manikganj' => ['city' => 'Manikganj', 'state' => 'Dhaka'],
+        'মানিকগঞ্জ' => ['city' => 'Manikganj', 'state' => 'Dhaka'],
+        'munshiganj' => ['city' => 'Munshiganj', 'state' => 'Dhaka'],
+        'মুন্সীগঞ্জ' => ['city' => 'Munshiganj', 'state' => 'Dhaka'],
+        'rajbari' => ['city' => 'Rajbari', 'state' => 'Dhaka'],
+        'রাজবাড়ী' => ['city' => 'Rajbari', 'state' => 'Dhaka'],
+        'faridpur' => ['city' => 'Faridpur', 'state' => 'Dhaka'],
+        'ফরিদপুর' => ['city' => 'Faridpur', 'state' => 'Dhaka'],
+        'gopalganj' => ['city' => 'Gopalganj', 'state' => 'Dhaka'],
+        'গোপালগঞ্জ' => ['city' => 'Gopalganj', 'state' => 'Dhaka'],
+        'madaripur' => ['city' => 'Madaripur', 'state' => 'Dhaka'],
+        'মাদারীপুর' => ['city' => 'Madaripur', 'state' => 'Dhaka'],
+        'shariatpur' => ['city' => 'Shariatpur', 'state' => 'Dhaka'],
+        'শরীয়তপুর' => ['city' => 'Shariatpur', 'state' => 'Dhaka'],
+
+        // Chattogram Division
+        'chattogram' => ['city' => 'Chattogram', 'state' => 'Chattogram'],
+        'chittagong' => ['city' => 'Chattogram', 'state' => 'Chattogram'],
+        'চট্টগ্রাম' => ['city' => 'Chattogram', 'state' => 'Chattogram'],
+        'coxsbazar' => ['city' => "Cox's Bazar", 'state' => 'Chattogram'],
+        'cox\'s bazar' => ['city' => "Cox's Bazar", 'state' => 'Chattogram'],
+        'কক্সবাজার' => ['city' => "Cox's Bazar", 'state' => 'Chattogram'],
+        'cumilla' => ['city' => 'Cumilla', 'state' => 'Chattogram'],
+        'comilla' => ['city' => 'Cumilla', 'state' => 'Chattogram'],
+        'কুমিল্লা' => ['city' => 'Cumilla', 'state' => 'Chattogram'],
+        'feni' => ['city' => 'Feni', 'state' => 'Chattogram'],
+        'ফেনী' => ['city' => 'Feni', 'state' => 'Chattogram'],
+        'brahmanbaria' => ['city' => 'Brahmanbaria', 'state' => 'Chattogram'],
+        'ব্রাহ্মণবাড়িয়া' => ['city' => 'Brahmanbaria', 'state' => 'Chattogram'],
+        'chandpur' => ['city' => 'Chandpur', 'state' => 'Chattogram'],
+        'চাঁদপুর' => ['city' => 'Chandpur', 'state' => 'Chattogram'],
+        'noakhali' => ['city' => 'Noakhali', 'state' => 'Chattogram'],
+        'নোয়াখালী' => ['city' => 'Noakhali', 'state' => 'Chattogram'],
+        'lakshmipur' => ['city' => 'Lakshmipur', 'state' => 'Chattogram'],
+        'লক্ষ্মীপুর' => ['city' => 'Lakshmipur', 'state' => 'Chattogram'],
+        'rangamati' => ['city' => 'Rangamati', 'state' => 'Chattogram'],
+        'রাঙ্গামাটি' => ['city' => 'Rangamati', 'state' => 'Chattogram'],
+        'bandarban' => ['city' => 'Bandarban', 'state' => 'Chattogram'],
+        'বান্দরবান' => ['city' => 'Bandarban', 'state' => 'Chattogram'],
+        'khagrachhari' => ['city' => 'Khagrachhari', 'state' => 'Chattogram'],
+        'খাগড়াছড়ি' => ['city' => 'Khagrachhari', 'state' => 'Chattogram'],
+
+        // Rajshahi Division
+        'rajshahi' => ['city' => 'Rajshahi', 'state' => 'Rajshahi'],
+        'রাজশাহী' => ['city' => 'Rajshahi', 'state' => 'Rajshahi'],
+        'bogura' => ['city' => 'Bogura', 'state' => 'Rajshahi'],
+        'bogra' => ['city' => 'Bogura', 'state' => 'Rajshahi'],
+        'বগুড়া' => ['city' => 'Bogura', 'state' => 'Rajshahi'],
+        'বগুড়া' => ['city' => 'Bogura', 'state' => 'Rajshahi'],
+        'pabna' => ['city' => 'Pabna', 'state' => 'Rajshahi'],
+        'পাবনা' => ['city' => 'Pabna', 'state' => 'Rajshahi'],
+        'sirajganj' => ['city' => 'Sirajganj', 'state' => 'Rajshahi'],
+        'সিরাজগঞ্জ' => ['city' => 'Sirajganj', 'state' => 'Rajshahi'],
+        'naogaon' => ['city' => 'Naogaon', 'state' => 'Rajshahi'],
+        'নওগাঁ' => ['city' => 'Naogaon', 'state' => 'Rajshahi'],
+        'natore' => ['city' => 'Natore', 'state' => 'Rajshahi'],
+        'নাটোর' => ['city' => 'Natore', 'state' => 'Rajshahi'],
+        'chapainawabganj' => ['city' => 'Chapainawabganj', 'state' => 'Rajshahi'],
+        'চাঁপাইনবাবগঞ্জ' => ['city' => 'Chapainawabganj', 'state' => 'Rajshahi'],
+        'joypurhat' => ['city' => 'Joypurhat', 'state' => 'Rajshahi'],
+        'জয়পুরহাট' => ['city' => 'Joypurhat', 'state' => 'Rajshahi'],
+
+        // Khulna Division
+        'khulna' => ['city' => 'Khulna', 'state' => 'Khulna'],
+        'খুলনা' => ['city' => 'Khulna', 'state' => 'Khulna'],
+        'jashore' => ['city' => 'Jashore', 'state' => 'Khulna'],
+        'jessore' => ['city' => 'Jashore', 'state' => 'Khulna'],
+        'যশোর' => ['city' => 'Jashore', 'state' => 'Khulna'],
+        'satkhira' => ['city' => 'Satkhira', 'state' => 'Khulna'],
+        'সাতক্ষীরা' => ['city' => 'Satkhira', 'state' => 'Khulna'],
+        'bagerhat' => ['city' => 'Bagerhat', 'state' => 'Khulna'],
+        'বাগেরহাট' => ['city' => 'Bagerhat', 'state' => 'Khulna'],
+        'kushtia' => ['city' => 'Kushtia', 'state' => 'Khulna'],
+        'কুষ্টিয়া' => ['city' => 'Kushtia', 'state' => 'Khulna'],
+        'jhenaidah' => ['city' => 'Jhenaidah', 'state' => 'Khulna'],
+        'ঝিনাইদহ' => ['city' => 'Jhenaidah', 'state' => 'Khulna'],
+        'chuadanga' => ['city' => 'Chuadanga', 'state' => 'Khulna'],
+        'চুয়াডাঙ্গা' => ['city' => 'Chuadanga', 'state' => 'Khulna'],
+        'meherpur' => ['city' => 'Meherpur', 'state' => 'Khulna'],
+        'মেহেরপুর' => ['city' => 'Meherpur', 'state' => 'Khulna'],
+        'magura' => ['city' => 'Magura', 'state' => 'Khulna'],
+        'মাগুরা' => ['city' => 'Magura', 'state' => 'Khulna'],
+        'narail' => ['city' => 'Narail', 'state' => 'Khulna'],
+        'নড়াইল' => ['city' => 'Narail', 'state' => 'Khulna'],
+
+        // Sylhet Division
+        'sylhet' => ['city' => 'Sylhet', 'state' => 'Sylhet'],
+        'সিলেট' => ['city' => 'Sylhet', 'state' => 'Sylhet'],
+        'moulvibazar' => ['city' => 'Moulvibazar', 'state' => 'Sylhet'],
+        'মৌলভীবাজার' => ['city' => 'Moulvibazar', 'state' => 'Sylhet'],
+        'habiganj' => ['city' => 'Habiganj', 'state' => 'Sylhet'],
+        'হবিগঞ্জ' => ['city' => 'Habiganj', 'state' => 'Sylhet'],
+        'sunamganj' => ['city' => 'Sunamganj', 'state' => 'Sylhet'],
+        'সুনামগঞ্জ' => ['city' => 'Sunamganj', 'state' => 'Sylhet'],
+
+        // Barishal Division
+        'barishal' => ['city' => 'Barishal', 'state' => 'Barishal'],
+        'barisal' => ['city' => 'Barishal', 'state' => 'Barishal'],
+        'বরিশাল' => ['city' => 'Barishal', 'state' => 'Barishal'],
+        'bhola' => ['city' => 'Bhola', 'state' => 'Barishal'],
+        'ভোলা' => ['city' => 'Bhola', 'state' => 'Barishal'],
+        'patuakhali' => ['city' => 'Patuakhali', 'state' => 'Barishal'],
+        'পটুয়াখালী' => ['city' => 'Patuakhali', 'state' => 'Barishal'],
+        'pirojpur' => ['city' => 'Pirojpur', 'state' => 'Barishal'],
+        'পিরোজপুর' => ['city' => 'Pirojpur', 'state' => 'Barishal'],
+        'barguna' => ['city' => 'Barguna', 'state' => 'Barishal'],
+        'বরগুনা' => ['city' => 'Barguna', 'state' => 'Barishal'],
+        'jhalokati' => ['city' => 'Jhalokati', 'state' => 'Barishal'],
+        'ঝালকাঠি' => ['city' => 'Jhalokati', 'state' => 'Barishal'],
+
+        // Rangpur Division
+        'rangpur' => ['city' => 'Rangpur', 'state' => 'Rangpur'],
+        'রংপুর' => ['city' => 'Rangpur', 'state' => 'Rangpur'],
+        'dinajpur' => ['city' => 'Dinajpur', 'state' => 'Rangpur'],
+        'দিনাজপুর' => ['city' => 'Dinajpur', 'state' => 'Rangpur'],
+        'gaibandha' => ['city' => 'Gaibandha', 'state' => 'Rangpur'],
+        'গাইবান্ধা' => ['city' => 'Gaibandha', 'state' => 'Rangpur'],
+        'kurigram' => ['city' => 'Kurigram', 'state' => 'Rangpur'],
+        'কুড়িগ্রাম' => ['city' => 'Kurigram', 'state' => 'Rangpur'],
+        'nilphamari' => ['city' => 'Nilphamari', 'state' => 'Rangpur'],
+        'নীলফামারী' => ['city' => 'Nilphamari', 'state' => 'Rangpur'],
+        'lalmonirhat' => ['city' => 'Lalmonirhat', 'state' => 'Rangpur'],
+        'লালমনিরহাট' => ['city' => 'Lalmonirhat', 'state' => 'Rangpur'],
+        'panchagarh' => ['city' => 'Panchagarh', 'state' => 'Rangpur'],
+        'পঞ্চগড়' => ['city' => 'Panchagarh', 'state' => 'Rangpur'],
+        'thakurgaon' => ['city' => 'Thakurgaon', 'state' => 'Rangpur'],
+        'ঠাকুরগাঁও' => ['city' => 'Thakurgaon', 'state' => 'Rangpur'],
+
+        // Mymensingh Division
+        'mymensingh' => ['city' => 'Mymensingh', 'state' => 'Mymensingh'],
+        'ময়মনসিংহ' => ['city' => 'Mymensingh', 'state' => 'Mymensingh'],
+        'jamalpur' => ['city' => 'Jamalpur', 'state' => 'Mymensingh'],
+        'জামালপুর' => ['city' => 'Jamalpur', 'state' => 'Mymensingh'],
+        'netrokona' => ['city' => 'Netrokona', 'state' => 'Mymensingh'],
+        'নেত্রকোণা' => ['city' => 'Netrokona', 'state' => 'Mymensingh'],
+        'sherpur' => ['city' => 'Sherpur', 'state' => 'Mymensingh'],
+        'শেরপুর' => ['city' => 'Sherpur', 'state' => 'Mymensingh'],
+    ];
+
+    /**
+     * Resolve and normalize location (Bangla/English District/Division) into standard English for Meta/Google/TikTok.
+     *
+     * @return array{city: string, state: string}
+     */
+    public static function resolveLocation(?string $cityOrDistrict, ?string $stateOrDivision = null): array
+    {
+        $raw = strtolower(trim((string) $cityOrDistrict));
+        $raw = preg_replace('/(জেলা|বিভাগ|city|district|division|\(৳[^)]*\))/iu', '', $raw);
+        $raw = trim($raw);
+
+        if (isset(self::$districtMap[$raw])) {
+            return self::$districtMap[$raw];
+        }
+
+        // Match partial
+        foreach (self::$districtMap as $key => $val) {
+            if (mb_stripos($raw, $key) !== false || mb_stripos($key, $raw) !== false) {
+                return $val;
+            }
+        }
+
+        // Check state/division
+        $rawState = strtolower(trim((string) $stateOrDivision));
+        $rawState = preg_replace('/(জেলা|বিভাগ|city|district|division)/iu', '', $rawState);
+        $rawState = trim($rawState);
+
+        if (isset(self::$districtMap[$rawState])) {
+            return [
+                'city'  => $val['city'] ?? ($raw ?: 'Dhaka'),
+                'state' => self::$districtMap[$rawState]['state']
+            ];
+        }
+
+        return [
+            'city'  => $raw ? ucfirst($raw) : 'Dhaka',
+            'state' => $rawState ? ucfirst($rawState) : 'Dhaka'
+        ];
+    }
+
+    /**
      * @return array{first: string, last: string}
      */
     public static function splitName(?string $name): array
@@ -73,10 +270,9 @@ class EcommerceTrackingUser
             $out['ln'] = strtolower($name['last']);
         }
 
-        if (! empty($data['city'])) {
-            $out['ct'] = strtolower(trim((string) $data['city']));
-        }
-
+        $loc = self::resolveLocation($data['city'] ?? ($data['district'] ?? ($data['area'] ?? null)), $data['state'] ?? ($data['division'] ?? null));
+        $out['ct'] = strtolower($loc['city']);
+        $out['st'] = strtolower($loc['state']);
         $out['country'] = strtolower($data['country_code'] ?? 'bd');
 
         if (! empty($data['external_id'])) {
@@ -96,6 +292,7 @@ class EcommerceTrackingUser
         }
 
         $parts = self::splitName($customer->name);
+        $loc = self::resolveLocation($customer->district ?? $customer->city ?? null, $customer->division ?? null);
 
         return array_filter([
             'email'        => $customer->email ?? null,
@@ -103,6 +300,9 @@ class EcommerceTrackingUser
             'name'         => $customer->name ?? null,
             'first_name'   => $parts['first'] ?: null,
             'last_name'    => $parts['last'] ?: null,
+            'city'         => $loc['city'],
+            'state'        => $loc['state'],
+            'address'      => $customer->address ?? null,
             'external_id'  => (string) $customer->id,
             'country_code' => 'BD',
         ], fn ($v) => $v !== null && $v !== '');
@@ -123,26 +323,29 @@ class EcommerceTrackingUser
         if ($shipping?->district_id) {
             $district = \App\Models\DeliveryDistrict::find($shipping->district_id);
             $cityName = $district?->name;
+            if ($district?->division_id) {
+                $div = \App\Models\DeliveryDivision::find($district->division_id);
+                $stateName = $div?->name;
+            }
         }
-        if ($shipping?->division_id) {
+        if ($shipping?->division_id && !$stateName) {
             $division = \App\Models\DeliveryDivision::find($shipping->division_id);
             $stateName = $division?->name;
         }
 
-        // Fallback: if no district_id was saved, extract clean city from area / address
+        // Fallback: extract from area string if needed
         if (! $cityName && $shipping?->area) {
             $rawArea = trim((string) $shipping->area);
             if (str_contains($rawArea, ',')) {
                 $p = array_map('trim', explode(',', $rawArea));
                 $cityName = $p[1] ?? $p[0];
                 $stateName = $p[2] ?? $cityName;
-            } elseif (stripos($rawArea, 'Dhaka') !== false || stripos($rawArea, 'ঢাকা') !== false) {
-                $cityName = 'Dhaka';
-                $stateName = 'Dhaka';
             } else {
                 $cityName = $rawArea;
             }
         }
+
+        $loc = self::resolveLocation($cityName, $stateName);
 
         return array_filter([
             'email'        => $order->customer?->email,
@@ -150,8 +353,8 @@ class EcommerceTrackingUser
             'name'         => $shipping?->name,
             'first_name'   => $parts['first'] ?: null,
             'last_name'    => $parts['last'] ?: null,
-            'city'         => $cityName ?: 'Dhaka',
-            'state'        => $stateName ?: ($cityName ?: 'Dhaka'),
+            'city'         => $loc['city'],
+            'state'        => $loc['state'],
             'address'      => $shipping?->address,
             'external_id'  => $order->customer_id ? (string) $order->customer_id : null,
             'country_code' => 'BD',
@@ -188,15 +391,17 @@ class EcommerceTrackingUser
         }
 
         $ttclid = $data['ttclid'] ?? ($req ? ($req->cookie('ttclid') ?: ($req->query('ttclid') ?: $req->input('ttclid'))) : ($_COOKIE['ttclid'] ?? null)) ?: session('ttclid');
+        $loc = self::resolveLocation($data['city'] ?? ($data['district'] ?? ($data['area'] ?? null)), $data['state'] ?? ($data['division'] ?? null));
 
         $user = array_filter([
             'email'             => $data['email'] ?? null,
             'phone'             => self::normalizePhone($data['phone'] ?? '') ?: null,
             'first_name'        => $parts['first'] ?: null,
             'last_name'         => $parts['last'] ?: null,
-            'city'              => $data['city'] ?? null,
-            'state'             => $data['state'] ?? null,
-            'country_code'      => 'BD',
+            'city'              => $loc['city'],
+            'state'             => $loc['state'],
+            'address'           => $data['address'] ?? null,
+            'country_code'      => 'bd',
             'external_id'       => $data['external_id'] ?? null,
             'fbp'               => $fbp,
             'fbc'               => $fbc,

@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers\Frontend;
+
+use App\Http\Controllers\Controller;
+use App\Services\ServerCapiService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+class TrackingController extends Controller
+{
+    /**
+     * Handle asynchronous Server CAPI event dispatching from browser interactions.
+     * Guarantees 100% deduplication match between Browser Pixels and Server CAPI.
+     */
+    public function handleCapiEvent(Request $request)
+    {
+        $eventName = trim((string) $request->input('event_name', ''));
+        if (empty($eventName)) {
+            return response()->json(['status' => 'error', 'message' => 'Missing event_name'], 400);
+        }
+
+        $eventId   = $request->input('event_id');
+        $sourceUrl = $request->input('source_url') ?: $request->headers->get('referer') ?: url('/');
+        $eventData = (array) $request->input('event_data', []);
+        $userData  = (array) $request->input('user_data', []);
+
+        // Auto-inject client IP, User-Agent, cookies if not present
+        if (empty($userData['client_ip_address'])) {
+            $userData['client_ip_address'] = $request->ip();
+        }
+        if (empty($userData['client_user_agent'])) {
+            $userData['client_user_agent'] = $request->userAgent();
+        }
+        if (empty($userData['fbp'])) {
+            $userData['fbp'] = $request->cookie('_fbp') ?: $request->input('fbp');
+        }
+        if (empty($userData['fbc'])) {
+            $userData['fbc'] = $request->cookie('_fbc') ?: ($request->cookie('fbc') ?: $request->input('fbc'));
+        }
+        if (empty($userData['ttclid'])) {
+            $userData['ttclid'] = $request->cookie('ttclid') ?: $request->input('ttclid');
+        }
+
+        try {
+            switch ($eventName) {
+                case 'ViewContent':
+                    ServerCapiService::trackViewContent($eventData, $userData, $eventId, $sourceUrl);
+                    break;
+
+                case 'AddToCart':
+                    ServerCapiService::trackAddToCart($eventData, $userData, $eventId, $sourceUrl);
+                    break;
+
+                case 'InitiateCheckout':
+                    ServerCapiService::trackInitiateCheckout($eventData, $userData, $eventId, $sourceUrl);
+                    break;
+
+                default:
+                    // Generic handling
+                    break;
+            }
+
+            return response()->json(['status' => 'success', 'event' => $eventName, 'event_id' => $eventId]);
+        } catch (\Throwable $e) {
+            Log::warning('TrackingController handleCapiEvent error: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+}

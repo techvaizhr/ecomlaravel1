@@ -495,6 +495,7 @@ Route::post('admin/manual-duplicate-order-check', [App\Http\Controllers\Admin\Or
 Route::get('/ajax/delivery/search', [DeliveryAjaxController::class, 'search'])->name('ajax.delivery.search');
 Route::get('/ajax/delivery/districts/{division}', [DeliveryAjaxController::class, 'districts'])->name('ajax.delivery.districts');
 Route::get('/ajax/delivery/upazilas/{district}', [DeliveryAjaxController::class, 'upazilas'])->name('ajax.delivery.upazilas');
+Route::post('/ajax/tracking/capi-event', [App\Http\Controllers\Frontend\TrackingController::class, 'handleCapiEvent'])->name('ajax.tracking.capi');
 
 Route::get('/admin/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
