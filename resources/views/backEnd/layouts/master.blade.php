@@ -168,6 +168,58 @@
           max-height: calc(100vh - 200px) !important;
         }
       }
+
+      /* ═══ Admin Header Mobile Fix — Logo বামে, Icon ডানে ═══ */
+      @media (max-width: 768px) {
+        .navbar-custom .container-fluid {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          flex-wrap: nowrap !important;
+          padding-left: 10px !important;
+          padding-right: 10px !important;
+        }
+        .navbar-custom .logo-box {
+          order: 1 !important;
+          flex-shrink: 0 !important;
+          float: none !important;
+          margin: 0 !important;
+        }
+        .navbar-custom .topnav-menu.topnav-menu-left {
+          order: 2 !important;
+          float: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        .navbar-custom .topnav-menu.float-end {
+          order: 3 !important;
+          float: none !important;
+          margin-left: auto !important;
+          display: flex !important;
+          align-items: center !important;
+          padding: 0 !important;
+        }
+        .navbar-custom .logo-box img {
+          height: 36px !important;
+          max-width: 120px !important;
+          object-fit: contain !important;
+        }
+        .navbar-custom .topbar-dropdown .noti-dropdown-custom,
+        .navbar-custom .topbar-dropdown .profile-dropdown-custom {
+          position: fixed !important;
+          top: 62px !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .navbar-custom .container-fluid {
+          padding-left: 8px !important;
+          padding-right: 6px !important;
+        }
+        .navbar-custom .logo-box img {
+          height: 30px !important;
+          max-width: 95px !important;
+        }
+      }
     </style>
     <!-- Page Level CSS -->
     @yield('css')
