@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CustomDeliveryCharge;
 use App\Models\DeliveryDistrict;
 use App\Models\DeliveryDivision;
 use App\Models\DeliverySetting;
@@ -24,9 +23,7 @@ class DeliverySettingController extends Controller
             $q->orderBy('sort_order')->orderBy('name');
         }])->ordered()->get();
 
-        $customCharges = CustomDeliveryCharge::orderBy('id', 'desc')->get();
-
-        return view('backEnd.delivery_settings.index', compact('setting', 'divisions', 'customCharges'));
+        return view('backEnd.delivery_settings.index', compact('setting', 'divisions'));
     }
 
     public function update(Request $request)
@@ -100,61 +97,5 @@ class DeliverySettingController extends Controller
             'message' => 'জেলার চার্জ আপডেট হয়েছে (৳' . $charge . ')',
             'charge'  => $charge,
         ]);
-    }
-
-    // ==========================================
-    // CUSTOM DELIVERY CHARGES CRUD
-    // ==========================================
-
-    public function storeCustomCharge(Request $request)
-    {
-        $request->validate([
-            'name'   => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
-            'status' => 'nullable|in:0,1',
-        ]);
-
-        CustomDeliveryCharge::create([
-            'name'   => trim($request->name),
-            'amount' => (float) $request->amount,
-            'status' => $request->has('status') ? (int) $request->status : 1,
-        ]);
-
-        DeliverySetting::clearCache();
-
-        Toastr::success('কাস্টম ডেলিভারি চার্জ সফলভাবে তৈরি হয়েছে!', 'Success');
-        return redirect()->back();
-    }
-
-    public function updateCustomCharge(Request $request, $id)
-    {
-        $request->validate([
-            'name'   => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
-            'status' => 'nullable|in:0,1',
-        ]);
-
-        $custom = CustomDeliveryCharge::findOrFail($id);
-        $custom->update([
-            'name'   => trim($request->name),
-            'amount' => (float) $request->amount,
-            'status' => $request->has('status') ? (int) $request->status : 1,
-        ]);
-
-        DeliverySetting::clearCache();
-
-        Toastr::success('কাস্টম ডেলিভারি চার্জ সফলভাবে আপডেট হয়েছে!', 'Success');
-        return redirect()->back();
-    }
-
-    public function destroyCustomCharge($id)
-    {
-        $custom = CustomDeliveryCharge::findOrFail($id);
-        $custom->delete();
-
-        DeliverySetting::clearCache();
-
-        Toastr::success('কাস্টম ডেলিভারি চার্জ সফলভাবে মুছে ফেলা হয়েছে!', 'Success');
-        return redirect()->back();
     }
 }
