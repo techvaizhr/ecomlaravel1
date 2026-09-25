@@ -651,7 +651,8 @@
             document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
             trigger.classList.remove('is-invalid');
-            if (searchInput) {
+            // Desktop-only auto-focus — mobile-এ keyboard auto-open হবে না
+            if (searchInput && window.innerWidth >= 768) {
                 setTimeout(function () { searchInput.focus(); }, 120);
             }
         }

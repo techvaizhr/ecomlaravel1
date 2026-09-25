@@ -1044,63 +1044,68 @@
             });
         </script>
         <script>
-             $("#area").on("change", function () {
-                var id = $(this).val();
-                $.ajax({
-                    type: "GET",
-                    data: { id: id, campaign: 1 },
-                    url: "{{route('shipping.charge')}}",
-                    dataType: "html",
-                    success: function(response){
-                        $('#campaign-cartlist').html(response);
-                    }
-                });
-            // Collapsible Order Note Toggle
-            $(document).on('click', '#toggle_campaign_order_note', function(e) {
-                e.preventDefault();
-                var $box = $('#campaign_note_collapse_box');
-                var $icon = $('#campaign_note_icon');
-                var $text = $('#campaign_note_text');
-                $box.slideToggle(200, function() {
-                    if ($box.is(':visible')) {
-                        $icon.removeClass('fa-plus-circle').addClass('fa-minus-circle');
-                        $text.text('অর্ডার নোট বন্ধ করুন');
-                        $box.find('textarea').focus();
-                    } else {
-                        $icon.removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                        $text.text('অর্ডার নোট');
-                    }
-                });
-            });
-
-            $('#campaign_division').on('change', function () {
-                var divId = $(this).val();
-                $('#campaign_district').prop('disabled', !divId).html(divId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে বিভাগ সিলেক্ট করুন</option>');
-                $('#campaign_upazila').prop('disabled', true).html('<option value="">আগে জেলা সিলেক্ট করুন</option>');
-                if (!divId) return;
-                $.get('{{ url('/ajax/delivery/districts') }}/' + divId, function (res) {
-                    var opts = '<option value="">জেলা নির্বাচন করুন</option>';
-                    (res.data || []).forEach(function (r) {
-                        opts += '<option value="' + r.id + '" data-charge="' + r.delivery_charge + '">' + r.name + ' (৳' + r.delivery_charge + ')</option>';
+            $(document).ready(function() {
+                // Area change → update cart total
+                $("#area").on("change", function () {
+                    var id = $(this).val();
+                    $.ajax({
+                        type: "GET",
+                        data: { id: id, campaign: 1 },
+                        url: "{{route('shipping.charge')}}",
+                        dataType: "html",
+                        success: function(response){
+                            $('#campaign-cartlist').html(response);
+                        }
                     });
-                    $('#campaign_district').html(opts).prop('disabled', false);
-                }).fail(function () {
-                    $('#campaign_district').html('<option value="">লোড ব্যর্থ</option>');
                 });
-            });
 
-            $('#campaign_district').on('change', function () {
-                var distId = $(this).val();
-                $('#campaign_upazila').prop('disabled', !distId).html(distId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে জেলা সিলেক্ট করুন</option>');
-                if (!distId) return;
-                $.get('{{ url('/ajax/delivery/upazilas') }}/' + distId, function (res) {
-                    var opts = '<option value="">উপজেলা নির্বাচন করুন</option>';
-                    (res.data || []).forEach(function (r) {
-                        opts += '<option value="' + r.id + '">' + r.name + '</option>';
+                // Collapsible Order Note Toggle
+                $(document).on('click', '#toggle_campaign_order_note', function(e) {
+                    e.preventDefault();
+                    var $box = $('#campaign_note_collapse_box');
+                    var $icon = $('#campaign_note_icon');
+                    var $text = $('#campaign_note_text');
+                    $box.slideToggle(200, function() {
+                        if ($box.is(':visible')) {
+                            $icon.removeClass('fa-plus-circle').addClass('fa-minus-circle');
+                            $text.text('অর্ডার নোট বন্ধ করুন');
+                            $box.find('textarea').focus();
+                        } else {
+                            $icon.removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                            $text.text('অর্ডার নোট');
+                        }
                     });
-                    $('#campaign_upazila').html(opts).prop('disabled', false);
-                }).fail(function () {
-                    $('#campaign_upazila').html('<option value="">লোড ব্যর্থ</option>');
+                });
+
+                $('#campaign_division').on('change', function () {
+                    var divId = $(this).val();
+                    $('#campaign_district').prop('disabled', !divId).html(divId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে বিভাগ সিলেক্ট করুন</option>');
+                    $('#campaign_upazila').prop('disabled', true).html('<option value="">আগে জেলা সিলেক্ট করুন</option>');
+                    if (!divId) return;
+                    $.get('{{ url('/ajax/delivery/districts') }}/' + divId, function (res) {
+                        var opts = '<option value="">জেলা নির্বাচন করুন</option>';
+                        (res.data || []).forEach(function (r) {
+                            opts += '<option value="' + r.id + '" data-charge="' + r.delivery_charge + '">' + r.name + ' (৳' + r.delivery_charge + ')</option>';
+                        });
+                        $('#campaign_district').html(opts).prop('disabled', false);
+                    }).fail(function () {
+                        $('#campaign_district').html('<option value="">লোড ব্যর্থ</option>');
+                    });
+                });
+
+                $('#campaign_district').on('change', function () {
+                    var distId = $(this).val();
+                    $('#campaign_upazila').prop('disabled', !distId).html(distId ? '<option value="">লোড হচ্ছে...</option>' : '<option value="">আগে জেলা সিলেক্ট করুন</option>');
+                    if (!distId) return;
+                    $.get('{{ url('/ajax/delivery/upazilas') }}/' + distId, function (res) {
+                        var opts = '<option value="">উপজেলা নির্বাচন করুন</option>';
+                        (res.data || []).forEach(function (r) {
+                            opts += '<option value="' + r.id + '">' + r.name + '</option>';
+                        });
+                        $('#campaign_upazila').html(opts).prop('disabled', false);
+                    }).fail(function () {
+                        $('#campaign_upazila').html('<option value="">লোড ব্যর্থ</option>');
+                    });
                 });
             });
         </script>

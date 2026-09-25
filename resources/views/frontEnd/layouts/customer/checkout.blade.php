@@ -1856,7 +1856,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 var isFreeDelivery = checkFreeDelivery();
-                var shippingCharge = isFreeDelivery ? 0 : districtChargeFromSelect();
+                var shippingCharge = isFreeDelivery ? 0 : shippingChargeFromSelect();
                 var total = Math.round(baseSubtotal + shippingCharge - baseDiscount);
                 var meta = buildCheckoutMeta(shippingCharge);
 
