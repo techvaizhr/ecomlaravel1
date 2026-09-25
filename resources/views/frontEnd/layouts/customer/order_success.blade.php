@@ -147,7 +147,7 @@
                 <i class="fa fa-check text-white"></i>
             </div>
             <h3 class="fw-bold mb-1">অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!</h3>
-            <p class="mb-3 opacity-90 small">ধন্যবাদ! আপনার ইনভয়েস নম্বর <strong>#{{$order->invoice_id}}</strong>। আমাদের প্রতিনিধি খুব শীঘ্রই আপনার ঠিকানায় পণ্যটি প্রেরণের ব্যবস্থা করবেন।</p>
+            <p class="mb-3 opacity-95 text-center mx-auto" style="font-size: 16px; line-height: 1.6; max-width: 680px;">ধন্যবাদ! আপনার ইনভয়েস নম্বর <strong>#{{$order->invoice_id}}</strong>। আমাদের প্রতিনিধি খুব শীঘ্রই আপনার ঠিকানায় পণ্যটি প্রেরণের ব্যবস্থা করবেন।</p>
             <div class="d-flex justify-content-center flex-wrap gap-2">
                 <a href="{{ url('/') }}" class="btn btn-light btn-sm rounded-pill px-4 fw-bold text-success shadow-sm">
                    <i class="fa fa-shopping-bag me-1"></i> কেনাকাটা চালিয়ে যান
@@ -293,7 +293,7 @@
                             <span class="fw-bold" style="color: #ffffff;">৳{{ number_format($paid_amount, 0) }}</span>
                         </div>
                         <div class="sum-row border-0 p-0">
-                            <span style="color: #fb7185;">Remaining Due</span>
+                            <span class="fw-bold" style="color: #ff4d4d;">Remaining Due</span>
                             <span class="fw-bold" style="color: #ff4d4d; font-size: 1.1em;">৳{{ number_format($due_amount, 0) }}</span>
                         </div>
                     </div>

@@ -88,8 +88,16 @@
         {{-- Search Input --}}
         <div class="delivery-location-search-wrap">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" class="delivery-location-search-input" id="{{ $prefix }}_location_search" placeholder="সার্চ করুন (যেমন: ঢাকা, মিরপুর, কুমিল্লা)..." autocomplete="off">
+            <input type="text" class="delivery-location-search-input" id="{{ $prefix }}_location_search" placeholder="সার্চ করুন (যেমন: godagari, রাজশাহী, মিরপুর)..." autocomplete="off">
             <button type="button" class="delivery-search-clear d-none" id="{{ $prefix }}_search_clear"><i class="fas fa-times-circle"></i></button>
+        </div>
+
+        {{-- SMART SUGGESTIONS PANE (Instant 1-Click Hierarchy Selection) --}}
+        <div class="delivery-suggestions-box d-none" id="{{ $prefix }}_suggestions_box">
+            <div class="delivery-suggestions-header">
+                <i class="fas fa-bolt text-success me-1"></i>স্মার্ট সাজেশন (সরাসরি সিলেক্ট করতে চাপ দিন):
+            </div>
+            <div class="delivery-suggestions-list" id="{{ $prefix }}_suggestions_list"></div>
         </div>
 
         {{-- Selected Breadcrumb pill --}}
@@ -410,22 +418,29 @@
     transform: translateY(-50%);
     color: #94a3b8;
     font-size: 13.5px;
+    pointer-events: none;
 }
 .delivery-location-search-input {
     width: 100%;
     height: 38px;
-    padding: 0 35px 0 34px;
+    padding: 0 35px 0 36px;
     border: 1.5px solid #cbd5e1;
     border-radius: 8px;
     font-size: 13.5px;
     color: #0f172a;
     background: #ffffff;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
+    text-align: left !important;
+    direction: ltr !important;
 }
 .delivery-location-search-input:focus {
     outline: none;
     border-color: #0f3460;
     box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+}
+.delivery-location-search-input:focus::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
 }
 .delivery-search-clear {
     position: absolute;
@@ -437,6 +452,90 @@
     color: #94a3b8;
     font-size: 14px;
     cursor: pointer;
+}
+
+/* Smart Suggestions Box */
+.delivery-suggestions-box {
+    background: #f0fdf4;
+    border-bottom: 2px solid #86efac;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.delivery-suggestions-header {
+    background: #dcfce7;
+    padding: 6px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #15803d;
+    border-bottom: 1px solid #bbf7d0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.delivery-suggestions-list {
+    display: flex;
+    flex-direction: column;
+}
+.delivery-suggestion-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 18px;
+    border-bottom: 1px dashed #e2e8f0;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+}
+.delivery-suggestion-item:last-child {
+    border-bottom: none;
+}
+.delivery-suggestion-item:hover {
+    background: #ecfdf5;
+    padding-left: 22px;
+}
+.delivery-suggestion-item .sugg-icon {
+    color: #059669;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+.delivery-suggestion-item .sugg-info {
+    flex: 1;
+    min-width: 0;
+}
+.delivery-suggestion-item .sugg-path {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.35;
+}
+.delivery-suggestion-item .sugg-path strong {
+    color: #0f3460;
+}
+.delivery-suggestion-item .sugg-charge {
+    font-size: 11.5px;
+    color: #059669;
+    font-weight: 700;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+.delivery-suggestion-item .sugg-btn {
+    color: #059669;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 10px;
+    flex-shrink: 0;
+    background: #dcfce7;
+    padding: 3px 8px;
+    border-radius: 4px;
 }
 
 /* Breadcrumb bar */
@@ -604,6 +703,8 @@
         var closeBtn = document.getElementById(prefix + '_modal_close_btn');
         var searchInput = document.getElementById(prefix + '_location_search');
         var searchClear = document.getElementById(prefix + '_search_clear');
+        var suggestionsBox = document.getElementById(prefix + '_suggestions_box');
+        var suggestionsList = document.getElementById(prefix + '_suggestions_list');
         var noResults = document.getElementById(prefix + '_no_results');
         var loading = document.getElementById(prefix + '_location_loading');
 
@@ -643,6 +744,7 @@
 
         var districtCache = {};
         var upazilaCache = {};
+        var searchDebounceTimer = null;
 
         var initDivId = inputDiv ? inputDiv.value : '';
         var initDistId = inputDist ? inputDist.value : '';
@@ -653,7 +755,6 @@
             document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
             trigger.classList.remove('is-invalid');
-            // Desktop-only auto-focus — mobile-এ keyboard auto-open হবে না
             if (searchInput && window.innerWidth >= 768) {
                 setTimeout(function () { searchInput.focus(); }, 120);
             }
@@ -665,6 +766,8 @@
             document.body.style.overflow = '';
             if (searchInput) searchInput.value = '';
             if (searchClear) searchClear.classList.add('d-none');
+            if (suggestionsBox) suggestionsBox.classList.add('d-none');
+            if (suggestionsList) suggestionsList.innerHTML = '';
             filterItems('');
         }
 
@@ -682,9 +785,11 @@
             currentStep = step;
             if (searchInput) {
                 searchInput.value = '';
-                searchInput.placeholder = step === 1 ? 'বিভাগ সার্চ করুন...' : (step === 2 ? 'জেলা সার্চ করুন...' : 'থানা / উপজেলা সার্চ করুন...');
+                searchInput.placeholder = step === 1 ? 'বিভাগ বা এলাকা সার্চ করুন (যেমন: godagari, ঢাকা, মিরপুর)...' : (step === 2 ? 'জেলা বা এলাকা সার্চ করুন...' : 'থানা বা এলাকা সার্চ করুন...');
             }
             if (searchClear) searchClear.classList.add('d-none');
+            if (suggestionsBox) suggestionsBox.classList.add('d-none');
+            if (suggestionsList) suggestionsList.innerHTML = '';
             if (noResults) noResults.classList.add('d-none');
 
             [stepNav1, stepNav2, stepNav3].forEach(function (el) {
@@ -880,26 +985,57 @@
             });
         }
 
+        // Suggestions Click -> 1-Click Complete Selection!
+        if (suggestionsList) {
+            suggestionsList.addEventListener('click', function (e) {
+                var item = e.target.closest('.delivery-suggestion-item');
+                if (!item) return;
+
+                var divId = item.getAttribute('data-div-id');
+                var divName = item.getAttribute('data-div-name');
+                var distId = item.getAttribute('data-dist-id');
+                var distName = item.getAttribute('data-dist-name');
+                var distCharge = parseFloat(item.getAttribute('data-dist-charge')) || 0;
+                var upaId = item.getAttribute('data-upa-id');
+                var upaName = item.getAttribute('data-upa-name');
+
+                selectedDiv = { id: divId, name: divName };
+                selectedDist = { id: distId, name: distName, charge: distCharge };
+                selectedUpa = { id: upaId, name: upaName };
+
+                if (stepLabel1) stepLabel1.textContent = divName;
+                if (stepLabel2) stepLabel2.textContent = distName;
+                if (stepLabel3) stepLabel3.textContent = upaName;
+
+                applyCompletedSelection();
+            });
+        }
+
         function applyCompletedSelection() {
             if (inputDiv) {
-                inputDiv.value = selectedDiv.id;
+                inputDiv.value = selectedDiv.id || '';
                 inputDiv.dispatchEvent(new Event('change', { bubbles: true }));
                 if (window.jQuery) window.jQuery(inputDiv).trigger('change');
             }
             if (inputDist) {
-                inputDist.value = selectedDist.id;
+                inputDist.value = selectedDist.id || '';
                 inputDist.dispatchEvent(new Event('change', { bubbles: true }));
                 if (window.jQuery) window.jQuery(inputDist).trigger('change');
             }
             if (inputUpa) {
-                inputUpa.value = selectedUpa.id;
+                inputUpa.value = selectedUpa.id || '';
                 inputUpa.dispatchEvent(new Event('change', { bubbles: true }));
                 if (window.jQuery) window.jQuery(inputUpa).trigger('change');
             }
 
-            var displayPath = selectedDiv.name + ' > ' + selectedDist.name + ' > ' + selectedUpa.name;
+            var parts = [];
+            if (selectedDiv.name) parts.push(selectedDiv.name);
+            if (selectedDist.name) parts.push(selectedDist.name);
+            if (selectedUpa.name && selectedUpa.name !== selectedDist.name) parts.push(selectedUpa.name);
+            var displayPath = parts.join(' > ');
+
             if (displayLabel) {
-                displayLabel.textContent = displayPath;
+                displayLabel.textContent = displayPath || 'নির্বাচন করুন';
                 displayLabel.classList.remove('is-placeholder');
             }
             if (trigger) {
@@ -909,7 +1045,7 @@
             if (badge) badge.classList.remove('d-none');
             if (chevron) chevron.classList.add('d-none');
 
-            // Dispatch global custom event for external listeners (e.g. admin pos or custom checkout)
+            // Dispatch global custom event for external listeners
             try {
                 document.dispatchEvent(new CustomEvent('deliveryLocationSelected', {
                     detail: {
@@ -921,7 +1057,6 @@
                 }));
             } catch(e) {}
 
-            // Synchronize delivery area charge select (Inside Dhaka vs Outside Dhaka)
             syncAreaChargeWithDistrict(selectedDist.name);
 
             closeModal();
@@ -968,39 +1103,166 @@
             }
         }
 
-        // Search Filter
+        // Phonetic transliterator helper for instant English typing support
+        function phoneticBangla(str) {
+            str = (str || '').toLowerCase().trim();
+            if (!str) return '';
+            var directMap = {
+                'dhaka': 'ঢাকা', 'rajshahi': 'রাজশাহী', 'godagari': 'গোদাগাড়ী',
+                'bagha': 'বাঘা', 'charghat': 'চারঘাট', 'paba': 'পবা', 'puthia': 'পুঠিয়া',
+                'tanore': 'তানোর', 'mohanpur': 'মোহনপুর', 'durgapur': 'দুর্গাপুর',
+                'chattogram': 'চট্টগ্রাম', 'chittagong': 'চট্টগ্রাম', 'khulna': 'খুলনা',
+                'barishal': 'বরিশাল', 'barisal': 'বরিশাল', 'sylhet': 'সিলেট',
+                'rangpur': 'রংপুর', 'mymensingh': 'ময়মনসিংহ', 'cumilla': 'কুমিল্লা',
+                'comilla': 'কুমিল্লা', 'gazipur': 'গাজীপুর', 'savar': 'সাভার',
+                'mirpur': 'মিরপুর', 'uttara': 'উত্তরা', 'dhanmondi': 'ধানমন্ডি',
+                'gulshan': 'গুলশান', 'bogura': 'বগুড়া', 'bogra': 'বগুড়া',
+                'natore': 'নাটোর', 'singra': 'সিংড়া', 'pabna': 'পাবনা',
+                'naogaon': 'নওগাঁ', 'sirajganj': 'সিরাজগঞ্জ', 'tangail': 'টাঙ্গাইল',
+                'jashore': 'যশোর', 'jessore': 'যশোর', 'kushtia': 'কুষ্টিয়া',
+                'feni': 'ফেনী', 'noakhali': 'নোয়াখালী', 'coxsbazar': 'কক্সবাজার',
+                'dinajpur': 'দিনাজপুর', 'jamalpur': 'জামালপুর', 'faridpur': 'ফরিদপুর',
+                'narayanganj': 'নারায়ণগঞ্জ', 'narail': 'নড়াইল', 'satkhira': 'সাতক্ষীরা',
+                'bagerhat': 'বাগেরহাট', 'chuadanga': 'চুয়াডাঙ্গা', 'meherpur': 'মেহেরপুর',
+                'magura': 'মাগুরা', 'jhenaidah': 'ঝিনাইদহ', 'bhola': 'ভোলা',
+                'patuakhali': 'পটুয়াখালী', 'barguna': 'বরগুনা', 'pirojpur': 'পিরোজপুর',
+                'jhalokathi': 'ঝালকাঠি', 'habiganj': 'হবিগঞ্জ', 'moulvibazar': 'মৌলভীবাজার',
+                'sunamganj': 'সুনামগঞ্জ', 'brahmanbaria': 'ব্রাহ্মণবাড়িয়া', 'chandpur': 'চাঁদপুর',
+                'lakshmipur': 'লক্ষ্মীপুর', 'bandarban': 'বান্দরবান', 'rangamati': 'রাঙ্গামাটি',
+                'khagrachhari': 'খাগড়াছড়ি', 'kurigram': 'কুড়িগ্রাম', 'gaibandha': 'গাইবান্ধা',
+                'lalmonirhat': 'লালমনিরহাট', 'nilphamari': 'নীলফামারী', 'panchagarh': 'পঞ্চগড়',
+                'thakurgaon': 'ঠাকুরগাঁও', 'sherpur': 'শেরপুর', 'netrokona': 'নেত্রকোণা',
+                'kishoreganj': 'কিশোরগঞ্জ', 'manikganj': 'মানিকগঞ্জ', 'munshiganj': 'মুন্সীগঞ্জ',
+                'narsingdi': 'নরসিংদী', 'gopalganj': 'গোপালগঞ্জ', 'madaripur': 'মাদারীপুর',
+                'shariatpur': 'শরীয়তপুর', 'rajbari': 'রাজবাড়ী', 'chapainawabganj': 'চাঁপাইনবাবগঞ্জ',
+                'joypurhat': 'জয়পুরহাট'
+            };
+            if (directMap[str]) return directMap[str];
+            for (var k in directMap) {
+                if (k.indexOf(str) === 0) return directMap[k];
+            }
+            var pat = [
+                ['kkh','ক্ষ'],['sh','শ'],['ch','চ'],['kh','খ'],['gh','ঘ'],['ng','ঙ'],
+                ['th','থ'],['dh','ধ'],['ph','ফ'],['bh','ভ'],['jh','ঝ'],['ee','ী'],
+                ['oo','ূ'],['oi','ৈ'],['ou','ৌ'],['k','ক'],['g','গ'],['j','জ'],
+                ['t','ট'],['d','ড'],['n','ন'],['p','প'],['f','ফ'],['b','ব'],
+                ['v','ভ'],['m','ম'],['r','র'],['l','ল'],['s','স'],['h','হ'],
+                ['y','য়'],['z','য'],['a','া'],['i','ি'],['u','ু'],['e','ে'],['o','ো']
+            ];
+            var res = str;
+            for (var i = 0; i < pat.length; i++) {
+                res = res.split(pat[i][0]).join(pat[i][1]);
+            }
+            return res;
+        }
+
+        function normalizeBangla(str) {
+            return (str || '').replace(/[ড়ঢ়]/g, 'র').replace(/[য়]/g, 'য').replace(/[ণ]/g, 'ন');
+        }
+
+        // Dual Search: Local Step Filter + Server Smart Suggestions
         function filterItems(query) {
             var q = (query || '').toLowerCase().trim();
+            var qPhonetic = phoneticBangla(q);
+            var qNorm = normalizeBangla(q);
+            var qPhoneticNorm = normalizeBangla(qPhonetic);
+
             var currentPane = null;
             if (currentStep === 1) currentPane = paneStep1;
             else if (currentStep === 2) currentPane = paneStep2;
             else if (currentStep === 3) currentPane = paneStep3;
 
-            if (!currentPane) return;
+            if (currentPane) {
+                var items = currentPane.querySelectorAll('.delivery-option-item');
+                var matchedCount = 0;
 
-            var items = currentPane.querySelectorAll('.delivery-option-item');
-            var matchedCount = 0;
+                if (!q) {
+                    items.forEach(function (el) { el.style.display = 'flex'; });
+                    if (noResults) noResults.classList.add('d-none');
+                } else {
+                    items.forEach(function (el) {
+                        var rawName = (el.getAttribute('data-name') || '').toLowerCase();
+                        var normName = normalizeBangla(rawName);
+                        var isMatch = (rawName.indexOf(q) !== -1)
+                                   || (qPhonetic && rawName.indexOf(qPhonetic) !== -1)
+                                   || (normName.indexOf(qNorm) !== -1)
+                                   || (qPhoneticNorm && normName.indexOf(qPhoneticNorm) !== -1);
 
-            if (!q) {
-                items.forEach(function (el) { el.style.display = 'flex'; });
-                if (noResults) noResults.classList.add('d-none');
+                        if (isMatch) {
+                            el.style.display = 'flex';
+                            matchedCount++;
+                        } else {
+                            el.style.display = 'none';
+                        }
+                    });
+
+                    if (noResults) {
+                        if (matchedCount === 0 && (!suggestionsBox || suggestionsBox.classList.contains('d-none'))) {
+                            noResults.classList.remove('d-none');
+                        } else {
+                            noResults.classList.add('d-none');
+                        }
+                    }
+                }
+            }
+
+            // Fetch smart hierarchy suggestions (Division > District > Upazila)
+            fetchSuggestions(q);
+        }
+
+        function fetchSuggestions(query) {
+            clearTimeout(searchDebounceTimer);
+            var q = (query || '').trim();
+            if (!q || q.length < 1) {
+                if (suggestionsBox) suggestionsBox.classList.add('d-none');
+                if (suggestionsList) suggestionsList.innerHTML = '';
                 return;
             }
 
-            items.forEach(function (el) {
-                var text = (el.getAttribute('data-name') || '').toLowerCase();
-                if (text.indexOf(q) !== -1) {
-                    el.style.display = 'flex';
-                    matchedCount++;
-                } else {
-                    el.style.display = 'none';
-                }
-            });
+            searchDebounceTimer = setTimeout(function () {
+                fetch('{{ url("/ajax/delivery/search") }}?q=' + encodeURIComponent(q), {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (res) {
+                    var items = (res && res.data) ? res.data : [];
+                    if (!items.length) {
+                        if (suggestionsBox) suggestionsBox.classList.add('d-none');
+                        if (suggestionsList) suggestionsList.innerHTML = '';
+                        return;
+                    }
+                    renderSuggestions(items);
+                })
+                .catch(function () {
+                    if (suggestionsBox) suggestionsBox.classList.add('d-none');
+                });
+            }, 120);
+        }
 
-            if (noResults) {
-                if (matchedCount === 0) noResults.classList.remove('d-none');
-                else noResults.classList.add('d-none');
-            }
+        function renderSuggestions(items) {
+            if (!suggestionsList || !suggestionsBox) return;
+            var html = '';
+            items.forEach(function (item) {
+                var chargeText = item.delivery_charge > 0 ? '<span class="sugg-charge">৳' + Math.round(item.delivery_charge) + '</span>' : '';
+                html += '<div class="delivery-suggestion-item" '
+                      + 'data-div-id="' + (item.division_id || '') + '" '
+                      + 'data-div-name="' + (item.division_name || '') + '" '
+                      + 'data-dist-id="' + (item.district_id || '') + '" '
+                      + 'data-dist-name="' + (item.district_name || '') + '" '
+                      + 'data-dist-charge="' + (item.delivery_charge || 0) + '" '
+                      + 'data-upa-id="' + (item.upazila_id || '') + '" '
+                      + 'data-upa-name="' + (item.upazila_name || '') + '">'
+                      + '<div class="sugg-icon"><i class="fas fa-map-marker-alt"></i></div>'
+                      + '<div class="sugg-info">'
+                      + '<div class="sugg-path">' + item.full_path + '</div>'
+                      + '</div>'
+                      + chargeText
+                      + '<div class="sugg-btn"><i class="fas fa-check"></i> সিলেক্ট</div>'
+                      + '</div>';
+            });
+            suggestionsList.innerHTML = html;
+            suggestionsBox.classList.remove('d-none');
+            if (noResults) noResults.classList.add('d-none');
         }
 
         if (searchInput) {
@@ -1018,6 +1280,8 @@
                     searchInput.focus();
                 }
                 searchClear.classList.add('d-none');
+                if (suggestionsBox) suggestionsBox.classList.add('d-none');
+                if (suggestionsList) suggestionsList.innerHTML = '';
                 filterItems('');
             });
         }

@@ -492,6 +492,7 @@ Route::get('admin/manual-duplicate-order-check', [App\Http\Controllers\Admin\Ord
 Route::post('admin/manual-duplicate-order-check', [App\Http\Controllers\Admin\OrderController::class, 'manualDuplicateOrderCheck'])->middleware(['auth:admin', 'admin', 'demo_mode'])->name('manualDuplicateOrder.check');
 
 
+Route::get('/ajax/delivery/search', [DeliveryAjaxController::class, 'search'])->name('ajax.delivery.search');
 Route::get('/ajax/delivery/districts/{division}', [DeliveryAjaxController::class, 'districts'])->name('ajax.delivery.districts');
 Route::get('/ajax/delivery/upazilas/{district}', [DeliveryAjaxController::class, 'upazilas'])->name('ajax.delivery.upazilas');
 
