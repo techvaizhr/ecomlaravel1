@@ -14,8 +14,7 @@ class DeliverySetting extends Model
     {
         return [
             'flat_rate_amount'        => 'float',
-            'default_inside_charge'   => 'float',
-            'default_outside_charge'  => 'float',
+            'default_area_charge'     => 'float',
             'weight_base_cost'        => 'float',
             'weight_base_kg'          => 'float',
             'weight_extra_per_kg'     => 'float',
@@ -30,13 +29,12 @@ class DeliverySetting extends Model
             $setting = self::first();
             if (!$setting) {
                 $setting = self::create([
-                    'active_method'          => 'area_based',
-                    'flat_rate_amount'       => 80.00,
-                    'default_inside_charge'  => 60.00,
-                    'default_outside_charge' => 120.00,
-                    'weight_base_cost'       => 60.00,
-                    'weight_base_kg'         => 1.00,
-                    'weight_extra_per_kg'    => 20.00,
+                    'active_method'       => 'area_based',
+                    'flat_rate_amount'    => 100.00,
+                    'default_area_charge' => 100.00,
+                    'weight_base_cost'    => 60.00,
+                    'weight_base_kg'      => 1.00,
+                    'weight_extra_per_kg' => 20.00,
                 ]);
             }
             return $setting;
@@ -49,5 +47,6 @@ class DeliverySetting extends Model
         Cache::forget('delivery_divisions_active');
         Cache::forget('delivery_districts_all');
         Cache::forget('shipping_charges_active');
+        Cache::forget('custom_delivery_charges_active');
     }
 }

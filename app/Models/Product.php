@@ -43,9 +43,10 @@ class Product extends Model
         });
     }
 
-    // ------------------------
-    // RELATIONS
-    // ------------------------
+    public function customDeliveryCharge()
+    {
+        return $this->belongsTo(CustomDeliveryCharge::class, 'custom_delivery_charge_id');
+    }
 
     public function image()
     {

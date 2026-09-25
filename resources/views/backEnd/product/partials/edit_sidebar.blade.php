@@ -223,75 +223,63 @@
                            name="sold" value="{{ $edit_data->sold }}" id="sold" />
                 </div>
             </div>
+
             {{-- Product Weight & Delivery Rules Section --}}
-            <div class="p-2 border rounded-3 mb-2 bg-light">
-                <div class="d-flex align-items-center gap-1 mb-2">
-                    <i class="fe-truck text-primary"></i>
-                    <strong style="font-size:11.5px;">ডেলিভারি ও ওজন সেটিংস (Delivery & Weight)</strong>
+            <div class="p-3 border rounded-3 mb-3 bg-light">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="fe-truck text-primary"></i>
+                        <strong style="font-size:12px;">ডেলিভারি ও ওজন সেটিংস</strong>
+                    </div>
+                    <a href="{{ route('admin.delivery.settings') }}" target="_blank" class="text-primary text-decoration-none" style="font-size:11px;" title="ডেলিভারি চার্জ সেটিংস ম্যানেজ করুন">
+                        <i class="fe-external-link"></i> সেটিংস
+                    </a>
                 </div>
 
-                <div class="row g-1 mb-2">
-                    <div class="col-6">
-                        <label class="form-label mb-0" style="font-size:11px;">ওজন (Weight - KG)</label>
+                <div class="row g-2 mb-1">
+                    <div class="col-5">
+                        <label class="form-label mb-1" style="font-size:11px;">ওজন (KG)</label>
                         <div class="input-group input-group-sm">
-                            <input type="number" step="0.01" min="0" name="weight" class="form-control" placeholder="0.5" value="{{ old('weight', $edit_data->weight) }}">
+                            <input type="number" step="0.01" min="0" name="weight" class="form-control" placeholder="0.5" value="{{ old('weight', $edit_data->weight ?? '0.00') }}">
                             <span class="input-group-text">KG</span>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label mb-0" style="font-size:11px;">ডেলিভারি চার্জ নিয়ম</label>
+                    <div class="col-7">
+                        <label class="form-label mb-1" style="font-size:11px;">ডেলিভারি চার্জ নিয়ম</label>
                         @php
-                            $savedType = old('delivery_charge_type', $edit_data->delivery_charge_type ?? ($edit_data->free_delivery ? 'free' : 'global'));
+                            $savedType = old('delivery_charge_type');
+                            if (!$savedType) {
+                                if ($edit_data->delivery_charge_type === 'custom' && $edit_data->custom_delivery_charge_id) {
+                                    $savedType = 'custom:' . $edit_data->custom_delivery_charge_id;
+                                } elseif ($edit_data->delivery_charge_type) {
+                                    $savedType = $edit_data->delivery_charge_type;
+                                } elseif ($edit_data->free_delivery) {
+                                    $savedType = 'free';
+                                } else {
+                                    $savedType = 'global';
+                                }
+                            }
                         @endphp
-                        <select class="form-select form-select-sm" name="delivery_charge_type" id="product_delivery_type_select_edit">
-                            <option value="global" {{ $savedType == 'global' ? 'selected' : '' }}>গ্লোবাল (Default)</option>
-                            <option value="free" {{ $savedType == 'free' ? 'selected' : '' }}>ফ্রি ডেলিভারি (Free)</option>
-                            <option value="flat" {{ $savedType == 'flat' ? 'selected' : '' }}>নির্দিষ্ট চার্জ (Fixed)</option>
-                            <option value="area_based" {{ $savedType == 'area_based' ? 'selected' : '' }}>এরিয়া ভিত্তিক (Inside/Out)</option>
-                            <option value="weight_based" {{ $savedType == 'weight_based' ? 'selected' : '' }}>ওজন ভিত্তিক (Weight)</option>
+                        <select class="form-select form-select-sm fw-semibold" name="delivery_charge_type">
+                            <option value="global" {{ $savedType == 'global' ? 'selected' : '' }}>🌐 সিস্টেম ডিফল্ট (Global)</option>
+                            <option value="free" {{ $savedType == 'free' ? 'selected' : '' }}>🎁 ফ্রি ডেলিভারি (Free - ৳0)</option>
+                            <option value="weight_based" {{ $savedType == 'weight_based' ? 'selected' : '' }}>⚖️ ওজন ভিত্তিক (Weight Based)</option>
+                            @if(isset($customCharges) && $customCharges->count() > 0)
+                                <optgroup label="🏷️ কাস্টম ডেলিভারি চার্জ">
+                                    @foreach($customCharges as $cc)
+                                        <option value="custom:{{ $cc->id }}" {{ $savedType == 'custom:'.$cc->id ? 'selected' : '' }}>
+                                            🏷️ {{ $cc->name }} (৳{{ number_format($cc->amount, 0) }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
                 </div>
-
-                {{-- Fixed Amount input (shows if flat) --}}
-                <div id="product_del_flat_box_edit" style="{{ $savedType == 'flat' ? '' : 'display:none;' }}" class="mb-1">
-                    <label class="form-label mb-0" style="font-size:11px;">নির্দিষ্ট ডেলিভারি চার্জ (৳)</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text">৳</span>
-                        <input type="number" step="0.01" min="0" name="delivery_charge_amount" class="form-control" placeholder="80.00" value="{{ old('delivery_charge_amount', $edit_data->delivery_charge_amount) }}">
-                    </div>
-                </div>
-
-                {{-- Area Based inputs (shows if area_based) --}}
-                <div id="product_del_area_box_edit" style="{{ $savedType == 'area_based' ? '' : 'display:none;' }}" class="row g-1 mb-1">
-                    <div class="col-6">
-                        <label class="form-label mb-0" style="font-size:11px;">ঢাকার ভিতরে (৳)</label>
-                        <input type="number" step="0.01" min="0" name="delivery_inside_dhaka" class="form-control form-control-sm" placeholder="60.00" value="{{ old('delivery_inside_dhaka', $edit_data->delivery_inside_dhaka) }}">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label mb-0" style="font-size:11px;">ঢাকার বাইরে (৳)</label>
-                        <input type="number" step="0.01" min="0" name="delivery_outside_dhaka" class="form-control form-control-sm" placeholder="120.00" value="{{ old('delivery_outside_dhaka', $edit_data->delivery_outside_dhaka) }}">
-                    </div>
-                </div>
+                <small class="text-muted" style="font-size:10.5px; display:block; line-height:1.3; margin-top:4px;">
+                    * 'সিস্টেম ডিফল্ট' দিলে গ্লোবাল সেটিংস (এরিয়া/ফ্ল্যাট) অনুযায়ী চার্জ প্রযোজ্য হবে।
+                </small>
             </div>
-
-            <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var delTypeSel = document.getElementById('product_delivery_type_select_edit');
-                var flatBox = document.getElementById('product_del_flat_box_edit');
-                var areaBox = document.getElementById('product_del_area_box_edit');
-                function toggleDelBoxes() {
-                    if (!delTypeSel) return;
-                    var val = delTypeSel.value;
-                    if (flatBox) flatBox.style.display = (val === 'flat') ? 'block' : 'none';
-                    if (areaBox) areaBox.style.display = (val === 'area_based') ? 'flex' : 'none';
-                }
-                if (delTypeSel) {
-                    delTypeSel.addEventListener('change', toggleDelBoxes);
-                    toggleDelBoxes();
-                }
-            });
-            </script>
             <div id="digital_area" style="{{ $isDigital ? '' : 'display:none;' }}" class="p-2 border rounded mb-2 bg-light">
                 @if($edit_data->digital_file)
                     <small class="d-block text-truncate mb-1">File: <code>{{ $edit_data->digital_file }}</code></small>

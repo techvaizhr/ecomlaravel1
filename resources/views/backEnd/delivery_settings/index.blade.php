@@ -146,10 +146,10 @@
                         <i class="fe-truck text-primary me-2"></i>ডেলিভারি চার্জ ম্যানেজমেন্ট ও সেটিংস
                     </h4>
                     <p class="text-muted mb-0 small">
-                        সারা দেশের এরিয়াভিত্তিক, ফিক্সড ফ্ল্যাট রেট, ফ্রি ডেলিভারি, ওজনভিত্তিক এবং কাস্টম প্রোডাক্ট ডেলিভারি চার্জ নির্ধারণ করুন।
+                        বিভাগ ও জেলা অনুযায়ী এরিয়াভিত্তিক, ফিক্সড ফ্ল্যাট রেট, ফ্রি ডেলিভারি, ওজনভিত্তিক এবং মাল্টিপল কাস্টম ডেলিভারি চার্জ নির্ধারণ করুন।
                     </p>
                 </div>
-                <div>
+                <div class="d-flex gap-2">
                     <a href="{{ route('admin.delivery.divisions.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                         <i class="fe-map-pin me-1"></i> ডেলিভারি লোকেশন
                     </a>
@@ -167,15 +167,15 @@
             <div class="config-header">
                 <h5>
                     <i class="fe-settings text-primary"></i>
-                    <span>১. সক্রিয় ডেলিভারি চার্জ সিস্টেম নির্বাচন করুন (Select Active Mode)</span>
+                    <span>১. সক্রিয় ডেলিভারি চার্জ সিস্টেম নির্বাচন করুন (Select Active Mode)</span>
                 </h5>
-                <span class="badge bg-primary rounded-pill px-3 py-1.5">৫টি সিস্টেম উপলব্ধ</span>
+                <span class="badge bg-primary rounded-pill px-3 py-1.5">সিস্টেম মোড</span>
             </div>
             <div class="config-body">
                 <div class="row g-3">
                     
                     {{-- Mode 1: Area Based --}}
-                    <div class="col-md-4 col-lg-2-4">
+                    <div class="col-md-3">
                         <label class="del-mode-card {{ $setting->active_method === 'area_based' ? 'active' : '' }}" for="mode_area_based">
                             <input type="radio" name="active_method" id="mode_area_based" value="area_based" class="del-mode-radio" {{ $setting->active_method === 'area_based' ? 'checked' : '' }}>
                             <div>
@@ -183,13 +183,13 @@
                                     <i class="fe-map-pin"></i>
                                 </div>
                                 <div class="del-mode-title">এরিয়া ভিত্তিক (Area Based)</div>
-                                <p class="del-mode-desc">বিভাগ ও জেলা অনুযায়ী আলাদা ডেলিভারি চার্জ নির্ধারণ।</p>
+                                <p class="del-mode-desc">বিভাগ ও জেলা অনুযায়ী আলাদা নির্দিষ্ট ডেলিভারি চার্জ কার্যকর হবে।</p>
                             </div>
                         </label>
                     </div>
 
                     {{-- Mode 2: Flat Rate --}}
-                    <div class="col-md-4 col-lg-2-4">
+                    <div class="col-md-3">
                         <label class="del-mode-card {{ $setting->active_method === 'flat_rate' ? 'active' : '' }}" for="mode_flat_rate">
                             <input type="radio" name="active_method" id="mode_flat_rate" value="flat_rate" class="del-mode-radio" {{ $setting->active_method === 'flat_rate' ? 'checked' : '' }}>
                             <div>
@@ -197,13 +197,13 @@
                                     <i class="fe-layers"></i>
                                 </div>
                                 <div class="del-mode-title">ফ্ল্যাট রেট (Flat Rate)</div>
-                                <p class="del-mode-desc">সারা দেশে সকল জেলার জন্য একটি ফিক্সড নির্দিষ্ট চার্জ।</p>
+                                <p class="del-mode-desc">সারা দেশের সকল জেলার অর্ডারে একটি ফিক্সড নির্দিষ্ট চার্জ।</p>
                             </div>
                         </label>
                     </div>
 
                     {{-- Mode 3: Free Delivery --}}
-                    <div class="col-md-4 col-lg-2-4">
+                    <div class="col-md-3">
                         <label class="del-mode-card {{ $setting->active_method === 'free_delivery' ? 'active' : '' }}" for="mode_free_delivery">
                             <input type="radio" name="active_method" id="mode_free_delivery" value="free_delivery" class="del-mode-radio" {{ $setting->active_method === 'free_delivery' ? 'checked' : '' }}>
                             <div>
@@ -217,7 +217,7 @@
                     </div>
 
                     {{-- Mode 4: Weight Based --}}
-                    <div class="col-md-4 col-lg-2-4">
+                    <div class="col-md-3">
                         <label class="del-mode-card {{ $setting->active_method === 'weight_based' ? 'active' : '' }}" for="mode_weight_based">
                             <input type="radio" name="active_method" id="mode_weight_based" value="weight_based" class="del-mode-radio" {{ $setting->active_method === 'weight_based' ? 'checked' : '' }}>
                             <div>
@@ -225,22 +225,9 @@
                                     <i class="fe-shield"></i>
                                 </div>
                                 <div class="del-mode-title">ওজন ভিত্তিক (Weight Based)</div>
-                                <p class="del-mode-desc">কার্টের মোট ওজনের (কেজি) ওপর ভিত্তি করে চার্জ নির্ধারণ।</p>
+                                <p class="del-mode-desc">কার্টের মোট ওজনের (কেজি) ওপর ভিত্তি করে চার্জ গণনা হবে।</p>
                             </div>
                         </label>
-                    </div>
-
-                    {{-- Mode 5: Custom Override Info --}}
-                    <div class="col-md-4 col-lg-2-4">
-                        <div class="del-mode-card" style="cursor: default; border-style: dashed; background: #fffaf0;">
-                            <div>
-                                <div class="del-mode-icon custom">
-                                    <i class="fe-tag"></i>
-                                </div>
-                                <div class="del-mode-title">কাস্টম প্রোডাক্ট (Product Custom)</div>
-                                <p class="del-mode-desc">যেকোনো প্রোডাক্টের এডিটে গিয়ে নিজস্ব কাস্টম রেট দিলে সেটি সবার আগে প্রাধান্য পাবে।</p>
-                            </div>
-                        </div>
                     </div>
 
                 </div>
@@ -259,76 +246,63 @@
                 <div class="row g-3">
                     
                     {{-- Flat Rate Input --}}
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded-3 bg-light">
+                    <div class="col-md-3">
+                        <div class="p-3 border rounded-3 bg-light h-100">
                             <label class="form-label fw-bold text-dark">
-                                <i class="fe-layers text-warning me-1"></i>ফ্ল্যাট রেট চার্জ (Flat Rate Amount)
+                                <i class="fe-layers text-warning me-1"></i>ফ্ল্যাট রেট চার্জ (Flat Rate)
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text">৳</span>
                                 <input type="number" step="0.01" min="0" name="flat_rate_amount" class="form-control fw-bold" value="{{ old('flat_rate_amount', $setting->flat_rate_amount) }}">
                             </div>
-                            <small class="text-muted">ফ্ল্যাট রেট একটিভ থাকলে সারা দেশে এই চার্জ প্রযোজ্য হবে।</small>
+                            <small class="text-muted d-block mt-1">ফ্ল্যাট রেট একটিভ থাকলে সারা দেশে এই চার্জ প্রযোজ্য হবে।</small>
+                        </div>
+                    </div>
+
+                    {{-- Default Area Fallback Charge --}}
+                    <div class="col-md-3">
+                        <div class="p-3 border rounded-3 bg-light h-100">
+                            <label class="form-label fw-bold text-dark">
+                                <i class="fe-map-pin text-info me-1"></i>ডিফল্ট এরিয়া চার্জ (Default Rate)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" step="0.01" min="0" name="default_area_charge" class="form-control fw-bold" value="{{ old('default_area_charge', $setting->default_area_charge ?? 100.00) }}">
+                            </div>
+                            <small class="text-muted d-block mt-1">বিভাগ বা জেলায় চার্জ উল্লেখ না থাকলে এটি কার্যকর হবে।</small>
                         </div>
                     </div>
 
                     {{-- Weight Based Inputs --}}
-                    <div class="col-md-8">
-                        <div class="p-3 border rounded-3 bg-light">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded-3 bg-light h-100">
                             <label class="form-label fw-bold text-dark">
                                 <i class="fe-shield text-purple me-1"></i>ওজনভিত্তিক ডেলিভারি প্যারামিটার (Weight Rules)
                             </label>
                             <div class="row g-2">
-                                <div class="col-md-4">
+                                <div class="col-4">
                                     <small class="fw-semibold">বেস ওজন (Base KG)</small>
                                     <div class="input-group input-group-sm mt-1">
                                         <input type="number" step="0.1" min="0.1" name="weight_base_kg" class="form-control fw-bold" value="{{ old('weight_base_kg', $setting->weight_base_kg) }}">
                                         <span class="input-group-text">KG</span>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-4">
                                     <small class="fw-semibold">বেস ওজনের চার্জ</small>
                                     <div class="input-group input-group-sm mt-1">
                                         <span class="input-group-text">৳</span>
                                         <input type="number" step="0.01" min="0" name="weight_base_cost" class="form-control fw-bold" value="{{ old('weight_base_cost', $setting->weight_base_cost) }}">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <small class="fw-semibold">প্রতি অতিরিক্ত কেজি চার্জ</small>
+                                <div class="col-4">
+                                    <small class="fw-semibold">অতিরিক্ত প্রতি কেজি</small>
                                     <div class="input-group input-group-sm mt-1">
                                         <span class="input-group-text">৳</span>
                                         <input type="number" step="0.01" min="0" name="weight_extra_per_kg" class="form-control fw-bold" value="{{ old('weight_extra_per_kg', $setting->weight_extra_per_kg) }}">
                                     </div>
                                 </div>
                             </div>
-                            <small class="text-muted d-block mt-2">উদাহরণ: ১ম {{ $setting->weight_base_kg }} কেজির জন্য ৳{{ $setting->weight_base_cost }}, এরপর প্রতি কেজির জন্য অতিরিক্ত ৳{{ $setting->weight_extra_per_kg }} যোগ হবে।</small>
-                        </div>
-                    </div>
-
-                    {{-- Fallback Inside / Outside Dhaka Charges --}}
-                    <div class="col-md-6">
-                        <div class="p-3 border rounded-3 bg-light">
-                            <label class="form-label fw-bold text-dark">
-                                <i class="fe-home text-info me-1"></i>ডিফল্ট ঢাকার ভিতরে চার্জ (Default Inside Dhaka)
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">৳</span>
-                                <input type="number" step="0.01" min="0" name="default_inside_charge" class="form-control fw-bold" value="{{ old('default_inside_charge', $setting->default_inside_charge) }}">
-                            </div>
-                            <small class="text-muted">ঢাকার ভিতরে কোনো নির্দিষ্ট রেট না থাকলে এটি ব্যবহার হবে।</small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 border rounded-3 bg-light">
-                            <label class="form-label fw-bold text-dark">
-                                <i class="fe-globe text-secondary me-1"></i>ডিফল্ট ঢাকার বাইরে চার্জ (Default Outside Dhaka)
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">৳</span>
-                                <input type="number" step="0.01" min="0" name="default_outside_charge" class="form-control fw-bold" value="{{ old('default_outside_charge', $setting->default_outside_charge) }}">
-                            </div>
-                            <small class="text-muted">অন্যান্য জেলার কোনো নির্দিষ্ট রেট না থাকলে এটি ব্যবহার হবে।</small>
+                            <small class="text-muted d-block mt-2">১ম {{ $setting->weight_base_kg }} কেজির জন্য ৳{{ $setting->weight_base_cost }}, এরপর প্রতি কেজির জন্য অতিরিক্ত ৳{{ $setting->weight_extra_per_kg }} যোগ হবে।</small>
                         </div>
                     </div>
 
@@ -343,16 +317,169 @@
         </div>
     </form>
 
-    {{-- 3. Area Based Division & District Rates Management --}}
+    {{-- 3. Custom Delivery Charges Management Card --}}
+    <div class="config-card">
+        <div class="config-header">
+            <div>
+                <h5>
+                    <i class="fe-tag text-danger"></i>
+                    <span>৩. কাস্টম ডেলিভারি চার্জেস (Custom Delivery Charges)</span>
+                </h5>
+                <small class="text-muted">
+                    প্রোডাক্ট অ্যাড/এডিটের সময় নির্দিষ্ট পণ্যে এই কাস্টম চার্জ অ্যাসাইন করা যাবে (যেমন: এক্সপ্রেস ডেলিভারি, ভারী ফার্নিচার, ভঙ্গুর কাচের পণ্য ইত্যাদি)।
+                </small>
+            </div>
+            <div>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addCustomChargeModal">
+                    <i class="fe-plus-circle me-1"></i> নতুন কাস্টম চার্জ যোগ করুন
+                </button>
+            </div>
+        </div>
+        <div class="config-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>কাস্টম চার্জের নাম (Title)</th>
+                            <th style="width: 180px;">চার্জের পরিমাণ (Amount)</th>
+                            <th style="width: 120px;" class="text-center">স্ট্যাটাস</th>
+                            <th style="width: 140px;" class="text-center">অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($customCharges as $idx => $cc)
+                        <tr>
+                            <td>{{ $idx + 1 }}</td>
+                            <td>
+                                <strong class="text-dark">{{ $cc->name }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-soft-success text-success fs-6 px-2.5 py-1">
+                                    ৳{{ number_format($cc->amount, 2) }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                @if($cc->status)
+                                    <span class="badge bg-success">সক্রিয় (Active)</span>
+                                @else
+                                    <span class="badge bg-danger">নিষ্ক্রিয় (Inactive)</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-xs btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editCustomChargeModal_{{ $cc->id }}" title="এডিট করুন">
+                                    <i class="fe-edit"></i>
+                                </button>
+                                <form action="{{ route('admin.delivery.settings.custom-charge.destroy', $cc->id) }}" method="POST" class="d-inline" onsubmit="return confirm('আপনি কি নিশ্চিত এই কাস্টম চার্জটি ডিলিট করতে চান?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-xs btn-outline-danger" title="ডিলিট করুন">
+                                        <i class="fe-trash-2"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        {{-- Edit Modal for each Custom Charge --}}
+                        <div class="modal fade" id="editCustomChargeModal_{{ $cc->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('admin.delivery.settings.custom-charge.update', $cc->id) }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header">
+                                            <h5 class="modal-title fw-bold">কাস্টম চার্জ এডিট করুন</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
+                                                <input type="text" name="name" class="form-control" required value="{{ $cc->name }}" placeholder="যেমন: এক্সপ্রেস ডেলিভারি">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">ডেলিভারি চার্জ (৳) <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">৳</span>
+                                                    <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required value="{{ $cc->amount }}">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">স্ট্যাটাস</label>
+                                                <select name="status" class="form-select">
+                                                    <option value="1" {{ $cc->status == 1 ? 'selected' : '' }}>সক্রিয় (Active)</option>
+                                                    <option value="0" {{ $cc->status == 0 ? 'selected' : '' }}>নিষ্ক্রিয় (Inactive)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">বন্ধ করুন</button>
+                                            <button type="submit" class="btn btn-primary btn-sm">আপডেট করুন</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="fe-info me-1"></i> এখনো কোনো কাস্টম ডেলিভারি চার্জ তৈরি করা হয়নি। উপরে <strong>নতুন কাস্টম চার্জ যোগ করুন</strong> বাটনে ক্লিক করে তৈরি করতে পারেন।
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Add Custom Delivery Charge --}}
+    <div class="modal fade" id="addCustomChargeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="{{ route('admin.delivery.settings.custom-charge.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i class="fe-plus-circle text-danger me-1"></i>নতুন কাস্টম ডেলিভারি চার্জ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" required placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ভারী পণ্য, ভঙ্গুর আইটেম">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">ডেলিভারি চার্জের পরিমাণ (৳) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required placeholder="150.00">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">স্ট্যাটাস</label>
+                            <select name="status" class="form-select">
+                                <option value="1" selected>সক্রিয় (Active)</option>
+                                <option value="0">নিষ্ক্রিয় (Inactive)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">বাতিল</button>
+                        <button type="submit" class="btn btn-danger btn-sm">সংরক্ষণ করুন</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- 4. Area Based Division & District Rates Management --}}
     <div class="config-card">
         <div class="config-header">
             <div>
                 <h5>
                     <i class="fe-map text-primary"></i>
-                    <span>৩. এরিয়া ভিত্তিক রেট কনফিগারেশন (Division & District Overrides)</span>
+                    <span>৪. এরিয়া ভিত্তিক রেট কনফিগারেশন (Division & District Overrides)</span>
                 </h5>
                 <small class="text-muted">
-                    বিভাগে যে রেট দেবেন, ওই বিভাগের সকল জেলায় সেটি প্রযোজ্য হবে। কোনো নির্দিষ্ট জেলায় ভিন্ন চার্জ চাইলে জেলার ঘরে লিখে দিন (যেমন: ঢাকা বিভাগ ১০০, কিন্তু গাজীপুর ৫০)।
+                    বিভাগে যে রেট দেবেন, ওই বিভাগের সকল জেলায় সেটি স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে। কোনো নির্দিষ্ট জেলায় ভিন্ন চার্জ চাইলে জেলার ঘরে লিখে দিন (যেমন: ঢাকা বিভাগ ১০০, কিন্তু গাজীপুর ৫০)।
                 </small>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -394,7 +521,7 @@
                                             <th>জেলার নাম (District)</th>
                                             <th>বিভাগ (Division)</th>
                                             <th style="width: 240px;">নির্দিষ্ট জেলা ওভাররাইড চার্জ (District Override)</th>
-                                            <th style="width: 120px;">কার্যকর রেট (Active)</th>
+                                            <th style="width: 140px;">কার্যকর রেট (Active)</th>
                                             <th style="width: 90px;" class="text-center">অ্যাকশন</th>
                                         </tr>
                                     </thead>
@@ -403,12 +530,7 @@
                                         @php
                                             $distCharge = (float) ($dist->delivery_charge ?? 0);
                                             $divCharge  = (float) ($div->delivery_charge ?? 0);
-                                            $effectiveCharge = $distCharge > 0 ? $distCharge : ($divCharge > 0 ? $divCharge : (float) $setting->default_outside_charge);
-                                            if ($div->id == 3 || str_contains($div->name, 'ঢাকা')) {
-                                                if ($distCharge <= 0 && $divCharge <= 0) {
-                                                    $effectiveCharge = (float) $setting->default_inside_charge;
-                                                }
-                                            }
+                                            $effectiveCharge = $distCharge > 0 ? $distCharge : ($divCharge > 0 ? $divCharge : (float) ($setting->default_area_charge ?? 100.00));
                                         @endphp
                                         <tr class="district-row" data-name="{{ strtolower($dist->name) }}">
                                             <td>{{ $idx + 1 }}</td>

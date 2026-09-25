@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\CustomDeliveryCharge;
 use App\Models\DeliveryDistrict;
 use App\Models\DeliveryDivision;
 use App\Models\DeliverySetting;
 use App\Models\Product;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class DeliveryChargeService
 {
@@ -67,19 +69,17 @@ class DeliveryChargeService
         })->filter()->unique()->all();
 
         $productsMap = !empty($productIds)
-            ? Product::whereIn('id', $productIds)->get()->keyBy('id')
+            ? Product::with('customDeliveryCharge')->whereIn('id', $productIds)->get()->keyBy('id')
             : collect();
 
         // Check if all items are digital
         $allDigital = true;
-        $hasAnyPhysical = false;
         foreach ($itemsList as $it) {
             $pid = is_object($it) ? ($it->id ?? null) : ($it['id'] ?? null);
             $prod = $productsMap->get($pid);
             $isDigital = (int) ($it->options->is_digital ?? $prod->is_digital ?? 0) === 1;
             if (!$isDigital) {
                 $allDigital = false;
-                $hasAnyPhysical = true;
                 break;
             }
         }
@@ -122,21 +122,19 @@ class DeliveryChargeService
             $individualCharge = 0.0;
             if ($isProdFree) {
                 $individualCharge = 0.0;
-            } elseif ($pType === 'flat' || $pType === 'custom_amount') {
-                $individualCharge = (float) ($prod->delivery_charge_amount ?? 0);
-            } elseif ($pType === 'area_based') {
-                $individualCharge = self::resolveAreaChargeForProduct($prod, $divisionId, $districtId, $settings);
+            } elseif ($pType === 'custom' && $prod->custom_delivery_charge_id) {
+                $customCharge = $prod->customDeliveryCharge;
+                if ($customCharge && $customCharge->status) {
+                    $individualCharge = (float) $customCharge->amount;
+                } else {
+                    // Fallback to global if custom charge is inactive/deleted
+                    $individualCharge = self::resolveProductGlobalCharge($prod, $pWeight, $qty, $globalMethod, $divisionId, $districtId, $settings);
+                }
             } elseif ($pType === 'weight_based') {
                 $individualCharge = self::calculateWeightCost($pWeight * $qty, $settings);
             } else {
                 // Global method for this product
-                if ($globalMethod === 'flat_rate') {
-                    $individualCharge = (float) $settings->flat_rate_amount;
-                } elseif ($globalMethod === 'weight_based') {
-                    $individualCharge = self::calculateWeightCost($pWeight * $qty, $settings);
-                } elseif ($globalMethod === 'area_based') {
-                    $individualCharge = self::resolveAreaCharge($divisionId, $districtId, $settings);
-                }
+                $individualCharge = self::resolveProductGlobalCharge($prod, $pWeight, $qty, $globalMethod, $divisionId, $districtId, $settings);
             }
 
             $productCalculatedCharges[] = [
@@ -182,6 +180,8 @@ class DeliveryChargeService
                 $maxCharge = (float) $settings->flat_rate_amount;
             } elseif ($globalMethod === 'area_based') {
                 $maxCharge = self::resolveAreaCharge($divisionId, $districtId, $settings);
+            } elseif ($globalMethod === 'weight_based') {
+                $maxCharge = self::calculateWeightCost($totalWeight, $settings);
             }
         }
 
@@ -195,7 +195,7 @@ class DeliveryChargeService
     }
 
     /**
-     * Resolve area charge for division & district hierarchy.
+     * Resolve area charge for division & district hierarchy without any legacy hardcoded dhaka checks.
      */
     public static function resolveAreaCharge(?int $divisionId, ?int $districtId, ?DeliverySetting $settings = null): float
     {
@@ -211,11 +211,8 @@ class DeliveryChargeService
                 if (!$divisionId && $dist->division_id) {
                     $divisionId = $dist->division_id;
                 }
-                // Dhaka district check
-                $distName = mb_strtolower($dist->name ?? '');
-                if (str_contains($distName, 'ঢাকা') || str_contains($distName, 'dhaka')) {
-                    $divCharge = (float) ($dist->division->delivery_charge ?? 0);
-                    return $divCharge > 0 ? $divCharge : (float) $settings->default_inside_charge;
+                if ($dist->division && (float) $dist->division->delivery_charge > 0) {
+                    return (float) $dist->division->delivery_charge;
                 }
             }
         }
@@ -226,50 +223,32 @@ class DeliveryChargeService
             if ($div && (float) $div->delivery_charge > 0) {
                 return (float) $div->delivery_charge;
             }
-            if ($div) {
-                $divName = mb_strtolower($div->name ?? '');
-                if (str_contains($divName, 'ঢাকা') || str_contains($divName, 'dhaka')) {
-                    return (float) $settings->default_inside_charge;
-                }
-            }
         }
 
-        // 3. Fallback to default outside charge
-        return (float) $settings->default_outside_charge;
+        // 3. Fallback to default area charge (e.g. 100 Tk)
+        return (float) ($settings->default_area_charge ?: 100.00);
     }
 
     /**
-     * Resolve area charge for product with custom inside/outside values.
+     * Helper to resolve global method charge for a product.
      */
-    protected static function resolveAreaChargeForProduct(Product $prod, ?int $divisionId, ?int $districtId, DeliverySetting $settings): float
-    {
-        $isInsideDhaka = false;
-        if ($districtId) {
-            $dist = DeliveryDistrict::find($districtId);
-            $distName = mb_strtolower($dist->name ?? '');
-            if (str_contains($distName, 'ঢাকা') || str_contains($distName, 'dhaka')) {
-                $isInsideDhaka = true;
-            }
-        } elseif ($divisionId) {
-            $div = DeliveryDivision::find($divisionId);
-            $divName = mb_strtolower($div->name ?? '');
-            if (str_contains($divName, 'ঢাকা') || str_contains($divName, 'dhaka')) {
-                $isInsideDhaka = true;
-            }
+    protected static function resolveProductGlobalCharge(
+        Product $prod,
+        float $pWeight,
+        int $qty,
+        string $globalMethod,
+        ?int $divisionId,
+        ?int $districtId,
+        DeliverySetting $settings
+    ): float {
+        if ($globalMethod === 'flat_rate') {
+            return (float) $settings->flat_rate_amount;
+        } elseif ($globalMethod === 'weight_based') {
+            return self::calculateWeightCost($pWeight * $qty, $settings);
+        } elseif ($globalMethod === 'area_based') {
+            return self::resolveAreaCharge($divisionId, $districtId, $settings);
         }
-
-        if ($isInsideDhaka) {
-            if ((float) ($prod->delivery_inside_dhaka ?? 0) > 0) {
-                return (float) $prod->delivery_inside_dhaka;
-            }
-            return (float) $settings->default_inside_charge;
-        }
-
-        if ((float) ($prod->delivery_outside_dhaka ?? 0) > 0) {
-            return (float) $prod->delivery_outside_dhaka;
-        }
-
-        return self::resolveAreaCharge($divisionId, $districtId, $settings);
+        return 0.0;
     }
 
     /**

@@ -2582,11 +2582,16 @@ PROMPT;
 
     public function cart_shipping(Request $request)
     {
-        $district = DeliveryDistrict::whereKey((int) $request->id)->where('status', 1)->first();
-        $shipping = $district ? (int) $district->delivery_charge : 0;
+        $districtId = $request->filled('district_id') ? (int) $request->district_id : ($request->filled('id') ? (int) $request->id : null);
+        $divisionId = $request->filled('division_id') ? (int) $request->division_id : null;
+        $upazilaId  = $request->filled('upazila_id') ? (int) $request->upazila_id : null;
+
+        $items = Cart::instance('pos_shopping')->content();
+        $calc = \App\Services\DeliveryChargeService::calculate($items, $divisionId, $districtId, $upazilaId);
+        $shipping = (float) $calc['charge'];
 
         Session::put('pos_shipping', $shipping);
-        Session::put('pos_shipping_district_id', $district ? $district->id : null);
+        Session::put('pos_shipping_district_id', $districtId);
 
         return response()->json($shipping);
     }

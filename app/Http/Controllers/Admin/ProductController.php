@@ -221,10 +221,11 @@ class ProductController extends Controller
     public function create()
     {
         return view('backEnd.product.create', [
-            'categories' => Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->with('childrenCategories')->get(),
-            'brands'     => Brand::where('status', 1)->select('id', 'name')->get(),
-            'colors'     => Color::where('status', 1)->get(),
-            'sizes'      => Size::where('status', 1)->get(),
+            'categories'    => Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->with('childrenCategories')->get(),
+            'brands'        => Brand::where('status', 1)->select('id', 'name')->get(),
+            'colors'        => Color::where('status', 1)->get(),
+            'sizes'         => Size::where('status', 1)->get(),
+            'customCharges' => \App\Models\CustomDeliveryCharge::where('status', 1)->orderBy('name')->get(),
         ]);
     }
 
@@ -322,13 +323,25 @@ class ProductController extends Controller
         $input['product_code']    = 'P' . str_pad($last_id, 4, '0', STR_PAD_LEFT);
         
         // Weight & Delivery Rules
-        $input['weight']                 = $request->filled('weight') ? (float) $request->weight : 0.00;
-        $input['delivery_charge_type']   = $request->input('delivery_charge_type', 'global') ?: 'global';
-        $input['delivery_charge_amount'] = $request->filled('delivery_charge_amount') ? (float) $request->delivery_charge_amount : 0.00;
-        $input['delivery_inside_dhaka']  = $request->filled('delivery_inside_dhaka') ? (float) $request->delivery_inside_dhaka : 0.00;
-        $input['delivery_outside_dhaka'] = $request->filled('delivery_outside_dhaka') ? (float) $request->delivery_outside_dhaka : 0.00;
-        if ($input['delivery_charge_type'] === 'free') {
+        $input['weight'] = $request->filled('weight') ? (float) $request->weight : 0.00;
+        
+        $rawDelType = $request->input('delivery_charge_type', 'global') ?: 'global';
+        if (str_starts_with($rawDelType, 'custom:')) {
+            $input['delivery_charge_type'] = 'custom';
+            $input['custom_delivery_charge_id'] = (int) str_replace('custom:', '', $rawDelType);
+            $input['free_delivery'] = 0;
+        } elseif ($rawDelType === 'free') {
+            $input['delivery_charge_type'] = 'free';
+            $input['custom_delivery_charge_id'] = null;
             $input['free_delivery'] = 1;
+        } elseif ($rawDelType === 'weight_based') {
+            $input['delivery_charge_type'] = 'weight_based';
+            $input['custom_delivery_charge_id'] = null;
+            $input['free_delivery'] = 0;
+        } else {
+            $input['delivery_charge_type'] = 'global';
+            $input['custom_delivery_charge_id'] = null;
+            $input['free_delivery'] = 0;
         }
         
         // Wholesale settings
@@ -507,16 +520,17 @@ class ProductController extends Controller
         $edit = Product::with(['images.color','images.size','variantPrices'])->findOrFail($id);
 
         return view('backEnd.product.edit', [
-            'edit_data'     => $edit,
-            'categories'    => Category::where('parent_id', 0)->where('status', 1)->with('childrenCategories')->get(),
-            'subcategory'   => Subcategory::where('category_id', $edit->category_id)->get(),
-            'childcategory' => Childcategory::where('subcategory_id', $edit->subcategory_id)->get(),
-            'brands'        => Brand::where('status', 1)->get(),
-            'totalsizes'    => Size::where('status', 1)->get(),
-            'totalcolors'   => Color::where('status', 1)->get(),
-            'selectcolors'  => Productcolor::where('product_id', $id)->get(),
-            'selectsizes'   => Productsize::where('product_id', $id)->get(),
+            'edit_data'       => $edit,
+            'categories'      => Category::where('parent_id', 0)->where('status', 1)->with('childrenCategories')->get(),
+            'subcategory'     => Subcategory::where('category_id', $edit->category_id)->get(),
+            'childcategory'   => Childcategory::where('subcategory_id', $edit->subcategory_id)->get(),
+            'brands'          => Brand::where('status', 1)->get(),
+            'totalsizes'      => Size::where('status', 1)->get(),
+            'totalcolors'     => Color::where('status', 1)->get(),
+            'selectcolors'    => Productcolor::where('product_id', $id)->get(),
+            'selectsizes'     => Productsize::where('product_id', $id)->get(),
             'wholesalePrices' => \App\Models\ProductWholesalePrice::where('product_id', $id)->get(),
+            'customCharges'   => \App\Models\CustomDeliveryCharge::where('status', 1)->orWhere('id', $edit->custom_delivery_charge_id)->orderBy('name')->get(),
         ]);
     }
 
@@ -605,13 +619,25 @@ class ProductController extends Controller
         $input['feature_product'] = $request->feature_product ? 1 : 0;
 
         // Weight & Delivery Rules
-        $input['weight']                 = $request->filled('weight') ? (float) $request->weight : 0.00;
-        $input['delivery_charge_type']   = $request->input('delivery_charge_type', 'global') ?: 'global';
-        $input['delivery_charge_amount'] = $request->filled('delivery_charge_amount') ? (float) $request->delivery_charge_amount : 0.00;
-        $input['delivery_inside_dhaka']  = $request->filled('delivery_inside_dhaka') ? (float) $request->delivery_inside_dhaka : 0.00;
-        $input['delivery_outside_dhaka'] = $request->filled('delivery_outside_dhaka') ? (float) $request->delivery_outside_dhaka : 0.00;
-        if ($input['delivery_charge_type'] === 'free') {
+        $input['weight'] = $request->filled('weight') ? (float) $request->weight : 0.00;
+        
+        $rawDelType = $request->input('delivery_charge_type', 'global') ?: 'global';
+        if (str_starts_with($rawDelType, 'custom:')) {
+            $input['delivery_charge_type'] = 'custom';
+            $input['custom_delivery_charge_id'] = (int) str_replace('custom:', '', $rawDelType);
+            $input['free_delivery'] = 0;
+        } elseif ($rawDelType === 'free') {
+            $input['delivery_charge_type'] = 'free';
+            $input['custom_delivery_charge_id'] = null;
             $input['free_delivery'] = 1;
+        } elseif ($rawDelType === 'weight_based') {
+            $input['delivery_charge_type'] = 'weight_based';
+            $input['custom_delivery_charge_id'] = null;
+            $input['free_delivery'] = 0;
+        } else {
+            $input['delivery_charge_type'] = 'global';
+            $input['custom_delivery_charge_id'] = null;
+            $input['free_delivery'] = 0;
         }
 
         // VIDEO — YouTube or local upload
