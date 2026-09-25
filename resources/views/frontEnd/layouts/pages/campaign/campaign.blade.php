@@ -149,14 +149,6 @@
             fbq('init', '{{{ $pixel->code }}}');
             @endforeach
             fbq('track', 'PageView');
-            fbq('track', 'ViewContent', {
-                content_name: @json($camp_name),
-                content_ids:  @json($products->pluck('id')->map(fn($id) => (string)$id)->values()->toArray()),
-                content_type: 'product',
-                value:        {{ $camp_value }},
-                currency:     'BDT',
-                num_items:    {{ $products->count() }}
-            });
         </script>
         @foreach($pixels as $pixel)
         <noscript>
@@ -185,29 +177,30 @@
             ttq.load('{{ $tiktok->code }}');
             @endforeach
             ttq.page();
-            ttq.track('ViewContent', {
-                content_id:   @json($_firstProd ? (string)$_firstProd->id : $camp_id),
-                content_name: @json($camp_name),
-                content_type: 'product',
-                value:        {{ $camp_value }},
-                currency:     'BDT',
-                quantity:     1,
-                contents: [
-                    @foreach($products as $p)
-                    {
-                        content_id:   @json((string)$p->id),
-                        content_name: @json(strip_tags($p->name)),
-                        content_type: 'product',
-                        price:        {{ (float)$p->new_price }},
-                        quantity:     1
-                    }@if(!$loop->last),@endif
-                    @endforeach
-                ]
-            });
         </script>
         @endif
         <!-- ========== End TikTok Pixel ========== -->
         @include('frontEnd.layouts.partials.ecom-tracking-lib')
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.EcomTracking !== 'undefined') {
+                    window.EcomTracking.viewContent({
+                        items: [
+                            @foreach($products as $p)
+                            {
+                                id: @json((string)$p->id),
+                                name: @json(strip_tags($p->name)),
+                                price: {{ (float)$p->new_price }},
+                                qty: 1
+                            }@if(!$loop->last),@endif
+                            @endforeach
+                        ],
+                        value: {{ $camp_value }}
+                    });
+                }
+            });
+        </script>
         <style>
             /* Style for selected product card */
             .product-card.selected {
@@ -1290,47 +1283,59 @@
             }
 
             function trackCampaignAddToCart(productId, prodPrice, prodName) {
-                dataLayer.push({'ecommerce': null});
-                dataLayer.push({
-                    'event': 'add_to_cart',
-                    'ecommerce': {
-                        'currency': 'BDT',
-                        'value': prodPrice,
-                        'items': [{
-                            'item_id':   String(productId),
-                            'item_name': prodName,
-                            'price':     prodPrice,
-                            'quantity':  1
-                        }]
+                if (typeof window.EcomTracking !== 'undefined') {
+                    window.EcomTracking.addToCart({
+                        items: [{
+                            id: String(productId),
+                            name: prodName,
+                            price: prodPrice,
+                            qty: 1
+                        }],
+                        value: prodPrice
+                    });
+                } else {
+                    dataLayer.push({'ecommerce': null});
+                    dataLayer.push({
+                        'event': 'add_to_cart',
+                        'ecommerce': {
+                            'currency': 'BDT',
+                            'value': prodPrice,
+                            'items': [{
+                                'item_id':   String(productId),
+                                'item_name': prodName,
+                                'price':     prodPrice,
+                                'quantity':  1
+                            }]
+                        }
+                    });
+
+                    if (typeof fbq !== 'undefined') {
+                        fbq('track', 'AddToCart', {
+                            content_ids:  [String(productId)],
+                            content_name: prodName,
+                            content_type: 'product',
+                            value:        prodPrice,
+                            currency:     'BDT'
+                        }, {eventID: 'atc_' + productId + '_' + Math.floor(Date.now()/1000)});
                     }
-                });
 
-                if (typeof fbq !== 'undefined') {
-                    fbq('track', 'AddToCart', {
-                        content_ids:  [String(productId)],
-                        content_name: prodName,
-                        content_type: 'product',
-                        value:        prodPrice,
-                        currency:     'BDT'
-                    }, {eventID: 'atc_' + productId + '_' + Math.floor(Date.now()/1000)});
-                }
-
-                if (typeof ttq !== 'undefined') {
-                    ttq.track('AddToCart', {
-                        content_id:   String(productId),
-                        content_name: prodName,
-                        content_type: 'product',
-                        value:        prodPrice,
-                        currency:     'BDT',
-                        quantity:     1,
-                        contents: [{
+                    if (typeof ttq !== 'undefined') {
+                        ttq.track('AddToCart', {
                             content_id:   String(productId),
                             content_name: prodName,
                             content_type: 'product',
-                            price:        prodPrice,
-                            quantity:     1
-                        }]
-                    });
+                            value:        prodPrice,
+                            currency:     'BDT',
+                            quantity:     1,
+                            contents: [{
+                                content_id:   String(productId),
+                                content_name: prodName,
+                                content_type: 'product',
+                                price:        prodPrice,
+                                quantity:     1
+                            }]
+                        });
+                    }
                 }
             }
 
@@ -1504,91 +1509,73 @@
                             quantity:  1
                           }];
 
-                    // GTM — begin_checkout
-                    dataLayer.push({'ecommerce': null});
-                    dataLayer.push({
-                        'event': 'begin_checkout',
-                        'ecommerce': {
-                            'currency': 'BDT',
-                            'value':    subtotalVal,
-                            'items':    campItems
-                        }
-                    });
+                    var rawPhone = ($('#phone').val() || '').replace(/\D/g, '');
+                    var rawName = ($('#name').val() || '').trim();
+                    var selectedLocation = $('#campaign_delivery_area_label').text();
+                    var ctName = '', stName = '';
+                    if (selectedLocation && selectedLocation.indexOf('>') !== -1) {
+                        var locParts = selectedLocation.split('>');
+                        if (locParts[1]) ctName = locParts[1].trim();
+                        if (locParts[0]) stName = locParts[0].trim();
+                    }
 
-                    // Facebook Pixel — InitiateCheckout + Lead with user matching
+                    var userPayload = {
+                        name: rawName,
+                        phone: rawPhone,
+                        address: ($('#address').val() || '').trim(),
+                        city: ctName || 'Dhaka',
+                        state: stName || 'Dhaka'
+                    };
+
+                    if (typeof window.EcomTracking !== 'undefined') {
+                        window.EcomTracking.initiateCheckout({
+                            items: campItems.map(function (it) {
+                                return { id: it.item_id, name: it.item_name, price: it.price, qty: it.quantity || 1 };
+                            }),
+                            value: subtotalVal,
+                            event_id: icEventId,
+                            user: userPayload
+                        });
+                    } else {
+                        // GTM — begin_checkout
+                        dataLayer.push({'ecommerce': null});
+                        dataLayer.push({
+                            'event': 'begin_checkout',
+                            'ecommerce': {
+                                'currency': 'BDT',
+                                'value':    subtotalVal,
+                                'items':    campItems
+                            }
+                        });
+
+                        // Facebook Pixel
+                        if (typeof fbq !== 'undefined') {
+                            fbq('track', 'InitiateCheckout', {
+                                content_ids:  contentIds,
+                                content_type: 'product',
+                                value:        subtotalVal,
+                                currency:     'BDT',
+                                num_items:    contentIds.length
+                            }, {eventID: icEventId});
+                        }
+
+                        // TikTok Pixel
+                        if (typeof ttq !== 'undefined') {
+                            ttq.track('InitiateCheckout', {
+                                content_type: 'product',
+                                value:        subtotalVal,
+                                currency:     'BDT'
+                            }, {event_id: icEventId});
+                        }
+                    }
+
+                    // Lead tracking for campaign
                     if (typeof fbq !== 'undefined') {
-                        var rawPhone = ($('#phone').val() || '').replace(/\D/g, '');
-                        if (rawPhone.length === 11 && rawPhone.charAt(0) === '0') rawPhone = '880' + rawPhone.slice(1);
-                        var rawName = ($('#name').val() || '').trim();
-                        var nameParts = rawName.split(/\s+/);
-                        var fbUserData = { country: 'bd' };
-                        if (rawPhone) fbUserData.ph = rawPhone;
-                        if (nameParts[0]) fbUserData.fn = nameParts[0].toLowerCase();
-                        if (nameParts.slice(1).join(' ')) fbUserData.ln = nameParts.slice(1).join(' ').toLowerCase();
-                        var selectedLocation = $('#campaign_delivery_area_label').text();
-                        if (selectedLocation && selectedLocation.indexOf('>') !== -1) {
-                            var locParts = selectedLocation.split('>');
-                            if (locParts[1]) fbUserData.ct = locParts[1].trim().toLowerCase();
-                            if (locParts[0]) fbUserData.st = locParts[0].trim().toLowerCase();
-                        }
-                        try { fbq('set', 'userData', fbUserData); } catch(e) {}
-
-                        fbq('track', 'InitiateCheckout', {
-                            content_ids:  contentIds,
-                            content_type: 'product',
-                            value:        subtotalVal,
-                            currency:     'BDT',
-                            num_items:    contentIds.length
-                        }, {eventID: icEventId});
-
                         fbq('track', 'Lead', {
                             value:        subtotalVal,
                             currency:     'BDT',
                             content_name: @json($camp_name)
                         }, {eventID: leadEventId});
-                    }
-
-                    // TikTok Pixel — InitiateCheckout + PlaceAnOrder
-                    if (typeof ttq !== 'undefined') {
-                        var ttPhone = ($('#phone').val() || '').replace(/\D/g, '');
-                        if (ttPhone.length === 11 && ttPhone.charAt(0) === '0') ttPhone = '+880' + ttPhone.slice(1);
-                        if (ttPhone && typeof ttq.identify === 'function') {
-                            try { ttq.identify({ phone_number: ttPhone }); } catch(e) {}
-                        }
-
-                        var ttContents = (window._campaignProducts && window._campaignProducts.length > 0)
-                            ? window._campaignProducts.map(function(p){
-                                return {
-                                    content_id:   String(p.id),
-                                    content_name: p.name,
-                                    content_type: 'product',
-                                    price:        p.price,
-                                    quantity:     1
-                                };
-                              })
-                            : [{
-                                content_id:   String(currentProdId || '{{ $camp_id }}'),
-                                content_name: @json($camp_name),
-                                content_type: 'product',
-                                price:        subtotalVal,
-                                quantity:     1
-                              }];
-
-                        ttq.track('InitiateCheckout', {
-                            content_type: 'product',
-                            value:        subtotalVal,
-                            currency:     'BDT',
-                            quantity:     ttContents.length,
-                            contents:     ttContents
-                        });
-
-                        ttq.track('PlaceAnOrder', {
-                            content_type: 'product',
-                            value:        subtotalVal,
-                            currency:     'BDT',
-                            quantity:     ttContents.length,
-                            contents:     ttContents
-                        });
                     }
                 });
 
