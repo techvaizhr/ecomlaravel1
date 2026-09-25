@@ -88,7 +88,7 @@
         {{-- Search Input --}}
         <div class="delivery-location-search-wrap">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" class="delivery-location-search-input" id="{{ $prefix }}_location_search" placeholder="সার্চ করুন (যেমন: godagari, রাজশাহী, মিরপুর)..." autocomplete="off">
+            <input type="text" class="delivery-location-search-input" id="{{ $prefix }}_location_search" placeholder="সার্চ করুন (যেমন: godagari, ঢাকা, মিরপুর)..." autocomplete="off" dir="ltr" spellcheck="false">
             <button type="button" class="delivery-search-clear d-none" id="{{ $prefix }}_search_clear"><i class="fas fa-times-circle"></i></button>
         </div>
 
@@ -407,31 +407,34 @@
 /* Search bar */
 .delivery-location-search-wrap {
     position: relative;
-    padding: 10px 18px;
+    padding: 8px 16px;
     background: #f8fafc;
     border-bottom: 1px solid #e2e8f0;
 }
 .delivery-location-search-wrap .search-icon {
     position: absolute;
-    left: 30px;
+    left: 28px;
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8;
-    font-size: 13.5px;
+    font-size: 13px;
     pointer-events: none;
+    z-index: 2;
 }
 .delivery-location-search-input {
     width: 100%;
-    height: 38px;
-    padding: 0 35px 0 36px;
+    height: 36px;
+    padding: 0 32px 0 34px;
     border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 7px;
     font-size: 13.5px;
     color: #0f172a;
     background: #ffffff;
     transition: all 0.2s ease;
     text-align: left !important;
     direction: ltr !important;
+    unicode-bidi: plaintext !important;
+    box-sizing: border-box;
 }
 .delivery-location-search-input:focus {
     outline: none;
@@ -444,7 +447,7 @@
 }
 .delivery-search-clear {
     position: absolute;
-    right: 28px;
+    right: 26px;
     top: 50%;
     transform: translateY(-50%);
     background: transparent;
@@ -452,6 +455,7 @@
     color: #94a3b8;
     font-size: 14px;
     cursor: pointer;
+    z-index: 2;
 }
 
 /* Smart Suggestions Box */
@@ -463,7 +467,7 @@
 }
 .delivery-suggestions-header {
     background: #dcfce7;
-    padding: 6px 18px;
+    padding: 6px 16px;
     font-size: 12px;
     font-weight: 700;
     color: #15803d;
@@ -480,7 +484,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 9px 18px;
+    padding: 8px 16px;
     border-bottom: 1px dashed #e2e8f0;
     background: #ffffff;
     cursor: pointer;
@@ -492,12 +496,12 @@
 }
 .delivery-suggestion-item:hover {
     background: #ecfdf5;
-    padding-left: 22px;
+    padding-left: 20px;
 }
 .delivery-suggestion-item .sugg-icon {
     color: #059669;
-    font-size: 14px;
-    margin-right: 12px;
+    font-size: 13.5px;
+    margin-right: 10px;
     flex-shrink: 0;
 }
 .delivery-suggestion-item .sugg-info {
@@ -505,7 +509,7 @@
     min-width: 0;
 }
 .delivery-suggestion-item .sugg-path {
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 600;
     color: #1e293b;
     line-height: 1.35;
@@ -514,27 +518,27 @@
     color: #0f3460;
 }
 .delivery-suggestion-item .sugg-charge {
-    font-size: 11.5px;
+    font-size: 11px;
     color: #059669;
     font-weight: 700;
     background: #ecfdf5;
     border: 1px solid #a7f3d0;
-    padding: 2px 7px;
+    padding: 1px 6px;
     border-radius: 4px;
-    margin-left: 10px;
+    margin-left: 8px;
     flex-shrink: 0;
 }
 .delivery-suggestion-item .sugg-btn {
     color: #059669;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-left: 10px;
+    margin-left: 8px;
     flex-shrink: 0;
     background: #dcfce7;
-    padding: 3px 8px;
+    padding: 3px 7px;
     border-radius: 4px;
 }
 
@@ -543,10 +547,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 18px;
+    padding: 6px 16px;
     background: #f0fdf4;
     border-bottom: 1px solid #bbf7d0;
-    font-size: 12.5px;
+    font-size: 12px;
 }
 .delivery-current-path-bar .path-title {
     color: #166534;
@@ -565,9 +569,9 @@
     background: #ffffff;
     border: 1px solid #86efac;
     color: #15803d;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 600;
-    padding: 2px 8px;
+    padding: 1px 7px;
     border-radius: 4px;
     cursor: pointer;
     flex-shrink: 0;
@@ -577,51 +581,54 @@
     background: #dcfce7;
 }
 
-/* Body / Lists */
+/* Body / Lists (Clean Compact Borderless with subtle divider) */
 .delivery-location-body {
-    padding: 14px 18px;
+    padding: 10px 16px;
     overflow-y: auto;
     flex: 1;
-    min-height: 260px;
+    min-height: 240px;
     max-height: 52vh;
 }
 .delivery-pane-heading {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     color: #475569;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
 }
 .delivery-grid-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 1px 12px;
 }
 .delivery-option-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
-    border: 1.5px solid #e2e8f0;
+    padding: 7px 8px;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
     background: #ffffff;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;
 }
 .delivery-option-item:hover {
-    border-color: #0f3460;
     background: #f8fafc;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding-left: 11px;
 }
 .delivery-option-item .option-icon {
-    color: #0f3460;
-    font-size: 13px;
+    color: #64748b;
+    font-size: 12px;
     margin-right: 8px;
-    opacity: 0.8;
+    flex-shrink: 0;
+}
+.delivery-option-item:hover .option-icon {
+    color: #0f3460;
 }
 .delivery-option-item .option-name {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #1e293b;
     flex: 1;
@@ -631,22 +638,25 @@
     font-size: 11px;
     color: #059669;
     background: #ecfdf5;
-    padding: 1px 6px;
+    padding: 1px 5px;
     border-radius: 4px;
-    margin-right: 6px;
+    margin-right: 4px;
     font-weight: 600;
 }
 .delivery-option-item .option-arrow {
-    color: #94a3b8;
-    font-size: 11px;
+    color: #cbd5e1;
+    font-size: 10.5px;
 }
 .delivery-option-item.selected {
-    border-color: #0f3460;
     background: #eff6ff;
+    border-bottom-color: transparent !important;
 }
 .delivery-option-item.selected .option-name {
     color: #0f3460;
     font-weight: 700;
+}
+.delivery-option-item.selected .option-icon {
+    color: #0f3460;
 }
 
 /* Loading & No results */
@@ -755,8 +765,14 @@
             document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
             trigger.classList.remove('is-invalid');
-            if (searchInput && window.innerWidth >= 768) {
-                setTimeout(function () { searchInput.focus(); }, 120);
+            if (searchInput) {
+                searchInput.value = '';
+                if (window.innerWidth >= 768) {
+                    setTimeout(function () {
+                        searchInput.focus();
+                        try { searchInput.setSelectionRange(0, 0); } catch(e){}
+                    }, 60);
+                }
             }
         }
 
@@ -1112,6 +1128,10 @@
                     window.jQuery(areaSelect).trigger('change');
                 }
             }
+        }
+
+        function normalizeBangla(str) {
+            return (str || '').replace(/[ড়ঢ়]/g, 'র').replace(/[য়]/g, 'য').replace(/[ণ]/g, 'ন').replace(/[ী]/g, 'ি').replace(/[ূ]/g, 'ু').replace(/[ঁ]/g, '');
         }
 
         // Phonetic transliterator helper for instant English typing support
@@ -1487,6 +1507,16 @@
         }
 
         if (searchInput) {
+            searchInput.addEventListener('click', function () {
+                if (!this.value) {
+                    try { this.setSelectionRange(0, 0); } catch(e){}
+                }
+            });
+            searchInput.addEventListener('focus', function () {
+                if (!this.value) {
+                    try { this.setSelectionRange(0, 0); } catch(e){}
+                }
+            });
             searchInput.addEventListener('input', function () {
                 var val = searchInput.value;
                 if (searchClear) searchClear.classList.toggle('d-none', !val);
