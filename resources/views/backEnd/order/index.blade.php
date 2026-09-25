@@ -70,12 +70,12 @@
                                                 $custPhone = $value->shipping ? $value->shipping->phone : ($value->customer ? $value->customer->phone : '');
                                                 $custAddr = $value->shipping ? $value->shipping->full_address : ($value->customer ? $value->customer->address : '');
                                              @endphp
-                                             <div class="fw-bold text-dark" style="font-size: 13.5px;">{{ $custName }}</div>
+                                             <div class="fw-bold text-dark" style="font-size: 13px; line-height: 1.2;">{{ $custName }}</div>
                                              @if($custPhone)
-                                                <div class="d-flex align-items-center mt-1" style="gap: 4px;">
-                                                    <span class="text-secondary fw-semibold" style="font-size: 12px;">{{ $custPhone }}</span>
-                                                    <a href="tel:{{ $custPhone }}" class="btn btn-xs p-0 border-0 text-primary d-inline-flex align-items-center justify-content-center" style="width: 18px; height: 18px;" title="কল করুন">
-                                                        <i class="fas fa-phone-alt" style="font-size: 11px;"></i>
+                                                <div class="d-flex align-items-center" style="gap: 3px; margin-top: 2px; line-height: 1.15;">
+                                                    <span class="text-secondary fw-semibold" style="font-size: 11.5px;">{{ $custPhone }}</span>
+                                                    <a href="tel:{{ $custPhone }}" class="btn btn-xs p-0 border-0 text-primary d-inline-flex align-items-center justify-content-center" style="width: 15px; height: 15px;" title="কল করুন">
+                                                        <i class="fas fa-phone-alt" style="font-size: 9.5px;"></i>
                                                     </a>
                                                     @php
                                                         $cleanPhone = preg_replace('/[^0-9]/', '', $custPhone);
@@ -85,17 +85,17 @@
                                                             $waPhone = $cleanPhone;
                                                         }
                                                     @endphp
-                                                    <a href="https://wa.me/{{ $waPhone }}" target="_blank" class="btn btn-xs p-0 border-0 text-success d-inline-flex align-items-center justify-content-center" style="width: 18px; height: 18px;" title="হোয়াটসঅ্যাপ মেসেজ">
-                                                        <i class="fab fa-whatsapp" style="font-size: 13px;"></i>
+                                                    <a href="https://wa.me/{{ $waPhone }}" target="_blank" class="btn btn-xs p-0 border-0 text-success d-inline-flex align-items-center justify-content-center" style="width: 15px; height: 15px;" title="হোয়াটসঅ্যাপ মেসেজ">
+                                                        <i class="fab fa-whatsapp" style="font-size: 11px;"></i>
                                                     </a>
-                                                    <button type="button" class="btn btn-xs p-0 border-0 text-secondary d-inline-flex align-items-center justify-content-center copy-phone-btn" data-phone="{{ $custPhone }}" style="width: 18px; height: 18px;" title="নাম্বার কপি করুন">
-                                                        <i class="far fa-copy" style="font-size: 11px;"></i>
+                                                    <button type="button" class="btn btn-xs p-0 border-0 text-secondary d-inline-flex align-items-center justify-content-center copy-phone-btn" data-phone="{{ $custPhone }}" style="width: 15px; height: 15px;" title="নাম্বার কপি করুন">
+                                                        <i class="far fa-copy" style="font-size: 9.5px;"></i>
                                                     </button>
                                                 </div>
                                              @endif
                                              @if(!empty($custAddr))
-                                                <div class="text-muted mt-1" style="font-size: 11.5px; line-height: 1.35; max-width: 250px;">
-                                                    <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 10px;"></i>{{ $custAddr }}
+                                                <div class="text-muted" style="font-size: 11px; line-height: 1.25; margin-top: 2px; max-width: 250px;">
+                                                    <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 9px;"></i>{{ $custAddr }}
                                                 </div>
                                              @endif
                                         </td>
