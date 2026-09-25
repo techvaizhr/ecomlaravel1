@@ -1258,7 +1258,7 @@
 
   // Determine active section based on current route
   $activeSection = 'section-main';
-  if (request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*', 'admin.vendors.*', 'admin.vendor.*', 'admin.resellers.*', 'admin.reseller.*', 'admin.reseller-deposits.*', 'admin.delivery.*', 'admin.delivery-boys.*', 'admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*')) {
+  if (request()->routeIs('users.*', 'roles.*', 'permissions.*', 'customers.*', 'admin.vendors.*', 'admin.vendor.*', 'admin.resellers.*', 'admin.reseller.*', 'admin.reseller-deposits.*', 'admin.delivery-boys.*', 'admin.employees.*', 'admin.attendances.*', 'admin.leaves.*', 'admin.salaries.*', 'admin.bonuses.*', 'admin.salary_payments.*')) {
       $activeSection = 'section-people';
   } elseif (request()->routeIs('admin.orders', 'admin.reseller-orders.*', 'admin.incomplete-orders.*', 'orderstatus.*', 'customers.ip_block', 'admin.refunds.*', 'manualFraud.page', 'admin.order.restriction.setting.*') || request()->is('admin/orders/*')) {
       $activeSection = 'section-orders';
@@ -1266,7 +1266,7 @@
       $activeSection = 'section-catalog';
   } elseif (request()->routeIs('admin.fund.*', 'admin.expenses.*')) {
       $activeSection = 'section-finance';
-  } elseif (request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*', 'email_setting*', 'backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*', 'admin.seo_settings.*', 'admin.sitemap.*', 'admin.cron.*', 'error-log.*')) {
+  } elseif (request()->routeIs('settings.*', 'socialmedias.*', 'contact.*', 'pages.*', 'admin.delivery.*', 'email_setting*', 'backEnd.complaints.*', 'admin.contact.messages*', 'admin.newsletter.subscribers*', 'admin.seo_settings.*', 'admin.sitemap.*', 'admin.cron.*', 'error-log.*')) {
       $activeSection = 'section-settings';
   } elseif (request()->routeIs('admin.ads_analytics.*', 'tagmanagers.*', 'pixels.*', 'tiktok.pixels.*', 'paymentgeteway.*', 'manual-payment-gateway.*', 'smsgeteway.*', 'courierapi.*', 'admin.facebook_capi.*', 'admin.gemini_ai.*', 'admin.fraud.*', 'admin.facebook_page.*', 'admin.reports.*')) {
       $activeSection = 'section-analytics';
@@ -1283,7 +1283,7 @@
               <i data-feather="grid"></i>
             </a>
 
-            @canany(['user-list', 'role-list', 'permission-list', 'customer-list', 'vendor-list', 'reseller-list', 'delivery-boy-list', 'employee-list'])
+            @canany(['user-list', 'role-list', 'permission-list', 'customer-list', 'vendor-list', 'reseller-list', 'delivery-boy-list', 'delivery-withdrawal-list', 'employee-list'])
             <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-people' ? 'active' : '' }}" data-section="section-people" title="People & Partners" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="users"></i>
             </a>
@@ -1310,7 +1310,7 @@
             </a>
             @endcanany
 
-            @canany(['setting-list', 'social-list', 'contact-list', 'api-manage', 'email-setting-list', 'complaint-list', 'seo-manage', 'sitemap-manage', 'cache-clear', 'error-log-view'])
+            @canany(['setting-list', 'social-list', 'contact-list', 'api-manage', 'email-setting-list', 'complaint-list', 'seo-manage', 'sitemap-manage', 'cache-clear', 'error-log-view', 'shipping-list', 'shipping-create', 'shipping-edit', 'delivery-location-list'])
             <a href="javascript:void(0);" class="rail-item {{ $activeSection === 'section-settings' ? 'active' : '' }}" data-section="section-settings" title="System & Settings" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="right">
               <i data-feather="settings"></i>
             </a>
@@ -1510,24 +1510,20 @@
                 @endcanany
                 @endif
 
-                @canany(['shipping-list', 'shipping-create', 'shipping-edit', 'delivery-boy-list', 'delivery-withdrawal-list', 'delivery-location-list'])
-                <li class="{{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'menuitem-active' : '' }}">
-                  <a href="#sub-delivery" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'active' : '' }}">
+                @canany(['delivery-boy-list', 'delivery-withdrawal-list'])
+                <li class="{{ request()->routeIs('admin.delivery-boys.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-riders" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.delivery-boys.*') ? 'active' : '' }}">
                     <i data-feather="truck"></i>
-                    <span> Delivery / Riders </span>
+                    <span> Riders </span>
                     <span class="menu-arrow"></span>
                   </a>
-                  <div class="collapse {{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'show' : '' }}" id="sub-delivery">
+                  <div class="collapse {{ request()->routeIs('admin.delivery-boys.*') ? 'show' : '' }}" id="sub-riders">
                     <ul class="subpanel-nested-menu">
-                      <li><a href="{{ route('admin.delivery.settings') }}" class="{{ request()->routeIs('admin.delivery.settings*') ? 'active' : '' }}"><i data-feather="settings"></i> Delivery Settings</a></li>
                       @can('delivery-boy-list')
                       <li><a href="{{ route('admin.delivery-boys.index') }}" class="{{ request()->routeIs('admin.delivery-boys.index') || (request()->routeIs('admin.delivery-boys.*') && !request()->routeIs('admin.delivery-boys.withdrawals*')) ? 'active' : '' }}"><i data-feather="users"></i> Delivery Persons</a></li>
                       @endcan
                       @can('delivery-withdrawal-list')
                       <li><a href="{{ route('admin.delivery-boys.withdrawals') }}" class="{{ request()->routeIs('admin.delivery-boys.withdrawals*') ? 'active' : '' }}"><i data-feather="dollar-sign"></i> Rider Withdrawals</a></li>
-                      @endcan
-                      @can('delivery-location-list')
-                      <li><a href="{{ route('admin.delivery.divisions.index') }}" class="{{ request()->routeIs('admin.delivery.divisions.*', 'admin.delivery.districts.*', 'admin.delivery.upazilas.*') ? 'active' : '' }}"><i data-feather="map-pin"></i> Delivery Locations</a></li>
                       @endcan
                     </ul>
                   </div>
@@ -1774,6 +1770,26 @@
                       @canany(['page-list', 'page-create', 'page-edit'])
                       <li><a href="{{ route('pages.index') }}" class="{{ request()->routeIs('pages.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> Create Page</a></li>
                       @endcanany
+                    </ul>
+                  </div>
+                </li>
+                @endcanany
+
+                @canany(['shipping-list', 'shipping-create', 'shipping-edit', 'delivery-location-list'])
+                <li class="{{ request()->routeIs('admin.delivery.*') ? 'menuitem-active' : '' }}">
+                  <a href="#sub-delivery-settings" data-bs-toggle="collapse" class="{{ request()->routeIs('admin.delivery.*') ? 'active' : '' }}">
+                    <i data-feather="truck"></i>
+                    <span> Delivery Settings </span>
+                    <span class="menu-arrow"></span>
+                  </a>
+                  <div class="collapse {{ request()->routeIs('admin.delivery.*') ? 'show' : '' }}" id="sub-delivery-settings">
+                    <ul class="subpanel-nested-menu">
+                      @canany(['shipping-list', 'shipping-create', 'shipping-edit'])
+                      <li><a href="{{ route('admin.delivery.settings') }}" class="{{ request()->routeIs('admin.delivery.settings*') ? 'active' : '' }}"><i data-feather="settings"></i> Delivery Settings</a></li>
+                      @endcanany
+                      @can('delivery-location-list')
+                      <li><a href="{{ route('admin.delivery.divisions.index') }}" class="{{ request()->routeIs('admin.delivery.divisions.*', 'admin.delivery.districts.*', 'admin.delivery.upazilas.*') ? 'active' : '' }}"><i data-feather="map-pin"></i> Delivery Locations</a></li>
+                      @endcan
                     </ul>
                   </div>
                 </li>
