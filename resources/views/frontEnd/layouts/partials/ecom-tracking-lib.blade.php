@@ -102,7 +102,18 @@
     function sendServerCapi(eventName, eventData, eventId, user) {
         try {
             var url = '{{ url('/ajax/tracking/capi-event') }}';
+            // Use relative URL if current origin matches to avoid mixed content
+            try {
+                var parsed = new URL(url, window.location.origin);
+                if (parsed.origin === window.location.origin) {
+                    url = parsed.pathname;
+                }
+            } catch (ue) {
+                url = '/ajax/tracking/capi-event';
+            }
+
             var testCode = getQueryParam('test_event_code') || getQueryParam('test_code') || getCookie('fb_test_event_code') || getCookie('test_event_code') || '';
+            var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
             var payload = {
                 event_name: eventName,
                 event_id: eventId,
@@ -112,13 +123,27 @@
                 user_data: buildUserPayload(user) || {}
             };
 
+            var headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+            if (csrfToken) {
+                headers['X-CSRF-TOKEN'] = csrfToken;
+            }
+
             if (typeof fetch === 'function') {
                 fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(payload),
-                    keepalive: true
-                }).catch(function () {});
+                    headers: headers,
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload)
+                }).catch(function () {
+                    if (navigator.sendBeacon) {
+                        var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                        navigator.sendBeacon(url, blob);
+                    }
+                });
             } else if (navigator.sendBeacon) {
                 var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
                 navigator.sendBeacon(url, blob);

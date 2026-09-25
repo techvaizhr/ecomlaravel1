@@ -157,9 +157,17 @@ class FacebookCapiService
                 }
 
                 $url = "https://graph.facebook.com/v21.0/{$cfg['pixel_id']}/events";
+                if (!empty($testCode)) {
+                    $url .= '?test_event_code=' . urlencode($testCode);
+                }
 
                 try {
-                    $response = Http::timeout(5)->post($url, $requestPayload);
+                    $response = Http::timeout(5)
+                        ->withHeaders([
+                            'Content-Type' => 'application/json',
+                            'Accept'       => 'application/json',
+                        ])
+                        ->post($url, $requestPayload);
 
                     if ($response->successful()) {
                         $responseData = $response->json();
