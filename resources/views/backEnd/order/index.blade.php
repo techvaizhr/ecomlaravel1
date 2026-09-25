@@ -216,30 +216,30 @@
                                                 $cName       = $value->courier_name_display;
                                             @endphp
                                             @if(!empty($cTrackingId))
-                                                <div class="courier-booking-box mt-1 pt-1 border-top" style="font-size: 11px; line-height: 1.25;" id="courier-booking-{{ $value->id }}">
+                                                <div class="courier-booking-box" style="margin-top: 2px; font-size: 11px; line-height: 1.15;" id="courier-booking-{{ $value->id }}">
                                                     {{-- Courier Name (Clickable Tracking Link) --}}
                                                     <div class="courier-name-wrap">
                                                         @if($cTrackUrl)
-                                                            <a href="{{ $cTrackUrl }}" target="_blank" rel="noopener noreferrer" class="fw-bold text-primary text-decoration-none d-inline-flex align-items-center gap-1" title="কুরিয়ার পাবলিক ট্র্যাকিং লিংক দেখুন" style="font-size: 11px;">
-                                                                <i class="fas fa-truck text-secondary" style="font-size: 9px;"></i> {{ $cName }} <i class="fas fa-external-link-alt text-muted" style="font-size: 8px;"></i>
+                                                            <a href="{{ $cTrackUrl }}" target="_blank" rel="noopener noreferrer" class="fw-bold text-primary text-decoration-none d-inline-flex align-items-center" title="কুরিয়ার পাবলিক ট্র্যাকিং লিংক দেখুন" style="font-size: 10.5px; gap: 3px;">
+                                                                <i class="fas fa-truck text-secondary" style="font-size: 9px;"></i> {{ $cName }} <i class="fas fa-external-link-alt text-muted" style="font-size: 7.5px;"></i>
                                                             </a>
                                                         @else
-                                                            <span class="fw-bold text-dark" style="font-size: 11px;">
+                                                            <span class="fw-bold text-dark" style="font-size: 10.5px;">
                                                                 <i class="fas fa-truck text-secondary" style="font-size: 9px;"></i> {{ $cName }}
                                                             </span>
                                                         @endif
                                                     </div>
 
                                                     {{-- Courier ID with Copy & Recall/Sync --}}
-                                                    <div class="d-flex align-items-center justify-content-center gap-1 mt-1">
-                                                        <span class="text-secondary font-monospace" style="font-size: 10px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="কুরিয়ার ট্র্যাকিং আইডি: {{ $cTrackingId }}">{{ $cTrackingId }}</span>
+                                                    <div class="d-flex align-items-center justify-content-center" style="gap: 3px; margin-top: 1px;">
+                                                        <span class="text-secondary font-monospace" style="font-size: 10px; max-width: 82px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="কুরিয়ার ট্র্যাকিং আইডি: {{ $cTrackingId }}">{{ $cTrackingId }}</span>
                                                         
-                                                        <button type="button" class="btn btn-xs p-0 border-0 text-muted copy-courier-id-btn d-inline-flex align-items-center justify-content-center" data-id="{{ $cTrackingId }}" style="width: 16px; height: 16px;" title="কুরিয়ার আইডি কপি করুন">
-                                                            <i class="far fa-copy" style="font-size: 10px;"></i>
+                                                        <button type="button" class="btn btn-xs p-0 border-0 text-muted copy-courier-id-btn d-inline-flex align-items-center justify-content-center" data-id="{{ $cTrackingId }}" style="width: 14px; height: 14px;" title="কুরিয়ার আইডি কপি করুন">
+                                                            <i class="far fa-copy" style="font-size: 9.5px;"></i>
                                                         </button>
 
-                                                        <button type="button" class="btn btn-xs p-0 border-0 text-info sync-courier-status-btn d-inline-flex align-items-center justify-content-center" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" style="width: 16px; height: 16px;" title="কুরিয়ার লাইভ স্ট্যাটাস চেক ও সিঙ্ক করুন">
-                                                            <i class="fas fa-sync-alt" style="font-size: 10px;"></i>
+                                                        <button type="button" class="btn btn-xs p-0 border-0 text-info sync-courier-status-btn d-inline-flex align-items-center justify-content-center" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" style="width: 14px; height: 14px;" title="কুরিয়ার লাইভ স্ট্যাটাস চেক ও সিঙ্ক করুন">
+                                                            <i class="fas fa-sync-alt" style="font-size: 9.5px;"></i>
                                                         </button>
                                                     </div>
                                                 </div>
