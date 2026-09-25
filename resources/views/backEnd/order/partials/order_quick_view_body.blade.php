@@ -91,8 +91,13 @@
                         @if($customer && $customer->email)
                         <div class="oqv-customer-email"><i class="fas fa-envelope text-muted me-1"></i>{{ $customer->email }}</div>
                         @endif
-                        @if($ship && $ship->address)
-                        <div class="oqv-customer-addr mt-2"><i class="fas fa-map-marker-alt text-muted me-1"></i>{{ $ship->address }}@if($ship->area), {{ $ship->area }}@endif</div>
+                        @php
+                            $oqvAddr = trim($ship->address ?? '');
+                            $oqvArea = trim($ship->area ?? '');
+                            $oqvFullAddr = implode(', ', array_filter([$oqvAddr, $oqvArea]));
+                        @endphp
+                        @if($oqvFullAddr)
+                        <div class="oqv-customer-addr mt-2"><i class="fas fa-map-marker-alt text-muted me-1"></i>{{ $oqvFullAddr }}</div>
                         @endif
                     </div>
                 </div>
@@ -140,7 +145,7 @@
                     </div>
                     <div class="col-6 col-lg-4">
                         <span class="oqv-label">মোট</span>
-                        <strong class="d-block text-success">৳{{ number_format($finalTotal, 2) }}</strong>
+                        <strong class="d-block text-success">৳{{ number_format($finalTotal, 0) }}</strong>
                     </div>
                     <div class="col-6 col-lg-4">
                         <span class="oqv-label">ট্র্যাফিক</span>
@@ -307,29 +312,29 @@
                         <td><span class="oqv-variant oqv-variant-size">{{ $sizeDisplay }}</span></td>
                         <td><span class="badge {{ $ownerClass }}">{{ $ownerLabel }}</span></td>
                         <td class="text-center">{{ $item->qty }}</td>
-                        <td class="text-end">৳{{ number_format($item->sale_price, 2) }}</td>
-                        <td class="text-end fw-semibold">৳{{ number_format($item->sale_price * $item->qty, 2) }}</td>
+                        <td class="text-end">৳{{ number_format($item->sale_price, 0) }}</td>
+                        <td class="text-end fw-semibold">৳{{ number_format($item->sale_price * $item->qty, 0) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="7" class="text-end">সাবটোটাল</td>
-                        <td class="text-end fw-bold">৳{{ number_format($subtotal, 2) }}</td>
+                        <td class="text-end fw-bold">৳{{ number_format($subtotal, 0) }}</td>
                     </tr>
                     <tr>
                         <td colspan="7" class="text-end">ডেলিভারি</td>
-                        <td class="text-end">৳{{ number_format($order->shipping_charge ?? 0, 2) }}</td>
+                        <td class="text-end">৳{{ number_format($order->shipping_charge ?? 0, 0) }}</td>
                     </tr>
                     @if(($order->discount ?? 0) > 0)
                     <tr>
                         <td colspan="7" class="text-end">ছাড়</td>
-                        <td class="text-end text-danger">−৳{{ number_format($order->discount, 2) }}</td>
+                        <td class="text-end text-danger">−৳{{ number_format($order->discount, 0) }}</td>
                     </tr>
                     @endif
                     <tr class="oqv-total-row">
                         <td colspan="7" class="text-end">{{ $isReseller ? 'গ্রাহক প্রদেয়' : 'মোট' }}</td>
-                        <td class="text-end">৳{{ number_format($finalTotal, 2) }}</td>
+                        <td class="text-end">৳{{ number_format($finalTotal, 0) }}</td>
                     </tr>
                 </tfoot>
             </table>

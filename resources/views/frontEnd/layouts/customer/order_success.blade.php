@@ -202,9 +202,13 @@
                     <div class="info-val">
                         <strong class="d-block mb-1 fs-6 text-dark">{{$order->shipping ? $order->shipping->name : 'N/A'}}</strong>
                         <span class="d-block text-secondary"><i class="fa fa-phone me-1 small"></i> {{$order->shipping ? $order->shipping->phone : ''}}</span>
-                        <span class="d-block text-secondary mt-1"><i class="fa fa-map-marker-alt me-1 small text-danger"></i> {{$order->shipping ? $order->shipping->address : ''}}</span>
-                        @if($order->shipping && $order->shipping->area)
-                            <span class="d-block text-muted small mt-1 fw-semibold"><i class="fa fa-location-arrow me-1 small text-primary"></i> এলাকা/লোকেশন: {{ $order->shipping->area }}</span>
+                        @php
+                            $successAddr = trim($order->shipping->address ?? '');
+                            $successArea = trim($order->shipping->area ?? '');
+                            $successFullAddr = implode(', ', array_filter([$successAddr, $successArea]));
+                        @endphp
+                        @if($successFullAddr)
+                            <span class="d-block text-secondary mt-1"><i class="fa fa-map-marker-alt me-1 small text-danger"></i> {{ $successFullAddr }}</span>
                         @endif
                     </div>
                 </div>
@@ -252,9 +256,9 @@
                                 @if($sizeDisplay)<small class="text-muted d-block">Size: {{ $sizeDisplay }}</small>@endif
                                 @if($colorDisplay)<small class="text-muted d-block">Color: {{ $colorDisplay }}</small>@endif
                             </td>
-                            <td class="text-center">৳{{number_format($item->sale_price, 2)}}</td>
+                            <td class="text-center">৳{{number_format($item->sale_price, 0)}}</td>
                             <td class="text-center">{{$item->qty}}</td>
-                            <td class="text-end fw-bold">৳{{number_format($item->sale_price * $item->qty, 2)}}</td>
+                            <td class="text-end fw-bold">৳{{number_format($item->sale_price * $item->qty, 0)}}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -265,32 +269,32 @@
                 <div class="sum-box">
                     <div class="sum-row">
                         <span class="text-muted">Subtotal</span>
-                        <span>৳{{number_format($subtotal, 2)}}</span>
+                        <span>৳{{number_format($subtotal, 0)}}</span>
                     </div>
                     <div class="sum-row">
                         <span class="text-muted">Shipping Fee</span>
-                        <span>৳{{number_format($order->shipping_charge, 2)}}</span>
+                        <span>৳{{number_format($order->shipping_charge, 0)}}</span>
                     </div>
                     @if($order->discount > 0)
                     <div class="sum-row text-danger">
                         <span>Discount</span>
-                        <span>-৳{{number_format($order->discount, 2)}}</span>
+                        <span>-৳{{number_format($order->discount, 0)}}</span>
                     </div>
                     @endif
-                    
+
                     <div class="sum-row total-row">
                         <span>Grand Total</span>
-                        <span>৳{{number_format($grand_total, 2)}}</span>
+                        <span>৳{{number_format($grand_total, 0)}}</span>
                     </div>
 
                     <div class="payment-badge-box">
                         <div class="sum-row border-0 p-0 mb-2">
                             <span style="color: #4ade80;">Paid Amount</span>
-                            <span class="fw-bold">৳{{ number_format($paid_amount, 2) }}</span>
+                            <span class="fw-bold" style="color: #ffffff;">৳{{ number_format($paid_amount, 0) }}</span>
                         </div>
                         <div class="sum-row border-0 p-0">
                             <span style="color: #fb7185;">Remaining Due</span>
-                            <span class="fw-bold">৳{{ number_format($due_amount, 2) }}</span>
+                            <span class="fw-bold" style="color: #ffffff;">৳{{ number_format($due_amount, 0) }}</span>
                         </div>
                     </div>
                 </div>

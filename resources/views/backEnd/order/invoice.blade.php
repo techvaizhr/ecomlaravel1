@@ -451,8 +451,12 @@
                         <h6>ইনভয়েস প্রাপক</h6>
                         <p><strong>{{ $order->shipping ? $order->shipping->name : '—' }}</strong></p>
                         @if($order->shipping && $order->shipping->phone)<p>{{ $order->shipping->phone }}</p>@endif
-                        @if($order->shipping && $order->shipping->address)<p>{{ $order->shipping->address }}</p>@endif
-                        @if($order->shipping && $order->shipping->area)<p>{{ $order->shipping->area }}</p>@endif
+                        @php
+                            $invAddr = trim($order->shipping->address ?? '');
+                            $invArea = trim($order->shipping->area ?? '');
+                            $invFullAddr = implode(', ', array_filter([$invAddr, $invArea]));
+                        @endphp
+                        @if($invFullAddr)<p>{{ $invFullAddr }}</p>@endif
                     </div>
                 </div>
 
@@ -498,9 +502,9 @@
                                     </div>
                                     @endif
                                 </td>
-                                <td class="text-end">৳{{ number_format($displayPrice, 2) }}</td>
+                                <td class="text-end">৳{{ number_format($displayPrice, 0) }}</td>
                                 <td class="text-center">{{ $value->qty }}</td>
-                                <td class="text-end fw-semibold">৳{{ number_format($displayPrice * $value->qty, 2) }}</td>
+                                <td class="text-end fw-semibold">৳{{ number_format($displayPrice * $value->qty, 0) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -517,28 +521,28 @@
                         @endif
                         <div class="inv-summary-row">
                             <span>সাবটোটাল</span>
-                            <strong>৳{{ number_format($subtotal, 2) }}</strong>
+                            <strong>৳{{ number_format($subtotal, 0) }}</strong>
                         </div>
                         <div class="inv-summary-row">
                             <span>ডেলিভারি (+)</span>
-                            <strong>৳{{ number_format($shipping, 2) }}</strong>
+                            <strong>৳{{ number_format($shipping, 0) }}</strong>
                         </div>
                         <div class="inv-summary-row">
                             <span>ছাড় (−)</span>
-                            <strong>৳{{ number_format($discount, 2) }}</strong>
+                            <strong>৳{{ number_format($discount, 0) }}</strong>
                         </div>
                         <div class="inv-summary-row inv-total">
                             <span>{{ $isResellerOrder ? 'গ্রাহক প্রদেয়' : 'মোট পরিশোধ' }}</span>
-                            <strong>৳{{ number_format($finalTotal, 2) }}</strong>
+                            <strong>৳{{ number_format($finalTotal, 0) }}</strong>
                         </div>
                         @if($advancePaid > 0 && $advancePaid < $finalTotal)
                         <div class="inv-summary-row">
                             <span>অগ্রিম পরিশোধ</span>
-                            <strong>৳{{ number_format($advancePaid, 2) }}</strong>
+                            <strong>৳{{ number_format($advancePaid, 0) }}</strong>
                         </div>
                         <div class="inv-summary-row">
                             <span>বাকি</span>
-                            <strong class="text-danger">৳{{ number_format($dueAmount, 2) }}</strong>
+                            <strong class="text-danger">৳{{ number_format($dueAmount, 0) }}</strong>
                         </div>
                         @endif
                     </div>
