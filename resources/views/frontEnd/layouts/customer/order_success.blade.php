@@ -58,22 +58,29 @@
         background: linear-gradient(135deg, #059669 0%, #047857 100%);
         color: #fff;
         max-width: 850px;
-        margin: 0 auto;
+        margin: 40px auto 25px;
         position: relative;
-        overflow: hidden;
+        border-radius: 16px;
+        padding: 48px 24px 28px !important;
+        box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.25);
     }
-    .success-icon-pulse {
+    .success-icon-floating {
+        position: absolute;
+        top: -36px;
+        left: 50%;
+        transform: translateX(-50%);
         width: 72px;
         height: 72px;
-        margin: 0 auto 16px;
-        background: rgba(255, 255, 255, 0.22);
-        border: 2px solid rgba(255, 255, 255, 0.4);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border: 4px solid #ffffff;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 32px;
-        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        font-size: 30px;
+        color: #ffffff;
+        box-shadow: 0 8px 20px rgba(5, 150, 105, 0.35), 0 0 0 4px rgba(255, 255, 255, 0.25);
+        z-index: 5;
     }
     #invoice-pdf-area { 
         background: #fff; 
@@ -142,13 +149,13 @@
 <div class="invoice-wrapper">
     {{-- Celebration Banner --}}
     <div class="container no-print mb-4">
-        <div class="success-hero-card text-center p-4 rounded-4 shadow-sm mb-4">
-            <div class="success-icon-pulse">
+        <div class="success-hero-card text-center rounded-4 shadow-sm mb-4">
+            <div class="success-icon-floating">
                 <i class="fa fa-check text-white"></i>
             </div>
-            <h3 class="fw-bold mb-1">অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!</h3>
+            <h3 class="fw-bold mb-2">অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!</h3>
             <p class="mb-3 opacity-95 text-center mx-auto" style="font-size: 16px; line-height: 1.6; max-width: 680px;">ধন্যবাদ! আপনার ইনভয়েস নম্বর <strong>#{{$order->invoice_id}}</strong>। আমাদের প্রতিনিধি খুব শীঘ্রই আপনার ঠিকানায় পণ্যটি প্রেরণের ব্যবস্থা করবেন।</p>
-            <div class="d-flex justify-content-center flex-wrap gap-2">
+            <div class="d-flex justify-content-center flex-wrap gap-2 pt-1">
                 <a href="{{ url('/') }}" class="btn btn-light btn-sm rounded-pill px-4 fw-bold text-success shadow-sm">
                    <i class="fa fa-shopping-bag me-1"></i> কেনাকাটা চালিয়ে যান
                 </a>

@@ -52,8 +52,8 @@ class DeliveryAjaxController extends Controller
 
         $candidates = array_unique(array_filter([
             $rawQ,
-            $this->phoneticToBangla($rawQ),
             $this->normalizeBangla($rawQ),
+            ...$this->generateBanglaCandidates($rawQ),
         ]));
 
         $results = [];
@@ -65,7 +65,9 @@ class DeliveryAjaxController extends Controller
             ->where('status', 1)
             ->where(function ($query) use ($candidates) {
                 foreach ($candidates as $cq) {
-                    $query->orWhere('name', 'like', "%{$cq}%");
+                    if (mb_strlen($cq) >= 2) {
+                        $query->orWhere('name', 'like', "%{$cq}%");
+                    }
                 }
             })
             ->limit(30)
@@ -100,7 +102,9 @@ class DeliveryAjaxController extends Controller
             ->where('status', 1)
             ->where(function ($query) use ($candidates) {
                 foreach ($candidates as $cq) {
-                    $query->orWhere('name', 'like', "%{$cq}%");
+                    if (mb_strlen($cq) >= 2) {
+                        $query->orWhere('name', 'like', "%{$cq}%");
+                    }
                 }
             })
             ->limit(15)
@@ -135,7 +139,9 @@ class DeliveryAjaxController extends Controller
             ->where('status', 1)
             ->where(function ($query) use ($candidates) {
                 foreach ($candidates as $cq) {
-                    $query->orWhere('name', 'like', "%{$cq}%");
+                    if (mb_strlen($cq) >= 2) {
+                        $query->orWhere('name', 'like', "%{$cq}%");
+                    }
                 }
             })
             ->limit(8)
@@ -169,73 +175,108 @@ class DeliveryAjaxController extends Controller
 
     private function normalizeBangla(string $str): string
     {
-        return str_replace(['ড়', 'ঢ়', 'য়', 'ণ'], ['র', 'র', 'য', 'ন'], $str);
+        return str_replace(['ড়', 'ঢ়', 'য়', 'ণ', 'ী', 'ূ'], ['র', 'র', 'য', 'ন', 'ি', 'ু'], $str);
     }
 
-    private function phoneticToBangla(string $str): string
+    private function generateBanglaCandidates(string $str): array
     {
-        $str = strtolower(trim($str));
-        if ($str === '' || preg_match('/[\x{0980}-\x{09FF}]/u', $str)) {
-            return $str;
-        }
+        $clean = strtolower(trim($str));
+        if ($clean === '') return [];
 
-        // Direct common mappings
+        $list = [];
+
         $directMap = [
-            'dhaka' => 'ঢাকা', 'rajshahi' => 'রাজশাহী', 'godagari' => 'গোদাগাড়ী',
-            'bagha' => 'বাঘা', 'charghat' => 'চারঘাট', 'paba' => 'পবা', 'puthia' => 'পুঠিয়া',
-            'tanore' => 'তানোর', 'mohanpur' => 'মোহনপুর', 'durgapur' => 'দুর্গাপুর',
-            'chattogram' => 'চট্টগ্রাম', 'chittagong' => 'চট্টগ্রাম', 'khulna' => 'খুলনা',
+            // Divisions & 64 Districts
+            'dhaka' => 'ঢাকা', 'rajshahi' => 'রাজশাহী', 'chattogram' => 'চট্টগ্রাম',
+            'chittagong' => 'চট্টগ্রাম', 'ctg' => 'চট্টগ্রাম', 'khulna' => 'খুলনা',
             'barishal' => 'বরিশাল', 'barisal' => 'বরিশাল', 'sylhet' => 'সিলেট',
-            'rangpur' => 'রংপুর', 'mymensingh' => 'ময়মনসিংহ', 'cumilla' => 'কুমিল্লা',
-            'comilla' => 'কুমিল্লা', 'gazipur' => 'গাজীপুর', 'savar' => 'সাভার',
-            'mirpur' => 'মিরপুর', 'uttara' => 'উত্তরা', 'dhanmondi' => 'ধানমন্ডি',
-            'gulshan' => 'গুলশান', 'bogura' => 'বগুড়া', 'bogra' => 'বগুড়া',
-            'natore' => 'নাটোর', 'singra' => 'সিংড়া', 'pabna' => 'পাবনা',
-            'naogaon' => 'নওগাঁ', 'sirajganj' => 'সিরাজগঞ্জ', 'tangail' => 'টাঙ্গাইল',
-            'jashore' => 'যশোর', 'jessore' => 'যশোর', 'kushtia' => 'কুষ্টিয়া',
-            'feni' => 'ফেনী', 'noakhali' => 'নোয়াখালী', 'coxsbazar' => 'কক্সবাজার',
-            'dinajpur' => 'দিনাজপুর', 'jamalpur' => 'জামালপুর', 'faridpur' => 'ফরিদপুর',
-            'narayanganj' => 'নারায়ণগঞ্জ', 'narail' => 'নড়াইল', 'satkhira' => 'সাতক্ষীরা',
-            'bagerhat' => 'বাগেরহাট', 'chuadanga' => 'চুয়াডাঙ্গা', 'meherpur' => 'মেহেরপুর',
-            'magura' => 'মাগুরা', 'jhenaidah' => 'ঝিনাইদহ', 'bhola' => 'ভোলা',
-            'patuakhali' => 'পটুয়াখালী', 'barguna' => 'বরগুনা', 'pirojpur' => 'পিরোজপুর',
-            'jhalokathi' => 'ঝালকাঠি', 'habiganj' => 'হবিগঞ্জ', 'moulvibazar' => 'মৌলভীবাজার',
-            'sunamganj' => 'সুনামগঞ্জ', 'brahmanbaria' => 'ব্রাহ্মণবাড়িয়া', 'chandpur' => 'চাঁদপুর',
-            'lakshmipur' => 'লক্ষ্মীপুর', 'bandarban' => 'বান্দরবান', 'rangamati' => 'রাঙ্গামাটি',
-            'khagrachhari' => 'খাগড়াছড়ি', 'kurigram' => 'কুড়িগ্রাম', 'gaibandha' => 'গাইবান্ধা',
-            'lalmonirhat' => 'লালমনিরহাট', 'nilphamari' => 'নীলফামারী', 'panchagarh' => 'পঞ্চগড়',
-            'thakurgaon' => 'ঠাকুরগাঁও', 'sherpur' => 'শেরপুর', 'netrokona' => 'নেত্রকোণা',
-            'kishoreganj' => 'কিশোরগঞ্জ', 'manikganj' => 'মানিকগঞ্জ', 'munshiganj' => 'মুন্সীগঞ্জ',
-            'narsingdi' => 'নরসিংদী', 'gopalganj' => 'গোপালগঞ্জ', 'madaripur' => 'মাদারীপুর',
-            'shariatpur' => 'শরীয়তপুর', 'rajbari' => 'রাজবাড়ী', 'chapainawabganj' => 'চাঁপাইনবাবগঞ্জ',
-            'joypurhat' => 'জয়পুরহাট',
+            'rangpur' => 'রংপুর', 'mymensingh' => 'ময়মনসিংহ', 'bagerhat' => 'বাগেরহাট',
+            'bandarban' => 'বান্দরবান', 'barguna' => 'বরগুনা', 'bhola' => 'ভোলা',
+            'bogura' => 'বগুড়া', 'bogra' => 'বগুড়া', 'brahmanbaria' => 'ব্রাহ্মণবাড়িয়া',
+            'bbaria' => 'ব্রাহ্মণবাড়িয়া', 'chandpur' => 'চাঁদপুর', 'chapainawabganj' => 'চাঁপাইনবাবগঞ্জ',
+            'nawabganj' => 'চাঁপাইনবাবগঞ্জ', 'chuadanga' => 'চুয়াডাঙ্গা', 'cumilla' => 'কুমিল্লা',
+            'comilla' => 'কুমিল্লা', 'coxsbazar' => 'কক্সবাজার', 'cox\'s bazar' => 'কক্সবাজার',
+            'dinajpur' => 'দিনাজপুর', 'faridpur' => 'ফরিদপুর', 'feni' => 'ফেনী',
+            'gaibandha' => 'গাইবান্ধা', 'gazipur' => 'গাজীপুর', 'gopalganj' => 'গোপালগঞ্জ',
+            'habiganj' => 'হবিগঞ্জ', 'jamalpur' => 'জামালপুর', 'jashore' => 'যশোর',
+            'jessore' => 'যশোর', 'jhalokathi' => 'ঝালকাঠি', 'jhalakati' => 'ঝালকাঠি',
+            'jhenaidah' => 'ঝিনাইদহ', 'joypurhat' => 'জয়পুরহাট', 'khagrachhari' => 'খাগড়াছড়ি',
+            'khagrachari' => 'খাগড়াছড়ি', 'kishoreganj' => 'কিশোরগঞ্জ', 'kurigram' => 'কুড়িগ্রাম',
+            'kushtia' => 'কুষ্টিয়া', 'lakshmipur' => 'লক্ষ্মীপুর', 'laxmipur' => 'লক্ষ্মীপুর',
+            'lalmonirhat' => 'লালমনিরহাট', 'madaripur' => 'মাদারীপুর', 'magura' => 'মাগুরা',
+            'manikganj' => 'মানিকগঞ্জ', 'meherpur' => 'মেহেরপুর', 'moulvibazar' => 'মৌলভীবাজার',
+            'maulvibazar' => 'মৌলভীবাজার', 'munshiganj' => 'মুন্সীগঞ্জ', 'naogaon' => 'নওগাঁ',
+            'narail' => 'নড়াইল', 'narayanganj' => 'নারায়ণগঞ্জ', 'narsingdi' => 'নরসিংদী',
+            'natore' => 'নাটোর', 'netrokona' => 'নেত্রকোণা', 'netrakona' => 'নেত্রকোণা',
+            'nilphamari' => 'নীলফামারী', 'noakhali' => 'নোয়াখালী', 'pabna' => 'পাবনা',
+            'panchagarh' => 'পঞ্চগড়', 'patuakhali' => 'পটুয়াখালী', 'pirojpur' => 'পিরোজপুর',
+            'rajbari' => 'রাজবাড়ী', 'rangamati' => 'রাঙ্গামাটি', 'satkhira' => 'সাতক্ষীরা',
+            'shariatpur' => 'শরীয়তপুর', 'sherpur' => 'শেরপুর', 'sirajganj' => 'সিরাজগঞ্জ',
+            'sunamganj' => 'সুনামগঞ্জ', 'tangail' => 'টাঙ্গাইল', 'thakurgaon' => 'ঠাকুরগাঁও',
+
+            // Major Thanas / Upazilas
+            'godagari' => 'গোদাগাড়ী', 'godagari' => 'গোদাগাড়ি', 'bagha' => 'বাঘা',
+            'charghat' => 'চারঘাট', 'paba' => 'পবা', 'puthia' => 'পুঠিয়া', 'tanore' => 'তানোর',
+            'mohanpur' => 'মোহনপুর', 'durgapur' => 'দুর্গাপুর', 'bagmara' => 'বাগমারা',
+            'savar' => 'সাভার', 'dhamrai' => 'ধামরাই', 'keraniganj' => 'কেরানীগঞ্জ',
+            'dohar' => 'দোহার', 'mirpur' => 'মিরপুর', 'uttara' => 'উত্তরা',
+            'dhanmondi' => 'ধানমন্ডি', 'gulshan' => 'গুলশান', 'banani' => 'বনানী',
+            'mohammadpur' => 'মোহাম্মদপুর', 'badda' => 'বাড্ডা', 'motijheel' => 'মতিঝিল',
+            'tejgaon' => 'তেজগাঁও', 'demra' => 'ডেমরা', 'jatrabari' => 'যাত্রাবাড়ী',
+            'khilgaon' => 'খিলগাঁও', 'rampura' => 'রামপুরা', 'paltan' => 'পল্টন',
+            'shahbagh' => 'শাহবাগ', 'kafrul' => 'কাফরুল', 'cantonment' => 'ক্যান্টনমেন্ট',
+            'pallabi' => 'পল্লবী', 'hazaribagh' => 'হাজারীবাগ', 'lalbagh' => 'লালবাগ',
+            'kamrangirchar' => 'কামরাঙ্গীরচর', 'sutrapur' => 'সূত্রাপুর', 'kotwali' => 'কোতোয়ালী',
+            'wari' => 'ওয়ারী', 'gendaria' => 'গেন্ডারিয়া', 'kadamtali' => 'কদমতলী',
+            'shyampur' => 'শ্যামপুর', 'khilkhet' => 'খিলক্ষেত', 'vatara' => 'ভাটারা',
+            'turag' => 'তুরাগ', 'uttarkhan' => 'উত্তরখান', 'dakshinkhan' => 'দক্ষিণখান',
+            'adabor' => 'আদাবর', 'darussalam' => 'দারুস সালাম', 'rupnagar' => 'রূপনগর',
+            'hatirjheel' => 'হাতিরঝিল', 'tongi' => 'টঙ্গী', 'kaliakair' => 'কালিয়াকৈর',
+            'kapasia' => 'কাপাসিয়া', 'sreepur' => 'শ্রীপুর', 'kaliganj' => 'কালীগঞ্জ',
+            'bandar' => 'বন্দর', 'fatullah' => 'ফতুল্লা', 'siddhirganj' => 'সিদ্ধিরগঞ্জ',
+            'rupganj' => 'রূপগঞ্জ', 'sonargaon' => 'সোনারগাঁ', 'araihazar' => 'আড়াইহাজার',
+            'singra' => 'সিংড়া', 'gurudaspur' => 'গুরুদাসপুর', 'baraigram' => 'বড়াইগ্রাম',
+            'lalpur' => 'লালপুর', 'bagatipara' => 'বাগাতিপাড়া', 'ishwardi' => 'ঈশ্বরদী',
+            'sreemangal' => 'শ্রীমঙ্গল', 'sitakunda' => 'সীতাকুণ্ড', 'hathazari' => 'হাটহাজারী',
+            'raozan' => 'রাউজান', 'rangunia' => 'রাঙ্গুনিয়া', 'mirsharai' => 'মীরসরাই',
+            'patiya' => 'পটিয়া', 'boalkhali' => 'বোয়ালখালী', 'anwara' => 'আনোয়ারা',
+            'banshkhali' => 'বাঁশখালী', 'lohagara' => 'লোহাগাড়া', 'satkania' => 'সাতকানিয়া',
+            'sandwip' => 'সন্দ্বীপ', 'teknaf' => 'টেকনাফ', 'chakaria' => 'চকরিয়া',
+            'maheshkhali' => 'মহেশখালী', 'ramu' => 'রামু', 'ukhiya' => 'উখিয়া',
         ];
 
-        if (isset($directMap[$str])) {
-            return $directMap[$str];
+        // Direct matching
+        if (isset($directMap[$clean])) {
+            $list[] = $directMap[$clean];
         }
 
-        // Substring / partial direct match
-        foreach ($directMap as $en => $bn) {
-            if (str_starts_with($en, $str)) {
-                return $bn;
+        // Prefix matching on dictionary
+        foreach ($directMap as $k => $v) {
+            if (str_starts_with($k, $clean)) {
+                $list[] = $v;
             }
         }
 
-        // Rule-based phonetic transliteration
+        // Phonetic transliteration
         $patterns = [
-            'kkh' => 'ক্ষ', 'ggy' => 'জ্ঞ', 'cch' => 'চ্ছ', 'kkh' => 'ক্ষ',
+            'kkh' => 'ক্ষ', 'ggy' => 'জ্ঞ', 'cch' => 'চ্ছ', 'ksh' => 'ক্ষ',
             'sh' => 'শ', 'ch' => 'চ', 'kh' => 'খ', 'gh' => 'ঘ', 'ng' => 'ঙ',
             'th' => 'থ', 'dh' => 'ধ', 'ph' => 'ফ', 'bh' => 'ভ', 'jh' => 'ঝ',
             'zh' => 'ঝ', 'ee' => 'ী', 'oo' => 'ূ', 'oi' => 'ৈ', 'ou' => 'ৌ',
+            'au' => 'ৌ', 'ai' => 'াই', 'ei' => 'েই', 'aa' => 'া',
             'k' => 'ক', 'g' => 'গ', 'j' => 'জ', 't' => 'ট', 'd' => 'ড',
             'n' => 'ন', 'p' => 'প', 'f' => 'ফ', 'b' => 'ব', 'v' => 'ভ',
             'm' => 'ম', 'r' => 'র', 'l' => 'ল', 's' => 'স', 'h' => 'হ',
             'w' => 'ও', 'y' => 'য়', 'z' => 'য', 'a' => 'া', 'i' => 'ি',
             'u' => 'ু', 'e' => 'ে', 'o' => 'ো',
         ];
+        $phonetic = str_replace(array_keys($patterns), array_values($patterns), $clean);
+        if ($phonetic !== $clean) {
+            $list[] = $phonetic;
+            $list[] = str_replace('র', 'ড়', $phonetic);
+            $list[] = str_replace('ড়', 'র', $phonetic);
+        }
 
-        $out = str_replace(array_keys($patterns), array_values($patterns), $str);
-        return $out;
+        return array_unique(array_filter($list));
     }
 }
