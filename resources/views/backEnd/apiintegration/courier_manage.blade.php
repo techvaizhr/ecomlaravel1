@@ -352,7 +352,7 @@
         <div class="row g-4">
 
             {{-- 1. Carrybee --}}
-            <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="col-12 col-md-6 col-lg-6">
                 <div class="courier-panel">
                     <div class="courier-panel-head carrybee">
                         <div>
@@ -466,7 +466,7 @@
             </div>
 
             {{-- 2. Steadfast --}}
-            <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="col-12 col-md-6 col-lg-6">
                 <div class="courier-panel">
                     <div class="courier-panel-head steadfast">
                         <div>
@@ -551,7 +551,7 @@
             </div>
 
             {{-- 3. Pathao --}}
-            <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="col-12 col-md-6 col-lg-6">
                 <div class="courier-panel">
                     <div class="courier-panel-head pathao">
                         <div>
@@ -657,7 +657,7 @@
             </div>
 
             {{-- 4. RedX --}}
-            <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="col-12 col-md-6 col-lg-6">
                 <div class="courier-panel">
                     <div class="courier-panel-head redx">
                         <div>
