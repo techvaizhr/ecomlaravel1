@@ -567,20 +567,22 @@
     font-size: 14px;
 }
 
-/* Mobile responsive (Bottom Sheet) */
+/* Mobile responsive (Floating Card — সব দিক থেকে gap) */
 @media (max-width: 768px) {
     .delivery-location-dialog {
-        width: 100%;
-        max-width: 100%;
+        width: calc(100% - 24px);
+        max-width: calc(100% - 24px);
         max-height: 88vh;
-        border-radius: 20px 20px 0 0;
+        border-radius: 16px;
         position: fixed;
-        bottom: 0;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
         animation: modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes modalSlideUp {
-        from { transform: translateY(100%); }
-        to { transform: translateY(0); }
+        from { transform: translateY(110%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
     .delivery-grid-list {
         grid-template-columns: 1fr;
