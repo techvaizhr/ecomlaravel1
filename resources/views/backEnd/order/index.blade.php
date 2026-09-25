@@ -10,7 +10,7 @@
 <tbody>
                                 @foreach($show_data as $key => $value)
                                     <tr>
-                                        {{-- 1. Checkbox + Serial + Quick View --}}
+                                        {{-- 1. Checkbox + Serial + Quick View + 3-Dot Actions --}}
                                         <td class="text-center align-middle" style="width: 42px; padding-left: 2px; padding-right: 2px;">
                                             <div class="d-flex flex-column align-items-center" style="gap: 2px;">
                                                 <input type="checkbox" class="checkbox form-check-input m-0" value="{{ $value->id }}" style="width: 13.5px; height: 13.5px; cursor: pointer;">
@@ -22,6 +22,80 @@
                                                     style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; background: #e0f2fe;">
                                                     <i class="fas fa-eye" style="font-size: 9.5px;"></i>
                                                 </button>
+
+                                                {{-- 3-Dot Action Menu (Horizontal '...' format) --}}
+                                                <div class="dropdown d-inline-block">
+                                                    <button class="btn btn-xs btn-light border-0 p-0 text-muted d-inline-flex align-items-center justify-content-center" 
+                                                            type="button" 
+                                                            data-bs-toggle="dropdown" 
+                                                            aria-expanded="false" 
+                                                            style="width: 20px; height: 16px; line-height: 1; border-radius: 4px;" 
+                                                            title="অন্যান্য অ্যাকশন">
+                                                        <i class="fas fa-ellipsis-h" style="font-size: 11px;"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-start shadow-sm border-0 order-action-dropdown" style="min-width: 175px; z-index: 1050; font-size: 12.5px;">
+                                                        <li>
+                                                            <a class="dropdown-item order-quick-view-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}">
+                                                                <i class="fas fa-eye text-primary me-2"></i> বিস্তারিত ভিউ
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}">
+                                                                <i class="fas fa-tasks text-info me-2"></i> প্রসেস / স্ট্যাটাস
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item single-assign-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-current-user="{{ $value->user_id }}" data-invoice="{{ $value->invoice_id }}">
+                                                                <i class="fas fa-user-plus text-primary me-2"></i> ইউজার অ্যাসাইন
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}">
+                                                                <i class="fas fa-edit text-warning me-2"></i> অর্ডার এডিট
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center" target="_blank" href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}">
+                                                                <i class="fas fa-print text-secondary me-2"></i> ইনভয়েস প্রিন্ট
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center" target="_blank" href="{{ route('admin.order.order_print') }}?order_ids[]={{ $value->id }}&type=label">
+                                                                <i class="fas fa-tag text-success me-2"></i> লেবেল প্রিন্ট
+                                                            </a>
+                                                        </li>
+                                                        @if(isset($steadfast) && $steadfast)
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'steadfast') }}?order_ids[]={{ $value->id }}&status=5">
+                                                                <i class="fas fa-truck text-danger me-2"></i> Steadfast বুকিং
+                                                            </a>
+                                                        </li>
+                                                        @endif
+                                                        @if(isset($pathao_info) && $pathao_info)
+                                                        <li>
+                                                            <a class="dropdown-item single-pathao-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}">
+                                                                <i class="fas fa-motorcycle text-danger me-2"></i> Pathao বুকিং
+                                                            </a>
+                                                        </li>
+                                                        @endif
+                                                        @if(isset($redx_info) && $redx_info)
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'redx') }}?order_ids[]={{ $value->id }}&status=5">
+                                                                <i class="fas fa-truck text-danger me-2"></i> RedX বুকিং
+                                                            </a>
+                                                        </li>
+                                                        @endif
+                                                        <li>
+                                                            <form method="post" action="{{ route('admin.order.destroy') }}" class="d-block m-0 p-0">
+                                                                @csrf
+                                                                <input type="hidden" value="{{ $value->id }}" name="id">
+                                                                <button type="submit" class="dropdown-item text-danger delete-confirm d-flex align-items-center">
+                                                                    <i class="fas fa-trash-alt me-2"></i> ডিলিট করুন
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </td>
 
@@ -264,77 +338,6 @@
                                                     {{ $value->fraud_rate }}% {{ $value->fraud_rate >= 80 ? 'নিরাপদ' : 'ঝুঁকি' }}
                                                 </a>
                                             @endif
-                                        </td>
-
-                                        {{-- 8. 3-Dot Actions Menu --}}
-                                        <td class="align-middle text-end text-nowrap" style="width: 1%; padding-left: 2px; padding-right: 6px;">
-                                            <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm btn-light border p-0 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;" title="অ্যাকশন">
-                                                    <i class="fas fa-ellipsis-v text-muted" style="font-size: 13px;"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 order-action-dropdown">
-                                                    <li>
-                                                        <a class="dropdown-item order-quick-view-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}">
-                                                            <i class="fas fa-eye text-primary"></i> বিস্তারিত ভিউ
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}">
-                                                            <i class="fas fa-tasks text-info"></i> প্রসেস / স্ট্যাটাস
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item single-assign-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-current-user="{{ $value->user_id }}" data-invoice="{{ $value->invoice_id }}">
-                                                            <i class="fas fa-user-plus text-primary"></i> ইউজার অ্যাসাইন
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}">
-                                                            <i class="fas fa-edit text-warning"></i> অর্ডার এডিট
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item d-flex align-items-center" target="_blank" href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}">
-                                                            <i class="fas fa-print text-secondary"></i> ইনভয়েস প্রিন্ট
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item d-flex align-items-center" target="_blank" href="{{ route('admin.order.order_print') }}?order_ids[]={{ $value->id }}&type=label">
-                                                            <i class="fas fa-tag text-success"></i> লেবেল প্রিন্ট
-                                                        </a>
-                                                    </li>
-                                                    @if(isset($steadfast) && $steadfast)
-                                                    <li>
-                                                        <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'steadfast') }}?order_ids[]={{ $value->id }}&status=5">
-                                                            <i class="fas fa-truck text-danger"></i> Steadfast বুকিং
-                                                        </a>
-                                                    </li>
-                                                    @endif
-                                                    @if(isset($pathao_info) && $pathao_info)
-                                                    <li>
-                                                        <a class="dropdown-item single-pathao-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}">
-                                                            <i class="fas fa-motorcycle text-danger"></i> Pathao বুকিং
-                                                        </a>
-                                                    </li>
-                                                    @endif
-                                                    @if(isset($redx_info) && $redx_info)
-                                                    <li>
-                                                        <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'redx') }}?order_ids[]={{ $value->id }}&status=5">
-                                                            <i class="fas fa-truck text-danger"></i> RedX বুকিং
-                                                        </a>
-                                                    </li>
-                                                    @endif
-                                                    <li>
-                                                        <form method="post" action="{{ route('admin.order.destroy') }}" class="d-block m-0 p-0">
-                                                            @csrf
-                                                            <input type="hidden" value="{{ $value->id }}" name="id">
-                                                            <button type="submit" class="dropdown-item text-danger delete-confirm d-flex align-items-center">
-                                                                <i class="fas fa-trash-alt"></i> ডিলিট করুন
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

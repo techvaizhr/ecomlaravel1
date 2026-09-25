@@ -87,6 +87,5 @@
                             <th class="text-end text-nowrap" style="width: 1%; padding-left: 6px; padding-right: 4px;">পরিমাণ</th>
                             <th class="text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">স্ট্যাটাস</th>
                             <th class="text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 2px;">ফ্রড চেক</th>
-                            <th class="text-end text-nowrap" style="width: 1%; padding-left: 2px; padding-right: 6px;"><i class="fas fa-ellipsis-v"></i></th>
                         </tr>
                     </thead>
