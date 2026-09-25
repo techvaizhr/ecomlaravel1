@@ -85,19 +85,19 @@
             </div>
         </div>
 
-        {{-- Search Input --}}
+        {{-- Search Input with Floating Suggestions Dropdown --}}
         <div class="delivery-location-search-wrap">
             <i class="fas fa-search search-icon"></i>
             <input type="text" class="delivery-location-search-input" id="{{ $prefix }}_location_search" placeholder="সার্চ করুন (যেমন: godagari, ঢাকা, মিরপুর)..." autocomplete="off" dir="ltr" spellcheck="false">
             <button type="button" class="delivery-search-clear d-none" id="{{ $prefix }}_search_clear"><i class="fas fa-times-circle"></i></button>
-        </div>
 
-        {{-- SMART SUGGESTIONS PANE (Instant 1-Click Hierarchy Selection) --}}
-        <div class="delivery-suggestions-box d-none" id="{{ $prefix }}_suggestions_box">
-            <div class="delivery-suggestions-header">
-                <i class="fas fa-bolt text-success me-1"></i>স্মার্ট সাজেশন (সরাসরি সিলেক্ট করতে চাপ দিন):
+            {{-- SMART SUGGESTIONS PANE (Floating Dropdown Overlay) --}}
+            <div class="delivery-suggestions-box d-none" id="{{ $prefix }}_suggestions_box">
+                <div class="delivery-suggestions-header">
+                    <i class="fas fa-bolt text-success me-1"></i>স্মার্ট সাজেশন (সরাসরি সিলেক্ট করতে চাপ দিন):
+                </div>
+                <div class="delivery-suggestions-list" id="{{ $prefix }}_suggestions_list"></div>
             </div>
-            <div class="delivery-suggestions-list" id="{{ $prefix }}_suggestions_list"></div>
         </div>
 
         {{-- Selected Breadcrumb pill --}}
@@ -458,16 +458,24 @@
     z-index: 2;
 }
 
-/* Smart Suggestions Box */
+/* Smart Suggestions Box (Floating Dropdown Overlay over list) */
 .delivery-suggestions-box {
-    background: #f0fdf4;
-    border-bottom: 2px solid #86efac;
-    max-height: 240px;
+    position: absolute;
+    top: 100%;
+    left: 14px;
+    right: 14px;
+    background: #ffffff;
+    border: 1.5px solid #86efac;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    max-height: 280px;
     overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 .delivery-suggestions-header {
     background: #dcfce7;
-    padding: 6px 16px;
+    padding: 6px 14px;
     font-size: 12px;
     font-weight: 700;
     color: #15803d;
@@ -1507,16 +1515,32 @@
         }
 
         if (searchInput) {
+            var origSearchPh = searchInput.getAttribute('placeholder') || '';
+            searchInput.setAttribute('data-stored-ph', origSearchPh);
+
+            searchInput.addEventListener('focus', function () {
+                this.setAttribute('placeholder', '');
+                if (!this.value && this.setSelectionRange) {
+                    try { this.setSelectionRange(0, 0); } catch(e){}
+                }
+            });
+
             searchInput.addEventListener('click', function () {
                 if (!this.value) {
-                    try { this.setSelectionRange(0, 0); } catch(e){}
+                    this.setAttribute('placeholder', '');
+                    if (this.setSelectionRange) {
+                        try { this.setSelectionRange(0, 0); } catch(e){}
+                    }
                 }
             });
-            searchInput.addEventListener('focus', function () {
-                if (!this.value) {
-                    try { this.setSelectionRange(0, 0); } catch(e){}
+
+            searchInput.addEventListener('blur', function () {
+                if (!this.value || !this.value.trim()) {
+                    var defaultPh = currentStep === 1 ? 'বিভাগ বা এলাকা সার্চ করুন (যেমন: godagari, ঢাকা, মিরপুর)...' : (currentStep === 2 ? 'জেলা বা এলাকা সার্চ করুন...' : 'থানা বা এলাকা সার্চ করুন...');
+                    this.setAttribute('placeholder', defaultPh);
                 }
             });
+
             searchInput.addEventListener('input', function () {
                 var val = searchInput.value;
                 if (searchClear) searchClear.classList.toggle('d-none', !val);

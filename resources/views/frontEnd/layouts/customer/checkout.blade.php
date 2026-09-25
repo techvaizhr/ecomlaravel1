@@ -688,6 +688,16 @@
         font-size: 13px !important;
         font-weight: 400 !important;
     }
+    .modern-outline-group input:focus::placeholder,
+    .modern-outline-group textarea:focus::placeholder,
+    .modern-outline-group .form-control-custom:focus::placeholder,
+    .modern-outline-group .form-control:focus::placeholder,
+    .checkout-section input:focus::placeholder,
+    .checkout-section textarea:focus::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
 
     /* Order note collapsible button */
     .order-note-collapse-wrapper {
@@ -2172,6 +2182,47 @@ $(document).ready(function () {
                 if (f) f.submit();
             }
         });
+    }
+})();
+
+// Auto-clear placeholders on focus/click to ensure caret is at position 0
+(function() {
+    function bindAutoClearPlaceholders() {
+        var fields = document.querySelectorAll('.checkout-section input[placeholder], .checkout-section textarea[placeholder], .modern-outline-group input[placeholder], .modern-outline-group textarea[placeholder]');
+        fields.forEach(function (el) {
+            var ph = el.getAttribute('placeholder');
+            if (ph && ph.trim() !== '') {
+                el.setAttribute('data-stored-ph', ph);
+
+                el.addEventListener('focus', function () {
+                    this.setAttribute('placeholder', '');
+                    if (!this.value && this.setSelectionRange) {
+                        try { this.setSelectionRange(0, 0); } catch(e){}
+                    }
+                });
+
+                el.addEventListener('click', function () {
+                    if (!this.value) {
+                        this.setAttribute('placeholder', '');
+                        if (this.setSelectionRange) {
+                            try { this.setSelectionRange(0, 0); } catch(e){}
+                        }
+                    }
+                });
+
+                el.addEventListener('blur', function () {
+                    if (!this.value || !this.value.trim()) {
+                        this.setAttribute('placeholder', this.getAttribute('data-stored-ph') || '');
+                    }
+                });
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindAutoClearPlaceholders);
+    } else {
+        bindAutoClearPlaceholders();
     }
 })();
 </script>
