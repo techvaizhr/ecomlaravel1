@@ -294,7 +294,7 @@
                         </div>
                         <div class="sum-row border-0 p-0">
                             <span style="color: #fb7185;">Remaining Due</span>
-                            <span class="fw-bold" style="color: #ffffff;">৳{{ number_format($due_amount, 0) }}</span>
+                            <span class="fw-bold" style="color: #ff4d4d; font-size: 1.1em;">৳{{ number_format($due_amount, 0) }}</span>
                         </div>
                     </div>
                 </div>
