@@ -3156,15 +3156,40 @@ PROMPT;
             return $out;
         }
 
+        // 1. Consignment ID
         if (! empty($res['consignment']['consignment_id'])) {
             $out['consignment_id'] = (string) $res['consignment']['consignment_id'];
         } elseif (! empty($res['consignment_id'])) {
             $out['consignment_id'] = (string) $res['consignment_id'];
         } elseif (! empty($res['data']['consignment_id'])) {
             $out['consignment_id'] = (string) $res['data']['consignment_id'];
+        } elseif (! empty($res['consignment']['id'])) {
+            $out['consignment_id'] = (string) $res['consignment']['id'];
+        } elseif (! empty($res['data']['id'])) {
+            $out['consignment_id'] = (string) $res['data']['id'];
+        } elseif (! empty($res['id'])) {
+            $out['consignment_id'] = (string) $res['id'];
         }
 
-        if (! empty($res['consignment']['tracking_code'])) {
+        // 2. Tracking Token / Link / Code (Priority: tracking_token / token / link > tracking_code)
+        $token = $res['consignment']['tracking_token']
+            ?? $res['tracking_token']
+            ?? $res['data']['tracking_token']
+            ?? $res['consignment']['token']
+            ?? $res['token']
+            ?? $res['data']['token']
+            ?? $res['consignment']['tracking_link']
+            ?? $res['tracking_link']
+            ?? $res['data']['tracking_link']
+            ?? $res['consignment']['public_tracking_url']
+            ?? $res['public_tracking_url']
+            ?? $res['data']['public_tracking_url']
+            ?? null;
+
+
+        if ($token !== null && trim((string) $token) !== '') {
+            $out['tracking_code'] = trim((string) $token);
+        } elseif (! empty($res['consignment']['tracking_code'])) {
             $out['tracking_code'] = (string) $res['consignment']['tracking_code'];
         } elseif (! empty($res['tracking_code'])) {
             $out['tracking_code'] = (string) $res['tracking_code'];

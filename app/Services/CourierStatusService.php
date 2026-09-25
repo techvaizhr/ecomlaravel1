@@ -28,7 +28,36 @@ class CourierStatusService
 
         if ($courierType === 'steadfast') {
             $code = trim((string) ($order->courier_tracking_code ?: $trackingId));
-            return 'https://steadfast.com.bd/t/' . urlencode($code);
+            if ($code === '') {
+                return null;
+            }
+
+            // If it is already a full URL
+            if (str_starts_with($code, 'http://') || str_starts_with($code, 'https://')) {
+                return $code;
+            }
+
+            // If it starts with tl/ or t/
+            if (str_starts_with($code, 'tl/') || str_starts_with($code, 't/')) {
+                return 'https://steadfast.com.bd/' . $code;
+            }
+
+            // 32-character mixed-case token (e.g. WNuuS5Zkqlp5O9NpvwqNJeAECjaYIJMb)
+            if (strlen($code) >= 28 && preg_match('/[a-z]/', $code) && preg_match('/[A-Z]/', $code)) {
+                return 'https://steadfast.com.bd/tl/' . urlencode($code);
+            }
+
+            // If it's a numeric consignment ID only, or standard code
+            if (ctype_digit($code)) {
+                return 'https://steadfast.com.bd/t/' . urlencode($code);
+            }
+
+            // Standard /tl/ token format for Steadfast public tracking
+            if (str_starts_with(strtoupper($code), 'SFR') || str_starts_with(strtoupper($code), 'SF')) {
+                return 'https://steadfast.com.bd/t/' . urlencode($code);
+            }
+
+            return 'https://steadfast.com.bd/tl/' . urlencode($code);
         }
 
         if ($courierType === 'redx') {
