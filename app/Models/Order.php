@@ -140,4 +140,29 @@ class Order extends Model
     {
         return $this->refunds()->whereIn('status', ['pending', 'approved'])->exists();
     }
+
+    /**
+     * Get clean courier tracking ID / consignment ID
+     */
+    public function getCourierTrackingIdCleanAttribute(): ?string
+    {
+        return $this->courier_tracking_id ?: ($this->consignment_id ?: null);
+    }
+
+    /**
+     * Get human-readable courier display name
+     */
+    public function getCourierNameDisplayAttribute(): string
+    {
+        return \App\Services\CourierStatusService::getCourierName($this);
+    }
+
+    /**
+     * Get public tracking URL for courier
+     */
+    public function getCourierTrackingUrlAttribute(): ?string
+    {
+        return \App\Services\CourierStatusService::getTrackingUrl($this);
+    }
 }
+

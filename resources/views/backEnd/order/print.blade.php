@@ -150,8 +150,8 @@
         @if($order->shipping && $order->shipping->phone)
         <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
         @endif
-        @if($order->shipping && ($order->shipping->address || $order->shipping->area))
-        <div class="fl"><span>Address : {{ $order->shipping->address }}{{ $order->shipping->area ? ', '.$order->shipping->area : '' }}</span></div>
+        @if($order->shipping && $order->shipping->full_address)
+        <div class="fl"><span>Address : {{ $order->shipping->full_address }}</span></div>
         @endif
     </div>
 

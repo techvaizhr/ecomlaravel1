@@ -394,11 +394,33 @@
                             </button>
                         </div>
                         @endif
-                        @if($order->courier_type)
-                        <small class="text-muted d-block mt-2">
-                            <i class="fas fa-truck"></i> {{ ucfirst($order->courier_type) }}
-                            @if($order->courier_tracking_id) · {{ $order->courier_tracking_id }}@endif
-                        </small>
+                        @php
+                            $invTrkId = $order->courier_tracking_id_clean;
+                            $invTrkUrl = $order->courier_tracking_url;
+                            $invCourierName = $order->courier_name_display;
+                        @endphp
+                        @if($invTrkId)
+                        <div class="mt-2 pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div>
+                                <small class="text-muted d-block" style="font-size:11px;">কুরিয়ার ট্র্যাকিং:</small>
+                                @if($invTrkUrl)
+                                    <a href="{{ $invTrkUrl }}" target="_blank" rel="noopener noreferrer" class="fw-bold text-primary text-decoration-none" title="কুরিয়ার পাবলিক ট্র্যাকিং লিংক খুলুন">
+                                        <i class="fas fa-truck"></i> {{ $invCourierName }} <i class="fas fa-external-link-alt small ms-1"></i>
+                                    </a>
+                                @else
+                                    <strong class="text-dark"><i class="fas fa-truck"></i> {{ $invCourierName }}</strong>
+                                @endif
+                                <code class="d-block text-dark mt-1">{{ $invTrkId }}</code>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <button type="button" class="btn btn-xs btn-outline-secondary copy-courier-id-btn py-0 px-2" data-id="{{ $invTrkId }}" title="কুরিয়ার আইডি কপি করুন">
+                                    <i class="far fa-copy me-1"></i> কপি
+                                </button>
+                                <button type="button" class="btn btn-xs btn-outline-info sync-courier-status-btn py-0 px-2" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" title="কুরিয়ার লাইভ স্ট্যাটাস চেক ও সিঙ্ক করুন">
+                                    <i class="fas fa-sync-alt me-1"></i> রিকল
+                                </button>
+                            </div>
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -452,9 +474,7 @@
                         <p><strong>{{ $order->shipping ? $order->shipping->name : '—' }}</strong></p>
                         @if($order->shipping && $order->shipping->phone)<p>{{ $order->shipping->phone }}</p>@endif
                         @php
-                            $invAddr = trim($order->shipping->address ?? '');
-                            $invArea = trim($order->shipping->area ?? '');
-                            $invFullAddr = implode(', ', array_filter([$invAddr, $invArea]));
+                            $invFullAddr = $order->shipping ? $order->shipping->full_address : ($order->customer ? $order->customer->address : '');
                         @endphp
                         @if($invFullAddr)<p>{{ $invFullAddr }}</p>@endif
                     </div>
@@ -591,8 +611,8 @@
         @if($order->shipping && $order->shipping->phone)
         <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
         @endif
-        @if($order->shipping && ($order->shipping->address || $order->shipping->area))
-        <div class="fl"><span>Address : {{ $order->shipping->address }}{{ $order->shipping->area ? ', '.$order->shipping->area : '' }}</span></div>
+        @if($order->shipping && $order->shipping->full_address)
+        <div class="fl"><span>Address : {{ $order->shipping->full_address }}</span></div>
         @endif
     </div>
     <table>
@@ -727,5 +747,68 @@ function updateOrderStatus(orderId) {
         if (typeof toastr !== 'undefined') toastr.error('কিছু একটা ভুল হয়েছে!', 'ত্রুটি');
     });
 }
+
+// Copy Courier ID
+$(document).on('click', '.copy-courier-id-btn', function (e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    if (!id) return;
+    navigator.clipboard.writeText(String(id)).then(function () {
+        if (typeof toastr !== 'undefined') toastr.success('কুরিয়ার আইডি কপি করা হয়েছে: ' + id);
+    }).catch(function () {
+        var temp = $('<input>');
+        $('body').append(temp);
+        temp.val(id).select();
+        document.execCommand('copy');
+        temp.remove();
+        if (typeof toastr !== 'undefined') toastr.success('কুরিয়ার আইডি কপি করা হয়েছে: ' + id);
+    });
+});
+
+// Sync Courier Status (Recall)
+$(document).on('click', '.sync-courier-status-btn', function (e) {
+    e.preventDefault();
+    var $btn = $(this);
+    var orderId = $btn.data('order-id');
+    var invoice = $btn.data('invoice');
+    if (!orderId) return;
+
+    var $icon = $btn.find('i');
+    $icon.addClass('fa-spin');
+    $btn.prop('disabled', true);
+
+    $.ajax({
+        url: "{{ route('admin.order.sync_courier_status') }}",
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            order_id: orderId,
+            invoice_id: invoice
+        },
+        dataType: "json",
+        success: function (res) {
+            $icon.removeClass('fa-spin');
+            $btn.prop('disabled', false);
+            if (res.success) {
+                if (typeof toastr !== 'undefined') toastr.success(res.message || 'কুরিয়ার স্ট্যাটাস আপডেট হয়েছে');
+                if (res.status_updated) {
+                    setTimeout(function () { location.reload(); }, 1200);
+                }
+            } else {
+                if (typeof toastr !== 'undefined') toastr.warning(res.message || 'কুরিয়ার স্ট্যাটাস পাওয়া যায়নি');
+            }
+        },
+        error: function (xhr) {
+            $icon.removeClass('fa-spin');
+            $btn.prop('disabled', false);
+            var msg = 'কুরিয়ার স্ট্যাটাস যাচাই করতে সমস্যা হয়েছে';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                msg = xhr.responseJSON.message;
+            }
+            if (typeof toastr !== 'undefined') toastr.error(msg);
+        }
+    });
+});
 </script>
 @endsection
+

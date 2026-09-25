@@ -608,11 +608,52 @@ PROMPT;
         }
     }
 
+    /**
+     * AJAX endpoint to check live courier status and sync order status.
+     */
+    public function syncCourierStatus(Request $request)
+    {
+        $orderId = $request->input('order_id') ?: $request->input('id');
+        $invoiceId = $request->input('invoice_id');
+
+        $query = Order::query();
+        if ($orderId) {
+            $query->where('id', $orderId);
+        } elseif ($invoiceId) {
+            $query->where('invoice_id', $invoiceId);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'অর্ডার আইডি বা ইনভয়েস নম্বর প্রদান করা হয়নি।',
+            ], 400);
+        }
+
+        $order = $query->with(['status', 'shipping'])->first();
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'অর্ডারটি খুঁজে পাওয়া যায়নি।',
+            ], 404);
+        }
+
+        $result = \App\Services\CourierStatusService::syncOrderStatus($order);
+
+        if (!empty($result['success'])) {
+            $this->clearOrderStatusCache();
+            $order->refresh()->load('status');
+            $result['order_status_id'] = $order->order_status;
+            $result['order_status_name'] = $order->status ? $order->status->name : '—';
+        }
+
+        return response()->json($result);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | ORDER LIST
     |--------------------------------------------------------------------------
     */
+
 
     /** ফ্রন্টেন্ড চেকআউটের সাথে মিল রেখে ট্র্যাফিক সোর্স ফিল্টার (@see CustomerController আর্ডার সেভ) */
     protected function applyTrafficSourceFilter(\Illuminate\Database\Eloquent\Builder $builder, Request $request): \Illuminate\Database\Eloquent\Builder

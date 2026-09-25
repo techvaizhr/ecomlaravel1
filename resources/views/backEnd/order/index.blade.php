@@ -63,12 +63,12 @@
                                             <small class="text-muted">{{ date('h:i:s A', strtotime($value->updated_at)) }}</small>
                                         </td>
 
-                                        {{-- 4. Customer with Call, WhatsApp, Copy & Address --}}
+                                        {{-- 4. Customer with Call, WhatsApp, Copy & Full Address --}}
                                         <td class="align-middle" style="min-width: 210px;">
                                             @php
                                                 $custName = $value->shipping ? $value->shipping->name : ($value->customer ? $value->customer->name : 'N/A');
                                                 $custPhone = $value->shipping ? $value->shipping->phone : ($value->customer ? $value->customer->phone : '');
-                                                $custAddr = $value->shipping ? $value->shipping->address : ($value->customer ? $value->customer->address : '');
+                                                $custAddr = $value->shipping ? $value->shipping->full_address : ($value->customer ? $value->customer->address : '');
                                              @endphp
                                              <div class="fw-bold text-dark" style="font-size: 13.5px;">{{ $custName }}</div>
                                              @if($custPhone)
@@ -94,7 +94,7 @@
                                                 </div>
                                              @endif
                                              @if(!empty($custAddr))
-                                                <div class="text-muted mt-1" style="font-size: 11.5px; line-height: 1.35; max-width: 240px;">
+                                                <div class="text-muted mt-1" style="font-size: 11.5px; line-height: 1.35; max-width: 250px;">
                                                     <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 10px;"></i>{{ $custAddr }}
                                                 </div>
                                              @endif
@@ -196,7 +196,7 @@
                                             <span class="oi-amount fw-bold text-dark" style="font-size: 13.5px;">৳{{ number_format($showAmount, 0) }}</span>
                                         </td>
 
-                                        {{-- 6. Status --}}
+                                        {{-- 6. Status & Courier Info --}}
                                         <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">
                                             <a href="javascript:void(0);" 
                                                class="quick-change-status-btn text-decoration-none d-inline-block" 
@@ -209,6 +209,41 @@
                                                     {{ $value->status ? $value->status->name : '—' }} <i class="fas fa-caret-down text-muted" style="font-size: 8.5px; margin-left: 2px;"></i>
                                                 </span>
                                             </a>
+
+                                            @php
+                                                $cTrackingId = $value->courier_tracking_id_clean;
+                                                $cTrackUrl   = $value->courier_tracking_url;
+                                                $cName       = $value->courier_name_display;
+                                            @endphp
+                                            @if(!empty($cTrackingId))
+                                                <div class="courier-booking-box mt-1 pt-1 border-top" style="font-size: 11px; line-height: 1.25;" id="courier-booking-{{ $value->id }}">
+                                                    {{-- Courier Name (Clickable Tracking Link) --}}
+                                                    <div class="courier-name-wrap">
+                                                        @if($cTrackUrl)
+                                                            <a href="{{ $cTrackUrl }}" target="_blank" rel="noopener noreferrer" class="fw-bold text-primary text-decoration-none d-inline-flex align-items-center gap-1" title="কুরিয়ার পাবলিক ট্র্যাকিং লিংক দেখুন" style="font-size: 11px;">
+                                                                <i class="fas fa-truck text-secondary" style="font-size: 9px;"></i> {{ $cName }} <i class="fas fa-external-link-alt text-muted" style="font-size: 8px;"></i>
+                                                            </a>
+                                                        @else
+                                                            <span class="fw-bold text-dark" style="font-size: 11px;">
+                                                                <i class="fas fa-truck text-secondary" style="font-size: 9px;"></i> {{ $cName }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+
+                                                    {{-- Courier ID with Copy & Recall/Sync --}}
+                                                    <div class="d-flex align-items-center justify-content-center gap-1 mt-1">
+                                                        <span class="text-secondary font-monospace" style="font-size: 10px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="কুরিয়ার ট্র্যাকিং আইডি: {{ $cTrackingId }}">{{ $cTrackingId }}</span>
+                                                        
+                                                        <button type="button" class="btn btn-xs p-0 border-0 text-muted copy-courier-id-btn d-inline-flex align-items-center justify-content-center" data-id="{{ $cTrackingId }}" style="width: 16px; height: 16px;" title="কুরিয়ার আইডি কপি করুন">
+                                                            <i class="far fa-copy" style="font-size: 10px;"></i>
+                                                        </button>
+
+                                                        <button type="button" class="btn btn-xs p-0 border-0 text-info sync-courier-status-btn d-inline-flex align-items-center justify-content-center" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" style="width: 16px; height: 16px;" title="কুরিয়ার লাইভ স্ট্যাটাস চেক ও সিঙ্ক করুন">
+                                                            <i class="fas fa-sync-alt" style="font-size: 10px;"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </td>
 
                                         {{-- 7. Fraud Check (Tight & Compact) --}}
@@ -1471,7 +1506,81 @@ $(document).ready(function(){
         });
     });
 
+    // Copy Courier Tracking ID
+    $(document).on('click', '.copy-courier-id-btn', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = $(this).data('id');
+        if (!id) return;
+
+        navigator.clipboard.writeText(String(id)).then(function () {
+            toastr.success('কুরিয়ার আইডি কপি করা হয়েছে: ' + id);
+        }).catch(function () {
+            var temp = $('<input>');
+            $('body').append(temp);
+            temp.val(id).select();
+            document.execCommand('copy');
+            temp.remove();
+            toastr.success('কুরিয়ার আইডি কপি করা হয়েছে: ' + id);
+        });
+    });
+
+    // Sync Live Courier Status (Recall)
+    $(document).on('click', '.sync-courier-status-btn', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $btn = $(this);
+        var orderId = $btn.data('order-id');
+        var invoice = $btn.data('invoice');
+
+        if (!orderId) return;
+
+        var $icon = $btn.find('i');
+        $icon.addClass('fa-spin');
+        $btn.prop('disabled', true);
+
+        $.ajax({
+            url: "{{ route('admin.order.sync_courier_status') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                order_id: orderId,
+                invoice_id: invoice
+            },
+            dataType: "json",
+            success: function (res) {
+                $icon.removeClass('fa-spin');
+                $btn.prop('disabled', false);
+
+                if (res.success) {
+                    toastr.success(res.message || 'কুরিয়ার স্ট্যাটাস আপডেট হয়েছে');
+
+                    // Update status badge on the row if changed
+                    if (res.order_status_name) {
+                        var $row = $btn.closest('tr');
+                        var $pill = $row.find('.quick-change-status-btn .oi-status-pill');
+                        if ($pill.length) {
+                            $pill.html(res.order_status_name + ' <i class="fas fa-caret-down text-muted" style="font-size: 8.5px; margin-left: 2px;"></i>');
+                        }
+                    }
+                } else {
+                    toastr.warning(res.message || 'কুরিয়ার স্ট্যাটাস পাওয়া যায়নি');
+                }
+            },
+            error: function (xhr) {
+                $icon.removeClass('fa-spin');
+                $btn.prop('disabled', false);
+                var msg = 'কুরিয়ার স্ট্যাটাস যাচাই করতে সমস্যা হয়েছে';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                toastr.error(msg);
+            }
+        });
+    });
+
     // Quick IP Block from order page
+
     $(document).on('click', '.block-ip-btn', function(e){
         e.preventDefault();
         var $btn = $(this);

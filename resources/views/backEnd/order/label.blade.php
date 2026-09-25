@@ -177,8 +177,7 @@
                 <div class="to-name">{{ $order->shipping->name ?? '—' }}</div>
                 <div class="to-phone">&#128222; {{ $order->shipping->phone ?? '' }}</div>
                 <div class="to-addr">
-                    {{ $order->shipping->address ?? '' }}
-                    @if($order->shipping->area), {{ $order->shipping->area }}@endif
+                    {{ $order->shipping->full_address ?? '' }}
                 </div>
             @else
                 <div class="to-name">— No Shipping Info —</div>

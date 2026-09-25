@@ -267,9 +267,27 @@
             <h4>অর্ডার প্রসেসিং</h4>
             <div class="op-sub">
                 ইনভয়েস <strong>#{{ $data->invoice_id }}</strong>
-                · স্ট্যাটাস: <span class="op-badge-status">{{ $currentStatusName }}</span>
+                · স্ট্যাটাস: <span class="op-badge-status" id="process_order_status_label">{{ $currentStatusName }}</span>
                 @if($isResellerOrder)
                     · <span class="op-badge-reseller">রিসেলার অর্ডার</span>
+                @endif
+                @php
+                    $pTrkId = $data->courier_tracking_id_clean;
+                    $pTrkUrl = $data->courier_tracking_url;
+                    $pCourierName = $data->courier_name_display;
+                @endphp
+                @if($pTrkId)
+                    · <span class="badge bg-light text-dark border px-2 py-1 align-middle">
+                        <i class="fas fa-truck text-primary me-1"></i>
+                        @if($pTrkUrl)
+                            <a href="{{ $pTrkUrl }}" target="_blank" rel="noopener noreferrer" class="text-primary fw-bold text-decoration-none" title="কুরিয়ার পাবলিক ট্র্যাকিং লিংক দেখুন">{{ $pCourierName }} <i class="fas fa-external-link-alt small"></i></a>
+                        @else
+                            <strong>{{ $pCourierName }}</strong>
+                        @endif
+                        : <code class="text-dark">{{ $pTrkId }}</code>
+                        <button type="button" class="btn btn-xs p-0 border-0 text-secondary copy-courier-id-btn ms-1" data-id="{{ $pTrkId }}" title="কুরিয়ার আইডি কপি করুন" style="vertical-align: middle;"><i class="far fa-copy"></i></button>
+                        <button type="button" class="btn btn-xs p-0 border-0 text-info sync-courier-status-btn ms-1" data-order-id="{{ $data->id }}" data-invoice="{{ $data->invoice_id }}" title="কুরিয়ার লাইভ স্ট্যাটাস চেক ও সিঙ্ক করুন" style="vertical-align: middle;"><i class="fas fa-sync-alt"></i></button>
+                    </span>
                 @endif
             </div>
         </div>
@@ -627,5 +645,68 @@ function updatePaymentStatus(orderId) {
         if (typeof toastr !== 'undefined') toastr.error('কিছু একটা ভুল হয়েছে!', 'ত্রুটি');
     });
 }
+
+// Copy Courier ID
+$(document).on('click', '.copy-courier-id-btn', function (e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    if (!id) return;
+    navigator.clipboard.writeText(String(id)).then(function () {
+        toastr.success('কুরিয়ার আইডি কপি করা হয়েছে: ' + id);
+    }).catch(function () {
+        var temp = $('<input>');
+        $('body').append(temp);
+        temp.val(id).select();
+        document.execCommand('copy');
+        temp.remove();
+        toastr.success('কুরিয়ার আইডি কপি করা হয়েছে: ' + id);
+    });
+});
+
+// Sync Courier Status (Recall)
+$(document).on('click', '.sync-courier-status-btn', function (e) {
+    e.preventDefault();
+    var $btn = $(this);
+    var orderId = $btn.data('order-id');
+    var invoice = $btn.data('invoice');
+    if (!orderId) return;
+
+    var $icon = $btn.find('i');
+    $icon.addClass('fa-spin');
+    $btn.prop('disabled', true);
+
+    $.ajax({
+        url: "{{ route('admin.order.sync_courier_status') }}",
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            order_id: orderId,
+            invoice_id: invoice
+        },
+        dataType: "json",
+        success: function (res) {
+            $icon.removeClass('fa-spin');
+            $btn.prop('disabled', false);
+            if (res.success) {
+                toastr.success(res.message || 'কুরিয়ার স্ট্যাটাস আপডেট হয়েছে');
+                if (res.order_status_name) {
+                    $('#process_order_status_label').text(res.order_status_name);
+                }
+            } else {
+                toastr.warning(res.message || 'কুরিয়ার স্ট্যাটাস পাওয়া যায়নি');
+            }
+        },
+        error: function (xhr) {
+            $icon.removeClass('fa-spin');
+            $btn.prop('disabled', false);
+            var msg = 'কুরিয়ার স্ট্যাটাস যাচাই করতে সমস্যা হয়েছে';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                msg = xhr.responseJSON.message;
+            }
+            toastr.error(msg);
+        }
+    });
+});
 </script>
 @endsection
+

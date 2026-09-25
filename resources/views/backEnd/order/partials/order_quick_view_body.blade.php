@@ -92,9 +92,7 @@
                         <div class="oqv-customer-email"><i class="fas fa-envelope text-muted me-1"></i>{{ $customer->email }}</div>
                         @endif
                         @php
-                            $oqvAddr = trim($ship->address ?? '');
-                            $oqvArea = trim($ship->area ?? '');
-                            $oqvFullAddr = implode(', ', array_filter([$oqvAddr, $oqvArea]));
+                            $oqvFullAddr = $ship ? $ship->full_address : ($customer ? $customer->address : '');
                         @endphp
                         @if($oqvFullAddr)
                         <div class="oqv-customer-addr mt-2"><i class="fas fa-map-marker-alt text-muted me-1"></i>{{ $oqvFullAddr }}</div>
@@ -172,15 +170,39 @@
                     @endif
                 </div>
 
-                @if($courierType || $trackingId)
-                <div class="oqv-courier-info mt-2">
-                    <i class="fas fa-truck"></i> {{ ucfirst($courierType ?? 'Courier') }}
-                    @if($trackingId) · {{ $trackingId }}@endif
+                @php
+                    $qTrackingId = $order->courier_tracking_id_clean;
+                    $qTrackUrl   = $order->courier_tracking_url;
+                    $qCourierName = $order->courier_name_display;
+                @endphp
+                @if($qTrackingId)
+                <div class="oqv-courier-info mt-2 d-flex align-items-center justify-content-between flex-wrap gap-2 p-2 rounded bg-light border">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-truck text-primary"></i>
+                        @if($qTrackUrl)
+                            <a href="{{ $qTrackUrl }}" target="_blank" rel="noopener noreferrer" class="fw-bold text-primary text-decoration-none" title="কুরিয়ার পাবলিক ট্র্যাকিং লিংক দেখুন">
+                                {{ $qCourierName }} <i class="fas fa-external-link-alt small ms-1"></i>
+                            </a>
+                        @else
+                            <strong class="text-dark">{{ $qCourierName }}</strong>
+                        @endif
+                        <span class="text-muted">·</span>
+                        <code class="text-dark fw-bold">{{ $qTrackingId }}</code>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-xs btn-outline-secondary copy-courier-id-btn py-0 px-2" data-id="{{ $qTrackingId }}" title="কুরিয়ার আইডি কপি করুন">
+                            <i class="far fa-copy me-1"></i> কপি
+                        </button>
+                        <button type="button" class="btn btn-xs btn-outline-info sync-courier-status-btn py-0 px-2" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" title="কুরিয়ার লাইভ স্ট্যাটাস চেক ও সিঙ্ক করুন">
+                            <i class="fas fa-sync-alt me-1"></i> রিকল
+                        </button>
+                    </div>
                 </div>
                 @endif
             </div>
         </div>
     </div>
+
 
     {{-- ফ্রড চেক --}}
     <div class="oqv-section oqv-fraud-section">
