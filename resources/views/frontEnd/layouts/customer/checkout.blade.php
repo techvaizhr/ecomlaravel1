@@ -8,7 +8,7 @@
         && (int) ($generalsetting->news_ticker_enabled ?? 0) === 1
         && trim((string) ($generalsetting->top_headline ?? '')) !== '';
     $checkoutMobilePadTop = $hasNewsTicker ? '138px' : '108px';
-    $checkoutDesktopPadTop = $hasNewsTicker ? '152px' : '120px';
+    $checkoutDesktopPadTop = $hasNewsTicker ? '175px' : '145px';
 @endphp
 @push('css')
 <link rel="stylesheet" href="{{ asset('public/frontEnd/css/select2.min.css') }}" />
@@ -33,7 +33,7 @@
 
     .checkout-section {
         background-color: var(--bg-color);
-        padding: 12px 0 28px;
+        padding: 16px 0 32px;
         font-family: 'Poppins', sans-serif;
     }
 
@@ -627,11 +627,11 @@
         }
     }
 
-    /* --- OUTLINED / NOTCHED BORDER LABEL FORM STYLING (COMPACT) --- */
+    /* --- OUTLINED / NOTCHED BORDER LABEL FORM STYLING (TIGHT & COMPACT) --- */
     .modern-outline-group {
         position: relative;
-        margin-top: 8px;
-        margin-bottom: 8px;
+        margin-top: 5px;
+        margin-bottom: 5px;
     }
     .modern-outline-group .modern-outline-label {
         position: absolute;
@@ -891,8 +891,8 @@
                             <i class="fas fa-truck-moving"></i>
                             <h6>শিপিং এবং বিলিং তথ্য</h6>
                         </div>
-                        <div class="card-body-custom">
-                            <div class="row">
+                        <div class="card-body-custom" style="padding: 10px 14px;">
+                            <div class="row g-2">
                                 {{-- ১. আপনার নাম * --}}
                                 <div class="col-md-6 col-12">
                                     <div class="modern-outline-group">

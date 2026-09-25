@@ -21,7 +21,7 @@
 {{-- ======================================================================
      3-IN-1 DELIVERY LOCATION PICKER (DIVISION > DISTRICT > THANA)
      ====================================================================== --}}
-<div class="delivery-area-field-wrapper modern-outline-group mb-3" id="{{ $prefix }}_delivery_area_wrapper">
+<div class="delivery-area-field-wrapper modern-outline-group mb-1" id="{{ $prefix }}_delivery_area_wrapper">
     <label class="modern-outline-label" for="{{ $prefix }}_delivery_area_trigger">
         {{ $fieldLabel ?? 'ডেলিভারি এরিয়া' }} <span class="text-danger">*</span>
     </label>
@@ -156,8 +156,8 @@
 /* Outlined / Notched Border Label Form Styling */
 .modern-outline-group {
     position: relative;
-    margin-top: 14px;
-    margin-bottom: 16px;
+    margin-top: 6px;
+    margin-bottom: 6px;
 }
 .modern-outline-group .modern-outline-label {
     position: absolute;

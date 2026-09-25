@@ -4324,8 +4324,9 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                         document.documentElement.style.setProperty('--navbar-height', finalH + 'px');
                         content.style.paddingTop = finalH + 'px';
                     } else {
-                        var h = navbar.offsetHeight;
+                        var h = navbar.offsetHeight || 165;
                         document.documentElement.style.setProperty('--navbar-height', h + 'px');
+                        content.style.paddingTop = h + 'px';
                     }
                 }
             }
