@@ -589,6 +589,236 @@
 #content .pro_details_area .product-video-sticky-wrap {
     z-index: 20;
 }
+
+/* ==========================================================================
+   🎯 SINGLE PRODUCT COMPACT SPACING (PC & MOBILE) + PRICE DISCOUNT BADGE
+   ========================================================================== */
+.product-details-discount-badge {
+    display: none !important;
+}
+
+.details-price {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin: 4px 0 6px !important;
+    line-height: 1.2 !important;
+}
+
+.details-price #newPrice,
+.details-price .details-new-price {
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    color: {{ optional($generalsetting)->primary_color ?? '#e11d48' }} !important;
+    letter-spacing: -0.3px !important;
+}
+
+.details-price del,
+.details-price .details-old-price {
+    color: #94a3b8 !important;
+    font-size: 17px !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.details-discount-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    background: #ffe4e6 !important;
+    color: #e11d48 !important;
+    border: 1px solid #fecdd3 !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.2px !important;
+}
+
+/* 📐 Tight Spacing from Title down to Order Buttons */
+.product-cart .name {
+    margin-bottom: 4px !important;
+    line-height: 1.3 !important;
+}
+
+.details-ratting-wrapper {
+    margin-bottom: 6px !important;
+    gap: 6px !important;
+}
+
+.wholesale-pricing-section {
+    margin: 6px 0 !important;
+}
+
+.wholesale-pricing-section table th,
+.wholesale-pricing-section table td {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+}
+
+.pro-color, .pro-size {
+    margin-bottom: 7px !important;
+}
+
+.color_inner p, .size_inner p {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    margin-bottom: 3px !important;
+}
+
+.selector {
+    gap: 6px !important;
+}
+
+.selector-item_label {
+    min-width: 34px !important;
+    height: 34px !important;
+    padding: 0 10px !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
+}
+
+.pro-color .selector-item_label {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border-radius: 6px !important;
+}
+
+.qty-cart {
+    margin-top: 2px !important;
+    margin-bottom: 5px !important;
+}
+
+.quick-qty-box,
+.quick-qty-btn,
+.product-qty-input {
+    height: 38px !important;
+    line-height: 38px !important;
+}
+
+.single_product {
+    margin-top: 5px !important;
+    gap: 8px !important;
+}
+
+.add_cart_btn,
+.order_now_btn,
+.order_now_btn_m {
+    height: 44px !important;
+    font-size: 15.5px !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+}
+
+.product-whatsapp-btn {
+    padding: 9px 14px !important;
+    font-size: 14.5px !important;
+    border-radius: 8px !important;
+    margin-top: 5px !important;
+}
+
+/* 📱 Mobile Specific Gap Tightening */
+@media (max-width: 767px) {
+    .main-details-page .product-section > .container {
+        padding: 8px 8px !important;
+    }
+    .col-sm-6.position-relative {
+        margin-bottom: 6px !important;
+    }
+    .indicator_thumb {
+        margin-top: 6px !important;
+        gap: 4px !important;
+    }
+    .indicator-item {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    .details_right {
+        padding: 0 2px 6px !important;
+    }
+    .product-cart .name {
+        font-size: 16.5px !important;
+        margin-bottom: 3px !important;
+    }
+    .details-price {
+        margin: 2px 0 4px !important;
+        gap: 6px !important;
+    }
+    .details-price #newPrice,
+    .details-price .details-new-price {
+        font-size: 21px !important;
+    }
+    .details-price del,
+    .details-price .details-old-price {
+        font-size: 15px !important;
+    }
+    .details-discount-pill {
+        font-size: 11px !important;
+        padding: 1px 6px !important;
+    }
+    .details-ratting-wrapper {
+        margin-bottom: 5px !important;
+        font-size: 12px !important;
+    }
+    .all-reviews-button {
+        font-size: 11.5px !important;
+    }
+    .details-brand-badge {
+        font-size: 11px !important;
+        padding: 2px 8px !important;
+    }
+    .pro-color, .pro-size {
+        margin-bottom: 6px !important;
+    }
+    .color_inner p, .size_inner p {
+        font-size: 12.5px !important;
+        margin-bottom: 2px !important;
+    }
+    .selector-item_label {
+        min-width: 30px !important;
+        height: 30px !important;
+        padding: 0 8px !important;
+        font-size: 12px !important;
+    }
+    .pro-color .selector-item_label {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+    }
+    .quick-qty-box,
+    .quick-qty-btn,
+    .product-qty-input {
+        height: 36px !important;
+        line-height: 36px !important;
+    }
+    .single_product {
+        margin-top: 4px !important;
+        gap: 6px !important;
+    }
+    .add_cart_btn,
+    .order_now_btn,
+    .order_now_btn_m {
+        height: 42px !important;
+        font-size: 14px !important;
+        padding: 6px 10px !important;
+    }
+    .product-whatsapp-btn {
+        padding: 8px 10px !important;
+        font-size: 13.5px !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .details_right {
+        padding: 0 10px 8px 15px !important;
+    }
+    .indicator_thumb {
+        margin-top: 8px !important;
+    }
+}
 </style>
 @endpush
 
@@ -599,22 +829,7 @@
             <div class="row align-items-start">
 
                 {{-- LEFT: Image Gallery --}}
-                <div class="col-sm-6 col-12 position-relative mb-4 mb-sm-0">
-                    @if($details->old_price)
-                    <div class="product-details-discount-badge">
-                        <div class="sale-badge">
-                            <div class="sale-badge-inner">
-                                <div class="sale-badge-box">
-                                    <span class="sale-badge-text">
-                                        <p>@php $discount=(((($details->old_price)-($details->new_price))*100) / ($details->old_price)) @endphp {{ number_format($discount, 0) }}%</p>
-                                        ছাড়
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
+                <div class="col-sm-6 col-12 position-relative mb-2 mb-sm-0">
                     <div class="details_slider owl-carousel" id="details_slider_main">
                         @foreach ($details->images as $k => $value)
                             <div class="dimage_item" data-color-id="{{ $value->color_id ?? '' }}">
@@ -642,13 +857,22 @@
                                 {{-- Product Name --}}
                                 <p class="name">{{ $details->name }}</p>
 
-                                {{-- Price --}}
-                                <p class="details-price">
-                                    @if ($details->old_price)
-                                        <del>৳{{ round($details->old_price) }}</del>
+                                {{-- Price & Discount Badge --}}
+                                <div class="details-price">
+                                    <span id="newPrice" class="details-new-price">৳{{ round($details->new_price) }}</span>
+                                    @if ($details->old_price && $details->old_price > $details->new_price)
+                                        @php
+                                            $discountPercent = round(((($details->old_price) - ($details->new_price)) * 100) / ($details->old_price));
+                                        @endphp
+                                        <del id="oldPrice" class="details-old-price">৳{{ round($details->old_price) }}</del>
+                                        <span class="details-discount-pill" id="productDiscountBadge">{{ $discountPercent }}% ছাড়</span>
+                                    @else
+                                        @if($details->old_price)
+                                            <del id="oldPrice" class="details-old-price">৳{{ round($details->old_price) }}</del>
+                                        @endif
+                                        <span class="details-discount-pill" id="productDiscountBadge" style="display:none;"></span>
                                     @endif
-                                    <span id="newPrice">৳{{ round($details->new_price) }}</span>
-                                </p>
+                                </div>
 
                                 {{-- Rating + Brand (same row) --}}
                                 <div class="details-ratting-wrapper">
@@ -773,7 +997,7 @@
                                     @endif
 
                                     {{-- Quantity + Buttons --}}
-                                    <div class="row mt-2">
+                                    <div class="row mt-1">
                                         <div class="qty-cart col-12">
                                             <div class="quick-qty-row">
                                                 <span class="quick-qty-label">পরিমাণ:</span>
@@ -1291,6 +1515,15 @@
         @endif
 
         $('#newPrice').text('৳' + Math.round(basePrice));
+
+        // Update discount pill next to price
+        var origOld = parseFloat({{ $details->old_price ?? 0 }});
+        if (origOld > basePrice) {
+            var disc = Math.round(((origOld - basePrice) * 100) / origOld);
+            $('#productDiscountBadge').text(disc + '% ছাড়').show();
+        } else if (origOld > 0) {
+            $('#productDiscountBadge').hide();
+        }
     }
 
     $(document).ready(function() {
