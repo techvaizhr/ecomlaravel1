@@ -60,122 +60,125 @@ class DeliveryAjaxController extends Controller
         $seen = [];
 
         // 1. Upazilas Search (division > district > upazila)
-        $upazilas = DeliveryUpazila::query()
-            ->with(['district.division'])
-            ->where('status', 1)
-            ->where(function ($query) use ($candidates) {
-                foreach ($candidates as $cq) {
-                    if (mb_strlen($cq) >= 2) {
-                        $query->orWhere('name', 'like', "%{$cq}%");
+        try {
+            $upazilas = DeliveryUpazila::query()
+                ->with(['district.division'])
+                ->where(function ($query) use ($candidates) {
+                    foreach ($candidates as $cq) {
+                        if ($cq !== '') {
+                            $query->orWhere('name', 'like', "%{$cq}%");
+                        }
+                    }
+                })
+                ->limit(30)
+                ->get();
+
+            foreach ($upazilas as $upa) {
+                $dist = $upa->district;
+                $div = $dist ? $dist->division : null;
+                if ($dist && $div) {
+                    $key = "{$div->id}-{$dist->id}-{$upa->id}";
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $results[] = [
+                            'type' => 'upazila',
+                            'division_id' => $div->id,
+                            'division_name' => $div->name,
+                            'district_id' => $dist->id,
+                            'district_name' => $dist->name,
+                            'upazila_id' => $upa->id,
+                            'upazila_name' => $upa->name,
+                            'delivery_charge' => (float) ($dist->delivery_charge ?? 0),
+                            'full_path' => "{$div->name} > {$dist->name} > {$upa->name}",
+                            'matched_name' => $upa->name,
+                        ];
                     }
                 }
-            })
-            ->limit(30)
-            ->get();
-
-        foreach ($upazilas as $upa) {
-            $dist = $upa->district;
-            $div = $dist ? $dist->division : null;
-            if ($dist && $div) {
-                $key = "{$div->id}-{$dist->id}-{$upa->id}";
-                if (!isset($seen[$key])) {
-                    $seen[$key] = true;
-                    $results[] = [
-                        'type' => 'upazila',
-                        'division_id' => $div->id,
-                        'division_name' => $div->name,
-                        'district_id' => $dist->id,
-                        'district_name' => $dist->name,
-                        'upazila_id' => $upa->id,
-                        'upazila_name' => $upa->name,
-                        'delivery_charge' => (float) ($dist->delivery_charge ?? 0),
-                        'full_path' => "{$div->name} > {$dist->name} > {$upa->name}",
-                        'matched_name' => $upa->name,
-                    ];
-                }
             }
-        }
+        } catch (\Throwable $e) {}
 
         // 2. Districts Search
-        $districts = DeliveryDistrict::query()
-            ->with(['division', 'upazilas' => fn($q) => $q->where('status', 1)->orderBy('sort_order')->orderBy('name')])
-            ->where('status', 1)
-            ->where(function ($query) use ($candidates) {
-                foreach ($candidates as $cq) {
-                    if (mb_strlen($cq) >= 2) {
-                        $query->orWhere('name', 'like', "%{$cq}%");
+        try {
+            $districts = DeliveryDistrict::query()
+                ->with(['division', 'upazilas' => fn($q) => $q->orderBy('sort_order')->orderBy('name')])
+                ->where(function ($query) use ($candidates) {
+                    foreach ($candidates as $cq) {
+                        if ($cq !== '') {
+                            $query->orWhere('name', 'like', "%{$cq}%");
+                        }
+                    }
+                })
+                ->limit(20)
+                ->get();
+
+            foreach ($districts as $dist) {
+                $div = $dist->division;
+                if ($div) {
+                    $firstUpa = $dist->upazilas ? $dist->upazilas->first() : null;
+                    $key = "{$div->id}-{$dist->id}-" . ($firstUpa ? $firstUpa->id : 0);
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $results[] = [
+                            'type' => 'district',
+                            'division_id' => $div->id,
+                            'division_name' => $div->name,
+                            'district_id' => $dist->id,
+                            'district_name' => $dist->name,
+                            'upazila_id' => $firstUpa ? $firstUpa->id : null,
+                            'upazila_name' => $firstUpa ? $firstUpa->name : $dist->name,
+                            'delivery_charge' => (float) ($dist->delivery_charge ?? 0),
+                            'full_path' => "{$div->name} > {$dist->name}" . ($firstUpa ? " > {$firstUpa->name}" : ''),
+                            'matched_name' => $dist->name,
+                        ];
                     }
                 }
-            })
-            ->limit(15)
-            ->get();
-
-        foreach ($districts as $dist) {
-            $div = $dist->division;
-            if ($div) {
-                $firstUpa = $dist->upazilas->first();
-                $key = "{$div->id}-{$dist->id}-" . ($firstUpa ? $firstUpa->id : 0);
-                if (!isset($seen[$key])) {
-                    $seen[$key] = true;
-                    $results[] = [
-                        'type' => 'district',
-                        'division_id' => $div->id,
-                        'division_name' => $div->name,
-                        'district_id' => $dist->id,
-                        'district_name' => $dist->name,
-                        'upazila_id' => $firstUpa ? $firstUpa->id : null,
-                        'upazila_name' => $firstUpa ? $firstUpa->name : $dist->name,
-                        'delivery_charge' => (float) ($dist->delivery_charge ?? 0),
-                        'full_path' => "{$div->name} > {$dist->name}" . ($firstUpa ? " > {$firstUpa->name}" : ''),
-                        'matched_name' => $dist->name,
-                    ];
-                }
             }
-        }
+        } catch (\Throwable $e) {}
 
         // 3. Divisions Search
-        $divisions = DeliveryDivision::query()
-            ->with(['districts' => fn($q) => $q->where('status', 1)->orderBy('sort_order')->orderBy('name')->with('upazilas')])
-            ->where('status', 1)
-            ->where(function ($query) use ($candidates) {
-                foreach ($candidates as $cq) {
-                    if (mb_strlen($cq) >= 2) {
-                        $query->orWhere('name', 'like', "%{$cq}%");
+        try {
+            $divisions = DeliveryDivision::query()
+                ->with(['districts' => fn($q) => $q->orderBy('sort_order')->orderBy('name')->with('upazilas')])
+                ->where(function ($query) use ($candidates) {
+                    foreach ($candidates as $cq) {
+                        if ($cq !== '') {
+                            $query->orWhere('name', 'like', "%{$cq}%");
+                        }
+                    }
+                })
+                ->limit(10)
+                ->get();
+
+            foreach ($divisions as $div) {
+                $firstDist = $div->districts ? $div->districts->first() : null;
+                $firstUpa = ($firstDist && $firstDist->upazilas) ? $firstDist->upazilas->first() : null;
+                if ($firstDist) {
+                    $key = "{$div->id}-{$firstDist->id}-" . ($firstUpa ? $firstUpa->id : 0);
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $results[] = [
+                            'type' => 'division',
+                            'division_id' => $div->id,
+                            'division_name' => $div->name,
+                            'district_id' => $firstDist->id,
+                            'district_name' => $firstDist->name,
+                            'upazila_id' => $firstUpa ? $firstUpa->id : null,
+                            'upazila_name' => $firstUpa ? $firstUpa->name : $firstDist->name,
+                            'delivery_charge' => (float) ($firstDist->delivery_charge ?? 0),
+                            'full_path' => "{$div->name} > {$firstDist->name}" . ($firstUpa ? " > {$firstUpa->name}" : ''),
+                            'matched_name' => $div->name,
+                        ];
                     }
                 }
-            })
-            ->limit(8)
-            ->get();
-
-        foreach ($divisions as $div) {
-            $firstDist = $div->districts->first();
-            $firstUpa = $firstDist ? $firstDist->upazilas->first() : null;
-            if ($firstDist) {
-                $key = "{$div->id}-{$firstDist->id}-" . ($firstUpa ? $firstUpa->id : 0);
-                if (!isset($seen[$key])) {
-                    $seen[$key] = true;
-                    $results[] = [
-                        'type' => 'division',
-                        'division_id' => $div->id,
-                        'division_name' => $div->name,
-                        'district_id' => $firstDist->id,
-                        'district_name' => $firstDist->name,
-                        'upazila_id' => $firstUpa ? $firstUpa->id : null,
-                        'upazila_name' => $firstUpa ? $firstUpa->name : $firstDist->name,
-                        'delivery_charge' => (float) ($firstDist->delivery_charge ?? 0),
-                        'full_path' => "{$div->name} > {$firstDist->name}" . ($firstUpa ? " > {$firstUpa->name}" : ''),
-                        'matched_name' => $div->name,
-                    ];
-                }
             }
-        }
+        } catch (\Throwable $e) {}
 
         return response()->json(['data' => array_values($results)]);
     }
 
     private function normalizeBangla(string $str): string
     {
-        return str_replace(['ড়', 'ঢ়', 'য়', 'ণ', 'ী', 'ূ'], ['র', 'র', 'য', 'ন', 'ি', 'ু'], $str);
+        return str_replace(['ড়', 'ঢ়', 'য়', 'ণ', 'ী', 'ূ', 'ঁ'], ['র', 'র', 'য', 'ন', 'ি', 'ু', ''], $str);
     }
 
     private function generateBanglaCandidates(string $str): array
@@ -243,17 +246,22 @@ class DeliveryAjaxController extends Controller
             'banshkhali' => 'বাঁশখালী', 'lohagara' => 'লোহাগাড়া', 'satkania' => 'সাতকানিয়া',
             'sandwip' => 'সন্দ্বীপ', 'teknaf' => 'টেকনাফ', 'chakaria' => 'চকরিয়া',
             'maheshkhali' => 'মহেশখালী', 'ramu' => 'রামু', 'ukhiya' => 'উখিয়া',
+            'gobindaganj' => 'গোবিন্দগঞ্জ', 'golapganj' => 'গোলাপগঞ্জ', 'gosairhat' => 'গোসাইরহাট',
+            'goalanda' => 'গোয়ালন্দ', 'gopalpur' => 'গোপালপুর', 'gaurnadi' => 'গৌরনদী',
+            'ghatail' => 'ঘাটাইল', 'gabtali' => 'গাবতলী', 'gangachara' => 'গঙ্গাচড়া'
         ];
 
         // Direct matching
         if (isset($directMap[$clean])) {
             $list[] = $directMap[$clean];
+            $list[] = $this->normalizeBangla($directMap[$clean]);
         }
 
-        // Prefix matching on dictionary
+        // Prefix matching on dictionary (e.g. 'go' matches 'godagari', 'gopalganj', 'gobindaganj', etc.)
         foreach ($directMap as $k => $v) {
-            if (str_starts_with($k, $clean)) {
+            if (strpos($k, $clean) === 0 || strpos($k, $clean) !== false) {
                 $list[] = $v;
+                $list[] = $this->normalizeBangla($v);
             }
         }
 

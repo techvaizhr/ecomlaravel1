@@ -999,6 +999,17 @@
                 var upaId = item.getAttribute('data-upa-id');
                 var upaName = item.getAttribute('data-upa-name');
 
+                // If divId not present on suggestion item, resolve from division list DOM
+                if (!divId && divName && divisionsList) {
+                    var divEls = divisionsList.querySelectorAll('.delivery-option-item');
+                    for (var i = 0; i < divEls.length; i++) {
+                        if (divEls[i].getAttribute('data-name') === divName) {
+                            divId = divEls[i].getAttribute('data-id');
+                            break;
+                        }
+                    }
+                }
+
                 selectedDiv = { id: divId, name: divName };
                 selectedDist = { id: distId, name: distName, charge: distCharge };
                 selectedUpa = { id: upaId, name: upaName };
@@ -1188,11 +1199,178 @@
             return res;
         }
 
-        function normalizeBangla(str) {
-            return (str || '').replace(/[ড়ঢ়]/g, 'র').replace(/[য়]/g, 'য').replace(/[ণ]/g, 'ন');
+        // Comprehensive local Bangladesh Geo Hierarchy Index for instant (0ms) smart suggestions
+        var BD_HIERARCHY = [
+            // Dhaka Division
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'মিরপুর', en: ['dhaka', 'mirpur'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'উত্তরা', en: ['dhaka', 'uttara'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'ধানমন্ডি', en: ['dhaka', 'dhanmondi'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'গুলশান', en: ['dhaka', 'gulshan'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'বনানী', en: ['dhaka', 'banani'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'মোহাম্মদপুর', en: ['dhaka', 'mohammadpur'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'সাভার', en: ['dhaka', 'savar'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'ধামরাই', en: ['dhaka', 'dhamrai'] },
+            { div: 'ঢাকা', dist: 'ঢাকা', upa: 'কেরানীগঞ্জ', en: ['dhaka', 'keraniganj'] },
+            { div: 'ঢাকা', dist: 'গাজীপুর', upa: 'টঙ্গী', en: ['gazipur', 'tongi'] },
+            { div: 'ঢাকা', dist: 'গাজীপুর', upa: 'কালিয়াকৈর', en: ['gazipur', 'kaliakair'] },
+            { div: 'ঢাকা', dist: 'গাজীপুর', upa: 'শ্রীপুর', en: ['gazipur', 'sreepur'] },
+            { div: 'ঢাকা', dist: 'নারায়ণগঞ্জ', upa: 'সোনারগাঁ', en: ['narayanganj', 'sonargaon'] },
+            { div: 'ঢাকা', dist: 'নারায়ণগঞ্জ', upa: 'রূপগঞ্জ', en: ['narayanganj', 'rupganj'] },
+            { div: 'ঢাকা', dist: 'নারায়ণগঞ্জ', upa: 'ফতুল্লা', en: ['narayanganj', 'fatullah'] },
+            { div: 'ঢাকা', dist: 'নরসিংদী', upa: 'নরসিংদী সদর', en: ['narsingdi'] },
+            { div: 'ঢাকা', dist: 'মুন্সীগঞ্জ', upa: 'মুন্সীগঞ্জ সদর', en: ['munshiganj'] },
+            { div: 'ঢাকা', dist: 'মানিকগঞ্জ', upa: 'মানিকগঞ্জ সদর', en: ['manikganj'] },
+            { div: 'ঢাকা', dist: 'ফরিদপুর', upa: 'ফরিদপুর সদর', en: ['faridpur'] },
+            { div: 'ঢাকা', dist: 'মাদারীপুর', upa: 'মাদারীপুর সদর', en: ['madaripur'] },
+            { div: 'ঢাকা', dist: 'গোপালগঞ্জ', upa: 'গোপালগঞ্জ সদর', en: ['gopalganj'] },
+            { div: 'ঢাকা', dist: 'শরীয়তপুর', upa: 'গোসাইরহাট', en: ['shariatpur', 'gosairhat'] },
+            { div: 'ঢাকা', dist: 'রাজবাড়ী', upa: 'গোয়ালন্দ', en: ['rajbari', 'goalanda'] },
+            { div: 'ঢাকা', dist: 'টাঙ্গাইল', upa: 'টাঙ্গাইল সদর', en: ['tangail'] },
+            { div: 'ঢাকা', dist: 'কিশোরগঞ্জ', upa: 'কিশোরগঞ্জ সদর', en: ['kishoreganj'] },
+
+            // Rajshahi Division
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'গোদাগাড়ী', en: ['rajshahi', 'godagari', 'godagari thana'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'বাঘা', en: ['rajshahi', 'bagha'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'চারঘাট', en: ['rajshahi', 'charghat'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'পবা', en: ['rajshahi', 'paba'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'পুঠিয়া', en: ['rajshahi', 'puthia'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'তানোর', en: ['rajshahi', 'tanore'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'মোহনপুর', en: ['rajshahi', 'mohanpur'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'দুর্গাপুর', en: ['rajshahi', 'durgapur'] },
+            { div: 'রাজশাহী', dist: 'রাজশাহী', upa: 'বাগমারা', en: ['rajshahi', 'bagmara'] },
+            { div: 'রাজশাহী', dist: 'বগুড়া', upa: 'বগুড়া সদর', en: ['bogura', 'bogra'] },
+            { div: 'রাজশাহী', dist: 'বগুড়া', upa: 'গাবতলী', en: ['bogura', 'gabtali'] },
+            { div: 'রাজশাহী', dist: 'বগুড়া', upa: 'শেরপুর', en: ['bogura', 'sherpur'] },
+            { div: 'রাজশাহী', dist: 'পাবনা', upa: 'পাবনা সদর', en: ['pabna'] },
+            { div: 'রাজশাহী', dist: 'পাবনা', upa: 'ঈশ্বরদী', en: ['pabna', 'ishwardi'] },
+            { div: 'রাজশাহী', dist: 'সিরাজগঞ্জ', upa: 'সিরাজগঞ্জ সদর', en: ['sirajganj'] },
+            { div: 'রাজশাহী', dist: 'নাটোর', upa: 'সিংড়া', en: ['natore', 'singra'] },
+            { div: 'রাজশাহী', dist: 'নাটোর', upa: 'গুরুদাসপুর', en: ['natore', 'gurudaspur'] },
+            { div: 'রাজশাহী', dist: 'নাটোর', upa: 'বড়াইগ্রাম', en: ['natore', 'baraigram'] },
+            { div: 'রাজশাহী', dist: 'নাটোর', upa: 'লালপুর', en: ['natore', 'lalpur'] },
+            { div: 'রাজশাহী', dist: 'নওগাঁ', upa: 'নওগাঁ সদর', en: ['naogaon'] },
+            { div: 'রাজশাহী', dist: 'চাঁপাইনবাবগঞ্জ', upa: 'শিবগঞ্জ', en: ['chapainawabganj', 'nawabganj', 'shibganj'] },
+            { div: 'রাজশাহী', dist: 'জয়পুরহাট', upa: 'জয়পুরহাট সদর', en: ['joypurhat'] },
+
+            // Chattogram Division
+            { div: 'চট্টগ্রাম', dist: 'চট্টগ্রাম', upa: 'পটিয়া', en: ['chattogram', 'chittagong', 'ctg', 'patiya'] },
+            { div: 'চট্টগ্রাম', dist: 'চট্টগ্রাম', upa: 'সীতাকুণ্ড', en: ['chattogram', 'chittagong', 'ctg', 'sitakunda'] },
+            { div: 'চট্টগ্রাম', dist: 'চট্টগ্রাম', upa: 'হাটহাজারী', en: ['chattogram', 'chittagong', 'ctg', 'hathazari'] },
+            { div: 'চট্টগ্রাম', dist: 'কক্সবাজার', upa: 'টেকনাফ', en: ['coxsbazar', 'coxs bazar', 'teknaf'] },
+            { div: 'চট্টগ্রাম', dist: 'কক্সবাজার', upa: 'চকরিয়া', en: ['coxsbazar', 'chakaria'] },
+            { div: 'চট্টগ্রাম', dist: 'কুমিল্লা', upa: 'কুমিল্লা সদর', en: ['cumilla', 'comilla'] },
+            { div: 'চট্টগ্রাম', dist: 'ব্রাহ্মণবাড়িয়া', upa: 'ব্রাহ্মণবাড়িয়া সদর', en: ['brahmanbaria', 'bbaria'] },
+            { div: 'চট্টগ্রাম', dist: 'চাঁদপুর', upa: 'চাঁদপুর সদর', en: ['chandpur'] },
+            { div: 'চট্টগ্রাম', dist: 'নোয়াখালী', upa: 'নোয়াখালী সদর', en: ['noakhali'] },
+            { div: 'চট্টগ্রাম', dist: 'ফেনী', upa: 'ফেনী সদর', en: ['feni'] },
+            { div: 'চট্টগ্রাম', dist: 'লক্ষ্মীপুর', upa: 'লক্ষ্মীপুর সদর', en: ['lakshmipur', 'laxmipur'] },
+
+            // Khulna Division
+            { div: 'খুলনা', dist: 'খুলনা', upa: 'খুলনা সদর', en: ['khulna'] },
+            { div: 'খুলনা', dist: 'যশোর', upa: 'যশোর সদর', en: ['jashore', 'jessore'] },
+            { div: 'খুলনা', dist: 'কুষ্টিয়া', upa: 'কুষ্টিয়া সদর', en: ['kushtia'] },
+            { div: 'খুলনা', dist: 'ঝিনাইদহ', upa: 'ঝিনাইদহ সদর', en: ['jhenaidah'] },
+            { div: 'খুলনা', dist: 'চুয়াডাঙ্গা', upa: 'চুয়াডাঙ্গা সদর', en: ['chuadanga'] },
+            { div: 'খুলনা', dist: 'মাগুরা', upa: 'মাগুরা সদর', en: ['magura'] },
+            { div: 'খুলনা', dist: 'মেহেরপুর', upa: 'মেহেরপুর সদর', en: ['meherpur'] },
+            { div: 'খুলনা', dist: 'নড়াইল', upa: 'নড়াইল সদর', en: ['narail'] },
+            { div: 'খুলনা', dist: 'সাতক্ষীরা', upa: 'সাতক্ষীরা সদর', en: ['satkhira'] },
+            { div: 'খুলনা', dist: 'বাগেরহাট', upa: 'বাগেরহাট সদর', en: ['bagerhat'] },
+
+            // Sylhet Division
+            { div: 'সিলেট', dist: 'সিলেট', upa: 'গোলাপগঞ্জ', en: ['sylhet', 'golapganj'] },
+            { div: 'সিলেট', dist: 'সিলেট', upa: 'সিলেট সদর', en: ['sylhet'] },
+            { div: 'সিলেট', dist: 'মৌলভীবাজার', upa: 'শ্রীমঙ্গল', en: ['moulvibazar', 'sreemangal'] },
+            { div: 'সিলেট', dist: 'হবিগঞ্জ', upa: 'হবিগঞ্জ সদর', en: ['habiganj'] },
+            { div: 'সিলেট', dist: 'সুনামগঞ্জ', upa: 'সুনামগঞ্জ সদর', en: ['sunamganj'] },
+
+            // Rangpur Division
+            { div: 'রংপুর', dist: 'রংপুর', upa: 'গঙ্গাচড়া', en: ['rangpur', 'gangachara'] },
+            { div: 'রংপুর', dist: 'রংপুর', upa: 'রংপুর সদর', en: ['rangpur'] },
+            { div: 'রংপুর', dist: 'দিনাজপুর', upa: 'দিনাজপুর সদর', en: ['dinajpur'] },
+            { div: 'রংপুর', dist: 'গাইবান্ধা', upa: 'গোবিন্দগঞ্জ', en: ['gaibandha', 'gobindaganj'] },
+            { div: 'রংপুর', dist: 'কুড়িগ্রাম', upa: 'কুড়িগ্রাম সদর', en: ['kurigram'] },
+            { div: 'রংপুর', dist: 'নীলফামারী', upa: 'নীলফামারী সদর', en: ['nilphamari'] },
+            { div: 'রংপুর', dist: 'পঞ্চগড়', upa: 'পঞ্চগড় সদর', en: ['panchagarh'] },
+            { div: 'রংপুর', dist: 'ঠাকুরগাঁও', upa: 'ঠাকুরগাঁও সদর', en: ['thakurgaon'] },
+            { div: 'রংপুর', dist: 'লালমনিরহাট', upa: 'লালমনিরহাট সদর', en: ['lalmonirhat'] },
+
+            // Barishal Division
+            { div: 'বরিশাল', dist: 'বরিশাল', upa: 'গৌরনদী', en: ['barishal', 'barisal', 'gaurnadi'] },
+            { div: 'বরিশাল', dist: 'বরিশাল', upa: 'বরিশাল সদর', en: ['barishal', 'barisal'] },
+            { div: 'বরিশাল', dist: 'পটুয়াখালী', upa: 'পটুয়াখালী সদর', en: ['patuakhali'] },
+            { div: 'বরিশাল', dist: 'ভোলা', upa: 'ভোলা সদর', en: ['bhola'] },
+            { div: 'বরিশাল', dist: 'পিরোজপুর', upa: 'পিরোজপুর সদর', en: ['pirojpur'] },
+            { div: 'বরিশাল', dist: 'বরগুনা', upa: 'বরগুনা সদর', en: ['barguna'] },
+            { div: 'বরিশাল', dist: 'ঝালকাঠি', upa: 'ঝালকাঠি সদর', en: ['jhalokathi', 'jhalakati'] },
+
+            // Mymensingh Division
+            { div: 'ময়মনসিংহ', dist: 'ময়মনসিংহ', upa: 'ময়মনসিংহ সদর', en: ['mymensingh'] },
+            { div: 'ময়মনসিংহ', dist: 'জামালপুর', upa: 'জামালপুর সদর', en: ['jamalpur'] },
+            { div: 'ময়মনসিংহ', dist: 'শেরপুর', upa: 'শেরপুর সদর', en: ['sherpur'] },
+            { div: 'ময়মনসিংহ', dist: 'নেত্রকোণা', upa: 'নেত্রকোণা সদর', en: ['netrokona', 'netrakona'] }
+        ];
+
+        function searchLocalHierarchy(query) {
+            var q = (query || '').toLowerCase().trim();
+            if (!q || q.length < 1) return [];
+            var qPhonetic = phoneticBangla(q);
+            var qNorm = normalizeBangla(q);
+            var qPhoneticNorm = normalizeBangla(qPhonetic);
+
+            var matches = [];
+            var seen = {};
+
+            BD_HIERARCHY.forEach(function (item) {
+                var divNorm = normalizeBangla(item.div.toLowerCase());
+                var distNorm = normalizeBangla(item.dist.toLowerCase());
+                var upaNorm = normalizeBangla(item.upa.toLowerCase());
+
+                var isMatch = false;
+
+                // Check English keywords
+                if (item.en && item.en.length) {
+                    for (var i = 0; i < item.en.length; i++) {
+                        var enWord = item.en[i];
+                        if (enWord.indexOf(q) === 0 || enWord.indexOf(q) !== -1) {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Check Bangla matches
+                if (!isMatch) {
+                    if (item.upa.indexOf(q) !== -1 || upaNorm.indexOf(qNorm) !== -1 ||
+                        item.dist.indexOf(q) !== -1 || distNorm.indexOf(qNorm) !== -1 ||
+                        item.div.indexOf(q) !== -1 || divNorm.indexOf(qNorm) !== -1) {
+                        isMatch = true;
+                    } else if (qPhonetic && (item.upa.indexOf(qPhonetic) !== -1 || upaNorm.indexOf(qPhoneticNorm) !== -1 ||
+                                            item.dist.indexOf(qPhonetic) !== -1 || distNorm.indexOf(qPhoneticNorm) !== -1)) {
+                        isMatch = true;
+                    }
+                }
+
+                if (isMatch) {
+                    var key = item.div + '-' + item.dist + '-' + item.upa;
+                    if (!seen[key]) {
+                        seen[key] = true;
+                        matches.push({
+                            type: 'local',
+                            division_name: item.div,
+                            district_name: item.dist,
+                            upazila_name: item.upa,
+                            delivery_charge: (item.dist.indexOf('ঢাকা') !== -1) ? 60 : 120,
+                            full_path: item.div + ' > ' + item.dist + ' > ' + item.upa
+                        });
+                    }
+                }
+            });
+
+            return matches.slice(0, 15);
         }
 
-        // Dual Search: Local Step Filter + Server Smart Suggestions
+        // Dual Search: Local Step Filter + Instant Client/Server Smart Suggestions
         function filterItems(query) {
             var q = (query || '').toLowerCase().trim();
             var qPhonetic = phoneticBangla(q);
@@ -1229,20 +1407,25 @@
                     });
 
                     if (noResults) {
-                        if (matchedCount === 0 && (!suggestionsBox || suggestionsBox.classList.contains('d-none'))) {
-                            noResults.classList.remove('d-none');
-                        } else {
-                            noResults.classList.add('d-none');
-                        }
+                        noResults.classList.add('d-none');
                     }
                 }
             }
 
-            // Fetch smart hierarchy suggestions (Division > District > Upazila)
-            fetchSuggestions(q);
+            // 1. Instant (0ms) Local Suggestions
+            var localSuggestions = searchLocalHierarchy(q);
+            if (localSuggestions.length > 0) {
+                renderSuggestions(localSuggestions);
+            } else {
+                if (suggestionsBox) suggestionsBox.classList.add('d-none');
+                if (suggestionsList) suggestionsList.innerHTML = '';
+            }
+
+            // 2. Fetch server DB records with exact IDs & delivery charges
+            fetchSuggestions(q, localSuggestions);
         }
 
-        function fetchSuggestions(query) {
+        function fetchSuggestions(query, initialLocalItems) {
             clearTimeout(searchDebounceTimer);
             var q = (query || '').trim();
             if (!q || q.length < 1) {
@@ -1257,31 +1440,37 @@
                 })
                 .then(function (res) { return res.json(); })
                 .then(function (res) {
-                    var items = (res && res.data) ? res.data : [];
-                    if (!items.length) {
+                    var serverItems = (res && res.data) ? res.data : [];
+                    if (serverItems.length > 0) {
+                        renderSuggestions(serverItems);
+                    } else if (!initialLocalItems || initialLocalItems.length === 0) {
                         if (suggestionsBox) suggestionsBox.classList.add('d-none');
                         if (suggestionsList) suggestionsList.innerHTML = '';
-                        return;
                     }
-                    renderSuggestions(items);
                 })
                 .catch(function () {
-                    if (suggestionsBox) suggestionsBox.classList.add('d-none');
+                    // Fallback to local suggestions if server fails
                 });
-            }, 120);
+            }, 80);
         }
 
         function renderSuggestions(items) {
             if (!suggestionsList || !suggestionsBox) return;
+            if (!items || !items.length) {
+                suggestionsBox.classList.add('d-none');
+                suggestionsList.innerHTML = '';
+                return;
+            }
             var html = '';
             items.forEach(function (item) {
-                var chargeText = item.delivery_charge > 0 ? '<span class="sugg-charge">৳' + Math.round(item.delivery_charge) + '</span>' : '';
+                var chargeVal = parseFloat(item.delivery_charge) || 0;
+                var chargeText = chargeVal > 0 ? '<span class="sugg-charge">৳' + Math.round(chargeVal) + '</span>' : '';
                 html += '<div class="delivery-suggestion-item" '
                       + 'data-div-id="' + (item.division_id || '') + '" '
                       + 'data-div-name="' + (item.division_name || '') + '" '
                       + 'data-dist-id="' + (item.district_id || '') + '" '
                       + 'data-dist-name="' + (item.district_name || '') + '" '
-                      + 'data-dist-charge="' + (item.delivery_charge || 0) + '" '
+                      + 'data-dist-charge="' + chargeVal + '" '
                       + 'data-upa-id="' + (item.upazila_id || '') + '" '
                       + 'data-upa-name="' + (item.upazila_name || '') + '">'
                       + '<div class="sugg-icon"><i class="fas fa-map-marker-alt"></i></div>'
