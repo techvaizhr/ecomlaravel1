@@ -3886,14 +3886,14 @@ document.getElementById("sidebarCartOverlay")?.addEventListener("click", closeSi
                                     value: trackPrice * trackQty
                                 });
                             }
-                            toastr.success('Success', 'Product add to cart successfully');
-                            cart_count();
-                            mobile_cart();
-                            if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
                             if (isOrderNow) {
                                 window.location.href = '{{ route('customer.checkout') }}';
                                 return;
                             }
+                            toastr.success('Success', 'Product add to cart successfully');
+                            cart_count();
+                            mobile_cart();
+                            if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
                             runFlyToCart($btn, function() { if (typeof openSidebarCart === "function") openSidebarCart(); });
                         } else {
                             toastr.error(data && data.message ? data.message : 'কার্টে যোগ করা যায়নি');

@@ -1044,68 +1044,95 @@ public function order_save(Request $request)
             }
         }
 
-        // === Customer SMS ===
-        try {
-            $customerPhone = isset($shipping) && $shipping->phone ? $shipping->phone : ($request->phone ?? ($order->customer->phone ?? null));
-            $customerName  = isset($shipping) && $shipping->name ? $shipping->name : ($request->name ?? ($order->customer->name ?? 'Customer'));
-            $site_setting  = GeneralSetting::where('status', 1)->first();
-            if ($customerPhone) {
-                SmsHelper::send($customerPhone, "প্রিয় {$customerName}! আপনার অর্ডার #{$order->invoice_id} সফলভাবে গ্রহণ করা হয়েছে। মোট: {$order->amount} Tk. {$site_setting->name}", ['order' => 1]);
-            }
-        } catch (\Exception $e) {
-            \Log::error("Customer SMS error for order {$order->id}: " . $e->getMessage());
-        }
-
-        // === Admin SMS ===
-        try {
-            $site_setting  = isset($site_setting) ? $site_setting : GeneralSetting::where('status', 1)->first();
-            $customerName  = $request->name ?? ($order->customer->name ?? 'Customer');
-            $customerPhone = $request->phone ?? ($order->customer->phone ?? '');
-            SmsHelper::sendToAdmin("নতুন অর্ডার!\nOrder#: {$order->invoice_id}\nকাস্টমার: {$customerName}\nমোবাইল: {$customerPhone}\nমোট: {$order->amount} Tk — {$site_setting->name}");
-        } catch (\Exception $e) {
-            \Log::error('Admin SMS send failed: ' . $e->getMessage());
-        }
-
-        // === Admin Order Email Notification (non-blocking — response পাঠানোর পর send হবে) ===
-        try {
-            $adminEmail = null;
-
-            $site_setting = isset($site_setting) ? $site_setting : GeneralSetting::where('status', 1)->first();
-            if (!empty($site_setting->email)) {
-                $adminEmail = $site_setting->email;
-            }
-            if (empty($adminEmail)) {
-                $contact = isset($contact) ? $contact : Contact::first();
-                $adminEmail = $contact->email ?? null;
-            }
-            if (empty($adminEmail)) {
-                $adminEmail = env('MAIL_FROM_ADDRESS');
-            }
-
-            if ($adminEmail) {
-                $orderId    = $order->id;
-                $invoiceId  = $order->invoice_id;
-                $emailTo    = $adminEmail;
-
-                // response পাঠানোর পর run হবে — user কোনো delay দেখবে না
-                app()->terminating(function () use ($orderId, $invoiceId, $emailTo) {
-                    try {
-                        $freshOrder = \App\Models\Order::find($orderId);
-                        if ($freshOrder) {
-                            \Mail::to($emailTo)->send(new \App\Mail\OrderPlace($freshOrder));
-                            \Log::info("Admin order email sent to {$emailTo} for order #{$invoiceId}");
-                        }
-                    } catch (\Exception $e) {
-                        \Log::error("Admin order email failed for order #{$invoiceId}: " . $e->getMessage());
-                    }
-                });
-            }
-        } catch (\Exception $e) {
-            \Log::error('Admin order email setup failed: ' . $e->getMessage());
-        }
-
         // Incomplete order delete
         IncompleteOrder::where('phone', $request->phone)->delete();
+
+        // === Post-Order Notifications & CAPI (Non-blocking: executes after HTTP response is sent) ===
+        $site_setting  = GeneralSetting::where('status', 1)->first();
+        $siteName      = $site_setting->name ?? config('app.name');
+        $customerPhone = isset($shipping) && $shipping->phone ? $shipping->phone : ($request->phone ?? ($order->customer->phone ?? null));
+        $customerName  = isset($shipping) && $shipping->name ? $shipping->name : ($request->name ?? ($order->customer->name ?? 'Customer'));
+        $orderId       = $order->id;
+        $orderInvoiceId = $order->invoice_id;
+        $orderAmount   = $order->amount;
+
+        // Prepare Admin Email
+        $adminEmail = !empty($site_setting->email) ? $site_setting->email : null;
+        if (empty($adminEmail)) {
+            $contact = Contact::first();
+            $adminEmail = $contact->email ?? env('MAIL_FROM_ADDRESS');
+        }
+
+        // Prepare CAPI User Data
+        $order->loadMissing(['shipping', 'customer', 'orderdetails']);
+        $capiUser = \App\Support\EcommerceTrackingUser::fromOrder($order);
+        if (empty($capiUser['phone']) && $request->phone) {
+            $capiUser['phone'] = $request->phone;
+        }
+        if (empty($capiUser['name']) && $request->name) {
+            $capiUser['name'] = $request->name;
+        }
+        $capiUser = \App\Support\EcommerceTrackingUser::forCapi(
+            $capiUser,
+            $_COOKIE['_fbp'] ?? null,
+            $_COOKIE['_fbc'] ?? null
+        );
+        $capiUser['ttclid'] = $_COOKIE['ttclid'] ?? $request->query('ttclid') ?? null;
+        $capiSourceUrl = url('customer/order-success/' . $order->id);
+        $isCodOrManual = ($paymentMethod === 'cod' || ManualPaymentGateway::isManualPaymentMethod($paymentMethod));
+
+        app()->terminating(function () use (
+            $orderId,
+            $orderInvoiceId,
+            $orderAmount,
+            $customerPhone,
+            $customerName,
+            $siteName,
+            $adminEmail,
+            $capiUser,
+            $capiSourceUrl,
+            $isCodOrManual
+        ) {
+            // 1. Customer SMS
+            if (!empty($customerPhone)) {
+                try {
+                    SmsHelper::send($customerPhone, "প্রিয় {$customerName}! আপনার অর্ডার #{$orderInvoiceId} সফলভাবে গ্রহণ করা হয়েছে। মোট: {$orderAmount} Tk. {$siteName}", ['order' => 1]);
+                } catch (\Throwable $e) {
+                    \Log::error("Customer SMS error for order #{$orderInvoiceId}: " . $e->getMessage());
+                }
+            }
+
+            // 2. Admin SMS
+            try {
+                SmsHelper::sendToAdmin("নতুন অর্ডার!\nOrder#: {$orderInvoiceId}\nকাস্টমার: {$customerName}\nমোবাইল: {$customerPhone}\nমোট: {$orderAmount} Tk — {$siteName}");
+            } catch (\Throwable $e) {
+                \Log::error("Admin SMS send failed for order #{$orderInvoiceId}: " . $e->getMessage());
+            }
+
+            // 3. Admin Order Email
+            if (!empty($adminEmail)) {
+                try {
+                    $freshOrder = \App\Models\Order::find($orderId);
+                    if ($freshOrder) {
+                        \Mail::to($adminEmail)->send(new \App\Mail\OrderPlace($freshOrder));
+                    }
+                } catch (\Throwable $e) {
+                    \Log::error("Admin order email failed for order #{$orderInvoiceId}: " . $e->getMessage());
+                }
+            }
+
+            // 4. Server CAPI (Facebook & TikTok) for COD / Manual Orders
+            if ($isCodOrManual) {
+                try {
+                    $freshOrder = \App\Models\Order::with(['shipping', 'customer', 'orderdetails'])->find($orderId);
+                    if ($freshOrder) {
+                        \App\Services\ServerCapiService::trackPurchase($freshOrder, $capiUser, null, $capiSourceUrl);
+                    }
+                } catch (\Throwable $e) {
+                    \Log::error("Server CAPI trackPurchase failed for order #{$orderInvoiceId}: " . $e->getMessage());
+                }
+            }
+        });
 
         // =========================================================
         // ⭐ পেমেন্ট গেটওয়ে রিডাইরেক্ট (FIXED)
@@ -1156,29 +1183,6 @@ public function order_save(Request $request)
             || ManualPaymentGateway::isManualPaymentMethod($paymentMethod)) {
             // Cash On Delivery বা ম্যানুয়াল গাইডেড পেমেন্ট — সরাসরি সাফল্য পেইজ
             $this->createDigitalDownloads($order);
-            
-            // Send Facebook Purchase event for COD orders (async - don't block order submission)
-            try {
-                $order->loadMissing(['shipping', 'customer', 'orderdetails']);
-                $capiUser = \App\Support\EcommerceTrackingUser::fromOrder($order);
-                if (empty($capiUser['phone']) && $request->phone) {
-                    $capiUser['phone'] = $request->phone;
-                }
-                if (empty($capiUser['name']) && $request->name) {
-                    $capiUser['name'] = $request->name;
-                }
-                $capiUser = \App\Support\EcommerceTrackingUser::forCapi(
-                    $capiUser,
-                    $_COOKIE['_fbp'] ?? null,
-                    $_COOKIE['_fbc'] ?? null
-                );
-                $capiUser['ttclid'] = $_COOKIE['ttclid'] ?? $request->query('ttclid') ?? null;
-
-                // Direct dispatch ensures CAPI network call completes reliably before redirect
-                \App\Services\ServerCapiService::trackPurchase($order, $capiUser, null, url('customer/order-success/'.$order->id));
-            } catch (\Exception $e) {
-                \Log::error('Server CAPI setup failed for order '.$order->id.': '.$e->getMessage());
-            }
             
             Session::forget('coupon_code');
             Session::forget('discount');

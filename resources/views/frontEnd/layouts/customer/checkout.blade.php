@@ -842,11 +842,17 @@
         // ⭐ Grand Total Calculation - Free delivery হলে shipping charge 0
         $grand_total = $subtotal + $shipping - $discount;
 
-        // ✅ JS ডেটা অ্যারে
+        // ✅ JS ডেটা অ্যারে (Eager load to avoid N+1 queries)
+        $cartContent = Cart::instance('shopping')->content();
+        $cartProductIds = $cartContent->pluck('id')->unique()->filter()->all();
+        $cartProductsMap = !empty($cartProductIds) 
+            ? \App\Models\Product::select('id', 'is_digital', 'free_delivery')->whereIn('id', $cartProductIds)->get()->keyBy('id')
+            : collect();
+
         $cartItemsForJs = [];
         $hasDigital = false;
-        foreach (Cart::instance('shopping')->content() as $item) {
-            $p = \App\Models\Product::find($item->id);
+        foreach ($cartContent as $item) {
+            $p = $cartProductsMap->get($item->id);
             if ($p && $p->is_digital == 1) { $hasDigital = true; }
             $cartItemsForJs[] = [
                 'rowId'             => $item->rowId,
