@@ -92,16 +92,6 @@ class DeliveryChargeService
             ];
         }
 
-        if ($allPhysicalFree) {
-            return [
-                'charge'        => 0.0,
-                'active_method' => 'free_delivery',
-                'is_free'       => true,
-                'total_weight'  => $totalWeight,
-                'details'       => ['reason' => 'All items have Free Delivery promotion'],
-            ];
-        }
-
         // Load active custom delivery charges (assigned to category, brand, or specific products)
         $customCharges = \Illuminate\Support\Facades\Schema::hasTable('custom_delivery_charges')
             ? CustomDeliveryCharge::where('status', 1)->get()
@@ -121,11 +111,11 @@ class DeliveryChargeService
 
             $pWeight = (float) ($prod->weight ?? 0);
 
-            // Check matching custom charge for this product
+            // 1. TOP PRIORITY: Check matching custom charge for this product
             $matchedCustomCharge = null;
             foreach ($customCharges as $cc) {
                 if ($cc->matchesProduct($prod)) {
-                    // If multiple match, choose highest
+                    // If multiple match, choose highest charge
                     if ($matchedCustomCharge === null || $cc->amount > $matchedCustomCharge->amount) {
                         $matchedCustomCharge = $cc;
                     }
@@ -136,6 +126,10 @@ class DeliveryChargeService
                 $hasAnyCustomMatch = true;
                 $itemCharge = (float) $matchedCustomCharge->amount;
                 $itemMethod = 'custom: ' . $matchedCustomCharge->name;
+            } elseif ((int) ($prod->free_delivery ?? 0) === 1) {
+                // If product has promo free delivery and not overridden by custom charge
+                $itemCharge = 0.0;
+                $itemMethod = 'product_free';
             } else {
                 // Fallback to global active system mode
                 if ($globalMethod === 'free_delivery') {
@@ -152,6 +146,14 @@ class DeliveryChargeService
                     $itemMethod = 'area_based';
                 }
             }
+
+            $productCalculatedCharges[] = [
+                'product_id' => $prod->id,
+                'name'       => $prod->name,
+                'charge'     => $itemCharge,
+                'method'     => $itemMethod,
+            ];
+        }
 
             $productCalculatedCharges[] = [
                 'product_id' => $prod->id,

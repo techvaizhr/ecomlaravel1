@@ -32,9 +32,9 @@ class DeliverySettingController extends Controller
             ? CustomDeliveryCharge::orderBy('id', 'desc')->get()
             : collect();
 
-        $categories = Category::where('status', 1)->select('id', 'name')->orderBy('name')->get();
-        $brands     = Brand::where('status', 1)->select('id', 'name')->orderBy('name')->get();
-        $products   = Product::where('status', 1)->select('id', 'name', 'product_code')->orderBy('name')->get();
+        $categories = Category::where('status', 1)->select('id', 'name', 'image')->orderBy('name')->get();
+        $brands     = Brand::where('status', 1)->select('id', 'name', 'image')->orderBy('name')->get();
+        $products   = Product::with('image')->where('status', 1)->select('id', 'name', 'product_code', 'category_id', 'brand_id')->orderBy('name')->get();
 
         return view('backEnd.delivery_settings.index', compact('setting', 'divisions', 'customCharges', 'categories', 'brands', 'products'));
     }

@@ -149,6 +149,210 @@
     .section-card-body {
         padding: 20px;
     }
+
+    /* Visual Target Picker Styles */
+    .target-nav-pills {
+        gap: 8px;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 12px;
+    }
+    .target-nav-pills .nav-link {
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13.5px;
+        padding: 7px 16px;
+        color: #475569;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .target-nav-pills .nav-link:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+    .target-nav-pills .nav-link.active {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+    .target-nav-pills .nav-link.active .badge {
+        background-color: #ffffff !important;
+        color: #2563eb !important;
+    }
+    .target-nav-pills .nav-link .badge {
+        font-size: 11px;
+    }
+    
+    .target-picker-container {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        background: #ffffff;
+        overflow: hidden;
+    }
+    .target-picker-toolbar {
+        padding: 8px 12px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .target-search-box {
+        position: relative;
+        flex-grow: 1;
+        max-width: 320px;
+    }
+    .target-search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+    }
+    .target-search-box input {
+        padding-left: 34px;
+        border-radius: 20px;
+        font-size: 12.5px;
+    }
+    .target-selected-chips-bar {
+        padding: 6px 12px;
+        background: #f8fafc;
+        border-bottom: 1px dashed #e2e8f0;
+        min-height: 38px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+    }
+    .target-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+        border-radius: 16px;
+        padding: 2px 8px 2px 4px;
+        font-size: 11.5px;
+        font-weight: 600;
+        animation: fadeIn 0.15s ease-in;
+    }
+    .target-chip img, .target-chip .chip-placeholder {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .target-chip .chip-remove {
+        cursor: pointer;
+        color: #93c5fd;
+        font-size: 12px;
+        margin-left: 2px;
+        line-height: 1;
+        transition: color 0.15s;
+    }
+    .target-chip .chip-remove:hover {
+        color: #ef4444;
+    }
+    
+    .target-card-grid {
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 8px;
+    }
+    .target-item-card {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        cursor: pointer;
+        user-select: none;
+        background: #ffffff;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+    .target-item-card:hover {
+        border-color: #93c5fd;
+        background: #f8fafc;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+    }
+    .target-item-card.selected {
+        border-color: #2563eb;
+        background: #eff6ff;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
+    }
+    .target-item-thumb {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f1f5f9;
+        flex-shrink: 0;
+        border: 1px solid #e2e8f0;
+    }
+    .target-item-fallback {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: #e2e8f0;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+    .target-item-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+    .target-item-name {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 1px;
+    }
+    .target-item-sub {
+        font-size: 11px;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .target-item-checkbox {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #ffffff;
+        flex-shrink: 0;
+        transition: all 0.15s;
+    }
+    .target-item-card.selected .target-item-checkbox {
+        background: #2563eb;
+        border-color: #2563eb;
+    }
 </style>
 @endsection
 
@@ -429,11 +633,11 @@
                     <span>২. কাস্টম ডেলিভারি চার্জেস (Custom Delivery Charges)</span>
                 </h5>
                 <small class="text-muted">
-                    ক্যাটাগরি, ব্র্যান্ড বা নির্দিষ্ট প্রোডাক্টের জন্য আলাদা কাস্টম ডেলিভারি চার্জ নির্ধারণ করুন। পণ্যগুলোতে স্বয়ংক্রিয়ভাবে এই চার্জ প্রাধান্য পাবে।
+                    ক্যাটাগরি, ব্র্যান্ড বা নির্দিষ্ট প্রোডাক্টের জন্য কাস্টম ডেলিভারি চার্জ নির্ধারণ করুন। কার্ট বা অর্ডারে এই চার্জ সবসময় সর্বোচ্চ অগ্রাধিকার (Priority) পাবে।
                 </small>
             </div>
             <div>
-                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addCustomChargeModal">
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addCustomChargeModal">
                     <i class="fe-plus-circle me-1"></i> নতুন কাস্টম চার্জ যোগ করুন
                 </button>
             </div>
@@ -454,7 +658,7 @@
                     <tbody>
                         @forelse($customCharges as $idx => $cc)
                         @php
-                            $ccCatIds  = is_array($cc->category_ids) ? $cc->category_ids : [];
+                            $ccCatIds   = is_array($cc->category_ids) ? $cc->category_ids : [];
                             $ccBrandIds = is_array($cc->brand_ids) ? $cc->brand_ids : [];
                             $ccProdIds  = is_array($cc->product_ids) ? $cc->product_ids : [];
 
@@ -477,7 +681,9 @@
                                             <div class="mb-1">
                                                 <small class="text-muted fw-bold d-block" style="font-size: 11px;">ক্যাটাগরি:</small>
                                                 @foreach($matchedCats as $c)
-                                                    <span class="badge bg-soft-primary text-primary me-1">{{ $c->name }}</span>
+                                                    <span class="badge bg-soft-primary text-primary me-1">
+                                                        <i class="fe-grid me-1"></i>{{ $c->name }}
+                                                    </span>
                                                 @endforeach
                                             </div>
                                         @endif
@@ -485,7 +691,9 @@
                                             <div class="mb-1 ms-2">
                                                 <small class="text-muted fw-bold d-block" style="font-size: 11px;">ব্র্যান্ড:</small>
                                                 @foreach($matchedBrands as $b)
-                                                    <span class="badge bg-soft-success text-success me-1">{{ $b->name }}</span>
+                                                    <span class="badge bg-soft-success text-success me-1">
+                                                        <i class="fe-award me-1"></i>{{ $b->name }}
+                                                    </span>
                                                 @endforeach
                                             </div>
                                         @endif
@@ -493,7 +701,9 @@
                                             <div class="mb-1 ms-2">
                                                 <small class="text-muted fw-bold d-block" style="font-size: 11px;">নির্দিষ্ট প্রোডাক্ট:</small>
                                                 @foreach($matchedProds as $p)
-                                                    <span class="badge bg-soft-warning text-dark me-1" title="{{ $p->name }}">{{ \Illuminate\Support\Str::limit($p->name, 25) }}</span>
+                                                    <span class="badge bg-soft-warning text-dark me-1" title="{{ $p->name }}">
+                                                        <i class="fe-box me-1"></i>{{ \Illuminate\Support\Str::limit($p->name, 25) }}
+                                                    </span>
                                                 @endforeach
                                             </div>
                                         @endif
@@ -526,87 +736,242 @@
                             </td>
                         </tr>
 
-                        {{-- Edit Modal for each Custom Charge --}}
+                        {{-- EDIT MODAL WITH VISUAL TARGET SELECTOR --}}
                         <div class="modal fade" id="editCustomChargeModal_{{ $cc->id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                                 <div class="modal-content">
                                     <form action="{{ route('admin.delivery.settings.custom-charge.update', $cc->id) }}" method="POST">
                                         @csrf
-                                        <div class="modal-header">
-                                            <h5 class="modal-title fw-bold">কাস্টম চার্জ এডিট করুন</h5>
+                                        <div class="modal-header bg-light">
+                                            <h5 class="modal-title fw-bold text-dark">
+                                                <i class="fe-edit text-primary me-1"></i>কাস্টম ডেলিভারি চার্জ সম্পাদনা
+                                            </h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body">
-                                            <div class="row g-3">
-                                                <div class="col-md-7">
-                                                    <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
-                                                    <input type="text" name="name" class="form-control" required value="{{ $cc->name }}" placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ফার্নিচার ইত্যাদি">
-                                                </div>
+                                        <div class="modal-body p-4">
+                                            
+                                            {{-- Top Section: Basic Info --}}
+                                            <div class="row g-3 mb-4 pb-3 border-bottom">
                                                 <div class="col-md-5">
-                                                    <label class="form-label fw-semibold">ডেলিভারি চার্জ (৳) <span class="text-danger">*</span></label>
+                                                    <label class="form-label fw-bold text-dark">কাস্টম চার্জের নাম <span class="text-danger">*</span></label>
+                                                    <input type="text" name="name" class="form-control fw-semibold" required value="{{ $cc->name }}" placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ফার্নিচার ইত্যাদি">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-bold text-dark">ডেলিভারি চার্জের পরিমাণ (৳) <span class="text-danger">*</span></label>
                                                     <div class="input-group">
-                                                        <span class="input-group-text">৳</span>
-                                                        <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required value="{{ $cc->amount }}">
+                                                        <span class="input-group-text fw-bold">৳</span>
+                                                        <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold text-primary" required value="{{ $cc->amount }}">
                                                     </div>
                                                 </div>
-
-                                                {{-- Multi-select Categories --}}
-                                                <div class="col-12">
-                                                    <label class="form-label fw-semibold text-primary">
-                                                        <i class="fe-grid me-1"></i>প্রযোজ্য ক্যাটাগরি (ঐচ্ছিক - এক বা একাধিক)
-                                                    </label>
-                                                    <select name="category_ids[]" class="form-control select2-modal" multiple data-placeholder="ক্যাটাগরি নির্বাচন করুন...">
-                                                        @foreach($categories as $cat)
-                                                            <option value="{{ $cat->id }}" {{ in_array($cat->id, $ccCatIds) ? 'selected' : '' }}>
-                                                                {{ $cat->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <small class="text-muted">এই ক্যাটাগরির সকল প্রোডাক্টে এই ডেলিভারি চার্জ কার্যকর হবে।</small>
-                                                </div>
-
-                                                {{-- Multi-select Brands --}}
-                                                <div class="col-12">
-                                                    <label class="form-label fw-semibold text-success">
-                                                        <i class="fe-award me-1"></i>প্রযোজ্য ব্র্যান্ড (ঐচ্ছিক - এক বা একাধিক)
-                                                    </label>
-                                                    <select name="brand_ids[]" class="form-control select2-modal" multiple data-placeholder="ব্র্যান্ড নির্বাচন করুন...">
-                                                        @foreach($brands as $b)
-                                                            <option value="{{ $b->id }}" {{ in_array($b->id, $ccBrandIds) ? 'selected' : '' }}>
-                                                                {{ $b->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <small class="text-muted">এই ব্র্যান্ডের সকল প্রোডাক্টে এই ডেলিভারি চার্জ কার্যকর হবে।</small>
-                                                </div>
-
-                                                {{-- Multi-select Products --}}
-                                                <div class="col-12">
-                                                    <label class="form-label fw-semibold text-warning">
-                                                        <i class="fe-box me-1"></i>নির্দিষ্ট প্রোডাক্ট (ঐচ্ছিক - এক বা একাধিক)
-                                                    </label>
-                                                    <select name="product_ids[]" class="form-control select2-modal" multiple data-placeholder="প্রোডাক্ট নির্বাচন করুন...">
-                                                        @foreach($products as $p)
-                                                            <option value="{{ $p->id }}" {{ in_array($p->id, $ccProdIds) ? 'selected' : '' }}>
-                                                                {{ $p->name }} {{ $p->product_code ? '('.$p->product_code.')' : '' }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <small class="text-muted">সিলেক্ট করা নির্দিষ্ট প্রোডাক্টসমূহে এই চার্জ কার্যকর হবে।</small>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <label class="form-label fw-semibold">স্ট্যাটাস</label>
-                                                    <select name="status" class="form-select">
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold text-dark">স্ট্যাটাস</label>
+                                                    <select name="status" class="form-select fw-semibold">
                                                         <option value="1" {{ $cc->status == 1 ? 'selected' : '' }}>সক্রিয় (Active)</option>
                                                         <option value="0" {{ $cc->status == 0 ? 'selected' : '' }}>নিষ্ক্রিয় (Inactive)</option>
                                                     </select>
                                                 </div>
                                             </div>
+
+                                            {{-- Visual Targeting Section --}}
+                                            <div>
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                    <div>
+                                                        <h6 class="fw-bold text-dark mb-0">
+                                                            <i class="fe-crosshair text-danger me-1"></i>প্রযোজ্য শর্ত নির্বাচন করুন (ক্যাটাগরি / ব্র্যান্ড / পণ্য)
+                                                        </h6>
+                                                        <small class="text-muted">পণ্য বা ব্র্যান্ড বা ক্যাটাগরি সার্চ করে ক্লিক করুন। সিলেক্ট করা আইটেমগুলোতে এই চার্জ অগ্রাধিকার পাবে।</small>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Tab Navs --}}
+                                                <ul class="nav target-nav-pills mb-3" id="editTab_{{ $cc->id }}" role="tablist">
+                                                    <li class="nav-item">
+                                                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#edit_cats_tab_{{ $cc->id }}" type="button">
+                                                            <i class="fe-grid"></i> ক্যাটাগরি সমূহ 
+                                                            <span class="badge bg-primary text-white rounded-pill ms-1 cat-count">{{ count($ccCatIds) }}</span>
+                                                        </button>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#edit_brands_tab_{{ $cc->id }}" type="button">
+                                                            <i class="fe-award"></i> ব্র্যান্ড সমূহ 
+                                                            <span class="badge bg-success text-white rounded-pill ms-1 brand-count">{{ count($ccBrandIds) }}</span>
+                                                        </button>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#edit_prods_tab_{{ $cc->id }}" type="button">
+                                                            <i class="fe-box"></i> নির্দিষ্ট প্রোডাক্টসমূহ 
+                                                            <span class="badge bg-warning text-dark rounded-pill ms-1 prod-count">{{ count($ccProdIds) }}</span>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+
+                                                {{-- Tab Panes --}}
+                                                <div class="tab-content">
+                                                    
+                                                    {{-- CATEGORIES TAB --}}
+                                                    <div class="tab-pane fade show active" id="edit_cats_tab_{{ $cc->id }}">
+                                                        <div class="target-picker-container">
+                                                            <div class="target-picker-toolbar">
+                                                                <div class="target-search-box">
+                                                                    <i class="fe-search"></i>
+                                                                    <input type="text" class="form-control form-control-sm target-filter-input" placeholder="ক্যাটাগরি সার্চ করুন...">
+                                                                </div>
+                                                                <div class="d-flex gap-1">
+                                                                    <button type="button" class="btn btn-xs btn-outline-primary select-all-btn">সব সিলেক্ট</button>
+                                                                    <button type="button" class="btn btn-xs btn-outline-secondary deselect-all-btn">সব ক্লিয়ার</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="target-selected-chips-bar" data-type="cat">
+                                                                @forelse($matchedCats as $mc)
+                                                                <span class="target-chip" data-id="{{ $mc->id }}">
+                                                                    @if($mc->image)
+                                                                        <img src="{{ asset($mc->image) }}" alt="{{ $mc->name }}" onerror="this.src='{{ asset('public/uploads/category/default.png') }}';">
+                                                                    @else
+                                                                        <span class="chip-placeholder">{{ strtoupper(substr($mc->name, 0, 1)) }}</span>
+                                                                    @endif
+                                                                    <span>{{ $mc->name }}</span>
+                                                                    <span class="chip-remove" onclick="removeTargetChip(this, '{{ $mc->id }}')">&times;</span>
+                                                                </span>
+                                                                @empty
+                                                                <small class="text-muted fst-italic no-chip-msg">কোনো ক্যাটাগরি সিলেক্ট করা হয়নি</small>
+                                                                @endforelse
+                                                            </div>
+                                                            <div class="target-card-grid">
+                                                                @foreach($categories as $cat)
+                                                                @php $isSelected = in_array($cat->id, $ccCatIds); @endphp
+                                                                <div class="target-item-card {{ $isSelected ? 'selected' : '' }}" data-type="cat" data-id="{{ $cat->id }}" data-name="{{ strtolower($cat->name) }}">
+                                                                    <input type="checkbox" name="category_ids[]" value="{{ $cat->id }}" class="d-none target-checkbox" {{ $isSelected ? 'checked' : '' }}>
+                                                                    @if($cat->image)
+                                                                        <img src="{{ asset($cat->image) }}" class="target-item-thumb" alt="{{ $cat->name }}" onerror="this.src='{{ asset('public/uploads/category/default.png') }}';">
+                                                                    @else
+                                                                        <span class="target-item-fallback">{{ strtoupper(substr($cat->name, 0, 2)) }}</span>
+                                                                    @endif
+                                                                    <div class="target-item-info">
+                                                                        <div class="target-item-name" title="{{ $cat->name }}">{{ $cat->name }}</div>
+                                                                        <div class="target-item-sub">ক্যাটাগরি</div>
+                                                                    </div>
+                                                                    <div class="target-item-checkbox">
+                                                                        <i class="fe-check"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- BRANDS TAB --}}
+                                                    <div class="tab-pane fade" id="edit_brands_tab_{{ $cc->id }}">
+                                                        <div class="target-picker-container">
+                                                            <div class="target-picker-toolbar">
+                                                                <div class="target-search-box">
+                                                                    <i class="fe-search"></i>
+                                                                    <input type="text" class="form-control form-control-sm target-filter-input" placeholder="ব্র্যান্ড সার্চ করুন...">
+                                                                </div>
+                                                                <div class="d-flex gap-1">
+                                                                    <button type="button" class="btn btn-xs btn-outline-success select-all-btn">সব সিলেক্ট</button>
+                                                                    <button type="button" class="btn btn-xs btn-outline-secondary deselect-all-btn">সব ক্লিয়ার</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="target-selected-chips-bar" data-type="brand">
+                                                                @forelse($matchedBrands as $mb)
+                                                                <span class="target-chip" data-id="{{ $mb->id }}">
+                                                                    @if($mb->image)
+                                                                        <img src="{{ asset($mb->image) }}" alt="{{ $mb->name }}">
+                                                                    @else
+                                                                        <span class="chip-placeholder">{{ strtoupper(substr($mb->name, 0, 1)) }}</span>
+                                                                    @endif
+                                                                    <span>{{ $mb->name }}</span>
+                                                                    <span class="chip-remove" onclick="removeTargetChip(this, '{{ $mb->id }}')">&times;</span>
+                                                                </span>
+                                                                @empty
+                                                                <small class="text-muted fst-italic no-chip-msg">কোনো ব্র্যান্ড সিলেক্ট করা হয়নি</small>
+                                                                @endforelse
+                                                            </div>
+                                                            <div class="target-card-grid">
+                                                                @foreach($brands as $b)
+                                                                @php $isSelected = in_array($b->id, $ccBrandIds); @endphp
+                                                                <div class="target-item-card {{ $isSelected ? 'selected' : '' }}" data-type="brand" data-id="{{ $b->id }}" data-name="{{ strtolower($b->name) }}">
+                                                                    <input type="checkbox" name="brand_ids[]" value="{{ $b->id }}" class="d-none target-checkbox" {{ $isSelected ? 'checked' : '' }}>
+                                                                    @if($b->image)
+                                                                        <img src="{{ asset($b->image) }}" class="target-item-thumb" alt="{{ $b->name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                                                        <span class="target-item-fallback" style="display:none;">{{ strtoupper(substr($b->name, 0, 2)) }}</span>
+                                                                    @else
+                                                                        <span class="target-item-fallback">{{ strtoupper(substr($b->name, 0, 2)) }}</span>
+                                                                    @endif
+                                                                    <div class="target-item-info">
+                                                                        <div class="target-item-name" title="{{ $b->name }}">{{ $b->name }}</div>
+                                                                        <div class="target-item-sub">ব্র্যান্ড</div>
+                                                                    </div>
+                                                                    <div class="target-item-checkbox">
+                                                                        <i class="fe-check"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- PRODUCTS TAB --}}
+                                                    <div class="tab-pane fade" id="edit_prods_tab_{{ $cc->id }}">
+                                                        <div class="target-picker-container">
+                                                            <div class="target-picker-toolbar">
+                                                                <div class="target-search-box">
+                                                                    <i class="fe-search"></i>
+                                                                    <input type="text" class="form-control form-control-sm target-filter-input" placeholder="প্রোডাক্ট নাম বা কোড দিয়ে সার্চ করুন...">
+                                                                </div>
+                                                                <div class="d-flex gap-1">
+                                                                    <button type="button" class="btn btn-xs btn-outline-warning select-all-btn">সব সিলেক্ট</button>
+                                                                    <button type="button" class="btn btn-xs btn-outline-secondary deselect-all-btn">সব ক্লিয়ার</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="target-selected-chips-bar" data-type="product">
+                                                                @forelse($matchedProds as $mp)
+                                                                <span class="target-chip" data-id="{{ $mp->id }}">
+                                                                    @if($mp->image?->image)
+                                                                        <img src="{{ asset($mp->image->image) }}" alt="{{ $mp->name }}">
+                                                                    @else
+                                                                        <span class="chip-placeholder">{{ strtoupper(substr($mp->name, 0, 1)) }}</span>
+                                                                    @endif
+                                                                    <span>{{ \Illuminate\Support\Str::limit($mp->name, 20) }}</span>
+                                                                    <span class="chip-remove" onclick="removeTargetChip(this, '{{ $mp->id }}')">&times;</span>
+                                                                </span>
+                                                                @empty
+                                                                <small class="text-muted fst-italic no-chip-msg">কোনো নির্দিষ্ট পণ্য সিলেক্ট করা হয়নি</small>
+                                                                @endforelse
+                                                            </div>
+                                                            <div class="target-card-grid">
+                                                                @foreach($products as $p)
+                                                                @php $isSelected = in_array($p->id, $ccProdIds); @endphp
+                                                                <div class="target-item-card {{ $isSelected ? 'selected' : '' }}" data-type="product" data-id="{{ $p->id }}" data-name="{{ strtolower($p->name . ' ' . $p->product_code) }}">
+                                                                    <input type="checkbox" name="product_ids[]" value="{{ $p->id }}" class="d-none target-checkbox" {{ $isSelected ? 'checked' : '' }}>
+                                                                    @if($p->image?->image)
+                                                                        <img src="{{ asset($p->image->image) }}" class="target-item-thumb" alt="{{ $p->name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                                                        <span class="target-item-fallback" style="display:none;">{{ strtoupper(substr($p->name, 0, 2)) }}</span>
+                                                                    @else
+                                                                        <span class="target-item-fallback">{{ strtoupper(substr($p->name, 0, 2)) }}</span>
+                                                                    @endif
+                                                                    <div class="target-item-info">
+                                                                        <div class="target-item-name" title="{{ $p->name }}">{{ $p->name }}</div>
+                                                                        <div class="target-item-sub">{{ $p->product_code ? 'Code: '.$p->product_code : 'পণ্য' }}</div>
+                                                                    </div>
+                                                                    <div class="target-item-checkbox">
+                                                                        <i class="fe-check"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
                                         </div>
-                                        <div class="modal-footer">
+                                        <div class="modal-footer bg-light">
                                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">বন্ধ করুন</button>
-                                            <button type="submit" class="btn btn-primary btn-sm">আপডেট করুন</button>
+                                            <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold shadow-sm">
+                                                <i class="fe-check me-1"></i> আপডেট সংরক্ষণ করুন
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -625,62 +990,402 @@
         </div>
     </div>
 
-    {{-- Modal: Add Custom Delivery Charge --}}
+    {{-- MODAL: ADD CUSTOM DELIVERY CHARGE WITH VISUAL TARGET SELECTOR --}}
     <div class="modal fade" id="addCustomChargeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <form action="{{ route('admin.delivery.settings.custom-charge.store') }}" method="POST">
                     @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold"><i class="fe-plus-circle text-danger me-1"></i>নতুন কাস্টম ডেলিভারি চার্জ</h5>
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title fw-bold text-dark">
+                            <i class="fe-plus-circle text-danger me-1"></i>নতুন কাস্টম ডেলিভারি চার্জ তৈরি
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-7">
-                                <label class="form-label fw-semibold">চার্জের নাম <span class="text-danger">*</span></label>
-                                <input type="text" name="name" class="form-control" required placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ফার্নিচার, কাচের সামগ্রী">
-                            </div>
+                    <div class="modal-body p-4">
+                        
+                        {{-- Top Section: Basic Info --}}
+                        <div class="row g-3 mb-4 pb-3 border-bottom">
                             <div class="col-md-5">
-                                <label class="form-label fw-semibold">ডেলিভারি চার্জের পরিমাণ (৳) <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold text-dark">কাস্টম চার্জের নাম <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="form-control fw-semibold" required placeholder="যেমন: এক্সপ্রেস ডেলিভারি, ফার্নিচার, কাচের পণ্য ইত্যাদি">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark">ডেলিভারি চার্জের পরিমাণ (৳) <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text">৳</span>
-                                    <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold" required placeholder="150.00">
+                                    <span class="input-group-text fw-bold">৳</span>
+                                    <input type="number" step="0.01" min="0" name="amount" class="form-control fw-bold text-danger" required placeholder="150.00">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-dark">স্ট্যাটাস</label>
+                                <select name="status" class="form-select fw-semibold">
+                                    <option value="1" selected>সক্রিয় (Active)</option>
+                                    <option value="0">নিষ্ক্রিয় (Inactive)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Visual Targeting Section --}}
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">
+                                        <i class="fe-crosshair text-danger me-1"></i>প্রযোজ্য শর্ত নির্বাচন করুন (ক্যাটাগরি / ব্র্যান্ড / পণ্য)
+                                    </h6>
+                                    <small class="text-muted">পণ্য বা ব্র্যান্ড বা ক্যাটাগরি সার্চ করে ক্লিক করুন। সিলেক্ট করা আইটেমগুলোতে এই চার্জ অগ্রাধিকার পাবে।</small>
                                 </div>
                             </div>
 
-                            {{-- Multi-select Categories --}}
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-primary">
-                                    <i class="fe-grid me-1"></i>প্রযোজ্য ক্যাটাগরি (ঐচ্ছিক - এক বা একাধিক)
-                                </label>
-                                <select name="category_ids[]" class="form-control select2-modal" multiple data-placeholder="ক্যাটাগরি নির্বাচন করুন...">
-                                    @foreach($categories as $cat)
-                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">এই ক্যাটাগরির অন্তর্ভুক্ত সকল পণ্যে এই ডেলিভারি চার্জ স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে।</small>
-                            </div>
+                            {{-- Tab Navs --}}
+                            <ul class="nav target-nav-pills mb-3" id="addTab" role="tablist">
+                                <li class="nav-item">
+                                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#add_cats_tab" type="button">
+                                        <i class="fe-grid"></i> ক্যাটাগরি সমূহ 
+                                        <span class="badge bg-primary text-white rounded-pill ms-1 cat-count">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#add_brands_tab" type="button">
+                                        <i class="fe-award"></i> ব্র্যান্ড সমূহ 
+                                        <span class="badge bg-success text-white rounded-pill ms-1 brand-count">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#add_prods_tab" type="button">
+                                        <i class="fe-box"></i> নির্দিষ্ট প্রোডাক্টসমূহ 
+                                        <span class="badge bg-warning text-dark rounded-pill ms-1 prod-count">0</span>
+                                    </button>
+                                </li>
+                            </ul>
 
-                            {{-- Multi-select Brands --}}
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-success">
-                                    <i class="fe-award me-1"></i>প্রযোজ্য ব্র্যান্ড (ঐচ্ছিক - এক বা একাধিক)
-                                </label>
-                                <select name="brand_ids[]" class="form-control select2-modal" multiple data-placeholder="ব্র্যান্ড নির্বাচন করুন...">
-                                    @foreach($brands as $b)
-                                        <option value="{{ $b->id }}">{{ $b->name }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">এই ব্র্যান্ডের অন্তর্ভুক্ত সকল পণ্যে এই ডেলিভারি চার্জ স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে।</small>
-                            </div>
+                            {{-- Tab Panes --}}
+                            <div class="tab-content">
+                                
+                                {{-- CATEGORIES TAB --}}
+                                <div class="tab-pane fade show active" id="add_cats_tab">
+                                    <div class="target-picker-container">
+                                        <div class="target-picker-toolbar">
+                                            <div class="target-search-box">
+                                                <i class="fe-search"></i>
+                                                <input type="text" class="form-control form-control-sm target-filter-input" placeholder="ক্যাটাগরি সার্চ করুন...">
+                                            </div>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-xs btn-outline-primary select-all-btn">সব সিলেক্ট</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary deselect-all-btn">সব ক্লিয়ার</button>
+                                            </div>
+                                        </div>
+                                        <div class="target-selected-chips-bar" data-type="cat">
+                                            <small class="text-muted fst-italic no-chip-msg">কোনো ক্যাটাগরি সিলেক্ট করা হয়নি</small>
+                                        </div>
+                                        <div class="target-card-grid">
+                                            @foreach($categories as $cat)
+                                            <div class="target-item-card" data-type="cat" data-id="{{ $cat->id }}" data-name="{{ strtolower($cat->name) }}">
+                                                <input type="checkbox" name="category_ids[]" value="{{ $cat->id }}" class="d-none target-checkbox">
+                                                @if($cat->image)
+                                                    <img src="{{ asset($cat->image) }}" class="target-item-thumb" alt="{{ $cat->name }}" onerror="this.src='{{ asset('public/uploads/category/default.png') }}';">
+                                                @else
+                                                    <span class="target-item-fallback">{{ strtoupper(substr($cat->name, 0, 2)) }}</span>
+                                                @endif
+                                                <div class="target-item-info">
+                                                    <div class="target-item-name" title="{{ $cat->name }}">{{ $cat->name }}</div>
+                                                    <div class="target-item-sub">ক্যাটাগরি</div>
+                                                </div>
+                                                <div class="target-item-checkbox">
+                                                    <i class="fe-check"></i>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
 
-                            {{-- Multi-select Products --}}
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-warning">
-                                    <i class="fe-box me-1"></i>নির্দিষ্ট প্রোডাক্ট (ঐচ্ছিক - এক বা একাধিক)
-                                </label>
-                                <select name="product_ids[]" class="form-control select2-modal" multiple data-placeholder="প্রোডাক্ট নির্বাচন করুন...">
+                                {{-- BRANDS TAB --}}
+                                <div class="tab-pane fade" id="add_brands_tab">
+                                    <div class="target-picker-container">
+                                        <div class="target-picker-toolbar">
+                                            <div class="target-search-box">
+                                                <i class="fe-search"></i>
+                                                <input type="text" class="form-control form-control-sm target-filter-input" placeholder="ব্র্যান্ড সার্চ করুন...">
+                                            </div>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-xs btn-outline-success select-all-btn">সব সিলেক্ট</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary deselect-all-btn">সব ক্লিয়ার</button>
+                                            </div>
+                                        </div>
+                                        <div class="target-selected-chips-bar" data-type="brand">
+                                            <small class="text-muted fst-italic no-chip-msg">কোনো ব্র্যান্ড সিলেক্ট করা হয়নি</small>
+                                        </div>
+                                        <div class="target-card-grid">
+                                            @foreach($brands as $b)
+                                            <div class="target-item-card" data-type="brand" data-id="{{ $b->id }}" data-name="{{ strtolower($b->name) }}">
+                                                <input type="checkbox" name="brand_ids[]" value="{{ $b->id }}" class="d-none target-checkbox">
+                                                @if($b->image)
+                                                    <img src="{{ asset($b->image) }}" class="target-item-thumb" alt="{{ $b->name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                                    <span class="target-item-fallback" style="display:none;">{{ strtoupper(substr($b->name, 0, 2)) }}</span>
+                                                @else
+                                                    <span class="target-item-fallback">{{ strtoupper(substr($b->name, 0, 2)) }}</span>
+                                                @endif
+                                                <div class="target-item-info">
+                                                    <div class="target-item-name" title="{{ $b->name }}">{{ $b->name }}</div>
+                                                    <div class="target-item-sub">ব্র্যান্ড</div>
+                                                </div>
+                                                <div class="target-item-checkbox">
+                                                    <i class="fe-check"></i>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- PRODUCTS TAB --}}
+                                <div class="tab-pane fade" id="add_prods_tab">
+                                    <div class="target-picker-container">
+                                        <div class="target-picker-toolbar">
+                                            <div class="target-search-box">
+                                                <i class="fe-search"></i>
+                                                <input type="text" class="form-control form-control-sm target-filter-input" placeholder="প্রোডাক্ট নাম বা কোড দিয়ে সার্চ করুন...">
+                                            </div>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-xs btn-outline-warning select-all-btn">সব সিলেক্ট</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary deselect-all-btn">সব ক্লিয়ার</button>
+                                            </div>
+                                        </div>
+                                        <div class="target-selected-chips-bar" data-type="product">
+                                            <small class="text-muted fst-italic no-chip-msg">কোনো নির্দিষ্ট পণ্য সিলেক্ট করা হয়নি</small>
+                                        </div>
+                                        <div class="target-card-grid">
+                                            @foreach($products as $p)
+                                            <div class="target-item-card" data-type="product" data-id="{{ $p->id }}" data-name="{{ strtolower($p->name . ' ' . $p->product_code) }}">
+                                                <input type="checkbox" name="product_ids[]" value="{{ $p->id }}" class="d-none target-checkbox">
+                                                @if($p->image?->image)
+                                                    <img src="{{ asset($p->image->image) }}" class="target-item-thumb" alt="{{ $p->name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                                    <span class="target-item-fallback" style="display:none;">{{ strtoupper(substr($p->name, 0, 2)) }}</span>
+                                                @else
+                                                    <span class="target-item-fallback">{{ strtoupper(substr($p->name, 0, 2)) }}</span>
+                                                @endif
+                                                <div class="target-item-info">
+                                                    <div class="target-item-name" title="{{ $p->name }}">{{ $p->name }}</div>
+                                                    <div class="target-item-sub">{{ $p->product_code ? 'Code: '.$p->product_code : 'পণ্য' }}</div>
+                                                </div>
+                                                <div class="target-item-checkbox">
+                                                    <i class="fe-check"></i>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">বাতিল</button>
+                        <button type="submit" class="btn btn-danger btn-sm px-4 fw-bold shadow-sm">
+                            <i class="fe-plus-circle me-1"></i> কাস্টম চার্জ সংরক্ষণ করুন
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+@endsection
+
+@section('script')
+<script>
+function selectDeliveryMode(mode) {
+    $('#radio_' + mode).prop('checked', true);
+
+    $('.delivery-mode-option').removeClass('active');
+    $('#mode_card_' + (mode === 'free_delivery' ? 'free' : (mode === 'flat_rate' ? 'flat' : (mode === 'weight_based' ? 'weight' : 'area')))).addClass('active');
+
+    if (mode === 'flat_rate') {
+        $('#sub_body_flat_rate').slideDown(200);
+        $('#sub_body_weight_based, #sub_body_area_based').slideUp(200);
+    } else if (mode === 'weight_based') {
+        $('#sub_body_weight_based').slideDown(200);
+        $('#sub_body_flat_rate, #sub_body_area_based').slideUp(200);
+    } else if (mode === 'area_based') {
+        $('#sub_body_area_based').slideDown(200);
+        $('#sub_body_flat_rate, #sub_body_weight_based').slideUp(200);
+    } else {
+        $('#sub_body_flat_rate, #sub_body_weight_based, #sub_body_area_based').slideUp(200);
+    }
+}
+
+// Global function to remove chip on click
+function removeTargetChip(element, id) {
+    var $chip = $(element).closest('.target-chip');
+    var $container = $chip.closest('.target-picker-container');
+    var $card = $container.find('.target-item-card[data-id="' + id + '"]');
+    
+    if ($card.length) {
+        $card.removeClass('selected');
+        $card.find('.target-checkbox').prop('checked', false);
+    }
+    $chip.remove();
+    updateTabCountAndChips($container);
+}
+
+function updateTabCountAndChips($container) {
+    var $modal = $container.closest('.modal');
+    var type = $container.find('.target-selected-chips-bar').data('type');
+    
+    var selectedCards = $container.find('.target-item-card.selected');
+    var count = selectedCards.length;
+
+    // Update Nav Tab Count Badge
+    if (type === 'cat') {
+        $modal.find('.cat-count').text(count);
+    } else if (type === 'brand') {
+        $modal.find('.brand-count').text(count);
+    } else if (type === 'product') {
+        $modal.find('.prod-count').text(count);
+    }
+
+    // Update Chips Bar
+    var $chipsBar = $container.find('.target-selected-chips-bar');
+    $chipsBar.empty();
+
+    if (count === 0) {
+        var msg = type === 'cat' ? 'কোনো ক্যাটাগরি সিলেক্ট করা হয়নি' : (type === 'brand' ? 'কোনো ব্র্যান্ড সিলেক্ট করা হয়নি' : 'কোনো নির্দিষ্ট পণ্য সিলেক্ট করা হয়নি');
+        $chipsBar.append('<small class="text-muted fst-italic no-chip-msg">' + msg + '</small>');
+    } else {
+        selectedCards.each(function() {
+            var $c = $(this);
+            var id = $c.data('id');
+            var name = $c.find('.target-item-name').text();
+            var $thumb = $c.find('.target-item-thumb');
+            var $fallback = $c.find('.target-item-fallback');
+            
+            var chipImgHtml = '';
+            if ($thumb.length && $thumb.is(':visible')) {
+                chipImgHtml = '<img src="' + $thumb.attr('src') + '" alt="' + name + '">';
+            } else if ($fallback.length) {
+                chipImgHtml = '<span class="chip-placeholder">' + $fallback.text().substring(0, 1) + '</span>';
+            }
+
+            var chipHtml = '<span class="target-chip" data-id="' + id + '">' +
+                chipImgHtml +
+                '<span>' + (name.length > 20 ? name.substring(0, 20) + '...' : name) + '</span>' +
+                '<span class="chip-remove" onclick="removeTargetChip(this, \'' + id + '\')">&times;</span>' +
+                '</span>';
+            
+            $chipsBar.append(chipHtml);
+        });
+    }
+}
+
+$(document).ready(function() {
+    // Card Click Toggle
+    $(document).on('click', '.target-item-card', function(e) {
+        if ($(e.target).is('input[type="checkbox"]')) return;
+        
+        var $card = $(this);
+        var $checkbox = $card.find('.target-checkbox');
+        var isChecked = !$checkbox.prop('checked');
+        
+        $checkbox.prop('checked', isChecked);
+        $card.toggleClass('selected', isChecked);
+        
+        var $container = $card.closest('.target-picker-container');
+        updateTabCountAndChips($container);
+    });
+
+    // Instant Filter/Search per Tab
+    $(document).on('keyup', '.target-filter-input', function() {
+        var query = $(this).val().toLowerCase().trim();
+        var $grid = $(this).closest('.target-picker-container').find('.target-card-grid');
+        
+        $grid.find('.target-item-card').each(function() {
+            var name = $(this).data('name') || '';
+            if (!query || name.indexOf(query) !== -1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    // Select All visible
+    $(document).on('click', '.select-all-btn', function() {
+        var $container = $(this).closest('.target-picker-container');
+        $container.find('.target-item-card:visible').each(function() {
+            $(this).addClass('selected');
+            $(this).find('.target-checkbox').prop('checked', true);
+        });
+        updateTabCountAndChips($container);
+    });
+
+    // Deselect All
+    $(document).on('click', '.deselect-all-btn', function() {
+        var $container = $(this).closest('.target-picker-container');
+        $container.find('.target-item-card').each(function() {
+            $(this).removeClass('selected');
+            $(this).find('.target-checkbox').prop('checked', false);
+        });
+        updateTabCountAndChips($container);
+    });
+
+    // District Quick Search Filter
+    $('#districtFilterInput').on('keyup', function() {
+        var query = $(this).val().toLowerCase().trim();
+        $('.district-row').each(function() {
+            var name = $(this).data('name') || '';
+            if (!query || name.indexOf(query) !== -1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+
+        if (query) {
+            $('.division-accordion-item .collapse').addClass('show');
+        }
+    });
+
+    // Single District Instant Save via AJAX
+    $('.btn-save-district').on('click', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var distId = $btn.data('id');
+        var val = $('#dist_input_' + distId).val();
+
+        $btn.prop('disabled', true).html('<i class="spinner-border spinner-border-sm"></i>');
+
+        $.ajax({
+            url: '{{ route("admin.delivery.settings.district-rate") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                district_id: distId,
+                charge: val
+            },
+            success: function(res) {
+                $btn.prop('disabled', false).html('<i class="fe-check text-success"></i>');
+                if (typeof toastr !== 'undefined') {
+                    toastr.success(res.message || 'সংরক্ষিত হয়েছে');
+                }
+                setTimeout(function() {
+                    $btn.html('<i class="fe-save"></i>');
+                }, 2000);
+            },
+            error: function() {
+                $btn.prop('disabled', false).html('<i class="fe-save text-danger"></i>');
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('আপডেট করতে সমস্যা হয়েছে');
+                }
+            }
+        });
+    });
+});
+</script>
+@endsectione data-placeholder="প্রোডাক্ট নির্বাচন করুন...">
                                     @foreach($products as $p)
                                         <option value="{{ $p->id }}">
                                             {{ $p->name }} {{ $p->product_code ? '('.$p->product_code.')' : '' }}
