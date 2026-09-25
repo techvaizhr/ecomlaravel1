@@ -58,14 +58,18 @@
                                 <li><a href="{{ route('admin.order.bulk_destroy') }}" class="oi-btn-tool oi-btn-delete order_delete"><i class="fas fa-trash-alt"></i> ডিলিট</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="oi-btn-tool oi-btn-print multi_order_print"><i class="fas fa-print"></i> প্রিন্ট</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="oi-btn-tool oi-btn-label multi_label_print"><i class="fas fa-tag"></i> লেবেল</a></li>
+                                <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-courier open-universal-courier-btn" style="background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; font-weight: 700;"><i class="fas fa-shipping-fast text-primary"></i> কুরিয়ার বুকিং</a></li>
+                                @if(isset($carrybee_info) && $carrybee_info)
+                                    <li><a href="javascript:void(0);" class="oi-btn-tool open-universal-courier-btn" data-courier="carrybee" style="background: #fffdf0; color: #b45309; border-color: #fde68a;"><i class="fas fa-truck text-warning"></i> Carrybee</a></li>
+                                @endif
                                 @if($steadfast)
-                                    <li><a href="{{ route('admin.bulk_courier', 'steadfast') }}?status=5" class="oi-btn-tool oi-btn-courier multi_order_courier"><i class="fas fa-truck"></i> Steadfast</a></li>
+                                    <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-courier open-universal-courier-btn" data-courier="steadfast"><i class="fas fa-truck"></i> Steadfast</a></li>
                                 @endif
                                 @if($pathao_info)
-                                    <li><a data-bs-toggle="modal" data-bs-target="#pathao" class="oi-btn-tool oi-btn-pathao"><i class="fas fa-truck"></i> Pathao</a></li>
+                                    <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-pathao open-universal-courier-btn" data-courier="pathao"><i class="fas fa-truck"></i> Pathao</a></li>
                                 @endif
                                 @if(isset($redx_info) && $redx_info)
-                                    <li><a href="{{ route('admin.bulk_courier', 'redx') }}?status=5" class="oi-btn-tool oi-btn-redx multi_order_courier"><i class="fas fa-truck"></i> RedX</a></li>
+                                    <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-redx open-universal-courier-btn" data-courier="redx"><i class="fas fa-truck"></i> RedX</a></li>
                                 @endif
                             </ul>
                         </div>

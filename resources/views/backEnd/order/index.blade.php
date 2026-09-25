@@ -64,6 +64,18 @@
                                                                 <i class="fas fa-tag text-success me-2"></i> লেবেল প্রিন্ট
                                                             </a>
                                                         </li>
+                                                        <li>
+                                                            <a class="dropdown-item single-courier-btn d-flex align-items-center fw-semibold text-primary" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" data-amount="{{ $value->customer_payable_amount ?: $value->amount }}">
+                                                                <i class="fas fa-shipping-fast me-2 text-primary"></i> কুরিয়ার বুকিং (Courier Modal)
+                                                            </a>
+                                                        </li>
+                                                        @if(isset($carrybee_info) && $carrybee_info)
+                                                        <li>
+                                                            <a class="dropdown-item single-courier-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" data-amount="{{ $value->customer_payable_amount ?: $value->amount }}" data-courier="carrybee">
+                                                                <i class="fas fa-paper-plane text-warning me-2"></i> Carrybee বুকিং
+                                                            </a>
+                                                        </li>
+                                                        @endif
                                                         @if(isset($steadfast) && $steadfast)
                                                         <li>
                                                             <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'steadfast') }}?order_ids[]={{ $value->id }}&status=5">
@@ -1827,4 +1839,6 @@ $(document).ready(function(){
 
 })(window.jQuery);
 </script>
+
+@include('backEnd.order.partials.courier_booking_modal')
 @endsection

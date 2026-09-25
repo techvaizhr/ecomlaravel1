@@ -26,6 +26,10 @@ class CourierStatusService
             return 'https://merchant.pathao.com/public-tracking?consignment_id=' . urlencode((string) $trackingId);
         }
 
+        if ($courierType === 'carrybee') {
+            return 'https://merchant.carrybee.com';
+        }
+
         if ($courierType === 'steadfast') {
             $code = trim((string) ($order->courier_tracking_code ?: $trackingId));
             if ($code === '') {
@@ -80,6 +84,7 @@ class CourierStatusService
         return match ($type) {
             'steadfast' => 'Steadfast',
             'pathao'    => 'Pathao',
+            'carrybee'  => 'Carrybee',
             'redx'      => 'RedX',
             'paperfly'  => 'Paperfly',
             default     => ucfirst($type),
@@ -106,6 +111,8 @@ class CourierStatusService
                 return self::syncPathaoStatus($order);
             } elseif ($courierType === 'steadfast') {
                 return self::syncSteadfastStatus($order);
+            } elseif ($courierType === 'carrybee') {
+                return self::syncCarrybeeStatus($order);
             } elseif ($courierType === 'redx') {
                 return self::syncRedXStatus($order);
             }
@@ -348,6 +355,71 @@ class CourierStatusService
             'order_status_name'  => $statusDisplayName,
             'status_updated'     => $updated,
             'message'            => "RedX স্ট্যাটাস: " . ucwords(str_replace('_', ' ', $rawStatus)) . ($updated ? " (অর্ডার স্ট্যাটাস আপডেট হয়েছে)" : ""),
+        ];
+    }
+
+    /**
+     * Sync Carrybee Status
+     */
+    protected static function syncCarrybeeStatus(Order $order): array
+    {
+        $trackingId = $order->courier_tracking_id ?: ($order->consignment_id ?: null);
+        if (!$trackingId) {
+            return ['success' => false, 'message' => 'Carrybee কনসাইনমেন্ট আইডি নেই।'];
+        }
+
+        $res = CarrybeeService::getOrderDetails($trackingId);
+        if (!$res['success'] || empty($res['data'])) {
+            return [
+                'success' => false,
+                'message' => $res['message'] ?? 'Carrybee থেকে তথ্য পাওয়া যায়নি।',
+            ];
+        }
+
+        $data = $res['data'];
+        $transferStatus = strtolower((string) ($data['transfer_status'] ?? ''));
+        $paymentStatus = strtolower((string) ($data['payment_status'] ?? ''));
+
+        $newStatusId = null;
+        if (str_contains($transferStatus, 'delivered')) {
+            $newStatusId = 6;
+        } elseif (str_contains($transferStatus, 'returned') || str_contains($transferStatus, 'return')) {
+            $newStatusId = 7;
+        } elseif (str_contains($transferStatus, 'cancel')) {
+            $newStatusId = 8;
+        } elseif (!empty($transferStatus)) {
+            $newStatusId = 5; // In Courier
+        }
+
+        $updated = false;
+        $oldStatusId = $order->order_status;
+        if ($newStatusId !== null && (int) $newStatusId !== (int) $oldStatusId) {
+            $order->order_status = $newStatusId;
+            $updated = true;
+        }
+
+        if ($paymentStatus === 'paid') {
+            $order->payment_status = 'paid';
+            $updated = true;
+        }
+
+        if ($updated) {
+            $order->save();
+        }
+
+        $order->load('status');
+        $statusDisplayName = $order->status ? $order->status->name : ($newStatusId ?: $oldStatusId);
+
+        return [
+            'success'            => true,
+            'courier_name'       => 'Carrybee',
+            'tracking_id'        => $trackingId,
+            'raw_courier_status' => $transferStatus,
+            'courier_status'     => ucwords(str_replace(['_', '-'], ' ', $transferStatus ?: 'In Courier')),
+            'order_status_id'    => $order->order_status,
+            'order_status_name'  => $statusDisplayName,
+            'status_updated'     => $updated,
+            'message'            => "Carrybee স্ট্যাটাস: " . ucwords(str_replace(['_', '-'], ' ', $transferStatus ?: 'Active')) . ($updated ? " (অর্ডার স্ট্যাটাস আপডেট হয়েছে)" : ""),
         ];
     }
 }

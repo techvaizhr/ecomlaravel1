@@ -42,6 +42,8 @@ use App\Models\VendorWalletTransaction;
 use App\Helpers\FundHelper;
 use App\Models\Expense;
 use App\Services\RedXService;
+use App\Services\CarrybeeService;
+use App\Models\CourierStore;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -840,10 +842,34 @@ PROMPT;
             'yahoo'      => 'Yahoo',
             'twitter'    => 'X / Twitter',
             'direct'     => 'সরাসরি',
-            'other'      => 'অন্যান্য',
         ];
 
-        return view('backEnd.order.index', compact('show_data', 'order_status', 'users', 'steadfast', 'pathaostore', 'pathaocities', 'blockedIps', 'pathao_info', 'redx_info', 'redxAreas', 'redxPickupStores', 'orderstatus', 'traffic_source_options'));
+        // Carrybee configuration & stores
+        $carrybee_info = Cache::remember('courier_carrybee', 1800, function () {
+            return Courierapi::where(['status' => 1, 'type' => 'carrybee'])->first();
+        });
+
+        $all_courier_stores = Schema::hasTable('courier_stores')
+            ? CourierStore::where('is_active', true)->get()->groupBy('courier_type')
+            : collect([]);
+
+        return view('backEnd.order.index', compact(
+            'show_data',
+            'order_status',
+            'users',
+            'steadfast',
+            'pathaostore',
+            'pathaocities',
+            'blockedIps',
+            'pathao_info',
+            'redx_info',
+            'redxAreas',
+            'redxPickupStores',
+            'carrybee_info',
+            'all_courier_stores',
+            'orderstatus',
+            'traffic_source_options'
+        ));
     }
 
     /**
@@ -1702,6 +1728,26 @@ PROMPT;
             if (!$order) continue;
 
             try {
+                // Carrybee API handler
+                if ($slug === 'carrybee') {
+                    $res = CarrybeeService::createOrder($order, $request->all());
+                    if ($res['success']) {
+                        $successOrders[] = [
+                            'order_id'       => $order_id,
+                            'invoice_id'     => $order->invoice_id,
+                            'consignment_id' => $res['consignment_id'],
+                            'message'        => $res['message'],
+                        ];
+                    } else {
+                        $failedOrders[] = [
+                            'order_id'   => $order_id,
+                            'invoice_id' => $order->invoice_id,
+                            'message'    => $res['message'],
+                        ];
+                    }
+                    continue;
+                }
+
                 // RedX API uses different structure
                 if ($slug === 'redx') {
                     // Verify RedX is configured
@@ -2094,6 +2140,336 @@ PROMPT;
                 'success_count' => count($successOrders),
                 'failed_count' => count($failedOrders)
             ]
+        ]);
+    }
+
+    /**
+     * Universal Courier Booking Handler (Single & Bulk)
+     */
+    public function bookCourierOrder(Request $request)
+    {
+        $courierType = strtolower((string) ($request->courier_type ?: 'carrybee'));
+        $orders_id = $request->order_ids;
+
+        if (is_string($orders_id)) {
+            $orders_id = explode(',', $orders_id);
+        }
+        if (!is_array($orders_id)) {
+            $orders_id = [$orders_id];
+        }
+        $orders_id = array_values(array_filter(array_map('trim', $orders_id)));
+
+        if (empty($orders_id)) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'কোনো অর্ডার নির্বাচন করা হয়নি।',
+            ], 422);
+        }
+
+        $successOrders = [];
+        $failedOrders  = [];
+
+        if ($courierType === 'carrybee') {
+            $config = Courierapi::where(['status' => 1, 'type' => 'carrybee'])->first();
+            if (!$config || !CarrybeeService::isConfigured($config)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Carrybee API ক্রেডেনশিয়াল কনফিগার করা নেই বা সার্ভিস নিষ্ক্রিয় রয়েছে।'
+                ], 400);
+            }
+
+            foreach ($orders_id as $order_id) {
+                $order = Order::with('shipping', 'customer', 'orderdetails')->find($order_id);
+                if (!$order) {
+                    $failedOrders[] = ['order_id' => $order_id, 'message' => 'অর্ডার পাওয়া যায়নি'];
+                    continue;
+                }
+
+                $options = [
+                    'store_id'            => $request->store_id,
+                    'delivery_type'       => (int) ($request->delivery_type ?: 1),
+                    'product_type'        => (int) ($request->product_type ?: 1),
+                    'item_weight'         => (int) ($request->item_weight ?: 500),
+                    'collectable_amount'  => $request->collectable_amount,
+                    'special_instruction' => $request->special_instruction ?: $order->note,
+                    'product_description' => $request->product_description,
+                    'city_id'             => $request->city_id,
+                    'zone_id'             => $request->zone_id,
+                    'area_id'             => $request->area_id,
+                    'is_closed_box'       => (bool) $request->is_closed_box,
+                ];
+
+                $res = CarrybeeService::createOrder($order, $options);
+                if ($res['success']) {
+                    $successOrders[] = [
+                        'order_id'       => $order->id,
+                        'invoice_id'     => $order->invoice_id,
+                        'consignment_id' => $res['consignment_id'],
+                        'message'        => $res['message'],
+                    ];
+                } else {
+                    $failedOrders[] = [
+                        'order_id'   => $order->id,
+                        'invoice_id' => $order->invoice_id,
+                        'message'    => $res['message'],
+                    ];
+                }
+            }
+        } elseif ($courierType === 'steadfast') {
+            $courier_info = Courierapi::where(['status' => 1, 'type' => 'steadfast'])->first();
+            if (!$courier_info || empty($courier_info->api_key) || empty($courier_info->secret_key)) {
+                return response()->json(['status' => 'error', 'message' => 'Steadfast API কনফিগার করা নেই।'], 400);
+            }
+
+            $apiUrl = $this->steadfastCreateOrderEndpoint($courier_info->url ?? '');
+            $client = new \GuzzleHttp\Client();
+
+            foreach ($orders_id as $order_id) {
+                $order = Order::with('shipping', 'customer')->find($order_id);
+                if (!$order) {
+                    $failedOrders[] = ['order_id' => $order_id, 'message' => 'অর্ডার পাওয়া যায়নি'];
+                    continue;
+                }
+
+                $codAmount = $request->collectable_amount ?: (!empty($order->customer_payable_amount) ? $order->customer_payable_amount : $order->amount);
+
+                $data = [
+                    'invoice'           => $order->invoice_id,
+                    'recipient_name'    => $order->shipping ? $order->shipping->name : ($order->customer->name ?? 'Customer'),
+                    'recipient_phone'   => $order->shipping ? $order->shipping->phone : ($order->customer->phone ?? '00000000000'),
+                    'recipient_address' => $order->shipping ? ($order->shipping->full_address ?: $order->shipping->address) : ($order->customer->address ?? 'No address'),
+                    'cod_amount'        => (int) $codAmount,
+                    'note'              => $request->special_instruction ?: $order->note,
+                ];
+
+                try {
+                    $response = $client->post($apiUrl, [
+                        'json'    => $data,
+                        'headers' => [
+                            'Api-Key'      => $courier_info->api_key,
+                            'Secret-Key'   => $courier_info->secret_key,
+                            'Accept'       => 'application/json',
+                            'Content-Type' => 'application/json',
+                        ],
+                    ]);
+
+                    $res = json_decode($response->getBody()->getContents(), true);
+                    $parsed = $this->parseSteadfastCreateResponse($res);
+                    $consignment_id = $parsed['consignment_id'];
+                    $tracking_code  = $parsed['tracking_code'];
+
+                    if ($consignment_id) {
+                        $order->courier_type          = 'steadfast';
+                        $order->courier_tracking_id   = (string) $consignment_id;
+                        $order->courier_tracking_code = (string) $tracking_code;
+                        $order->courier_sent_at       = now();
+                        $order->consignment_id        = (string) $consignment_id;
+                        $order->order_status          = 5;
+                        $order->save();
+
+                        $successOrders[] = [
+                            'order_id'       => $order->id,
+                            'invoice_id'     => $order->invoice_id,
+                            'consignment_id' => $consignment_id,
+                            'tracking_code'  => $tracking_code,
+                            'message'        => 'Steadfast বুকিং সফল হয়েছে!',
+                        ];
+                    } else {
+                        $failedOrders[] = [
+                            'order_id'   => $order->id,
+                            'invoice_id' => $order->invoice_id,
+                            'message'    => $res['message'] ?? 'কনসাইনমেন্ট আইডি পাওয়া যায়নি।',
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    $failedOrders[] = [
+                        'order_id'   => $order->id,
+                        'invoice_id' => $order->invoice_id,
+                        'message'    => $e->getMessage(),
+                    ];
+                }
+            }
+        } elseif ($courierType === 'pathao') {
+            $pathao_info = Courierapi::where(['status' => 1, 'type' => 'pathao'])->first();
+            if (!$pathao_info || empty($pathao_info->token)) {
+                return response()->json(['status' => 'error', 'message' => 'Pathao কনফিগারেশন বা টোকেন নেই।'], 400);
+            }
+
+            $baseUrl = rtrim($pathao_info->url, '/');
+            $baseUrl = preg_replace('#/aladdin/?$#', '', $baseUrl);
+            if (!preg_match('#^https?://#i', $baseUrl)) $baseUrl = 'https://' . $baseUrl;
+
+            $storeId = $request->store_id ?: ($pathao_info->default_store_id ?? null);
+            if (!$storeId) {
+                $defaultStore = CourierStore::courier('pathao')->default()->first();
+                $storeId = $defaultStore ? $defaultStore->store_id : null;
+            }
+
+            foreach ($orders_id as $order_id) {
+                $order = Order::with('shipping', 'customer')->find($order_id);
+                if (!$order) continue;
+
+                $codAmount = $request->collectable_amount ?: (!empty($order->customer_payable_amount) ? round($order->customer_payable_amount) : round($order->amount));
+
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $pathao_info->token,
+                        'Accept'        => 'application/json',
+                        'Content-Type'  => 'application/json',
+                    ])->post($baseUrl . '/aladdin/api/v1/orders', [
+                        'store_id'            => (int) ($storeId ?: $request->pathaostore),
+                        'merchant_order_id'   => (string) $order->invoice_id,
+                        'recipient_name'      => $order->shipping ? $order->shipping->name : ($order->customer->name ?? 'Customer'),
+                        'recipient_phone'     => $order->shipping ? $order->shipping->phone : ($order->customer->phone ?? ''),
+                        'recipient_address'   => $order->shipping ? ($order->shipping->full_address ?: $order->shipping->address) : ($order->customer->address ?? ''),
+                        'recipient_city'      => (int) ($request->city_id ?: ($request->pathaocity ?: 1)),
+                        'recipient_zone'      => (int) ($request->zone_id ?: ($request->pathaozone ?: 1)),
+                        'recipient_area'      => (int) ($request->area_id ?: ($request->pathaoarea ?: 1)),
+                        'delivery_type'       => (int) ($request->delivery_type ?: 48),
+                        'item_type'           => (int) ($request->product_type ?: 2),
+                        'item_quantity'       => 1,
+                        'item_weight'         => ($request->item_weight ? ($request->item_weight / 1000) : 0.5),
+                        'amount_to_collect'   => (int) $codAmount,
+                        'item_description'    => $request->product_description ?: ('Order #' . $order->invoice_id),
+                        'special_instruction' => $request->special_instruction ?: ($order->note ?: 'Please check before receive'),
+                    ]);
+
+                    if ($response->successful()) {
+                        $res = $response->json();
+                        $consignmentId = $res['data']['consignment_id'] ?? ($res['consignment']['consignment_id'] ?? ($res['consignment_id'] ?? null));
+                        if ($consignmentId) {
+                            $order->courier_type        = 'pathao';
+                            $order->courier_tracking_id = (string) $consignmentId;
+                            $order->courier_sent_at     = now();
+                            $order->consignment_id      = (string) $consignmentId;
+                            $order->order_status        = 5;
+                            $order->save();
+
+                            $successOrders[] = [
+                                'order_id'       => $order->id,
+                                'invoice_id'     => $order->invoice_id,
+                                'consignment_id' => $consignmentId,
+                                'message'        => 'Pathao বুকিং সফল হয়েছে!',
+                            ];
+                        } else {
+                            $failedOrders[] = [
+                                'order_id'   => $order->id,
+                                'invoice_id' => $order->invoice_id,
+                                'message'    => 'Pathao কনসাইনমেন্ট আইডি পাওয়া যায়নি।',
+                            ];
+                        }
+                    } else {
+                        $failedOrders[] = [
+                            'order_id'   => $order->id,
+                            'invoice_id' => $order->invoice_id,
+                            'message'    => $response->json()['message'] ?? 'Pathao API Error',
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    $failedOrders[] = [
+                        'order_id'   => $order->id,
+                        'invoice_id' => $order->invoice_id,
+                        'message'    => $e->getMessage(),
+                    ];
+                }
+            }
+        } elseif ($courierType === 'redx') {
+            $redxService = new \App\Services\RedXService();
+            if (!$redxService->isConfigured()) {
+                return response()->json(['status' => 'error', 'message' => 'RedX API কনফিগার করা নেই।'], 400);
+            }
+
+            foreach ($orders_id as $order_id) {
+                $order = Order::with('shipping', 'customer', 'orderdetails')->find($order_id);
+                if (!$order) continue;
+
+                $codAmount = $request->collectable_amount ?: (!empty($order->customer_payable_amount) ? $order->customer_payable_amount : $order->amount);
+
+                $data = [
+                    'customer_name'          => $order->shipping ? $order->shipping->name : ($order->customer->name ?? 'Customer'),
+                    'customer_phone'         => $order->shipping ? $order->shipping->phone : ($order->customer->phone ?? '00000000000'),
+                    'delivery_area_id'       => (int) ($request->area_id ?: ($request->delivery_area_id ?: 1)),
+                    'customer_address'       => $order->shipping ? ($order->shipping->full_address ?: $order->shipping->address) : ($order->customer->address ?? 'No address'),
+                    'merchant_invoice_id'    => (string) $order->invoice_id,
+                    'cash_collection_amount' => (string) $codAmount,
+                    'parcel_weight'          => (string) ($request->item_weight ?: 500),
+                    'instruction'            => $request->special_instruction ?: ($order->note ?? ''),
+                    'value'                  => (string) $codAmount,
+                ];
+
+                if ($request->store_id) {
+                    $data['pickup_store_id'] = $request->store_id;
+                }
+
+                $res = $redxService->createParcel($data);
+                if ($res && isset($res['tracking_id'])) {
+                    $trackingId = (string) $res['tracking_id'];
+                    $order->courier_type        = 'redx';
+                    $order->courier_tracking_id = $trackingId;
+                    $order->courier_sent_at     = now();
+                    $order->consignment_id      = $trackingId;
+                    $order->order_status        = 5;
+                    $order->save();
+
+                    $successOrders[] = [
+                        'order_id'       => $order->id,
+                        'invoice_id'     => $order->invoice_id,
+                        'consignment_id' => $trackingId,
+                        'message'        => 'RedX পার্সেল সফলভাবে তৈরি হয়েছে!',
+                    ];
+                } else {
+                    $failedOrders[] = [
+                        'order_id'   => $order->id,
+                        'invoice_id' => $order->invoice_id,
+                        'message'    => $res['message'] ?? 'RedX পার্সেল তৈরি ব্যর্থ হয়েছে।',
+                    ];
+                }
+            }
+        }
+
+        $this->clearOrderStatusCache();
+
+        $successCount = count($successOrders);
+        $failedCount  = count($failedOrders);
+
+        $msg = '';
+        if ($successCount > 0 && $failedCount === 0) {
+            $msg = "মোট {$successCount} টি অর্ডার সফলভাবে " . ucfirst($courierType) . " এ বুকিং হয়েছে!";
+        } elseif ($successCount > 0 && $failedCount > 0) {
+            $msg = "{$successCount} টি অর্ডার বুকিং সফল হয়েছে, {$failedCount} টি ব্যর্থ হয়েছে।";
+        } else {
+            $msg = "কুরিয়ার বুকিং ব্যর্থ হয়েছে। " . ($failedOrders[0]['message'] ?? '');
+        }
+
+        return response()->json([
+            'status'        => $successCount > 0 ? 'success' : 'error',
+            'message'       => $msg,
+            'success_count' => $successCount,
+            'failed_count'  => $failedCount,
+            'success'       => $successOrders,
+            'failed'        => $failedOrders,
+            'courier_type'  => $courierType
+        ]);
+    }
+
+    public function carrybeeCities(Request $request)
+    {
+        return response()->json([
+            'cities' => CarrybeeService::getCities()
+        ]);
+    }
+
+    public function carrybeeZones($cityId)
+    {
+        return response()->json([
+            'zones' => CarrybeeService::getZones((int)$cityId)
+        ]);
+    }
+
+    public function carrybeeAreas($cityId, $zoneId)
+    {
+        return response()->json([
+            'areas' => CarrybeeService::getAreas((int)$cityId, (int)$zoneId)
         ]);
     }
 

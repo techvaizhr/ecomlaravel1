@@ -185,6 +185,12 @@ Route::post('/api/redx/webhook', [\App\Http\Controllers\Admin\RedXWebhookControl
 Route::post('/api/steadfast/webhook', [\App\Http\Controllers\Admin\SteadfastWebhookController::class, 'handle'])
     ->name('steadfast.webhook');
 
+// Carrybee Webhook (CSRF excluded) — order status & integration verification
+Route::post('/webhooks/carrybee', [\App\Http\Controllers\Admin\CarrybeeWebhookController::class, 'handle'])
+    ->name('carrybee.webhook.primary');
+Route::post('/api/carrybee/webhook', [\App\Http\Controllers\Admin\CarrybeeWebhookController::class, 'handle'])
+    ->name('carrybee.webhook.api');
+
 	
 Route::get('/style.css', function () {
     $css = view('frontEnd.assets.style')->render();   // Blade থেকে CSS রেন্ডার
@@ -888,9 +894,21 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('courierapi/save', [ApiIntegrationController::class,'courier_update'])->name('courierapi.update');
     Route::post('courierapi/pathao-generate-token', [ApiIntegrationController::class,'pathao_generate_token'])->name('admin.courierapi.pathao.generate_token');
     
-    // RedX Areas AJAX
+    // RedX Areas & Pickup Stores AJAX
     Route::get('redx/areas', [OrderController::class, 'redxAreas'])->name('admin.redx.areas');
     Route::get('redx/pickup-stores', [OrderController::class, 'redxPickupStores'])->name('admin.redx.pickup-stores');
+
+    // Courier Stores Management & Sync AJAX
+    Route::post('courierapi/sync-stores/{type}', [ApiIntegrationController::class, 'sync_courier_stores'])->name('admin.courierapi.sync_stores');
+    Route::post('courierapi/set-default-store', [ApiIntegrationController::class, 'set_default_store'])->name('admin.courierapi.set_default_store');
+    Route::post('courierapi/save-store', [ApiIntegrationController::class, 'save_courier_store'])->name('admin.courierapi.save_store');
+    Route::post('courierapi/delete-store', [ApiIntegrationController::class, 'delete_courier_store'])->name('admin.courierapi.delete_store');
+    Route::get('courierapi/stores/{type}', [ApiIntegrationController::class, 'get_courier_stores'])->name('admin.courierapi.get_stores');
+
+    // Carrybee Location AJAX
+    Route::get('carrybee/cities', [OrderController::class, 'carrybeeCities'])->name('admin.carrybee.cities');
+    Route::get('carrybee/zones/{cityId}', [OrderController::class, 'carrybeeZones'])->name('admin.carrybee.zones');
+    Route::get('carrybee/areas/{cityId}/{zoneId}', [OrderController::class, 'carrybeeAreas'])->name('admin.carrybee.areas');
 
     // attribute
     Route::get('orderstatus/manage', [OrderStatusController::class,'index'])->name('orderstatus.index');
@@ -1178,6 +1196,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('stock-report', [OrderController::class,'stock_report'])->name('admin.stock_report');
     Route::get('order-report', [OrderController::class,'order_report'])->name('admin.order_report');
     Route::post('order-pathao', [OrderController::class,'order_pathao'])->name('admin.order.pathao');
+    Route::post('order/book-courier', [OrderController::class, 'bookCourierOrder'])->name('admin.order.book_courier');
     Route::get('/pathao-city', [OrderController::class, 'pathaocity'])->name('pathaocity');
     Route::get('/pathao-zone', [OrderController::class, 'pathaozone'])->name('pathaozone');
 

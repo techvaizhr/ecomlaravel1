@@ -15,7 +15,9 @@ use DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Http;
 use App\Models\Order;
+use App\Models\CourierStore;
 use App\Services\BdCourierService;
+use App\Services\CarrybeeService;
 
 class ApiIntegrationController extends Controller
 {
@@ -442,70 +444,126 @@ public function sms_toggle_field(Request $request)
 }
 
     
-    public function courier_manage ()
+    public function courier_manage()
     {
-        $steadfast = Courierapi::where('type','=','steadfast')->first();
-        $pathao = Courierapi::where('type','=','pathao')->first();
-        $redx = Courierapi::where('type','=','redx')->first();
-        
+        $steadfast = Courierapi::where('type', '=', 'steadfast')->first();
+        $pathao    = Courierapi::where('type', '=', 'pathao')->first();
+        $redx      = Courierapi::where('type', '=', 'redx')->first();
+        $carrybee  = Courierapi::where('type', '=', 'carrybee')->first();
+
         // Create RedX entry if not exists
         if (!$redx) {
             $redx = Courierapi::create([
-                'type' => 'redx',
-                'url' => 'sandbox.redx.com.bd/v1.0.0-beta',
+                'type'   => 'redx',
+                'url'    => 'https://sandbox.redx.com.bd/v1.0.0-beta',
                 'status' => 0,
             ]);
         }
-        
-        return view('backEnd.apiintegration.courier_manage',compact('steadfast','pathao','redx'));
+
+        // Create Carrybee entry if not exists
+        if (!$carrybee) {
+            $carrybee = Courierapi::create([
+                'type'           => 'carrybee',
+                'url'            => 'https://developers.carrybee.com',
+                'status'         => 0,
+                'webhook_url'    => config('app.url') . '/webhooks/carrybee?token=40489fe0-9386-4fc9-8e92-2b2fcb9d451c',
+                'webhook_secret' => '40489fe0-9386-4fc9-8e92-2b2fcb9d451c',
+            ]);
+        }
+
+        // Load stores for all couriers
+        $carrybee_stores = Schema::hasTable('courier_stores') ? CourierStore::courier('carrybee')->get() : collect([]);
+        $pathao_stores   = Schema::hasTable('courier_stores') ? CourierStore::courier('pathao')->get() : collect([]);
+        $redx_stores     = Schema::hasTable('courier_stores') ? CourierStore::courier('redx')->get() : collect([]);
+        $steadfast_stores= Schema::hasTable('courier_stores') ? CourierStore::courier('steadfast')->get() : collect([]);
+
+        return view('backEnd.apiintegration.courier_manage', compact(
+            'steadfast',
+            'pathao',
+            'redx',
+            'carrybee',
+            'carrybee_stores',
+            'pathao_stores',
+            'redx_stores',
+            'steadfast_stores'
+        ));
     }
-    
-    public function courier_update (Request $request)
+
+    public function courier_update(Request $request)
     {
-      
         $update_data = Courierapi::find($request->id);
+        if (!$update_data && $request->type) {
+            $update_data = Courierapi::where('type', $request->type)->first();
+        }
+
+        if (!$update_data) {
+            Toastr::error('Courier configuration not found', 'Error');
+            return redirect()->back();
+        }
+
         $input = $request->all();
-        $input['status'] = $request->status?1:0;
-        
-        // Only include webhook_url if column exists
+        $input['status'] = $request->status ? 1 : 0;
+
+        // Only include webhook_url and other optional cols if schema has them
         if (!Schema::hasColumn('courierapis', 'webhook_url')) {
             unset($input['webhook_url']);
         }
-        
+        if (!Schema::hasColumn('courierapis', 'webhook_secret')) {
+            unset($input['webhook_secret']);
+        }
+        if (!Schema::hasColumn('courierapis', 'client_context')) {
+            unset($input['client_context']);
+        }
+        if (!Schema::hasColumn('courierapis', 'default_store_id')) {
+            unset($input['default_store_id']);
+        }
+
+        // Carrybee configuration
+        if ($update_data->type === 'carrybee' || $request->type === 'carrybee') {
+            if (!empty($input['url'])) {
+                $url = trim($input['url']);
+                if (!preg_match('#^https?://#i', $url)) {
+                    $url = 'https://' . $url;
+                }
+                $input['url'] = rtrim($url, '/');
+            }
+
+            if (!empty($input['webhook_secret'])) {
+                $input['webhook_secret'] = trim($input['webhook_secret']);
+            }
+        }
+
         // Pathao এর জন্য token auto-generate
-        if($update_data->type == 'pathao' && !empty($input['client_id']) && !empty($input['client_secret'])){
+        if ($update_data->type == 'pathao' && !empty($input['client_id']) && !empty($input['client_secret'])) {
             try {
-                // Clean up URL
                 $apiUrl = $input['url'] ?? 'https://api-hermes.pathao.com';
                 $apiUrl = rtrim($apiUrl, '/');
                 $apiUrl = preg_replace('#/aladdin/?$#', '', $apiUrl);
-                
-                // Get username and password
+
                 $username = $input['username'] ?? null;
                 $password = $input['password'] ?? null;
-                
+
                 $tokenResponse = $this->generatePathaoToken(
-                    $input['client_id'], 
-                    $input['client_secret'], 
+                    $input['client_id'],
+                    $input['client_secret'],
                     $apiUrl,
                     $username,
                     $password
                 );
-                if($tokenResponse && isset($tokenResponse['access_token'])){
+                if ($tokenResponse && isset($tokenResponse['access_token'])) {
                     $input['token'] = $tokenResponse['access_token'];
                 }
             } catch (\Exception $e) {
-                // Token generate fail হলে error message
                 Toastr::warning('Token generation failed: ' . $e->getMessage());
             }
         }
-        
+
         // Steadfast — Webhook URL + Bearer token
         if ($update_data->type === 'steadfast') {
-            if (! empty($input['url'])) {
+            if (!empty($input['url'])) {
                 $url = trim($input['url']);
                 $url = preg_replace('/^https?:\/\//', '', $url);
-                $input['url'] = 'https://'.rtrim($url, '/');
+                $input['url'] = 'https://' . rtrim($url, '/');
             }
 
             if (isset($input['token']) && $input['token'] !== null) {
@@ -518,9 +576,9 @@ public function sms_toggle_field(Request $request)
             if (isset($input['webhook_url'])) {
                 $webhookUrl = trim((string) $input['webhook_url']);
                 if ($webhookUrl !== '') {
-                    if (! preg_match('/^https?:\/\//', $webhookUrl)) {
+                    if (!preg_match('/^https?:\/\//', $webhookUrl)) {
                         $baseUrl = rtrim(config('app.url'), '/');
-                        $input['webhook_url'] = $baseUrl.'/'.ltrim($webhookUrl, '/');
+                        $input['webhook_url'] = $baseUrl . '/' . ltrim($webhookUrl, '/');
                     }
                 } else {
                     $input['webhook_url'] = null;
@@ -528,50 +586,287 @@ public function sms_toggle_field(Request $request)
             }
         }
 
-        // RedX এর জন্য URL format ঠিক করা (https:// যোগ করা)
-        if($update_data->type == 'redx'){
-            // Base URL format ঠিক করা
-            if(!empty($input['url'])){
+        // RedX এর জন্য URL format ঠিক করা
+        if ($update_data->type == 'redx') {
+            if (!empty($input['url'])) {
                 $url = trim($input['url']);
-                // Remove existing https:// if present to avoid duplication
                 $url = preg_replace('/^https?:\/\//', '', $url);
                 $url = rtrim($url, '/');
-                // Add https:// prefix
                 $input['url'] = 'https://' . $url;
-                
-                \Log::info('RedX URL Update', [
-                    'original' => $input['url'] ?? 'not set',
-                    'normalized' => $url,
-                    'final' => $input['url']
-                ]);
             }
-            
-            // Clean token - remove Bearer prefix if present, trim whitespace
-            if(!empty($input['token'])){
+
+            if (!empty($input['token'])) {
                 $token = trim($input['token']);
-                $token = preg_replace('/^Bearer\s+/i', '', $token); // Remove Bearer prefix if exists
+                $token = preg_replace('/^Bearer\s+/i', '', $token);
                 $input['token'] = $token;
             }
-            
-            // Webhook URL format ঠিক করা (optional field)
-            if(isset($input['webhook_url']) && !empty(trim($input['webhook_url']))){
+
+            if (isset($input['webhook_url']) && !empty(trim($input['webhook_url']))) {
                 $webhookUrl = trim($input['webhook_url']);
-                // URL validation - http:// বা https:// থাকতে হবে
                 if (!preg_match('/^https?:\/\//', $webhookUrl)) {
-                    // যদি http/https না থাকে, তাহলে config('app.url') থেকে base URL নিব
                     $baseUrl = rtrim(config('app.url'), '/');
                     $input['webhook_url'] = $baseUrl . '/' . ltrim($webhookUrl, '/');
                 }
             } else {
-                // Empty হলে null set করব
                 $input['webhook_url'] = null;
             }
         }
-        
+
         $update_data->update($input);
-        
-        Toastr::success('Success','Data update successfully');
+
+        Toastr::success('সফল', ucfirst($update_data->type) . ' সেটিংস সফলভাবে আপডেট হয়েছে');
         return redirect()->back();
+    }
+
+    /**
+     * AJAX: Sync stores from courier API to DB
+     */
+    public function sync_courier_stores($type)
+    {
+        $type = strtolower($type);
+
+        if (!Schema::hasTable('courier_stores')) {
+            return response()->json(['success' => false, 'message' => 'courier_stores table not found. Please run migrations.']);
+        }
+
+        try {
+            if ($type === 'carrybee') {
+                $res = CarrybeeService::syncStoresToDatabase();
+                return response()->json($res);
+            }
+
+            if ($type === 'pathao') {
+                $pathao = Courierapi::where(['type' => 'pathao'])->first();
+                if (!$pathao || empty($pathao->token)) {
+                    return response()->json(['success' => false, 'message' => 'Pathao টোকেন কনফিগার করা নেই।']);
+                }
+
+                $baseUrl = rtrim($pathao->url ?? 'https://api-hermes.pathao.com', '/');
+                $baseUrl = preg_replace('#/aladdin/?$#', '', $baseUrl);
+                if (!preg_match('#^https?://#i', $baseUrl)) $baseUrl = 'https://' . $baseUrl;
+
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $pathao->token,
+                    'Accept'        => 'application/json',
+                ])->timeout(15)->get($baseUrl . '/aladdin/api/v1/stores');
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $stores = $data['data']['data'] ?? ($data['data'] ?? []);
+                    $syncedCount = 0;
+
+                    $existingDefault = CourierStore::courier('pathao')->default()->first();
+
+                    foreach ($stores as $s) {
+                        $storeId = (string) ($s['store_id'] ?? $s['id'] ?? '');
+                        if (empty($storeId)) continue;
+
+                        $shouldBeDefault = false;
+                        if ($pathao->default_store_id && $pathao->default_store_id === $storeId) {
+                            $shouldBeDefault = true;
+                        } elseif (!$existingDefault && $syncedCount === 0) {
+                            $shouldBeDefault = true;
+                        }
+
+                        CourierStore::updateOrCreate(
+                            ['courier_type' => 'pathao', 'store_id' => $storeId],
+                            [
+                                'store_name'            => (string) ($s['store_name'] ?? 'Store #' . $storeId),
+                                'address'               => $s['store_address'] ?? $s['address'] ?? null,
+                                'city_id'               => $s['city_id'] ?? null,
+                                'zone_id'               => $s['zone_id'] ?? null,
+                                'area_id'               => $s['area_id'] ?? null,
+                                'contact_person_number' => $s['store_phone'] ?? $s['phone'] ?? null,
+                                'is_active'             => true,
+                                'is_default'            => $shouldBeDefault,
+                                'raw_data'              => $s,
+                            ]
+                        );
+                        $syncedCount++;
+                    }
+
+                    $dbStores = CourierStore::courier('pathao')->get();
+                    return response()->json([
+                        'success'      => true,
+                        'message'      => "মোট {$syncedCount} টি Pathao স্টোর সফলভাবে সিঙ্ক হয়েছে।",
+                        'synced_count' => $syncedCount,
+                        'stores'       => $dbStores,
+                    ]);
+                }
+
+                return response()->json(['success' => false, 'message' => 'Pathao থেকে স্টোর আনা সম্ভব হয়নি।']);
+            }
+
+            if ($type === 'redx') {
+                $redx = Courierapi::where(['type' => 'redx'])->first();
+                if (!$redx || empty($redx->token)) {
+                    return response()->json(['success' => false, 'message' => 'RedX টোকেন কনফিগার করা নেই।']);
+                }
+
+                $redxService = new \App\Services\RedXService();
+                $res = $redxService->getPickupStores();
+                $stores = $res['pickup_stores'] ?? [];
+                $syncedCount = 0;
+
+                $existingDefault = CourierStore::courier('redx')->default()->first();
+
+                foreach ($stores as $s) {
+                    $storeId = (string) ($s['id'] ?? '');
+                    if (empty($storeId)) continue;
+
+                    $shouldBeDefault = false;
+                    if ($redx->default_store_id && $redx->default_store_id === $storeId) {
+                        $shouldBeDefault = true;
+                    } elseif (!$existingDefault && $syncedCount === 0) {
+                        $shouldBeDefault = true;
+                    }
+
+                    CourierStore::updateOrCreate(
+                        ['courier_type' => 'redx', 'store_id' => $storeId],
+                        [
+                            'store_name'            => (string) ($s['name'] ?? 'Store #' . $storeId),
+                            'address'               => $s['address'] ?? null,
+                            'contact_person_number' => $s['phone'] ?? null,
+                            'is_active'             => true,
+                            'is_default'            => $shouldBeDefault,
+                            'raw_data'              => $s,
+                        ]
+                    );
+                    $syncedCount++;
+                }
+
+                $dbStores = CourierStore::courier('redx')->get();
+                return response()->json([
+                    'success'      => true,
+                    'message'      => "মোট {$syncedCount} টি RedX স্টোর সফলভাবে সিঙ্ক হয়েছে।",
+                    'synced_count' => $syncedCount,
+                    'stores'       => $dbStores,
+                ]);
+            }
+
+            if ($type === 'steadfast') {
+                $dbStores = CourierStore::courier('steadfast')->get();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Steadfast স্টোর তালিকা লোড হয়েছে।',
+                    'stores'  => $dbStores,
+                ]);
+            }
+
+            return response()->json(['success' => false, 'message' => 'অজ্ঞাত কুরিয়ার টাইপ']);
+        } catch (\Throwable $e) {
+            \Log::error('sync_courier_stores error', ['type' => $type, 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * AJAX: Set default store for a courier
+     */
+    public function set_default_store(Request $request)
+    {
+        $request->validate([
+            'courier_type' => 'required|string',
+            'store_id'     => 'required',
+        ]);
+
+        $courierType = strtolower($request->courier_type);
+        $storeId     = (string) $request->store_id;
+
+        // Reset default for this courier
+        CourierStore::where('courier_type', $courierType)->update(['is_default' => false]);
+
+        // Set target store as default
+        $store = CourierStore::where('courier_type', $courierType)
+            ->where(function($q) use ($storeId) {
+                $q->where('store_id', $storeId)->orWhere('id', $storeId);
+            })->first();
+
+        if ($store) {
+            $store->is_default = true;
+            $store->save();
+        }
+
+        // Update courierapis table
+        $courier = Courierapi::where('type', $courierType)->first();
+        if ($courier) {
+            $courier->default_store_id = $storeId;
+            $courier->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'ডিফল্ট স্টোর সফলভাবে সেট করা হয়েছে!',
+            'store_id' => $storeId,
+            'courier_type' => $courierType
+        ]);
+    }
+
+    /**
+     * AJAX/POST: Save manual store (e.g. for Steadfast or offline pickup points)
+     */
+    public function save_courier_store(Request $request)
+    {
+        $request->validate([
+            'courier_type'          => 'required|string',
+            'store_name'            => 'required|string|max:191',
+            'contact_person_number' => 'nullable|string|max:50',
+            'address'               => 'nullable|string|max:300',
+        ]);
+
+        $storeId = $request->store_id ?: ('store_' . time() . '_' . rand(100, 999));
+
+        $store = CourierStore::updateOrCreate(
+            [
+                'courier_type' => strtolower($request->courier_type),
+                'store_id'     => $storeId,
+            ],
+            [
+                'store_name'            => $request->store_name,
+                'contact_person_name'   => $request->contact_person_name,
+                'contact_person_number' => $request->contact_person_number,
+                'address'               => $request->address,
+                'city_name'             => $request->city_name,
+                'zone_name'             => $request->zone_name,
+                'is_active'             => true,
+                'is_default'            => $request->is_default ? true : false,
+            ]
+        );
+
+        if ($request->is_default) {
+            $store->makeDefault();
+        }
+
+        Toastr::success('স্টোর সফলভাবে সংরক্ষণ হয়েছে', 'সফল');
+        return redirect()->back();
+    }
+
+    /**
+     * AJAX/POST: Delete store from DB
+     */
+    public function delete_courier_store(Request $request)
+    {
+        $store = CourierStore::find($request->id);
+        if ($store) {
+            $store->delete();
+            return response()->json(['success' => true, 'message' => 'স্টোর ডিলিট হয়েছে।']);
+        }
+        return response()->json(['success' => false, 'message' => 'স্টোর পাওয়া যায়নি।']);
+    }
+
+    /**
+     * AJAX: Get stores for modal
+     */
+    public function get_courier_stores($type)
+    {
+        $stores = CourierStore::courier($type)->where('is_active', true)->get();
+        $defaultStore = CourierStore::courier($type)->default()->first();
+
+        return response()->json([
+            'success'       => true,
+            'stores'        => $stores,
+            'default_store' => $defaultStore ? $defaultStore->store_id : null,
+        ]);
     }
     
     /**

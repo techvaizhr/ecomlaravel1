@@ -46,7 +46,7 @@ class CheckCourierOrderStatus extends Command
         $orders = Order::where('order_status', 5)
             ->whereNotNull('courier_type')
             ->whereNotNull('courier_tracking_id')
-            ->whereIn('courier_type', ['pathao', 'steadfast', 'redx'])
+            ->whereIn('courier_type', ['pathao', 'steadfast', 'redx', 'carrybee'])
             ->limit($limit)
             ->get();
 
@@ -141,6 +141,31 @@ class CheckCourierOrderStatus extends Command
             return $this->checkSteadfastStatus($order);
         } elseif ($order->courier_type === 'redx') {
             return $this->checkRedXStatus($order);
+        } elseif ($order->courier_type === 'carrybee') {
+            return $this->checkCarrybeeStatus($order);
+        }
+
+        return null;
+    }
+
+    /**
+     * Check Carrybee order status
+     */
+    private function checkCarrybeeStatus(Order $order)
+    {
+        $consignmentId = $order->courier_tracking_id ?? $order->consignment_id;
+        if (empty($consignmentId)) return null;
+
+        $res = \App\Services\CarrybeeService::getOrderDetails($consignmentId);
+        if (!$res['success'] || empty($res['data'])) return null;
+
+        $status = strtolower((string) ($res['data']['transfer_status'] ?? ''));
+        if (str_contains($status, 'delivered')) {
+            return 6;
+        } elseif (str_contains($status, 'returned') || str_contains($status, 'return')) {
+            return 7;
+        } elseif (str_contains($status, 'cancel')) {
+            return 8;
         }
 
         return null;

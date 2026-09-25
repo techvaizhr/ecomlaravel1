@@ -34,6 +34,11 @@ class VerifyCsrfToken extends Middleware
         // Steadfast Webhook
         'api/steadfast/webhook',
         'steadfast/webhook',
+        // Carrybee Webhook
+        'webhooks/carrybee',
+        'webhooks/carrybee/*',
+        'api/carrybee/webhook',
+        'carrybee/webhook',
         // Server CAPI beacon / async tracking
         'ajax/tracking/capi-event',
         'api/tracking/capi-event',
@@ -60,6 +65,9 @@ class VerifyCsrfToken extends Middleware
             return true;
         }
         if (str_contains($path, 'steadfast/webhook')) {
+            return true;
+        }
+        if (str_contains($path, 'carrybee')) {
             return true;
         }
         if (str_contains($path, 'tracking/capi-event')) {

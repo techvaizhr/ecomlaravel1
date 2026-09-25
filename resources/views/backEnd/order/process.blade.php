@@ -292,6 +292,9 @@
             </div>
         </div>
         <div class="op-header-actions">
+            <button type="button" class="btn btn-sm btn-primary btn-op-outline single-courier-btn" data-order-id="{{ $data->id }}" data-invoice="{{ $data->invoice_id }}" data-amount="{{ $data->customer_payable_amount ?: $data->amount }}">
+                <i class="fas fa-truck-moving me-1"></i> কুরিয়ার বুকিং
+            </button>
             <a href="{{ route('admin.order.edit', $data->invoice_id) }}" class="btn btn-sm btn-outline-primary btn-op-outline">
                 <i class="fas fa-edit me-1"></i> এডিট
             </a>
@@ -708,5 +711,7 @@ $(document).on('click', '.sync-courier-status-btn', function (e) {
     });
 });
 </script>
+
+@include('backEnd.order.partials.courier_booking_modal')
 @endsection
 
