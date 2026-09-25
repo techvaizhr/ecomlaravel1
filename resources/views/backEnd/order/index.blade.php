@@ -11,26 +11,26 @@
                                 @foreach($show_data as $key => $value)
                                     <tr>
                                         {{-- 1. Checkbox + Serial + Quick View --}}
-                                        <td class="text-center align-middle" style="width: 50px;">
-                                            <div class="d-flex flex-column align-items-center gap-1">
-                                                <input type="checkbox" class="checkbox form-check-input m-0" value="{{ $value->id }}">
-                                                <span class="text-muted fw-bold" style="font-size: 11px;">#{{ $loop->iteration }}</span>
+                                        <td class="text-center align-middle" style="width: 42px; padding-left: 2px; padding-right: 2px;">
+                                            <div class="d-flex flex-column align-items-center" style="gap: 2px;">
+                                                <input type="checkbox" class="checkbox form-check-input m-0" value="{{ $value->id }}" style="width: 13.5px; height: 13.5px; cursor: pointer;">
+                                                <span class="text-muted fw-bold" style="font-size: 10.5px; line-height: 1;">#{{ $loop->iteration }}</span>
                                                 <button type="button"
                                                     class="btn btn-xs btn-light p-0 border-0 order-quick-view-btn text-primary rounded-circle"
                                                     data-order-id="{{ $value->id }}"
                                                     title="কুইক ভিউ"
-                                                    style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; background: #e0f2fe;">
-                                                    <i class="fas fa-eye" style="font-size: 11px;"></i>
+                                                    style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; background: #e0f2fe;">
+                                                    <i class="fas fa-eye" style="font-size: 9.5px;"></i>
                                                 </button>
                                             </div>
                                         </td>
 
                                         {{-- 2. Invoice with Copy Icon & Traffic Source Below --}}
-                                        <td class="align-middle text-nowrap">
-                                            <div class="d-flex align-items-center gap-1">
-                                                <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" class="oi-invoice-link fw-bold text-primary" style="font-size: 13.5px;">#{{ $value->invoice_id }}</a>
-                                                <button type="button" class="btn btn-xs p-0 border-0 text-secondary copy-invoice-btn d-inline-flex align-items-center justify-content-center" data-invoice="{{ $value->invoice_id }}" style="width: 18px; height: 18px;" title="ইনভয়েস কপি করুন">
-                                                    <i class="far fa-copy" style="font-size: 11px;"></i>
+                                        <td class="align-middle text-nowrap" style="padding-left: 4px; padding-right: 4px;">
+                                            <div class="d-flex align-items-center" style="gap: 3px; line-height: 1.2;">
+                                                <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" class="oi-invoice-link fw-bold text-primary" style="font-size: 13px;">#{{ $value->invoice_id }}</a>
+                                                <button type="button" class="btn btn-xs p-0 border-0 text-secondary copy-invoice-btn d-inline-flex align-items-center justify-content-center" data-invoice="{{ $value->invoice_id }}" style="width: 15px; height: 15px;" title="ইনভয়েস কপি করুন">
+                                                    <i class="far fa-copy" style="font-size: 9.5px;"></i>
                                                 </button>
                                             </div>
                                             @php
@@ -52,8 +52,8 @@
                                                     default => 'bg-secondary',
                                                 };
                                             @endphp
-                                            <div class="mt-1">
-                                                <span class="badge {{ $tsBadgeClass }}" style="font-size: 10px; font-weight: 600; padding: 2px 6px;">{{ $tsLabel }}</span>
+                                            <div style="margin-top: 2px; line-height: 1;">
+                                                <span class="badge {{ $tsBadgeClass }}" style="font-size: 9.5px; font-weight: 600; padding: 1.5px 5px;">{{ $tsLabel }}</span>
                                             </div>
                                         </td>
 
