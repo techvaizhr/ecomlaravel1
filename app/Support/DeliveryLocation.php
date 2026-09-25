@@ -46,14 +46,13 @@ class DeliveryLocation
         return $parts ? implode(', ', $parts) : '';
     }
 
-    public static function chargeForDistrictId(?int $districtId): int
+    public static function chargeForDistrictId(?int $districtId, ?int $divisionId = null): int
     {
-        if (! $districtId) {
+        if (! $districtId && ! $divisionId) {
             return 0;
         }
-        $district = DeliveryDistrict::query()->whereKey($districtId)->where('status', 1)->first();
-
-        return $district ? (int) $district->delivery_charge : 0;
+        $calc = \App\Services\DeliveryChargeService::resolveAreaCharge($divisionId, $districtId);
+        return (int) round($calc);
     }
 
     public static function restoreBanglaNames(): void

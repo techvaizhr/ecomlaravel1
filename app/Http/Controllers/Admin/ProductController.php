@@ -321,6 +321,16 @@ class ProductController extends Controller
         $input['feature_product'] = $request->feature_product ? 1 : 0;
         $input['product_code']    = 'P' . str_pad($last_id, 4, '0', STR_PAD_LEFT);
         
+        // Weight & Delivery Rules
+        $input['weight']                 = $request->filled('weight') ? (float) $request->weight : 0.00;
+        $input['delivery_charge_type']   = $request->input('delivery_charge_type', 'global') ?: 'global';
+        $input['delivery_charge_amount'] = $request->filled('delivery_charge_amount') ? (float) $request->delivery_charge_amount : 0.00;
+        $input['delivery_inside_dhaka']  = $request->filled('delivery_inside_dhaka') ? (float) $request->delivery_inside_dhaka : 0.00;
+        $input['delivery_outside_dhaka'] = $request->filled('delivery_outside_dhaka') ? (float) $request->delivery_outside_dhaka : 0.00;
+        if ($input['delivery_charge_type'] === 'free') {
+            $input['free_delivery'] = 1;
+        }
+        
         // Wholesale settings
         $input['is_wholesale'] = $request->is_wholesale ? 1 : 0;
 
@@ -593,6 +603,16 @@ class ProductController extends Controller
         $input['topsale']         = $request->topsale ? 1 : 0;
         $input['free_delivery']   = $request->free_delivery ? 1 : 0;
         $input['feature_product'] = $request->feature_product ? 1 : 0;
+
+        // Weight & Delivery Rules
+        $input['weight']                 = $request->filled('weight') ? (float) $request->weight : 0.00;
+        $input['delivery_charge_type']   = $request->input('delivery_charge_type', 'global') ?: 'global';
+        $input['delivery_charge_amount'] = $request->filled('delivery_charge_amount') ? (float) $request->delivery_charge_amount : 0.00;
+        $input['delivery_inside_dhaka']  = $request->filled('delivery_inside_dhaka') ? (float) $request->delivery_inside_dhaka : 0.00;
+        $input['delivery_outside_dhaka'] = $request->filled('delivery_outside_dhaka') ? (float) $request->delivery_outside_dhaka : 0.00;
+        if ($input['delivery_charge_type'] === 'free') {
+            $input['free_delivery'] = 1;
+        }
 
         // VIDEO — YouTube or local upload
         $this->handleVideoInput($request, $input, $product);

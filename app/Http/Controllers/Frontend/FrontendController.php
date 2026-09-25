@@ -1138,29 +1138,36 @@ class FrontendController extends Controller
 
     public function shipping_charge(Request $request)
     {
-        $hasAllFreeDelivery = \App\Http\Controllers\Frontend\ShoppingController::hasAllFreeDeliveryProducts();
+        $divisionId = $request->filled('division_id') ? (int) $request->division_id : null;
+        $districtId = $request->filled('district_id') ? (int) $request->district_id : ($request->filled('id') && is_numeric($request->id) ? (int) $request->id : null);
+        $upazilaId  = $request->filled('upazila_id') ? (int) $request->upazila_id : null;
 
-        if ($hasAllFreeDelivery || $request->id == 'free_delivery') {
+        if ($request->id === 'free_delivery') {
             Session::put('shipping', 0);
             Session::put('shipping_district_id', null);
-
+            if ($request->ajax() && $request->wantsJson()) {
+                return response()->json(['success' => true, 'charge' => 0, 'is_free' => true]);
+            }
             return $request->boolean('campaign')
                 ? view('frontEnd.layouts.ajax.campaign-cart-table')
                 : view('frontEnd.layouts.ajax.cart');
         }
 
-        // 1. First prioritize generic shipping charge (area / ShippingCharge)
-        $charge = \App\Models\ShippingCharge::where('id', $request->id)->where('status', 1)->first();
-        if ($charge) {
-            Session::put('shipping', (int) $charge->amount);
-            Session::put('shipping_district_id', null);
-        } else {
-            // 2. Fallback to district delivery charge only if not a generic charge and has positive charge
-            $district = DeliveryDistrict::query()->whereKey($request->id)->where('status', 1)->first();
-            if ($district && (int) $district->delivery_charge > 0) {
-                Session::put('shipping', (int) $district->delivery_charge);
-                Session::put('shipping_district_id', $district->id);
-            }
+        // Calculate using central DeliveryChargeService
+        $calc = \App\Services\DeliveryChargeService::calculate(null, $divisionId, $districtId, $upazilaId);
+        $shippingFee = (float) $calc['charge'];
+
+        Session::put('shipping', $shippingFee);
+        Session::put('shipping_district_id', $districtId);
+
+        if ($request->ajax() && $request->wantsJson()) {
+            return response()->json([
+                'success'       => true,
+                'charge'        => $shippingFee,
+                'is_free'       => $calc['is_free'],
+                'active_method' => $calc['active_method'],
+                'total_weight'  => $calc['total_weight'],
+            ]);
         }
 
         return $request->boolean('campaign')

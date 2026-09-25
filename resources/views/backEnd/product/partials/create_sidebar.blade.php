@@ -233,20 +233,72 @@
                 </div>
             </div>
 
-            {{-- Free Delivery Switch --}}
-            <div class="d-flex align-items-center justify-content-between p-2 rounded-3 bg-light mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fe-truck text-success fs-5"></i>
-                    <div>
-                        <div class="fw-bold" style="font-size:12px;">Free Delivery</div>
-                        <small class="text-muted" style="font-size:10.5px;">সারা দেশে ফ্রি ডেলিভারি অফার</small>
+            {{-- Product Weight & Delivery Rules Section --}}
+            <div class="p-3 border rounded-3 mb-3 bg-light">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fe-truck text-primary"></i>
+                    <strong style="font-size:12px;">ডেলিভারি ও ওজন সেটিংস (Delivery & Weight)</strong>
+                </div>
+
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label mb-1" style="font-size:11.5px;">ওজন (Weight - KG)</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" step="0.01" min="0" name="weight" class="form-control" placeholder="0.5" value="{{ old('weight') }}">
+                            <span class="input-group-text">KG</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label mb-1" style="font-size:11.5px;">ডেলিভারি চার্জ নিয়ম</label>
+                        <select class="form-select form-select-sm" name="delivery_charge_type" id="product_delivery_type_select">
+                            <option value="global" {{ old('delivery_charge_type') == 'global' ? 'selected' : '' }}>গ্লোবাল সেটিংস (Default)</option>
+                            <option value="free" {{ old('delivery_charge_type') == 'free' ? 'selected' : '' }}>ফ্রি ডেলিভারি (Free)</option>
+                            <option value="flat" {{ old('delivery_charge_type') == 'flat' ? 'selected' : '' }}>নির্দিষ্ট চার্জ (Fixed Amount)</option>
+                            <option value="area_based" {{ old('delivery_charge_type') == 'area_based' ? 'selected' : '' }}>এরিয়া ভিত্তিক (Inside/Outside)</option>
+                            <option value="weight_based" {{ old('delivery_charge_type') == 'weight_based' ? 'selected' : '' }}>ওজন ভিত্তিক (Weight Rate)</option>
+                        </select>
                     </div>
                 </div>
-                <label class="switch mb-0">
-                    <input type="checkbox" value="1" name="free_delivery">
-                    <span class="slider slider-success"></span>
-                </label>
+
+                {{-- Fixed Amount input (shows if flat) --}}
+                <div id="product_del_flat_box" style="display:none;" class="mb-2">
+                    <label class="form-label mb-1" style="font-size:11.5px;">নির্দিষ্ট ডেলিভারি চার্জ (৳)</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">৳</span>
+                        <input type="number" step="0.01" min="0" name="delivery_charge_amount" class="form-control" placeholder="80.00" value="{{ old('delivery_charge_amount') }}">
+                    </div>
+                </div>
+
+                {{-- Area Based inputs (shows if area_based) --}}
+                <div id="product_del_area_box" style="display:none;" class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label mb-1" style="font-size:11.5px;">ঢাকার ভিতরে (৳)</label>
+                        <input type="number" step="0.01" min="0" name="delivery_inside_dhaka" class="form-control form-control-sm" placeholder="60.00" value="{{ old('delivery_inside_dhaka') }}">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label mb-1" style="font-size:11.5px;">ঢাকার বাইরে (৳)</label>
+                        <input type="number" step="0.01" min="0" name="delivery_outside_dhaka" class="form-control form-control-sm" placeholder="120.00" value="{{ old('delivery_outside_dhaka') }}">
+                    </div>
+                </div>
             </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var delTypeSel = document.getElementById('product_delivery_type_select');
+                var flatBox = document.getElementById('product_del_flat_box');
+                var areaBox = document.getElementById('product_del_area_box');
+                function toggleDelBoxes() {
+                    if (!delTypeSel) return;
+                    var val = delTypeSel.value;
+                    if (flatBox) flatBox.style.display = (val === 'flat') ? 'block' : 'none';
+                    if (areaBox) areaBox.style.display = (val === 'area_based') ? 'flex' : 'none';
+                }
+                if (delTypeSel) {
+                    delTypeSel.addEventListener('change', toggleDelBoxes);
+                    toggleDelBoxes();
+                }
+            });
+            </script>
 
             {{-- Status Toggles Grid --}}
             <div class="row text-center g-2">

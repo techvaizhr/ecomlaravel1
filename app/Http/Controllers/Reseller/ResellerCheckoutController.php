@@ -321,7 +321,7 @@ class ResellerCheckoutController extends Controller
 
         $shippingfee = 0;
         if ($requiresPhysicalShipping && ! $hasAllFreeDeliveryCalc) {
-            $shippingfee = DeliveryLocation::chargeForDistrictId($districtId);
+            $shippingfee = DeliveryLocation::chargeForDistrictId($districtId, $divisionId);
             Session::put('shipping', $shippingfee);
             Session::put('shipping_district_id', $districtId);
         } else {

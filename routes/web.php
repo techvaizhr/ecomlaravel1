@@ -1198,7 +1198,11 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('shipping-charge/update', [ShippingChargeController::class,'update'])->name('shippingcharges.update');
     Route::post('shipping-charge/inactive', [ShippingChargeController::class,'inactive'])->name('shippingcharges.inactive');
     Route::post('shipping-charge/active', [ShippingChargeController::class,'active'])->name('shippingcharges.active');
-    Route::post('shipping-charge/destroy', [ShippingChargeController::class,'destroy'])->name('shippingcharges.destroy');
+    // Delivery Settings Routes (5 Delivery Modes & Overrides)
+    Route::get('delivery-settings', [\App\Http\Controllers\Admin\DeliverySettingController::class, 'index'])->name('admin.delivery.settings');
+    Route::post('delivery-settings/update', [\App\Http\Controllers\Admin\DeliverySettingController::class, 'update'])->name('admin.delivery.settings.update');
+    Route::post('delivery-settings/area-rates', [\App\Http\Controllers\Admin\DeliverySettingController::class, 'updateAreaRates'])->name('admin.delivery.settings.area-rates');
+    Route::post('delivery-settings/district-rate', [\App\Http\Controllers\Admin\DeliverySettingController::class, 'updateDistrictRate'])->name('admin.delivery.settings.district-rate');
 
     Route::get('delivery/divisions', [DeliveryDivisionController::class, 'index'])->name('admin.delivery.divisions.index');
     Route::get('delivery/divisions/restore-bangla', [DeliveryDivisionController::class, 'restoreBanglaNames'])->name('admin.delivery.divisions.restore');

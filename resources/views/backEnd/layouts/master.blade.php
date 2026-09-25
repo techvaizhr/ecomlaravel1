@@ -1519,6 +1519,7 @@
                   </a>
                   <div class="collapse {{ request()->routeIs('admin.delivery.*', 'admin.delivery-boys.*') ? 'show' : '' }}" id="sub-delivery">
                     <ul class="subpanel-nested-menu">
+                      <li><a href="{{ route('admin.delivery.settings') }}" class="{{ request()->routeIs('admin.delivery.settings*') ? 'active' : '' }}"><i data-feather="settings"></i> Delivery Settings</a></li>
                       @can('delivery-boy-list')
                       <li><a href="{{ route('admin.delivery-boys.index') }}" class="{{ request()->routeIs('admin.delivery-boys.index') || (request()->routeIs('admin.delivery-boys.*') && !request()->routeIs('admin.delivery-boys.withdrawals*')) ? 'active' : '' }}"><i data-feather="users"></i> Delivery Persons</a></li>
                       @endcan
@@ -1526,7 +1527,7 @@
                       <li><a href="{{ route('admin.delivery-boys.withdrawals') }}" class="{{ request()->routeIs('admin.delivery-boys.withdrawals*') ? 'active' : '' }}"><i data-feather="dollar-sign"></i> Rider Withdrawals</a></li>
                       @endcan
                       @can('delivery-location-list')
-                      <li><a href="{{ route('admin.delivery.divisions.index') }}" class="{{ request()->routeIs('admin.delivery.*') ? 'active' : '' }}"><i data-feather="map-pin"></i> Delivery Locations</a></li>
+                      <li><a href="{{ route('admin.delivery.divisions.index') }}" class="{{ request()->routeIs('admin.delivery.divisions.*', 'admin.delivery.districts.*', 'admin.delivery.upazilas.*') ? 'active' : '' }}"><i data-feather="map-pin"></i> Delivery Locations</a></li>
                       @endcan
                     </ul>
                   </div>

@@ -1059,6 +1059,23 @@
                     });
                 });
 
+                // Location Modal selection → update cart total
+                document.addEventListener('deliveryLocationSelected', function(e) {
+                    var detail = e.detail || {};
+                    var divId = detail.division ? detail.division.id : null;
+                    var distId = detail.district ? detail.district.id : null;
+                    var upaId = detail.upazila ? detail.upazila.id : null;
+                    $.ajax({
+                        type: "GET",
+                        data: { division_id: divId, district_id: distId, upazila_id: upaId, campaign: 1 },
+                        url: "{{route('shipping.charge')}}",
+                        dataType: "html",
+                        success: function(response){
+                            $('#campaign-cartlist').html(response);
+                        }
+                    });
+                });
+
                 // Collapsible Order Note Toggle
                 $(document).on('click', '#toggle_campaign_order_note', function(e) {
                     e.preventDefault();

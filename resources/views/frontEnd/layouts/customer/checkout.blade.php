@@ -1722,37 +1722,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function applyShippingToDomAndSession() {
             var isFreeDelivery = checkFreeDelivery();
-            var shippingCharge = isFreeDelivery ? 0 : shippingChargeFromSelect();
+            var divId = $('#checkout_division_id').val() || $('#checkout_division').val() || null;
+            var distId = $('#checkout_district_id').val() || $('#checkout_district').val() || null;
+            var upaId = $('#checkout_upazila_id').val() || $('#checkout_upazila').val() || null;
 
-            var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
-            var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
-
-            $('#shippingAmount').text('৳ ' + Math.round(shippingCharge));
-            $('#grandTotalAmount').text('৳ ' + Math.round(grandTotal));
-
-            if (hasAdvance) {
-                $('#dueAmountCell').text('৳ ' + Math.round(dueAmount));
-                $('#dueAmountText').text(Math.round(dueAmount));
-            }
-
-            if (!requiresShipping) {
+            if (!requiresShipping || isFreeDelivery) {
+                var shippingCharge = 0;
+                var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
+                var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
+                $('#shippingAmount').text('৳ 0');
+                $('#grandTotalAmount').text('৳ ' + Math.round(grandTotal));
+                if (hasAdvance) {
+                    $('#dueAmountCell').text('৳ ' + Math.round(dueAmount));
+                    $('#dueAmountText').text(Math.round(dueAmount));
+                }
+                $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
                 return;
             }
 
-            if (isFreeDelivery) {
-                $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
-            } else {
-                var aid = $('#checkout_area').val();
-                if (aid) {
-                    $.get('{{ route("shipping.charge") }}', { id: aid });
-                } else {
-                    var did = $('#checkout_district').val();
-                    if (did) {
-                        $.get('{{ route("shipping.charge") }}', { id: did });
+            $.ajax({
+                type: "GET",
+                url: "{{ route('shipping.charge') }}",
+                data: {
+                    division_id: divId,
+                    district_id: distId,
+                    upazila_id: upaId
+                },
+                dataType: "json",
+                headers: { 'Accept': 'application/json' },
+                success: function (res) {
+                    var shippingCharge = (res && typeof res.charge !== 'undefined') ? parseFloat(res.charge) : 0;
+                    if (isFreeDelivery) shippingCharge = 0;
+
+                    var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
+                    var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
+
+                    $('#shippingAmount').text('৳ ' + Math.round(shippingCharge));
+                    $('#grandTotalAmount').text('৳ ' + Math.round(grandTotal));
+
+                    if (hasAdvance) {
+                        $('#dueAmountCell').text('৳ ' + Math.round(dueAmount));
+                        $('#dueAmountText').text(Math.round(dueAmount));
                     }
                 }
-            }
+            });
         }
+
+        document.addEventListener('deliveryLocationSelected', function(e) {
+            applyShippingToDomAndSession();
+            saveIncompleteOrder();
+        });
 
         $('#checkout_area').on('change', function () {
             applyShippingToDomAndSession();

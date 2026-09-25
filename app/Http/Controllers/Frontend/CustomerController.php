@@ -844,34 +844,19 @@ public function order_save(Request $request)
             $checkoutOtpVerified = true;
         }
 
-        if ($requiresPhysicalShipping && ! $hasAllFreeDelivery) {
-            // ⭐ 1. শিপিং চার্জ নির্ধারণ (ডেলিভারি এরিয়া / ShippingCharge থেকে)
-            $shippingCharge = null;
-            if ($request->filled('area')) {
-                $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->where('id', $request->area)->first();
-            }
-            if ($shippingCharge) {
-                $shippingfee = (float) $shippingCharge->amount;
-                $resolvedAreaName = $shippingCharge->name;
-            } else {
-                if ($hasLocationChain) {
-                    $dCharge = DeliveryLocation::chargeForDistrictId((int) $request->district_id);
-                    if ($dCharge > 0) {
-                        $shippingfee = (float) $dCharge;
-                    }
-                }
-                if (!isset($shippingfee)) {
-                    $shippingCharge = \App\Models\ShippingCharge::where('status', 1)->first();
-                    $shippingfee = $shippingCharge ? (float) $shippingCharge->amount : (float) Session::get('shipping', 0);
-                    $resolvedAreaName = $shippingCharge ? $shippingCharge->name : ($request->area ?? 'General Area');
-                }
-            }
-            Session::put('shipping', $shippingfee);
+        // লোকেশন চেইন (বিভাগ, জেলা, উপজেলা)
+        $divisionId = $request->filled('division_id') ? (int) $request->division_id : null;
+        $districtId = $request->filled('district_id') ? (int) $request->district_id : null;
+        $upazilaId  = $request->filled('upazila_id') ? (int) $request->upazila_id : null;
 
-            // ⭐ 2. লোকেশন চেইন (বিভাগ, জেলা, উপজেলা) — ঠিকানার জন্য (ঐচ্ছিক)
-            $divisionId = $request->filled('division_id') ? (int) $request->division_id : null;
-            $districtId = $request->filled('district_id') ? (int) $request->district_id : null;
-            $upazilaId  = $request->filled('upazila_id') ? (int) $request->upazila_id : null;
+        if ($requiresPhysicalShipping) {
+            // ⭐ সেন্ট্রাল DeliveryChargeService দিয়ে সঠিক চার্জ হিসাব (5টি মোড ও কাস্টম প্রোডাক্ট রুলস সহ)
+            $calc = \App\Services\DeliveryChargeService::calculate(null, $divisionId, $districtId, $upazilaId);
+            $shippingfee = (float) $calc['charge'];
+            $resolvedAreaName = ($divisionId && $districtId && $upazilaId)
+                ? \App\Support\DeliveryLocation::shippingLabel($divisionId, $districtId, $upazilaId)
+                : 'Delivery Area';
+            Session::put('shipping', $shippingfee);
             Session::put('shipping_district_id', $districtId);
         } else {
             $shippingfee = 0;

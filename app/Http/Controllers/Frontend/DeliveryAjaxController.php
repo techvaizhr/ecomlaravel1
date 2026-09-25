@@ -16,12 +16,26 @@ class DeliveryAjaxController extends Controller
             return response()->json(['data' => []]);
         }
 
+        $divCharge = (float) ($division->delivery_charge ?? 0);
         $rows = DeliveryDistrict::query()
             ->where('division_id', $division->id)
             ->where('status', 1)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->get(['id', 'name', 'delivery_charge']);
+            ->get(['id', 'division_id', 'name', 'delivery_charge'])
+            ->map(function ($d) use ($division, $divCharge) {
+                $charge = (float) ($d->delivery_charge ?? 0);
+                if ($charge <= 0) {
+                    $charge = $divCharge > 0 
+                        ? $divCharge 
+                        : \App\Services\DeliveryChargeService::resolveAreaCharge($division->id, $d->id);
+                }
+                return [
+                    'id'              => $d->id,
+                    'name'            => $d->name,
+                    'delivery_charge' => $charge,
+                ];
+            });
 
         return response()->json(['data' => $rows]);
     }
