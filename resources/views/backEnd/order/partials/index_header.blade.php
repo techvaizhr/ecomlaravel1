@@ -58,18 +58,26 @@
                                 <li><a href="{{ route('admin.order.bulk_destroy') }}" class="oi-btn-tool oi-btn-delete order_delete"><i class="fas fa-trash-alt"></i> ডিলিট</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="oi-btn-tool oi-btn-print multi_order_print"><i class="fas fa-print"></i> প্রিন্ট</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="oi-btn-tool oi-btn-label multi_label_print"><i class="fas fa-tag"></i> লেবেল</a></li>
-                                <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-courier open-universal-courier-btn" style="background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; font-weight: 700;"><i class="fas fa-shipping-fast text-primary"></i> কুরিয়ার বুকিং</a></li>
-                                @if(isset($carrybee_info) && $carrybee_info)
-                                    <li><a href="javascript:void(0);" class="oi-btn-tool open-universal-courier-btn" data-courier="carrybee" style="background: #fffdf0; color: #b45309; border-color: #fde68a;"><i class="fas fa-truck text-warning"></i> Carrybee</a></li>
-                                @endif
-                                @if($steadfast)
-                                    <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-courier open-universal-courier-btn" data-courier="steadfast"><i class="fas fa-truck"></i> Steadfast</a></li>
-                                @endif
-                                @if($pathao_info)
-                                    <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-pathao open-universal-courier-btn" data-courier="pathao"><i class="fas fa-truck"></i> Pathao</a></li>
-                                @endif
-                                @if(isset($redx_info) && $redx_info)
-                                    <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-redx open-universal-courier-btn" data-courier="redx"><i class="fas fa-truck"></i> RedX</a></li>
+                                @php
+                                    $activeCouriers = [];
+                                    if (isset($carrybee_info) && $carrybee_info) $activeCouriers['carrybee'] = 'Carrybee';
+                                    if (isset($steadfast) && $steadfast) $activeCouriers['steadfast'] = 'Steadfast';
+                                    if (isset($pathao_info) && $pathao_info) $activeCouriers['pathao'] = 'Pathao';
+                                    if (isset($redx_info) && $redx_info) $activeCouriers['redx'] = 'RedX';
+
+                                    $courierBtnText = 'Courier Booking';
+                                    $defaultCourierCode = '';
+                                    if (count($activeCouriers) === 1) {
+                                        $defaultCourierCode = array_key_first($activeCouriers);
+                                        $courierBtnText = reset($activeCouriers) . ' Booking';
+                                    }
+                                @endphp
+                                @if(count($activeCouriers) > 0)
+                                <li>
+                                    <a href="javascript:void(0);" class="oi-btn-tool oi-btn-courier open-universal-courier-btn" data-courier="{{ $defaultCourierCode }}" style="background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; font-weight: 700;">
+                                        <i class="fas fa-shipping-fast text-primary"></i> {{ $courierBtnText }}
+                                    </a>
+                                </li>
                                 @endif
                             </ul>
                         </div>

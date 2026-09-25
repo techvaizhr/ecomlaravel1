@@ -291,10 +291,23 @@
                 @endif
             </div>
         </div>
+        @php
+            $activeCouriers = \App\Models\Courierapi::where('status', 1)->pluck('type')->toArray();
+            $courierMap = ['carrybee' => 'Carrybee', 'steadfast' => 'Steadfast', 'pathao' => 'Pathao', 'redx' => 'RedX'];
+            $courierBtnText = 'Courier Booking';
+            $defaultCourierCode = '';
+            if (count($activeCouriers) === 1) {
+                $cKey = $activeCouriers[0];
+                $defaultCourierCode = $cKey;
+                $courierBtnText = ($courierMap[$cKey] ?? ucfirst($cKey)) . ' Booking';
+            }
+        @endphp
         <div class="op-header-actions">
-            <button type="button" class="btn btn-sm btn-primary btn-op-outline single-courier-btn" data-order-id="{{ $data->id }}" data-invoice="{{ $data->invoice_id }}" data-amount="{{ $data->customer_payable_amount ?: $data->amount }}">
-                <i class="fas fa-truck-moving me-1"></i> কুরিয়ার বুকিং
+            @if(count($activeCouriers) > 0)
+            <button type="button" class="btn btn-sm btn-primary btn-op-outline single-courier-btn" data-order-id="{{ $data->id }}" data-invoice="{{ $data->invoice_id }}" data-amount="{{ $data->customer_payable_amount ?: $data->amount }}" data-courier="{{ $defaultCourierCode }}">
+                <i class="fas fa-shipping-fast me-1"></i> {{ $courierBtnText }}
             </button>
+            @endif
             <a href="{{ route('admin.order.edit', $data->invoice_id) }}" class="btn btn-sm btn-outline-primary btn-op-outline">
                 <i class="fas fa-edit me-1"></i> এডিট
             </a>

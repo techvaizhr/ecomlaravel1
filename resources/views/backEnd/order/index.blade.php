@@ -64,36 +64,24 @@
                                                                 <i class="fas fa-tag text-success me-2"></i> লেবেল প্রিন্ট
                                                             </a>
                                                         </li>
+                                                        @php
+                                                            $activeCouriers = [];
+                                                            if (isset($carrybee_info) && $carrybee_info) $activeCouriers['carrybee'] = 'Carrybee';
+                                                            if (isset($steadfast) && $steadfast) $activeCouriers['steadfast'] = 'Steadfast';
+                                                            if (isset($pathao_info) && $pathao_info) $activeCouriers['pathao'] = 'Pathao';
+                                                            if (isset($redx_info) && $redx_info) $activeCouriers['redx'] = 'RedX';
+
+                                                            $courierBtnText = 'Courier Booking';
+                                                            $defaultCourierCode = '';
+                                                            if (count($activeCouriers) === 1) {
+                                                                $defaultCourierCode = array_key_first($activeCouriers);
+                                                                $courierBtnText = reset($activeCouriers) . ' Booking';
+                                                            }
+                                                        @endphp
+                                                        @if(count($activeCouriers) > 0)
                                                         <li>
-                                                            <a class="dropdown-item single-courier-btn d-flex align-items-center fw-semibold text-primary" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" data-amount="{{ $value->customer_payable_amount ?: $value->amount }}">
-                                                                <i class="fas fa-shipping-fast me-2 text-primary"></i> কুরিয়ার বুকিং (Courier Modal)
-                                                            </a>
-                                                        </li>
-                                                        @if(isset($carrybee_info) && $carrybee_info)
-                                                        <li>
-                                                            <a class="dropdown-item single-courier-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" data-amount="{{ $value->customer_payable_amount ?: $value->amount }}" data-courier="carrybee">
-                                                                <i class="fas fa-paper-plane text-warning me-2"></i> Carrybee বুকিং
-                                                            </a>
-                                                        </li>
-                                                        @endif
-                                                        @if(isset($steadfast) && $steadfast)
-                                                        <li>
-                                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'steadfast') }}?order_ids[]={{ $value->id }}&status=5">
-                                                                <i class="fas fa-truck text-danger me-2"></i> Steadfast বুকিং
-                                                            </a>
-                                                        </li>
-                                                        @endif
-                                                        @if(isset($pathao_info) && $pathao_info)
-                                                        <li>
-                                                            <a class="dropdown-item single-pathao-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}">
-                                                                <i class="fas fa-motorcycle text-danger me-2"></i> Pathao বুকিং
-                                                            </a>
-                                                        </li>
-                                                        @endif
-                                                        @if(isset($redx_info) && $redx_info)
-                                                        <li>
-                                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.bulk_courier', 'redx') }}?order_ids[]={{ $value->id }}&status=5">
-                                                                <i class="fas fa-truck text-danger me-2"></i> RedX বুকিং
+                                                            <a class="dropdown-item single-courier-btn d-flex align-items-center fw-semibold text-primary" href="javascript:void(0);" data-order-id="{{ $value->id }}" data-invoice="{{ $value->invoice_id }}" data-amount="{{ $value->customer_payable_amount ?: $value->amount }}" data-courier="{{ $defaultCourierCode }}">
+                                                                <i class="fas fa-shipping-fast me-2 text-primary"></i> {{ $courierBtnText }}
                                                             </a>
                                                         </li>
                                                         @endif

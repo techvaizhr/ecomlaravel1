@@ -374,30 +374,20 @@
         <a href="{{ route('admin.order.edit', $order->invoice_id) }}" class="btn btn-sm oqv-act-edit">
             <i class="fas fa-edit"></i> এডিট
         </a>
-        <button type="button" class="btn btn-sm btn-primary single-courier-btn" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-amount="{{ $order->customer_payable_amount ?: $order->amount }}" style="font-weight: 700;">
-            <i class="fas fa-shipping-fast me-1"></i> কুরিয়ার বুকিং
-        </button>
         @php
-            $cb_active = \App\Models\Courierapi::where(['status' => 1, 'type' => 'carrybee'])->first();
+            $activeCouriers = \App\Models\Courierapi::where('status', 1)->pluck('type')->toArray();
+            $courierMap = ['carrybee' => 'Carrybee', 'steadfast' => 'Steadfast', 'pathao' => 'Pathao', 'redx' => 'RedX'];
+            $courierBtnText = 'Courier Booking';
+            $defaultCourierCode = '';
+            if (count($activeCouriers) === 1) {
+                $cKey = $activeCouriers[0];
+                $defaultCourierCode = $cKey;
+                $courierBtnText = ($courierMap[$cKey] ?? ucfirst($cKey)) . ' Booking';
+            }
         @endphp
-        @if($cb_active)
-        <button type="button" class="btn btn-sm single-courier-btn" data-courier="carrybee" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-amount="{{ $order->customer_payable_amount ?: $order->amount }}" style="background: #fffdf0; color: #b45309; border: 1px solid #fde68a; font-weight: 600;">
-            <i class="fas fa-truck text-warning"></i> Carrybee
-        </button>
-        @endif
-        @if($steadfast)
-        <button type="button" class="btn btn-sm oqv-act-courier single-courier-btn" data-courier="steadfast" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-amount="{{ $order->customer_payable_amount ?: $order->amount }}">
-            <i class="fas fa-truck"></i> Steadfast
-        </button>
-        @endif
-        @if($pathao_info)
-        <button type="button" class="btn btn-sm oqv-act-courier single-courier-btn" data-courier="pathao" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-amount="{{ $order->customer_payable_amount ?: $order->amount }}">
-            <i class="fas fa-truck"></i> Pathao
-        </button>
-        @endif
-        @if($redx_info)
-        <button type="button" class="btn btn-sm oqv-act-courier single-courier-btn" data-courier="redx" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-amount="{{ $order->customer_payable_amount ?: $order->amount }}">
-            <i class="fas fa-truck"></i> RedX
+        @if(count($activeCouriers) > 0)
+        <button type="button" class="btn btn-sm btn-primary single-courier-btn" data-order-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-amount="{{ $order->customer_payable_amount ?: $order->amount }}" data-courier="{{ $defaultCourierCode }}" style="font-weight: 700;">
+            <i class="fas fa-shipping-fast me-1"></i> {{ $courierBtnText }}
         </button>
         @endif
     </div>
