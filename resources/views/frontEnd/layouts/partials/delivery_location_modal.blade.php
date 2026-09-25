@@ -516,7 +516,34 @@
     text-align: center;
     padding: 30px 0;
     color: #94a3b8;
- {{-- SCRIPT COMPONENT (100% Standalone Vanilla JS - No jQuery dependency) --}}
+    font-size: 14px;
+}
+
+/* Mobile responsive (Bottom Sheet) */
+@media (max-width: 768px) {
+    .delivery-location-dialog {
+        width: 100%;
+        max-width: 100%;
+        max-height: 88vh;
+        border-radius: 20px 20px 0 0;
+        position: fixed;
+        bottom: 0;
+        animation: modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalSlideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    .delivery-grid-list {
+        grid-template-columns: 1fr;
+    }
+    .delivery-location-body {
+        max-height: 58vh;
+    }
+}
+</style>
+
+{{-- SCRIPT COMPONENT (100% Standalone Vanilla JS - No jQuery dependency) --}}
 <script>
 (function () {
     function initDeliveryLocationPicker() {
