@@ -56,36 +56,17 @@
         font-size: 11px;
         font-weight: 600;
         border-radius: 6px;
-        color: #475569;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
         text-decoration: none;
         line-height: 1.25;
         transition: all 0.16s ease;
         white-space: nowrap;
-    }
-    .oi-status-pill:hover {
-        color: #4338ca;
-        border-color: #c7d2fe;
-        background: #eef2ff;
-        text-decoration: none;
-    }
-    .oi-status-pill.active {
-        color: #ffffff;
-        background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
-        border-color: #4338ca;
-        box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28);
-        font-weight: 700;
+        border: 1px solid transparent;
     }
     .oi-status-pill .pill-dot {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #94a3b8;
         flex-shrink: 0;
-    }
-    .oi-status-pill.active .pill-dot {
-        background: #a5f3fc;
     }
     .oi-status-pill .pill-count {
         display: inline-flex;
@@ -97,16 +78,98 @@
         height: 16px;
         padding: 0 4px;
         border-radius: 99px;
-        background: #f1f5f9;
-        color: #334155;
         line-height: 1;
-        border: 1px solid #cbd5e1;
     }
-    .oi-status-pill.active .pill-count {
-        background: rgba(255, 255, 255, 0.22);
-        color: #ffffff;
-        border-color: rgba(255, 255, 255, 0.45);
-    }
+
+    /* ─── 1. All Orders (Slate / Charcoal) ─── */
+    .pill-all { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+    .pill-all .pill-dot { background: #64748b; }
+    .pill-all .pill-count { background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; }
+    .pill-all:hover { background: #e2e8f0; color: #0f172a; border-color: #94a3b8; }
+    .pill-all.active { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; border-color: #0f172a; box-shadow: 0 2px 6px rgba(30,41,59,0.25); font-weight: 700; }
+    .pill-all.active .pill-dot { background: #94a3b8; }
+    .pill-all.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 2. Reseller (Purple / Violet) ─── */
+    .pill-reseller { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+    .pill-reseller .pill-dot { background: #8b5cf6; }
+    .pill-reseller .pill-count { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+    .pill-reseller:hover { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+    .pill-reseller.active { background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%); color: #fff; border-color: #5b21b6; box-shadow: 0 2px 6px rgba(109,40,217,0.25); font-weight: 700; }
+    .pill-reseller.active .pill-dot { background: #c4b5fd; }
+    .pill-reseller.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 3. Incomplete (Amber / Yellow-Orange) ─── */
+    .pill-incomplete { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+    .pill-incomplete .pill-dot { background: #f59e0b; }
+    .pill-incomplete .pill-count { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .pill-incomplete:hover { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+    .pill-incomplete.active { background: linear-gradient(135deg, #b45309 0%, #d97706 100%); color: #fff; border-color: #92400e; box-shadow: 0 2px 6px rgba(180,83,9,0.25); font-weight: 700; }
+    .pill-incomplete.active .pill-dot { background: #fde68a; }
+    .pill-incomplete.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 4. Pipeline: New Order, Hold, Confirmed, Packaging, Handover (Soft Blue / Sky) ─── */
+    .pill-pipeline { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .pill-pipeline .pill-dot { background: #3b82f6; }
+    .pill-pipeline .pill-count { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+    .pill-pipeline:hover { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+    .pill-pipeline.active { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: #fff; border-color: #1e3a8a; box-shadow: 0 2px 6px rgba(30,64,175,0.25); font-weight: 700; }
+    .pill-pipeline.active .pill-dot { background: #93c5fd; }
+    .pill-pipeline.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 5. In Courier (Teal / Cyan) ─── */
+    .pill-incourier { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
+    .pill-incourier .pill-dot { background: #14b8a6; }
+    .pill-incourier .pill-count { background: #ccfbf1; color: #115e59; border: 1px solid #5eead4; }
+    .pill-incourier:hover { background: #ccfbf1; color: #115e59; border-color: #5eead4; }
+    .pill-incourier.active { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); color: #fff; border-color: #115e59; box-shadow: 0 2px 6px rgba(15,118,110,0.25); font-weight: 700; }
+    .pill-incourier.active .pill-dot { background: #99f6e4; }
+    .pill-incourier.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 6. Delivered (Emerald / Forest Green) ─── */
+    .pill-delivered { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .pill-delivered .pill-dot { background: #10b981; }
+    .pill-delivered .pill-count { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .pill-delivered:hover { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+    .pill-delivered.active { background: linear-gradient(135deg, #047857 0%, #10b981 100%); color: #fff; border-color: #065f46; box-shadow: 0 2px 6px rgba(4,120,87,0.25); font-weight: 700; }
+    .pill-delivered.active .pill-dot { background: #a7f3d0; }
+    .pill-delivered.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 7. Partial Group (Tangerine / Orange) ─── */
+    .pill-partial { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .pill-partial .pill-dot { background: #f97316; }
+    .pill-partial .pill-count { background: #ffedd5; color: #9a3412; border: 1px solid #fdba74; }
+    .pill-partial:hover { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
+    .pill-partial.active { background: linear-gradient(135deg, #c2410c 0%, #f97316 100%); color: #fff; border-color: #9a3412; box-shadow: 0 2px 6px rgba(194,65,12,0.25); font-weight: 700; }
+    .pill-partial.active .pill-dot { background: #fed7aa; }
+    .pill-partial.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 8. Return Group (Rose / Pink-Red) ─── */
+    .pill-return { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+    .pill-return .pill-dot { background: #f43f5e; }
+    .pill-return .pill-count { background: #ffe4e6; color: #9f1239; border: 1px solid #fda4af; }
+    .pill-return:hover { background: #ffe4e6; color: #9f1239; border-color: #fda4af; }
+    .pill-return.active { background: linear-gradient(135deg, #be123c 0%, #f43f5e 100%); color: #fff; border-color: #9f1239; box-shadow: 0 2px 6px rgba(190,18,60,0.25); font-weight: 700; }
+    .pill-return.active .pill-dot { background: #fecdd3; }
+    .pill-return.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 9. Pre Order (Fuchsia / Magenta) ─── */
+    .pill-preorder { background: #fdf4ff; color: #a21caf; border-color: #f5d0fe; }
+    .pill-preorder .pill-dot { background: #d946ef; }
+    .pill-preorder .pill-count { background: #fae8ff; color: #86198f; border: 1px solid #f0abfc; }
+    .pill-preorder:hover { background: #fae8ff; color: #86198f; border-color: #f0abfc; }
+    .pill-preorder.active { background: linear-gradient(135deg, #a21caf 0%, #d946ef 100%); color: #fff; border-color: #86198f; box-shadow: 0 2px 6px rgba(162,28,175,0.25); font-weight: 700; }
+    .pill-preorder.active .pill-dot { background: #f5d0fe; }
+    .pill-preorder.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
+
+    /* ─── 10. Cancelled (Crimson / Deep Red) ─── */
+    .pill-cancelled { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .pill-cancelled .pill-dot { background: #ef4444; }
+    .pill-cancelled .pill-count { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .pill-cancelled:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .pill-cancelled.active { background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%); color: #fff; border-color: #991b1b; box-shadow: 0 2px 6px rgba(185,28,28,0.25); font-weight: 700; }
+    .pill-cancelled.active .pill-dot { background: #fecaca; }
+    .pill-cancelled.active .pill-count { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.45); }
     .oi-card-body { padding: 16px 18px; }
     .oi-toolbar {
         display: flex;

@@ -20,8 +20,8 @@
                     $isAllActive = (request()->routeIs('admin.orders') && request()->route('slug') === 'all') || request()->is('admin/orders/all') || request()->is('order/all');
                 @endphp
                 <li>
-                    <a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="oi-status-pill {{ $isAllActive ? 'active' : '' }}">
-                        <span class="pill-dot" style="background:#3b82f6;"></span>
+                    <a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="oi-status-pill pill-all {{ $isAllActive ? 'active' : '' }}">
+                        <span class="pill-dot"></span>
                         <span>All Orders</span>
                         @if(($all_orders_count ?? 0) > 0)
                             <span class="pill-count">{{ $all_orders_count }}</span>
@@ -34,8 +34,8 @@
                     $isResellerActive = request()->routeIs('admin.reseller-orders.*') || request()->is('admin/reseller-orders*');
                 @endphp
                 <li>
-                    <a href="{{ route('admin.reseller-orders.index') }}" class="oi-status-pill {{ $isResellerActive ? 'active' : '' }}">
-                        <span class="pill-dot" style="background:#8b5cf6;"></span>
+                    <a href="{{ route('admin.reseller-orders.index') }}" class="oi-status-pill pill-reseller {{ $isResellerActive ? 'active' : '' }}">
+                        <span class="pill-dot"></span>
                         <span>Reseller</span>
                         @if(($reseller_orders_count ?? 0) > 0)
                             <span class="pill-count">{{ $reseller_orders_count }}</span>
@@ -48,8 +48,8 @@
                     $isIncompleteActive = request()->routeIs('admin.incomplete-orders.*') || request()->is('admin/incomplete-orders*');
                 @endphp
                 <li>
-                    <a href="{{ route('admin.incomplete-orders.index') }}" class="oi-status-pill {{ $isIncompleteActive ? 'active' : '' }}">
-                        <span class="pill-dot" style="background:#f59e0b;"></span>
+                    <a href="{{ route('admin.incomplete-orders.index') }}" class="oi-status-pill pill-incomplete {{ $isIncompleteActive ? 'active' : '' }}">
+                        <span class="pill-dot"></span>
                         <span>Incomplete</span>
                         @if(($incomplete_orders_count ?? 0) > 0)
                             <span class="pill-count">{{ $incomplete_orders_count }}</span>
@@ -62,11 +62,30 @@
                     @foreach($orderstatus as $st)
                         @php
                             $isStActive = (request()->routeIs('admin.orders') && request()->route('slug') === $st->slug) || request()->is('admin/orders/'.$st->slug) || request()->is('order/'.$st->slug);
-                            $dotColor = $st->color ?? '#64748b';
+                            $stId = (int) ($st->id ?? 0);
+                            
+                            // Group Color Mapping
+                            if (in_array($stId, [1, 2, 3, 4, 5])) {
+                                $pillTheme = 'pill-pipeline'; // New Order, Hold, Confirmed, Packaging, Courier Handover
+                            } elseif ($stId === 6) {
+                                $pillTheme = 'pill-incourier'; // In Courier
+                            } elseif ($stId === 7) {
+                                $pillTheme = 'pill-delivered'; // Delivered
+                            } elseif (in_array($stId, [8, 9, 10, 11])) {
+                                $pillTheme = 'pill-partial'; // Pending Partial, Partial Full, Partial Item, Partial Charge
+                            } elseif (in_array($stId, [12, 13])) {
+                                $pillTheme = 'pill-return'; // Pending Return, Returned
+                            } elseif ($stId === 14) {
+                                $pillTheme = 'pill-preorder'; // Pre Order
+                            } elseif ($stId === 15) {
+                                $pillTheme = 'pill-cancelled'; // Cancelled
+                            } else {
+                                $pillTheme = 'pill-pipeline';
+                            }
                         @endphp
                         <li>
-                            <a href="{{ route('admin.orders', ['slug'=>$st->slug]) }}" class="oi-status-pill {{ $isStActive ? 'active' : '' }}" title="{{ $st->name }}">
-                                <span class="pill-dot" style="background: {{ $dotColor }};"></span>
+                            <a href="{{ route('admin.orders', ['slug'=>$st->slug]) }}" class="oi-status-pill {{ $pillTheme }} {{ $isStActive ? 'active' : '' }}" title="{{ $st->name }}">
+                                <span class="pill-dot"></span>
                                 <span>{{ $st->name }}</span>
                                 @if(($st->orders_count ?? 0) > 0)
                                     <span class="pill-count">{{ $st->orders_count }}</span>
