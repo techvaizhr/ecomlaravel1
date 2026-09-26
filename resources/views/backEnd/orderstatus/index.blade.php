@@ -30,23 +30,32 @@
                 <table id="os-datatable" class="table os-table mb-0 w-100">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">#</th>
-                            <th>স্ট্যাটাস নাম</th>
-                            <th>অবস্থা</th>
-                            <th class="text-end" style="width: 150px;">অ্যাকশন</th>
+                            <th style="width: 60px;">ID</th>
+                            <th>স্ট্যাটাস নাম ও স্লাগ</th>
+                            <th class="text-center" style="width: 110px;">সংযুক্ত অর্ডার</th>
+                            <th class="text-center" style="width: 100px;">অবস্থা</th>
+                            <th class="text-end" style="width: 160px;">অ্যাকশন</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($data as $value)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
                             <td>
-                                <span class="os-status-name">
-                                    <i class="fas fa-circle"></i>
-                                    {{ $value->name }}
-                                </span>
+                                <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 fw-bold">#{{ $value->id }}</span>
                             </td>
                             <td>
+                                <div class="os-status-name fw-bold text-dark">
+                                    <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+                                    {{ $value->name }}
+                                </div>
+                                <small class="text-muted font-monospace" style="font-size: 11px;">{{ $value->slug }}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge {{ ($value->orders_count ?? 0) > 0 ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border' }} px-2 py-1">
+                                    {{ $value->orders_count ?? 0 }} টি
+                                </span>
+                            </td>
+                            <td class="text-center">
                                 @if($value->status == 1)
                                     <span class="os-pill-active">সক্রিয়</span>
                                 @else
@@ -54,7 +63,7 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <div class="os-row-actions">
+                                <div class="os-row-actions justify-content-end d-flex align-items-center gap-1">
                                     @if($value->status == 1)
                                         <form method="post" action="{{ route('orderstatus.inactive') }}" class="d-inline">
                                             @csrf
@@ -76,12 +85,20 @@
                                     <a href="{{ route('orderstatus.edit', $value->id) }}" class="os-act-btn os-act-edit" title="সম্পাদনা">
                                         <i class="fas fa-pen"></i>
                                     </a>
+
+                                    <form method="post" action="{{ route('orderstatus.destroy') }}" class="d-inline" onsubmit="return confirm('আপনি কি নিশ্চিত যে এই ডুপ্লিকেট/অপ্রয়োজনীয় স্ট্যাটাসটি মুছে ফেলতে চান?');">
+                                        @csrf
+                                        <input type="hidden" value="{{ $value->id }}" name="hidden_id">
+                                        <button type="submit" class="os-act-btn text-danger border-0 bg-transparent" title="মুছে ফেলুন" style="background: #fee2e2; color: #dc2626; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-trash-alt" style="font-size: 11px;"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4">
+                            <td colspan="5">
                                 <div class="os-empty">
                                     <i class="fas fa-flag"></i>
                                     <p class="mb-0">কোনো স্ট্যাটাস নেই</p>
