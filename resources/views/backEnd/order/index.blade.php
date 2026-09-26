@@ -1180,21 +1180,6 @@ $(document).ready(function () {
         });
     });
 
-    // order status change
-    $(document).on('submit', 'form#order_status_form', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        var url = $(this).attr('action');
-        let order_status = $('#order_status').val();
-        var $statusSelect = $('#order_status');
-        var $statusError = $('#status_error');
-        
-        // Clear any previous validation state
-        $statusSelect.removeClass('is-invalid is-valid');
-        $statusError.hide();
-
     function showQuickStatusModal() {
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
             try {
