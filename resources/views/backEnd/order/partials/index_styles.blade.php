@@ -631,15 +631,10 @@
         background: #ffffff !important;
         border: 1px solid #cbd5e1 !important;
         border-radius: 10px !important;
-        box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.22), 0 6px 14px -2px rgba(15, 23, 42, 0.12) !important;
+        box-shadow: 0 14px 35px -4px rgba(15, 23, 42, 0.22), 0 6px 14px -2px rgba(15, 23, 42, 0.12) !important;
         padding: 6px !important;
         min-width: 185px !important;
         z-index: 1060 !important;
-        animation: oiDropdownFadeIn 0.15s ease-out;
-    }
-    @keyframes oiDropdownFadeIn {
-        from { opacity: 0; transform: translateY(-4px); }
-        to { opacity: 1; transform: translateY(0); }
     }
     .order-action-dropdown .dropdown-item {
         padding: 7px 12px !important;
