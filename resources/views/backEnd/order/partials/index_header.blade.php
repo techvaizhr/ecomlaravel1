@@ -15,44 +15,50 @@
     <div class="oi-card">
         <div class="oi-card-head">
             <ul class="oi-status-nav">
-                {{-- 1. All Orders --}}
+                {{-- 1. All Orders (Slate Gray) --}}
                 @php
                     $isAllActive = (request()->routeIs('admin.orders') && request()->route('slug') === 'all') || request()->is('admin/orders/all') || request()->is('order/all');
                 @endphp
                 <li>
-                    <a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="oi-status-pill pill-all {{ $isAllActive ? 'active' : '' }}">
-                        <span class="pill-dot"></span>
+                    <a href="{{ route('admin.orders', ['slug'=>'all']) }}" 
+                       class="oi-status-pill pill-all {{ $isAllActive ? 'active' : '' }}"
+                       style="{{ $isAllActive ? 'background:#0f172a; color:#fff; border-color:#020617; box-shadow:0 0 0 2px #fff, 0 0 0 4px #0f172a;' : 'background:#cbd5e1; color:#0f172a; border-color:#94a3b8;' }}">
+                        <span class="pill-dot" style="background: {{ $isAllActive ? '#38bdf8' : '#334155' }};"></span>
                         <span>All Orders</span>
                         @if(($all_orders_count ?? 0) > 0)
-                            <span class="pill-count">{{ $all_orders_count }}</span>
+                            <span class="pill-count" style="{{ $isAllActive ? 'background:rgba(255,255,255,0.25); color:#fff;' : 'background:#fff; color:#0f172a;' }}">{{ $all_orders_count }}</span>
                         @endif
                     </a>
                 </li>
 
-                {{-- 2. Reseller Orders --}}
+                {{-- 2. Reseller Orders (Lavender / Purple) --}}
                 @php
                     $isResellerActive = request()->routeIs('admin.reseller-orders.*') || request()->is('admin/reseller-orders*');
                 @endphp
                 <li>
-                    <a href="{{ route('admin.reseller-orders.index') }}" class="oi-status-pill pill-reseller {{ $isResellerActive ? 'active' : '' }}">
-                        <span class="pill-dot"></span>
+                    <a href="{{ route('admin.reseller-orders.index') }}" 
+                       class="oi-status-pill pill-reseller {{ $isResellerActive ? 'active' : '' }}"
+                       style="{{ $isResellerActive ? 'background:#7e22ce; color:#fff; border-color:#581c87; box-shadow:0 0 0 2px #fff, 0 0 0 4px #7e22ce;' : 'background:#e9d5ff; color:#581c87; border-color:#c084fc;' }}">
+                        <span class="pill-dot" style="background: {{ $isResellerActive ? '#f0abfc' : '#7e22ce' }};"></span>
                         <span>Reseller</span>
                         @if(($reseller_orders_count ?? 0) > 0)
-                            <span class="pill-count">{{ $reseller_orders_count }}</span>
+                            <span class="pill-count" style="{{ $isResellerActive ? 'background:rgba(255,255,255,0.25); color:#fff;' : 'background:#fff; color:#581c87;' }}">{{ $reseller_orders_count }}</span>
                         @endif
                     </a>
                 </li>
 
-                {{-- 3. Incomplete Orders --}}
+                {{-- 3. Incomplete Orders (Yellow-Gold / Amber) --}}
                 @php
                     $isIncompleteActive = request()->routeIs('admin.incomplete-orders.*') || request()->is('admin/incomplete-orders*');
                 @endphp
                 <li>
-                    <a href="{{ route('admin.incomplete-orders.index') }}" class="oi-status-pill pill-incomplete {{ $isIncompleteActive ? 'active' : '' }}">
-                        <span class="pill-dot"></span>
+                    <a href="{{ route('admin.incomplete-orders.index') }}" 
+                       class="oi-status-pill pill-incomplete {{ $isIncompleteActive ? 'active' : '' }}"
+                       style="{{ $isIncompleteActive ? 'background:#d97706; color:#fff; border-color:#92400e; box-shadow:0 0 0 2px #fff, 0 0 0 4px #d97706;' : 'background:#fde68a; color:#78350f; border-color:#f59e0b;' }}">
+                        <span class="pill-dot" style="background: {{ $isIncompleteActive ? '#fef08a' : '#b45309' }};"></span>
                         <span>Incomplete</span>
                         @if(($incomplete_orders_count ?? 0) > 0)
-                            <span class="pill-count">{{ $incomplete_orders_count }}</span>
+                            <span class="pill-count" style="{{ $isIncompleteActive ? 'background:rgba(255,255,255,0.25); color:#fff;' : 'background:#fff; color:#78350f;' }}">{{ $incomplete_orders_count }}</span>
                         @endif
                     </a>
                 </li>
@@ -66,29 +72,76 @@
                             
                             // Group Color Mapping
                             if (in_array($stId, [1, 2, 3, 4, 5])) {
-                                $pillTheme = 'pill-pipeline'; // New Order, Hold, Confirmed, Packaging, Courier Handover
-                            } elseif ($stId === 6) {
-                                $pillTheme = 'pill-incourier'; // In Courier
-                            } elseif ($stId === 7) {
-                                $pillTheme = 'pill-delivered'; // Delivered
-                            } elseif (in_array($stId, [8, 9, 10, 11])) {
-                                $pillTheme = 'pill-partial'; // Pending Partial, Partial Full, Partial Item, Partial Charge
-                            } elseif (in_array($stId, [12, 13])) {
-                                $pillTheme = 'pill-return'; // Pending Return, Returned
-                            } elseif ($stId === 14) {
-                                $pillTheme = 'pill-preorder'; // Pre Order
-                            } elseif ($stId === 15) {
-                                $pillTheme = 'pill-cancelled'; // Cancelled
-                            } else {
+                                // 1: New Order, 2: Hold, 3: Confirmed, 4: Packaging, 5: Courier Handover (Sky Blue)
+                                $pillBg = $isStActive ? '#0284c7' : '#bae6fd';
+                                $pillColor = $isStActive ? '#ffffff' : '#075985';
+                                $pillBorder = $isStActive ? '#0369a1' : '#38bdf8';
+                                $pillDot = $isStActive ? '#bae6fd' : '#0284c7';
                                 $pillTheme = 'pill-pipeline';
+                            } elseif ($stId === 6) {
+                                // 6: In Courier (Teal / Aqua)
+                                $pillBg = $isStActive ? '#0d9488' : '#99f6e4';
+                                $pillColor = $isStActive ? '#ffffff' : '#134e4a';
+                                $pillBorder = $isStActive ? '#115e59' : '#2dd4bf';
+                                $pillDot = $isStActive ? '#a7f3d0' : '#0d9488';
+                                $pillTheme = 'pill-incourier';
+                            } elseif ($stId === 7) {
+                                // 7: Delivered (Mint / Light Green)
+                                $pillBg = $isStActive ? '#16a34a' : '#bbf7d0';
+                                $pillColor = $isStActive ? '#ffffff' : '#14532d';
+                                $pillBorder = $isStActive ? '#14532d' : '#4ade80';
+                                $pillDot = $isStActive ? '#bbf7d0' : '#15803d';
+                                $pillTheme = 'pill-delivered';
+                            } elseif (in_array($stId, [8, 9, 10, 11])) {
+                                // 8: Pending Partial, 9: Full Received, 10: Item Received, 11: Charge Only (Apricot Orange)
+                                $pillBg = $isStActive ? '#ea580c' : '#fed7aa';
+                                $pillColor = $isStActive ? '#ffffff' : '#7c2d12';
+                                $pillBorder = $isStActive ? '#7c2d12' : '#fb923c';
+                                $pillDot = $isStActive ? '#fde047' : '#ea580c';
+                                $pillTheme = 'pill-partial';
+                            } elseif (in_array($stId, [12, 13])) {
+                                // 12: Pending Return, 13: Returned (Rose / Pink-Red)
+                                $pillBg = $isStActive ? '#e11d48' : '#fecdd3';
+                                $pillColor = $isStActive ? '#ffffff' : '#881337';
+                                $pillBorder = $isStActive ? '#881337' : '#fb7185';
+                                $pillDot = $isStActive ? '#fecdd3' : '#e11d48';
+                                $pillTheme = 'pill-return';
+                            } elseif ($stId === 14) {
+                                // 14: Pre Order (Magenta / Light Purple)
+                                $pillBg = $isStActive ? '#c026d3' : '#f5d0fe';
+                                $pillColor = $isStActive ? '#ffffff' : '#701a75';
+                                $pillBorder = $isStActive ? '#701a75' : '#e879f9';
+                                $pillDot = $isStActive ? '#f5d0fe' : '#c026d3';
+                                $pillTheme = 'pill-preorder';
+                            } elseif ($stId === 15) {
+                                // 15: Cancelled (Light Crimson Red)
+                                $pillBg = $isStActive ? '#dc2626' : '#fecaca';
+                                $pillColor = $isStActive ? '#ffffff' : '#7f1d1d';
+                                $pillBorder = $isStActive ? '#7f1d1d' : '#f87171';
+                                $pillDot = $isStActive ? '#fecaca' : '#dc2626';
+                                $pillTheme = 'pill-cancelled';
+                            } else {
+                                $pillBg = $isStActive ? '#0284c7' : '#bae6fd';
+                                $pillColor = $isStActive ? '#ffffff' : '#075985';
+                                $pillBorder = $isStActive ? '#0369a1' : '#38bdf8';
+                                $pillDot = $isStActive ? '#bae6fd' : '#0284c7';
+                                $pillTheme = 'pill-pipeline';
+                            }
+
+                            $pillStyle = "background: {$pillBg}; color: {$pillColor}; border: 1px solid {$pillBorder};";
+                            if ($isStActive) {
+                                $pillStyle .= " box-shadow: 0 0 0 2px #fff, 0 0 0 4px {$pillBg}; transform: translateY(-1.5px);";
                             }
                         @endphp
                         <li>
-                            <a href="{{ route('admin.orders', ['slug'=>$st->slug]) }}" class="oi-status-pill {{ $pillTheme }} {{ $isStActive ? 'active' : '' }}" title="{{ $st->name }}">
-                                <span class="pill-dot"></span>
+                            <a href="{{ route('admin.orders', ['slug'=>$st->slug]) }}" 
+                               class="oi-status-pill {{ $pillTheme }} {{ $isStActive ? 'active' : '' }}" 
+                               style="{{ $pillStyle }}"
+                               title="{{ $st->name }}">
+                                <span class="pill-dot" style="background: {{ $pillDot }};"></span>
                                 <span>{{ $st->name }}</span>
                                 @if(($st->orders_count ?? 0) > 0)
-                                    <span class="pill-count">{{ $st->orders_count }}</span>
+                                    <span class="pill-count" style="{{ $isStActive ? 'background:rgba(255,255,255,0.25); color:#fff;' : 'background:#fff; color:'.$pillColor.';' }}">{{ $st->orders_count }}</span>
                                 @endif
                             </a>
                         </li>

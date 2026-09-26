@@ -1349,10 +1349,8 @@ $(document).ready(function(){
         var statusName = $(this).data('status-name');
         var $btn = $(this);
 
-        if (!orderId || !statusId) return;
-
-        // If target status is 8 (Pending Partial), 9 (Full Received), 10 (Item Received), or 11 (Charge Only):
-        if (statusId == 8 || statusId == 9 || statusId == 10 || statusId == 11) {
+        // If target status is 9 (Full Received), 10 (Item Received), or 11 (Charge Only):
+        if (statusId == 9 || statusId == 10 || statusId == 11) {
             $('#quickSingleStatusModal').modal('hide');
             window.openPartialSettlementModal(orderId);
             return;

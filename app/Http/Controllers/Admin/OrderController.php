@@ -1796,19 +1796,17 @@ PROMPT;
         $orderStatus = $request->input('order_status');
         $orderIds = $request->input('order_ids', []);
         
-        if (empty($orderStatus) || $orderStatus === '' || $orderStatus === null) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Please select a status',
-                'errors' => ['order_status' => ['Please select a status']]
-            ], 422);
+        if (empty($orderIds) && $request->filled('order_id')) {
+            $orderIds = [$request->input('order_id')];
         }
-        
-        if (empty($orderIds) || !is_array($orderIds) || count($orderIds) === 0) {
+        if (!is_array($orderIds)) {
+            $orderIds = [$orderIds];
+        }
+        if (empty($orderIds)) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Please select at least one order',
-                'errors' => ['order_ids' => ['Please select at least one order']]
+                'errors'  => ['order_ids' => ['Please select at least one order']]
             ], 422);
         }
         
