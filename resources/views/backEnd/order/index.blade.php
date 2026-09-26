@@ -448,26 +448,30 @@
   </div>
 </div>
 
-<div class="modal fade oi-modal" id="quickSingleStatusModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width: 360px;">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header py-2.5 px-3 bg-primary text-white">
-        <h6 class="modal-title m-0 fw-bold text-white" id="quickStatusModalTitle"><i class="fas fa-flag me-1"></i> স্ট্যাটাস পরিবর্তন</h6>
+<div class="modal fade oi-modal" id="quickSingleStatusModal" tabindex="-1" aria-hidden="true" style="z-index: 1060 !important;">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 520px; z-index: 1061 !important;">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
+      <div class="modal-header py-2.5 px-3.5 bg-primary text-white d-flex align-items-center justify-content-between">
+        <h6 class="modal-title m-0 fw-bold text-white" id="quickStatusModalTitle"><i class="fas fa-flag me-1.5"></i> স্ট্যাটাস পরিবর্তন</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body p-3">
+      <div class="modal-body p-3 bg-light">
         <input type="hidden" id="quick_status_order_id" value="">
-        <div class="text-muted small mb-2 fw-semibold">নতুন স্ট্যাটাস সিলেক্ট করুন:</div>
-        <div class="d-flex flex-column gap-1.5" id="quick_status_list">
+        <div class="text-muted small mb-2 fw-semibold d-flex align-items-center justify-content-between">
+            <span><i class="fas fa-hand-pointer text-primary me-1"></i> নতুন স্ট্যাটাস সিলেক্ট করুন:</span>
+        </div>
+        <div class="row g-2" id="quick_status_list">
             @if(isset($orderstatus) && $orderstatus->count() > 0)
                 @foreach($orderstatus as $s)
-                    <button type="button" class="btn btn-sm btn-outline-primary text-start d-flex align-items-center justify-content-between py-1.5 px-2.5 quick-status-opt-btn" data-status-id="{{ $s->id }}" data-status-name="{{ $s->name }}" style="border-radius: 6px; font-size: 12.5px;">
-                        <span><i class="far fa-check-circle me-1.5 opacity-50"></i> {{ $s->name }}</span>
-                        <span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>
-                    </button>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-sm btn-outline-primary text-start d-flex align-items-center justify-content-between py-2 px-2.5 w-100 quick-status-opt-btn shadow-sm" data-status-id="{{ $s->id }}" data-status-name="{{ $s->name }}" style="border-radius: 8px; font-size: 12px; background: #fff; transition: all 0.15s;">
+                            <span class="text-truncate me-1"><i class="far fa-circle me-1 opacity-50"></i> {{ $s->name }}</span>
+                            <span class="badge bg-light text-dark border current-tag d-none" style="font-size: 9px; padding: 2px 4px;">বর্তমান</span>
+                        </button>
+                    </div>
                 @endforeach
             @else
-                <div class="text-muted small text-center py-2">কোন স্ট্যাটাস পাওয়া যায়নি</div>
+                <div class="col-12 text-muted small text-center py-2">কোন স্ট্যাটাস পাওয়া যায়নি</div>
             @endif
         </div>
       </div>
