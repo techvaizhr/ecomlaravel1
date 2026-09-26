@@ -46,7 +46,7 @@
                         $courierList = [
                             'carrybee'  => ['name' => 'Carrybee', 'active' => $isCarrybeeActive, 'logo' => asset('public/uploads/default/carrybee.png'), 'fallback' => asset('public/frontEnd/images/carrybee.png'), 'badge' => 'Express'],
                             'steadfast' => ['name' => 'Steadfast', 'active' => $isSteadfastActive, 'logo' => asset('public/frontEnd/images/stade.svg'), 'fallback' => '', 'badge' => 'Fast COD'],
-                            'pathao'    => ['name' => 'Pathao', 'active' => $isPathaoActive, 'logo' => 'https://merchant.pathao.com/assets/logo_pathao_courier.a3ef9b7c.svg', 'fallback' => '', 'badge' => 'Hermes API'],
+                            'pathao'    => ['name' => 'Pathao', 'active' => $isPathaoActive, 'logo' => asset('public/uploads/default/pathao.png'), 'fallback' => asset('public/frontEnd/images/pathao.png'), 'badge' => 'Hermes API'],
                             'redx'      => ['name' => 'RedX', 'active' => $isRedxActive, 'logo' => 'https://redx.com.bd/images/logo.png', 'fallback' => '', 'badge' => 'Doorstep'],
                         ];
 

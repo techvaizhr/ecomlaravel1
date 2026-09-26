@@ -533,28 +533,36 @@ public function sms_toggle_field(Request $request)
             }
         }
 
-        // Pathao এর জন্য token auto-generate
-        if ($update_data->type == 'pathao' && !empty($input['client_id']) && !empty($input['client_secret'])) {
-            try {
-                $apiUrl = $input['url'] ?? 'https://api-hermes.pathao.com';
-                $apiUrl = rtrim($apiUrl, '/');
-                $apiUrl = preg_replace('#/aladdin/?$#', '', $apiUrl);
+        // Pathao এর জন্য token handle (manual entry + auto generation)
+        if ($update_data->type === 'pathao' || $request->type === 'pathao') {
+            if (!empty($input['token'])) {
+                $input['token'] = trim(preg_replace('/^Bearer\s+/i', '', (string)$input['token']));
+            } elseif (!empty($input['client_id']) && !empty($input['client_secret']) && !empty($input['username']) && !empty($input['password'])) {
+                try {
+                    $apiUrl = $input['url'] ?? 'https://api-hermes.pathao.com';
+                    $apiUrl = rtrim($apiUrl, '/');
+                    $apiUrl = preg_replace('#/aladdin/?$#', '', $apiUrl);
 
-                $username = $input['username'] ?? null;
-                $password = $input['password'] ?? null;
+                    $username = $input['username'] ?? null;
+                    $password = $input['password'] ?? null;
 
-                $tokenResponse = $this->generatePathaoToken(
-                    $input['client_id'],
-                    $input['client_secret'],
-                    $apiUrl,
-                    $username,
-                    $password
-                );
-                if ($tokenResponse && isset($tokenResponse['access_token'])) {
-                    $input['token'] = $tokenResponse['access_token'];
+                    $tokenResponse = $this->generatePathaoToken(
+                        $input['client_id'],
+                        $input['client_secret'],
+                        $apiUrl,
+                        $username,
+                        $password
+                    );
+                    if ($tokenResponse && isset($tokenResponse['access_token'])) {
+                        $input['token'] = $tokenResponse['access_token'];
+                    }
+                } catch (\Exception $e) {
+                    Toastr::warning('Token generation failed: ' . $e->getMessage());
                 }
-            } catch (\Exception $e) {
-                Toastr::warning('Token generation failed: ' . $e->getMessage());
+            }
+
+            if (!empty($input['webhook_secret'])) {
+                $input['webhook_secret'] = trim($input['webhook_secret']);
             }
         }
 
@@ -1081,47 +1089,48 @@ public function sms_toggle_field(Request $request)
             
             $pathao = Courierapi::where('type', 'pathao')->first();
             
-            if(!$pathao){
-                \Log::error('Pathao configuration not found');
+            $clientId     = trim((string) ($request->input('client_id') ?? $pathao?->client_id));
+            $clientSecret = trim((string) ($request->input('client_secret') ?? $pathao?->client_secret));
+            $username     = trim((string) ($request->input('username') ?? $pathao?->username));
+            $password     = trim((string) ($request->input('password') ?? $pathao?->password));
+            $apiUrl       = trim((string) ($request->input('url') ?? $pathao?->url ?? 'https://api-hermes.pathao.com'));
+
+            if (empty($clientId) || empty($clientSecret)) {
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'Pathao configuration not found. Please configure Pathao first.'
+                    'status'  => 'error',
+                    'message' => 'Client ID এবং Client Secret প্রদান করুন।',
+                ], 400);
+            }
+
+            if (empty($username) || empty($password)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Username এবং Password প্রদান করুন।',
                 ], 400);
             }
             
-            if(!$pathao->client_id || !$pathao->client_secret){
-                \Log::error('Pathao Client ID or Secret missing', ['has_client_id' => !empty($pathao->client_id), 'has_secret' => !empty($pathao->client_secret)]);
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Client ID and Client Secret required. Please enter them in the form above.'
-                ], 400);
-            }
-            
-            // Clean up URL - remove trailing slashes and /aladdin if present
-            $apiUrl = $pathao->url ?? 'https://api-hermes.pathao.com';
             $apiUrl = rtrim($apiUrl, '/');
             $apiUrl = preg_replace('#/aladdin/?$#', '', $apiUrl);
             
-            // Get username and password
-            $username = $pathao->username ?? null;
-            $password = $pathao->password ?? null;
-            
-            \Log::info('Generating Pathao token', [
-                'original_url' => $pathao->url, 
-                'cleaned_url' => $apiUrl,
-                'has_username' => !empty($username)
-            ]);
-            
             $tokenResponse = $this->generatePathaoToken(
-                $pathao->client_id, 
-                $pathao->client_secret, 
+                $clientId, 
+                $clientSecret, 
                 $apiUrl,
                 $username,
                 $password
             );
             
-            if($tokenResponse && isset($tokenResponse['access_token'])){
-                $pathao->token = $tokenResponse['access_token'];
+            if ($tokenResponse && isset($tokenResponse['access_token'])) {
+                if (!$pathao) {
+                    $pathao = new Courierapi(['type' => 'pathao']);
+                }
+                $pathao->client_id     = $clientId;
+                $pathao->client_secret = $clientSecret;
+                $pathao->username      = $username;
+                $pathao->password      = $password;
+                $pathao->url           = $apiUrl;
+                $pathao->token         = $tokenResponse['access_token'];
+                $pathao->save();
                 
                 // Calculate and save expiry time if expires_in is provided
                 if(isset($tokenResponse['expires_in'])){

@@ -561,10 +561,11 @@
                     <div class="courier-panel-head pathao">
                         <div>
                             <h2 class="courier-panel-title">Pathao Courier</h2>
-                            <span class="courier-panel-tag">Hermes API · টোকেন · স্টোরস</span>
+                            <span class="courier-panel-tag">Hermes API · OAuth 2.0 · ওয়েবহুক · স্টোরস</span>
                         </div>
-                        <div class="courier-logo">
-                            <img src="https://merchant.pathao.com/assets/logo_pathao_courier.a3ef9b7c.svg" alt="Pathao">
+                        <div class="courier-logo" style="background: #fff; padding: 4px;">
+                            <img src="{{ asset('public/uploads/default/pathao.png') }}" alt="Pathao"
+                                 onerror="this.src='{{ asset('public/frontEnd/images/pathao.png') }}'">
                         </div>
                     </div>
                     <div class="courier-panel-body">
@@ -574,39 +575,83 @@
                             <input type="hidden" name="type" value="pathao">
 
                             <div class="mb-3">
-                                <label class="form-label">API URL <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="url"
-                                       value="{{ $pathao->url ?? 'https://api-hermes.pathao.com' }}" required />
+                                <label class="form-label">Environment / Base URL <span class="text-danger">*</span></label>
+                                @php
+                                    $pathaoUrl = $pathao->url ?? 'https://api-hermes.pathao.com';
+                                @endphp
+                                <select class="form-select" name="url" id="pathao_api_url" required>
+                                    <option value="https://api-hermes.pathao.com" {{ str_contains($pathaoUrl, 'api-hermes') ? 'selected' : '' }}>Production (https://api-hermes.pathao.com)</option>
+                                    <option value="https://courier-api-sandbox.pathao.com" {{ str_contains($pathaoUrl, 'sandbox') ? 'selected' : '' }}>Sandbox (https://courier-api-sandbox.pathao.com)</option>
+                                </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Client ID <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="client_id" value="{{ $pathao->client_id ?? '' }}" required autocomplete="off" />
+                                <input type="text" class="form-control" name="client_id" id="pathao_client_id" value="{{ $pathao->client_id ?? '' }}" placeholder="Ex - 100" required autocomplete="off" />
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Client Secret <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" name="client_secret" value="{{ $pathao->client_secret ?? '' }}" required autocomplete="new-password" />
+                                <input type="password" class="form-control" name="client_secret" id="pathao_client_secret" value="{{ $pathao->client_secret ?? '' }}" placeholder="••••••••" required autocomplete="new-password" />
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Username / Email <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="username" id="pathao_username" value="{{ $pathao->username ?? '' }}" placeholder="login email" required autocomplete="username" />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="password" id="pathao_password" value="{{ $pathao->password ?? '' }}" placeholder="password" required autocomplete="new-password" />
+                                </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Username / Email <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="username" value="{{ $pathao->username ?? '' }}" required autocomplete="username" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" name="password" value="{{ $pathao->password ?? '' }}" required autocomplete="new-password" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Access Token</label>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Access Token <small class="text-muted fw-normal">(OAuth 2.0 Bearer)</small></label>
+                                    <small class="text-primary fw-semibold" id="pathao_token_expiry_hint"></small>
+                                </div>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ $pathao->token ?? '' }}" id="pathao_token_display" readonly placeholder="টোকেন জেনারেট করুন" />
-                                    <button type="button" class="btn btn-outline-secondary" id="generate_pathao_token">
-                                        <i class="fe-refresh-cw"></i> জেনারেট
+                                    <input type="text" class="form-control" name="token" value="{{ $pathao->token ?? '' }}" id="pathao_token_display" placeholder="Bearer টোকেন লিখুন অথবা জেনারেট করুন" autocomplete="off" />
+                                    <button type="button" class="btn btn-outline-primary" id="generate_pathao_token" title="স্বয়ংক্রিয়ভাবে নতুন টোকেন জেনারেট করুন">
+                                        <i class="fe-refresh-cw me-1"></i> জেনারেট
                                     </button>
                                 </div>
+                                <small class="text-muted small-hint d-block mt-1">আপনি সরাসরি টোকেন লিখে সংরক্ষণ করতে পারেন অথবা "জেনারেট" বাটনে ক্লিক করে স্বয়ংক্রিয়ভাবে নিতে পারেন।</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Callback URL <small class="text-muted fw-normal">(পাঠাও ড্যাশবোর্ডে দিন)</small></label>
+                                    <span class="badge bg-light text-primary border" style="font-size: 0.72rem;"><i class="fe-link"></i> Webhook Callback</span>
+                                </div>
+                                @php
+                                    $pathaoCallbackUrl = rtrim(config('app.url'), '/') . '/webhooks/pathao';
+                                @endphp
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="pathao_callback_url" value="{{ $pathaoCallbackUrl }}" readonly />
+                                    <button type="button" class="btn btn-outline-secondary copy-btn" data-clipboard-target="#pathao_callback_url" title="কপি করুন">
+                                        <i class="fe-copy"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted small-hint d-block mt-1">
+                                    Pathao Developer Portal-এ <code>Callback URL</code> এ এই লিংক দিন।
+                                </small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Webhook Secret <small class="text-muted fw-normal">(পাঠাও সিক্রেট কি)</small></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="webhook_secret" id="pathao_webhook_secret"
+                                           value="{{ $pathao->webhook_secret ?? 'f3992ecc-59da-4cbe-a049-a13da2018d51' }}"
+                                           placeholder="f3992ecc-59da-4cbe-a049-a13da2018d51" autocomplete="off" />
+                                    <button type="button" class="btn btn-outline-secondary" id="generate_pathao_secret" title="নতুন সিক্রেট তৈরি">
+                                        <i class="fe-refresh-cw"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted small-hint d-block mt-1">
+                                    Pathao Webhook সেটাপে দেওয়া Secret Key এখানে রাখুন।
+                                </small>
                             </div>
 
                             <div class="courier-status-row">
@@ -825,15 +870,27 @@
         $('#generate_pathao_token').on('click', function(){
             var $btn = $(this);
             var originalHtml = $btn.html();
-            $btn.prop('disabled', true).html('<i class="fe-loader"></i> …');
+            $btn.prop('disabled', true).html('<i class="fe-loader fa-spin"></i> জেনারেট হচ্ছে...');
+
+            var formData = {
+                _token: "{{ csrf_token() }}",
+                url: $('#pathao_api_url').val(),
+                client_id: $('#pathao_client_id').val(),
+                client_secret: $('#pathao_client_secret').val(),
+                username: $('#pathao_username').val(),
+                password: $('#pathao_password').val()
+            };
 
             $.ajax({
                 url: "{{ route('admin.courierapi.pathao.generate_token') }}",
                 type: "POST",
-                data: { _token: "{{ csrf_token() }}" },
+                data: formData,
                 success: function(res){
                     if(res.status === 'success' && res.token){
                         $('#pathao_token_display').val(res.token);
+                        if(res.expiry_info){
+                            $('#pathao_token_expiry_hint').text('মেয়াদ: ' + res.expiry_info);
+                        }
                         toastr.success(res.message || 'টোকেন তৈরি হয়েছে!', 'Pathao');
                     } else {
                         toastr.error(res.message || 'টোকেন তৈরি ব্যর্থ');
@@ -845,6 +902,16 @@
                     $btn.prop('disabled', false).html(originalHtml);
                 }
             });
+        });
+
+        // Generate Pathao Webhook Secret
+        $('#generate_pathao_secret').on('click', function(){
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+            $('#pathao_webhook_secret').val(uuid);
+            toastr.info('নতুন Pathao Webhook Secret তৈরি হয়েছে! সেটিং সংরক্ষণ করুন।');
         });
 
         // Generate Random Steadfast Webhook Secret Token

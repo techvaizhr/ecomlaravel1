@@ -39,6 +39,11 @@ class VerifyCsrfToken extends Middleware
         'webhooks/carrybee/*',
         'api/carrybee/webhook',
         'carrybee/webhook',
+        // Pathao Webhook
+        'webhooks/pathao',
+        'webhooks/pathao/*',
+        'api/pathao/webhook',
+        'pathao/webhook',
         // Server CAPI beacon / async tracking
         'ajax/tracking/capi-event',
         'api/tracking/capi-event',
@@ -68,6 +73,9 @@ class VerifyCsrfToken extends Middleware
             return true;
         }
         if (str_contains($path, 'carrybee')) {
+            return true;
+        }
+        if (str_contains($path, 'pathao')) {
             return true;
         }
         if (str_contains($path, 'tracking/capi-event')) {

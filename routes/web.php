@@ -192,6 +192,12 @@ Route::post('/webhooks/carrybee', [\App\Http\Controllers\Admin\CarrybeeWebhookCo
 Route::post('/api/carrybee/webhook', [\App\Http\Controllers\Admin\CarrybeeWebhookController::class, 'handle'])
     ->name('carrybee.webhook.api');
 
+// Pathao Webhook (CSRF excluded) — order status & webhook verification
+Route::match(['get', 'post'], '/webhooks/pathao', [\App\Http\Controllers\Admin\PathaoWebhookController::class, 'handle'])
+    ->name('pathao.webhook.primary');
+Route::match(['get', 'post'], '/api/pathao/webhook', [\App\Http\Controllers\Admin\PathaoWebhookController::class, 'handle'])
+    ->name('pathao.webhook.api');
+
 	
 Route::get('/style.css', function () {
     $css = view('frontEnd.assets.style')->render();   // Blade থেকে CSS রেন্ডার
