@@ -573,6 +573,8 @@
             </div>
         </div>
     </div>
+</div>
+
 {{-- Quick Single Order Status Change Modal --}}
 <div class="modal fade" id="quickSingleStatusModal" tabindex="-1" aria-labelledby="quickStatusModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -833,19 +835,15 @@ $(document).ready(function(){
     // ── Bulk Actions Bar Dynamic Visibility ──
     function updateBulkActionVisibility() {
         var count = $('input.checkbox:checked').length;
-        var $wrapper = $('#bulkActionsWrapper');
+        var $badge = $('#selectedOrdersBadgeWrapper');
         var $countSpan = $('#selectedOrdersCount');
         if ($countSpan.length) {
             $countSpan.text(count);
         }
         if (count > 0) {
-            if ($wrapper.is(':hidden')) {
-                $wrapper.stop(true, true).slideDown(200);
-            }
+            $badge.stop(true, true).fadeIn(150);
         } else {
-            if ($wrapper.is(':visible')) {
-                $wrapper.stop(true, true).slideUp(150);
-            }
+            $badge.stop(true, true).fadeOut(150);
         }
     }
 
