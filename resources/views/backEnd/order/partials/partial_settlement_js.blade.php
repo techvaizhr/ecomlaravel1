@@ -1,4 +1,8 @@
 <script>
+(function ($) {
+"use strict";
+if (!$) return;
+
 $(document).ready(function () {
     let currentPartialOrder = null;
 
@@ -328,4 +332,6 @@ $(document).ready(function () {
         window.openPartialSettlementModal(orderId);
     });
 });
+
+})(window.jQuery);
 </script>

@@ -542,7 +542,10 @@
             </div>
         </div>
     </div>
+</div>
+
 @include('backEnd.order.partials.partial_settlement_modal')
+@include('backEnd.order.partials.courier_booking_modal')
 
 @endsection
 
@@ -551,8 +554,18 @@
 <script>
 (function ($) {
 "use strict";
+if (!$) return;
 
 $(document).ready(function () {
+    // আটকে থাকা modal backdrop / scroll লক সরানো
+    $('body').removeClass('modal-open').css({ overflow: '', paddingRight: '' });
+    $('.modal-backdrop').remove();
+    document.querySelectorAll('.modal.show').forEach(function (m) {
+        m.classList.remove('show');
+        m.style.display = '';
+        m.setAttribute('aria-hidden', 'true');
+    });
+
     function toNum(v) {
         if (v === null || v === undefined || v === '') return 0;
         var n = Number(v);
@@ -699,22 +712,6 @@ $(document).ready(function () {
             </div>
         `;
     }
-</script>
-
-<script>
-(function ($) {
-    if (!$) return;
-
-$(document).ready(function(){
-
-    // আটকে থাকা modal backdrop / scroll লক সরানো
-    $('body').removeClass('modal-open').css({ overflow: '', paddingRight: '' });
-    $('.modal-backdrop').remove();
-    document.querySelectorAll('.modal.show').forEach(function (m) {
-        m.classList.remove('show');
-        m.style.display = '';
-        m.setAttribute('aria-hidden', 'true');
-    });
 
     // Order Note / Admin Note popup open
     $(document).on('click', '.note-modal-btn', function (e) {
@@ -1819,5 +1816,4 @@ $(document).ready(function(){
 })(window.jQuery);
 </script>
 
-@include('backEnd.order.partials.courier_booking_modal')
 @endsection

@@ -735,13 +735,13 @@ $(document).on('click', '.sync-courier-status-btn', function (e) {
             toastr.error(msg);
         }
     });
+});
 
-    $(document).on('change select2:select', '#order_status_select', function () {
-        var val = parseInt($(this).val());
-        if (val === 8 || val === 9 || val === 10 || val === 11) {
-            window.openPartialSettlementModal({{ $data->id }});
-        }
-    });
+$(document).on('change select2:select', '#order_status_select', function () {
+    var val = parseInt($(this).val());
+    if (val === 8 || val === 9 || val === 10 || val === 11) {
+        window.openPartialSettlementModal({{ $data->id }});
+    }
 });
 </script>
 
