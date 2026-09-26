@@ -182,8 +182,9 @@ Route::post('/api/redx/webhook', [\App\Http\Controllers\Admin\RedXWebhookControl
     ->name('redx.webhook');
 
 // Steadfast Webhook (CSRF excluded) — delivery_status | tracking_update
-Route::post('/api/steadfast/webhook', [\App\Http\Controllers\Admin\SteadfastWebhookController::class, 'handle'])
+Route::match(['get', 'post'], '/api/steadfast/webhook', [\App\Http\Controllers\Admin\SteadfastWebhookController::class, 'handle'])
     ->name('steadfast.webhook');
+Route::match(['get', 'post'], '/steadfast/webhook', [\App\Http\Controllers\Admin\SteadfastWebhookController::class, 'handle']);
 
 // Carrybee Webhook (CSRF excluded) — order status & integration verification
 Route::post('/webhooks/carrybee', [\App\Http\Controllers\Admin\CarrybeeWebhookController::class, 'handle'])

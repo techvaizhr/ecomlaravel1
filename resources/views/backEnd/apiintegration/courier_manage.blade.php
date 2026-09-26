@@ -360,8 +360,8 @@
                             <span class="courier-panel-tag">V2 API · ওয়েবহুক · স্টোরস</span>
                         </div>
                         <div class="courier-logo" style="background: #fff; padding: 3px;">
-                            <img src="{{ asset('public/frontEnd/images/carrybee.svg') }}" alt="Carrybee"
-                                 onerror="this.src='{{ asset('public/uploads/default/carrybee.svg') }}'">
+                            <img src="{{ asset('public/uploads/default/carrybee.png') }}" alt="Carrybee"
+                                 onerror="this.src='{{ asset('public/frontEnd/images/carrybee.png') }}'">
                         </div>
                     </div>
                     <div class="courier-panel-body">
@@ -512,9 +512,14 @@
                         <div class="store-sync-box">
                             <div class="store-sync-header">
                                 <span class="store-sync-title"><i class="fe-map-pin me-1"></i> পিকআপ লোকেশন ({{ $steadfast_stores->count() }})</span>
-                                <button type="button" class="btn btn-xs btn-outline-danger btn-sync-action" data-bs-toggle="modal" data-bs-target="#addCustomStoreModal" data-courier="steadfast">
-                                    <i class="fe-plus me-1"></i> নতুন স্টোর
-                                </button>
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-xs btn-outline-danger btn-sync-action sync-stores-btn" data-courier="steadfast" title="Steadfast ব্যালান্স ও কানেকশন রিচেক">
+                                        <i class="fe-refresh-cw me-1"></i> সিঙ্ক / রিচেক
+                                    </button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary btn-sync-action" data-bs-toggle="modal" data-bs-target="#addCustomStoreModal" data-courier="steadfast">
+                                        <i class="fe-plus me-1"></i> নতুন স্টোর
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="store-list-container" id="steadfast_store_list">
@@ -840,6 +845,13 @@
                     $btn.prop('disabled', false).html(originalHtml);
                 }
             });
+        });
+
+        // Generate Random Steadfast Webhook Secret Token
+        $('#generate_steadfast_webhook_token').on('click', function(){
+            var randToken = 'sf_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            $('#steadfast_webhook_token').val(randToken);
+            toastr.info('নতুন সিক্রেট টোকেন তৈরি হয়েছে! সংরক্ষণ করুন এবং Steadfast পোর্টালে দিন।');
         });
 
         // Store Sync / Recheck Handler

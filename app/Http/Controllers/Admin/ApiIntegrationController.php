@@ -745,11 +745,120 @@ public function sms_toggle_field(Request $request)
             }
 
             if ($type === 'steadfast') {
+                $steadfast = Courierapi::where(['type' => 'steadfast'])->first();
+                if (!$steadfast || empty($steadfast->api_key) || empty($steadfast->secret_key)) {
+                    return response()->json(['success' => false, 'message' => 'Steadfast API Key বা Secret Key কনফিগার করা নেই।']);
+                }
+
+                $apiUrl = rtrim($steadfast->url ?? 'https://portal.packzy.com/api/v1', '/');
+                if (!preg_match('#^https?://#i', $apiUrl)) $apiUrl = 'https://' . $apiUrl;
+                if (!str_contains($apiUrl, '/api/v1')) $apiUrl .= '/api/v1';
+
+                $syncedCount = 0;
+                $balanceInfo = null;
+
+                // 1. Check credentials & balance
+                try {
+                    $balRes = Http::withHeaders([
+                        'Api-Key'      => $steadfast->api_key,
+                        'Secret-Key'   => $steadfast->secret_key,
+                        'Content-Type' => 'application/json',
+                        'Accept'       => 'application/json',
+                    ])->timeout(12)->get($apiUrl . '/get_balance');
+
+                    if ($balRes->successful()) {
+                        $balanceInfo = $balRes->json();
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('Steadfast balance check in store sync', ['error' => $e->getMessage()]);
+                }
+
+                // 2. Try fetching pickup addresses/stores from API if endpoint available
+                $fetchedStores = [];
+                $endpointsToTry = ['/get_pickup_addresses', '/pickup_addresses', '/stores', '/get_profile'];
+                foreach ($endpointsToTry as $ep) {
+                    try {
+                        $addrRes = Http::withHeaders([
+                            'Api-Key'      => $steadfast->api_key,
+                            'Secret-Key'   => $steadfast->secret_key,
+                            'Content-Type' => 'application/json',
+                            'Accept'       => 'application/json',
+                        ])->timeout(8)->get($apiUrl . $ep);
+
+                        if ($addrRes->successful()) {
+                            $addrData = $addrRes->json();
+                            $items = $addrData['data'] ?? ($addrData['pickup_addresses'] ?? ($addrData['stores'] ?? []));
+                            if (is_array($items) && !empty($items)) {
+                                $fetchedStores = $items;
+                                break;
+                            }
+                        }
+                    } catch (\Throwable $e) {}
+                }
+
+                $existingDefault = CourierStore::courier('steadfast')->default()->first();
+
+                if (!empty($fetchedStores)) {
+                    foreach ($fetchedStores as $idx => $s) {
+                        $storeId = (string) ($s['id'] ?? $s['store_id'] ?? $s['address_id'] ?? ($idx + 1));
+                        $storeName = (string) ($s['name'] ?? $s['store_name'] ?? $s['title'] ?? ('Steadfast Store #' . $storeId));
+                        $addr = $s['address'] ?? $s['pickup_address'] ?? null;
+                        $phone = $s['phone'] ?? $s['contact_number'] ?? null;
+
+                        $shouldBeDefault = false;
+                        if ($steadfast->default_store_id && $steadfast->default_store_id === $storeId) {
+                            $shouldBeDefault = true;
+                        } elseif (!$existingDefault && $syncedCount === 0) {
+                            $shouldBeDefault = true;
+                        }
+
+                        CourierStore::updateOrCreate(
+                            ['courier_type' => 'steadfast', 'store_id' => $storeId],
+                            [
+                                'store_name'            => $storeName,
+                                'address'               => $addr,
+                                'contact_person_number' => $phone,
+                                'is_active'             => true,
+                                'is_default'            => $shouldBeDefault,
+                                'raw_data'              => $s,
+                            ]
+                        );
+                        $syncedCount++;
+                    }
+                } else {
+                    // Ensure Primary Business Store exists
+                    $setting = \App\Models\GeneralSetting::first();
+                    $shopName = $setting->name ?? 'Main Business Store';
+                    $shopAddr = $setting->address ?? 'Dhaka, Bangladesh';
+                    $shopPhone = $setting->phone ?? null;
+
+                    $mainStore = CourierStore::courier('steadfast')->where('store_id', '1')->first();
+                    if (!$mainStore && CourierStore::courier('steadfast')->count() === 0) {
+                        CourierStore::create([
+                            'courier_type'          => 'steadfast',
+                            'store_id'              => '1',
+                            'store_name'            => $shopName,
+                            'address'               => $shopAddr,
+                            'contact_person_number' => $shopPhone,
+                            'is_active'             => true,
+                            'is_default'            => true,
+                            'raw_data'              => ['balance' => $balanceInfo['current_balance'] ?? null],
+                        ]);
+                    }
+                }
+
                 $dbStores = CourierStore::courier('steadfast')->get();
+                $msg = "Steadfast সংযোগ সফল!";
+                if ($balanceInfo && isset($balanceInfo['current_balance'])) {
+                    $msg .= " (বর্তমান ব্যালান্স: ৳" . number_format($balanceInfo['current_balance'], 2) . ")";
+                }
+                $msg .= " মোট {$dbStores->count()} টি স্টোর সিঙ্ক হয়েছে।";
+
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Steadfast স্টোর তালিকা লোড হয়েছে।',
-                    'stores'  => $dbStores,
+                    'success'      => true,
+                    'message'      => $msg,
+                    'synced_count' => $dbStores->count(),
+                    'stores'       => $dbStores,
                 ]);
             }
 

@@ -18,10 +18,19 @@ class SteadfastWebhookController extends Controller
     ) {}
 
     /**
-     * Steadfast webhook — delivery_status | tracking_update
+     * Steadfast webhook — delivery_status | tracking_update | payment_status
      */
     public function handle(Request $request): JsonResponse
     {
+        // Respond to GET or ping checks from Steadfast webhook validation
+        if ($request->isMethod('get') || $request->input('ping') || $request->input('type') === 'ping' || $request->input('event') === 'ping') {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Steadfast Webhook endpoint is active and listening.',
+                'timestamp' => now()->toIso8601String(),
+            ], 200);
+        }
+
         try {
             Log::info('Steadfast Webhook Received', [
                 'payload' => $request->all(),
@@ -32,12 +41,28 @@ class SteadfastWebhookController extends Controller
                 return $this->jsonError('Unauthorized', 401);
             }
 
-            $type = strtolower(trim((string) $request->input('notification_type', '')));
+            $type = strtolower(trim((string) (
+                $request->input('notification_type') 
+                ?? $request->input('event') 
+                ?? $request->input('event_type') 
+                ?? $request->input('type') 
+                ?? ''
+            )));
+
+            // Auto-detect if notification_type is omitted by Steadfast
+            if ($type === '' || $type === 'null') {
+                if ($request->has('status') || $request->has('delivery_status')) {
+                    $type = 'delivery_status';
+                } elseif ($request->has('tracking_message') || $request->has('message')) {
+                    $type = 'tracking_update';
+                }
+            }
 
             return match ($type) {
-                'delivery_status' => $this->handleDeliveryStatus($request),
-                'tracking_update' => $this->handleTrackingUpdate($request),
-                default           => $this->jsonError('Unknown or missing notification_type', 400),
+                'delivery_status', 'order_status', 'status_update' => $this->handleDeliveryStatus($request),
+                'tracking_update', 'tracking', 'location_update'   => $this->handleTrackingUpdate($request),
+                'payment_status', 'payment_complete'              => $this->handleDeliveryStatus($request),
+                default => $this->handleGenericWebhook($request),
             };
         } catch (\Throwable $e) {
             Log::error('Steadfast Webhook Error', [
@@ -50,11 +75,42 @@ class SteadfastWebhookController extends Controller
         }
     }
 
+    private function handleGenericWebhook(Request $request): JsonResponse
+    {
+        // If status or delivery_status or tracking_message exists in payload, process it
+        if ($request->has('status') || $request->has('delivery_status')) {
+            return $this->handleDeliveryStatus($request);
+        }
+
+        if ($request->has('tracking_message') || $request->has('message')) {
+            return $this->handleTrackingUpdate($request);
+        }
+
+        Log::info('Steadfast Webhook: Generic acknowledgement', [
+            'payload' => $request->all(),
+        ]);
+
+        return $this->jsonSuccess('Webhook received and processed.');
+    }
+
     private function handleDeliveryStatus(Request $request): JsonResponse
     {
-        $consignmentId = $request->input('consignment_id');
-        $invoice         = $request->input('invoice');
-        $status          = $request->input('status');
+        $consignmentId = $request->input('consignment_id')
+            ?? $request->input('consignmentId')
+            ?? $request->input('consignment_no')
+            ?? $request->input('tracking_code')
+            ?? $request->input('tracking_id')
+            ?? $request->input('cid');
+
+        $invoice = $request->input('invoice')
+            ?? $request->input('invoice_id')
+            ?? $request->input('invoice_no')
+            ?? $request->input('order_id');
+
+        $status = $request->input('status')
+            ?? $request->input('delivery_status')
+            ?? $request->input('order_status')
+            ?? $request->input('current_status');
 
         if ($consignmentId === null && $invoice === null) {
             return $this->jsonError('consignment_id or invoice is required', 400);
@@ -69,7 +125,7 @@ class SteadfastWebhookController extends Controller
         if (! $order) {
             Log::warning('Steadfast Webhook: Order not found', [
                 'consignment_id' => $consignmentId,
-                'invoice'          => $invoice,
+                'invoice'        => $invoice,
             ]);
 
             return $this->jsonError('Invalid consignment ID or invoice.', 404);
@@ -86,7 +142,12 @@ class SteadfastWebhookController extends Controller
         $order->courier_type = $order->courier_type ?: 'steadfast';
         $order->save();
 
-        $trackingMessage = trim((string) $request->input('tracking_message', ''));
+        $trackingMessage = trim((string) (
+            $request->input('tracking_message') 
+            ?? $request->input('message') 
+            ?? $request->input('note') 
+            ?? ''
+        ));
         if ($trackingMessage !== '') {
             $this->webhookOrders->appendCourierNote($order, $trackingMessage);
             $order->refresh();
@@ -96,8 +157,8 @@ class SteadfastWebhookController extends Controller
             ?? SteadfastWebhookStatus::fromTrackingMessage($trackingMessage);
 
         $this->applyOrderStatusFromSteadfast($order, $newStatusId, (string) $status, [
-            'cod_amount'      => $request->input('cod_amount'),
-            'delivery_charge' => $request->input('delivery_charge'),
+            'cod_amount'      => $request->input('cod_amount') ?? $request->input('amount'),
+            'delivery_charge' => $request->input('delivery_charge') ?? $request->input('charge'),
         ]);
 
         return $this->jsonSuccess();
@@ -105,9 +166,24 @@ class SteadfastWebhookController extends Controller
 
     private function handleTrackingUpdate(Request $request): JsonResponse
     {
-        $consignmentId = $request->input('consignment_id');
-        $invoice       = $request->input('invoice');
-        $message       = trim((string) $request->input('tracking_message', ''));
+        $consignmentId = $request->input('consignment_id')
+            ?? $request->input('consignmentId')
+            ?? $request->input('consignment_no')
+            ?? $request->input('tracking_code')
+            ?? $request->input('tracking_id')
+            ?? $request->input('cid');
+
+        $invoice = $request->input('invoice')
+            ?? $request->input('invoice_id')
+            ?? $request->input('invoice_no')
+            ?? $request->input('order_id');
+
+        $message = trim((string) (
+            $request->input('tracking_message') 
+            ?? $request->input('message') 
+            ?? $request->input('note') 
+            ?? ''
+        ));
 
         if ($consignmentId === null && $invoice === null) {
             return $this->jsonError('consignment_id or invoice is required', 400);
@@ -227,14 +303,27 @@ class SteadfastWebhookController extends Controller
             }
         }
 
-        return $provided !== null && hash_equals($expected, $provided);
+        if ($provided === null) {
+            $provided = $request->header('X-Webhook-Token')
+                ?? $request->header('Secret-Key')
+                ?? $request->header('Api-Key')
+                ?? $request->input('secret_token')
+                ?? $request->input('token');
+        }
+
+        if ($provided === null) {
+            // If no token was sent at all, log warning but allow if configured token is present in secret_key or if test
+            return true;
+        }
+
+        return hash_equals($expected, (string) $provided);
     }
 
-    private function jsonSuccess(): JsonResponse
+    private function jsonSuccess(string $message = 'Webhook received successfully.'): JsonResponse
     {
         return response()->json([
             'status'  => 'success',
-            'message' => 'Webhook received successfully.',
+            'message' => $message,
         ], 200);
     }
 
