@@ -39,6 +39,46 @@ return new class extends Migration
                 $table->integer('returned_qty')->default(0)->after('delivered_qty');
             }
         });
+
+        // Ensure 15 Standard Order Statuses exist in order_statuses table
+        $statuses = [
+            1  => ['name' => 'New Order', 'slug' => 'new-order', 'status' => '1'],
+            2  => ['name' => 'Hold', 'slug' => 'hold', 'status' => '1'],
+            3  => ['name' => 'Confirmed', 'slug' => 'confirmed', 'status' => '1'],
+            4  => ['name' => 'Packaging', 'slug' => 'packaging', 'status' => '1'],
+            5  => ['name' => 'Courier Handover', 'slug' => 'courier-handover', 'status' => '1'],
+            6  => ['name' => 'In Courier', 'slug' => 'in-courier', 'status' => '1'],
+            7  => ['name' => 'Delivered', 'slug' => 'delivered', 'status' => '1'],
+            8  => ['name' => 'Pending Partial', 'slug' => 'pending-partial', 'status' => '1'],
+            9  => ['name' => 'Partial (Full Received)', 'slug' => 'partial-full-received', 'status' => '1'],
+            10 => ['name' => 'Partial (Item Received)', 'slug' => 'partial-item-received', 'status' => '1'],
+            11 => ['name' => 'Partial (Delivery Charge Only)', 'slug' => 'partial-delivery-charge-only', 'status' => '1'],
+            12 => ['name' => 'Pending Return', 'slug' => 'pending-return', 'status' => '1'],
+            13 => ['name' => 'Returned', 'slug' => 'returned', 'status' => '1'],
+            14 => ['name' => 'Pre Order', 'slug' => 'pre-order', 'status' => '1'],
+            15 => ['name' => 'Cancelled', 'slug' => 'cancelled', 'status' => '1'],
+        ];
+
+        foreach ($statuses as $id => $data) {
+            $existing = \Illuminate\Support\Facades\DB::table('order_statuses')->where('id', $id)->first();
+            if ($existing) {
+                \Illuminate\Support\Facades\DB::table('order_statuses')->where('id', $id)->update([
+                    'name'       => $data['name'],
+                    'slug'       => $data['slug'],
+                    'status'     => $data['status'],
+                    'updated_at' => now(),
+                ]);
+            } else {
+                \Illuminate\Support\Facades\DB::table('order_statuses')->insert([
+                    'id'         => $id,
+                    'name'       => $data['name'],
+                    'slug'       => $data['slug'],
+                    'status'     => $data['status'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
     }
 
     /**
