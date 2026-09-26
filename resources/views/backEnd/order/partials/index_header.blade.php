@@ -2,7 +2,7 @@
 
     <div class="oi-page-header">
         <div>
-            <h4>{{ $order_status->name }} অর্ডার <span class="oi-badge-count">{{ $order_status->orders_count }}</span></h4>
+            <h4>{{ $order_status->name }} অর্ডার @if(($order_status->orders_count ?? 0) > 0)<span class="oi-badge-count">{{ $order_status->orders_count }}</span>@endif</h4>
             <div class="oi-sub">অর্ডার তালিকা · বাল্ক অ্যাকশন · ফ্রড চেক</div>
         </div>
         <div class="oi-header-actions">
@@ -14,7 +14,68 @@
 
     <div class="oi-card">
         <div class="oi-card-head">
-            <h6><i class="fas fa-list-alt"></i> অর্ডার তালিকা</h6>
+            <ul class="oi-status-nav">
+                {{-- 1. All Orders --}}
+                @php
+                    $isAllActive = (request()->routeIs('admin.orders') && request()->route('slug') === 'all') || request()->is('admin/orders/all') || request()->is('order/all');
+                @endphp
+                <li>
+                    <a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="oi-status-pill {{ $isAllActive ? 'active' : '' }}">
+                        <span class="pill-dot" style="background:#3b82f6;"></span>
+                        <span>All Orders</span>
+                        @if(($all_orders_count ?? 0) > 0)
+                            <span class="pill-count">{{ $all_orders_count }}</span>
+                        @endif
+                    </a>
+                </li>
+
+                {{-- 2. Reseller Orders --}}
+                @php
+                    $isResellerActive = request()->routeIs('admin.reseller-orders.*') || request()->is('admin/reseller-orders*');
+                @endphp
+                <li>
+                    <a href="{{ route('admin.reseller-orders.index') }}" class="oi-status-pill {{ $isResellerActive ? 'active' : '' }}">
+                        <span class="pill-dot" style="background:#8b5cf6;"></span>
+                        <span>Reseller</span>
+                        @if(($reseller_orders_count ?? 0) > 0)
+                            <span class="pill-count">{{ $reseller_orders_count }}</span>
+                        @endif
+                    </a>
+                </li>
+
+                {{-- 3. Incomplete Orders --}}
+                @php
+                    $isIncompleteActive = request()->routeIs('admin.incomplete-orders.*') || request()->is('admin/incomplete-orders*');
+                @endphp
+                <li>
+                    <a href="{{ route('admin.incomplete-orders.index') }}" class="oi-status-pill {{ $isIncompleteActive ? 'active' : '' }}">
+                        <span class="pill-dot" style="background:#f59e0b;"></span>
+                        <span>Incomplete</span>
+                        @if(($incomplete_orders_count ?? 0) > 0)
+                            <span class="pill-count">{{ $incomplete_orders_count }}</span>
+                        @endif
+                    </a>
+                </li>
+
+                {{-- 4-18. 15 System Order Statuses --}}
+                @if(isset($orderstatus))
+                    @foreach($orderstatus as $st)
+                        @php
+                            $isStActive = (request()->routeIs('admin.orders') && request()->route('slug') === $st->slug) || request()->is('admin/orders/'.$st->slug) || request()->is('order/'.$st->slug);
+                            $dotColor = $st->color ?? '#64748b';
+                        @endphp
+                        <li>
+                            <a href="{{ route('admin.orders', ['slug'=>$st->slug]) }}" class="oi-status-pill {{ $isStActive ? 'active' : '' }}" title="{{ $st->name }}">
+                                <span class="pill-dot" style="background: {{ $dotColor }};"></span>
+                                <span>{{ $st->name }}</span>
+                                @if(($st->orders_count ?? 0) > 0)
+                                    <span class="pill-count">{{ $st->orders_count }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endforeach
+                @endif
+            </ul>
         </div>
         <div class="oi-card-body">
             <div class="oi-toolbar order-index-toolbar mb-3">

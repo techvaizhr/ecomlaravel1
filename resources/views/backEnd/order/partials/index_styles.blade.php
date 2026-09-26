@@ -35,12 +35,78 @@
         margin-bottom: 16px;
     }
     .oi-card-head {
-        padding: 14px 18px;
+        padding: 9px 12px;
         border-bottom: 1px solid #e2e8f0;
-        background: linear-gradient(180deg, #fafbff 0%, #fff 100%);
+        background: #f8fafc;
     }
-    .oi-card-head h6 { margin: 0; font-size: 14px; font-weight: 700; color: #1e293b; }
-    .oi-card-head h6 i { color: #6366f1; margin-right: 6px; }
+    .oi-status-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px 6px;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .oi-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3.5px 8.5px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 6px;
+        color: #475569;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        line-height: 1.25;
+        transition: all 0.16s ease;
+        white-space: nowrap;
+    }
+    .oi-status-pill:hover {
+        color: #4338ca;
+        border-color: #c7d2fe;
+        background: #eef2ff;
+        text-decoration: none;
+    }
+    .oi-status-pill.active {
+        color: #ffffff;
+        background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+        border-color: #4338ca;
+        box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28);
+        font-weight: 700;
+    }
+    .oi-status-pill .pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #94a3b8;
+        flex-shrink: 0;
+    }
+    .oi-status-pill.active .pill-dot {
+        background: #a5f3fc;
+    }
+    .oi-status-pill .pill-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9.5px;
+        font-weight: 700;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 99px;
+        background: #f1f5f9;
+        color: #334155;
+        line-height: 1;
+        border: 1px solid #cbd5e1;
+    }
+    .oi-status-pill.active .pill-count {
+        background: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.45);
+    }
     .oi-card-body { padding: 16px 18px; }
     .oi-toolbar {
         display: flex;

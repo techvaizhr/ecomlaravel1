@@ -169,34 +169,15 @@ class ReportController extends Controller
     {
         [$from, $to, $label, $type] = $this->getDateRange($request);
 
-$query = Order::whereBetween('created_at', [$from, $to])
-    ->orderBy('created_at', 'desc');
+        $query = Order::whereBetween('created_at', [$from, $to])
+            ->orderBy('created_at', 'desc');
 
-$orders = $query->paginate(20)->withQueryString();
+        $totalOrders   = (clone $query)->count();
+        $totalAmount   = (clone $query)->sum('amount');
+        $totalDiscount = (clone $query)->sum('discount');
+        $totalShipping = (clone $query)->sum('shipping_charge');
 
-        $totalOrders = $orders->count();
-
-        // Total / Discount / Shipping summary
-        $totalAmount = $orders->sum(function ($order) {
-            return $this->resolveOrderTotal($order);
-        });
-
-        $totalDiscount = $orders->sum(function ($order) {
-            if (isset($order->discount) && is_numeric($order->discount)) {
-                return (float) $order->discount;
-            }
-            if (isset($order->discount_amount) && is_numeric($order->discount_amount)) {
-                return (float) $order->discount_amount;
-            }
-            if (isset($order->coupon_discount) && is_numeric($order->coupon_discount)) {
-                return (float) $order->coupon_discount;
-            }
-            return 0.0;
-        });
-
-        $totalShipping = $orders->sum(function ($order) {
-            return $this->resolveOrderShipping($order);
-        });
+        $orders = $query->paginate(20)->withQueryString();
 
         // CSV Export
         if ($request->get('export') === 'csv') {
@@ -474,13 +455,10 @@ $totalExpense = $expenses->sum('amount');
     {
         [$from, $to, $label, $type] = $this->getDateRange($request);
 
-        // 1) SALES (Orders)
-        $ordersQuery = Order::whereBetween('created_at', [$from, $to]);
-
-        // orders টেবিলে যদি status কলাম থাকে তখনই ফিল্টার করব
-        if (Schema::hasColumn('orders', 'status')) {
-            $ordersQuery->where('status', '!=', 'canceled');
-        }
+        // 1) SALES (Orders) - Delivered Group Statuses: [7 Delivered, 9 Partial Full, 10 Partial Item]
+        $deliveredStatuses = \App\Support\CourierStatusMapping::DELIVERED_GROUP_STATUSES;
+        $ordersQuery = Order::whereBetween('created_at', [$from, $to])
+            ->whereIn('order_status', $deliveredStatuses);
 
         $orders = $ordersQuery->get();
 
@@ -490,20 +468,18 @@ $totalExpense = $expenses->sum('amount');
 
         // 2) COGS (Cost of Goods Sold)
         $orderDetails = OrderDetails::whereIn('order_id', $orders->pluck('id'))
-            ->with('product:id,purchase_price') // ✅ Eager load to avoid N+1
-            ->get(); // ✅ এখানে plural মডেল
+            ->with('product:id,purchase_price')
+            ->get();
 
         $cogs = 0;
         foreach ($orderDetails as $od) {
-            // order_details টেবিলে purchase_price থাকলে সেটাই use করা ভালো
             $purchasePrice = $od->purchase_price ?? null;
-
             if ($purchasePrice === null) {
-                // fallback – eager loaded product থেকে নিন
                 $purchasePrice = $od->product->purchase_price ?? 0;
             }
 
-            $cogs += $purchasePrice * ($od->qty ?? 0);
+            $qty = $od->delivered_qty !== null ? $od->delivered_qty : ($od->qty ?? 0);
+            $cogs += $purchasePrice * $qty;
         }
 
         // 3) EXPENSES

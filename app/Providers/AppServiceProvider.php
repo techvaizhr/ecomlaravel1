@@ -189,6 +189,10 @@ class AppServiceProvider extends ServiceProvider
                     return IncompleteOrder::count();
                 });
 
+                $reseller_orders_count = Cache::remember('reseller_orders_count', 120, function () {
+                    return Order::whereNotNull('reseller_profit')->where('order_status', '!=', 6)->count();
+                });
+
                 $view->with([
                     'pending_reviews'         => $pending_reviews,
                     'neworder'                => $neworder,
@@ -196,6 +200,7 @@ class AppServiceProvider extends ServiceProvider
                     'orderstatus'             => $orderstatus,
                     'all_orders_count'        => $all_orders_count,
                     'incomplete_orders_count' => $incomplete_orders_count,
+                    'reseller_orders_count'   => $reseller_orders_count,
                 ]);
             });
 

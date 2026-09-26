@@ -1581,7 +1581,7 @@
                       <li>
                         <a href="{{ route('admin.orders', ['slug'=>'all']) }}" class="{{ (request()->routeIs('admin.orders') && request()->route('slug') === 'all') || request()->is('admin/orders/all') || request()->is('order/all') ? 'active' : '' }}">
                           <span class="d-inline-flex align-items-center gap-1"><i data-feather="file-plus"></i> All Orders</span>
-                          @if(isset($all_orders_count))
+                          @if(isset($all_orders_count) && $all_orders_count > 0)
                             <span class="subpanel-menu-badge">{{ $all_orders_count }}</span>
                           @endif
                         </a>
@@ -1600,7 +1600,9 @@
                           <li>
                             <a href="{{ route('admin.orders', ['slug'=>$value->slug]) }}" class="{{ (request()->routeIs('admin.orders') && request()->route('slug') === $value->slug) || request()->is('admin/orders/'.$value->slug) || request()->is('order/'.$value->slug) ? 'active' : '' }}">
                               <span class="d-inline-flex align-items-center gap-1"><i data-feather="file-plus"></i> {{ $value->name }}</span>
-                              <span class="subpanel-menu-badge">{{ $value->orders_count ?? 0 }}</span>
+                              @if(($value->orders_count ?? 0) > 0)
+                                <span class="subpanel-menu-badge">{{ $value->orders_count }}</span>
+                              @endif
                             </a>
                           </li>
                         @endforeach
