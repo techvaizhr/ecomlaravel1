@@ -1534,6 +1534,7 @@ PROMPT;
         $newStatus = (int) $request->order_status;
 
         $order->order_status = $newStatus;
+        self::stampOrderEvent($order, $newStatus);
         $order->save();
 
         // Handle fund transaction if status changed to completed (6)
@@ -1593,6 +1594,7 @@ PROMPT;
         $newStatus = (int) $request->status;
 
         $order->order_status = $newStatus;
+        self::stampOrderEvent($order, $newStatus);
         $order->admin_note   = $request->admin_note;
 
         if ($newStatus == 6 && $oldStatus != 6) {
@@ -1848,6 +1850,7 @@ PROMPT;
             $oldStatus = (int) $order->order_status;
 
             $order->order_status = $targetStatus;
+            self::stampOrderEvent($order, $targetStatus);
             $order->update();
 
             if ($targetStatus == 6 && $oldStatus != 6) {
@@ -3802,6 +3805,23 @@ PROMPT;
         }
 
         return max(0, (float) data_get($cart->options, 'product_discount', 0));
+    }
+
+    public static function stampOrderEvent(Order $order, int $newStatus): void
+    {
+        if (in_array($newStatus, [7, 9, 10], true)) {
+            $order->delivered_at = now();
+        } elseif ($newStatus === 15) {
+            $order->cancelled_at = now();
+        } elseif (in_array($newStatus, [11, 13], true)) {
+            $order->returned_at = now();
+        } elseif (in_array($newStatus, [5, 6], true)) {
+            $order->in_courier_at = $order->in_courier_at ?? now();
+        } elseif ($newStatus === 2) {
+            $order->hold_at = now();
+        } elseif ($newStatus === 3) {
+            $order->confirmed_at = now();
+        }
     }
 
     public function clearOrderStatusCache()

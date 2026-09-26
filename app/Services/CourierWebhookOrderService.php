@@ -58,10 +58,23 @@ class CourierWebhookOrderService
 
         $order->order_status = $newOrderStatus;
 
+        // Auto-stamp lifecycle event timestamps
         if (\App\Support\CourierStatusMapping::isDelivered($newOrderStatus)) {
+            $order->delivered_at = now();
             $order->payment_status = 'paid';
         } elseif (\App\Support\CourierStatusMapping::isFinalCancelledOrReturned($newOrderStatus)) {
+            if ($newOrderStatus === \App\Support\CourierStatusMapping::STATUS_CANCELLED) {
+                $order->cancelled_at = now();
+            } else {
+                $order->returned_at = now();
+            }
             $order->payment_status = 'cancelled';
+        } elseif (in_array($newOrderStatus, [\App\Support\CourierStatusMapping::STATUS_COURIER_HANDOVER, \App\Support\CourierStatusMapping::STATUS_IN_COURIER], true)) {
+            $order->in_courier_at = $order->in_courier_at ?? now();
+        } elseif ($newOrderStatus === \App\Support\CourierStatusMapping::STATUS_HOLD) {
+            $order->hold_at = now();
+        } elseif ($newOrderStatus === \App\Support\CourierStatusMapping::STATUS_CONFIRMED) {
+            $order->confirmed_at = now();
         }
 
         $order->save();
