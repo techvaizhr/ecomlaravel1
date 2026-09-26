@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class CarrybeeWebhookController extends Controller
 {
+    public function __construct(
+        private readonly \App\Services\CourierWebhookOrderService $webhookOrders
+    ) {}
+
     /**
      * Handle incoming webhook requests from Carrybee
      */
@@ -92,12 +96,12 @@ class CarrybeeWebhookController extends Controller
         // Find Order
         $order = null;
         if ($merchantOrderId) {
-            $order = Order::where('invoice_id', $merchantOrderId)->first();
+            $order = Order::where('invoice_id', (string) $merchantOrderId)->orWhere('id', (string) $merchantOrderId)->first();
         }
 
         if (!$order && $consignmentId) {
-            $order = Order::where('courier_tracking_id', $consignmentId)
-                ->orWhere('consignment_id', $consignmentId)
+            $order = Order::where('courier_tracking_id', (string) $consignmentId)
+                ->orWhere('consignment_id', (string) $consignmentId)
                 ->first();
         }
 
@@ -114,6 +118,7 @@ class CarrybeeWebhookController extends Controller
         if ($consignmentId && empty($order->courier_tracking_id)) {
             $order->courier_tracking_id = (string) $consignmentId;
             $order->consignment_id = (string) $consignmentId;
+            $order->save();
         }
 
         $notes = [];
@@ -127,21 +132,15 @@ class CarrybeeWebhookController extends Controller
             $notes[] = 'ডেলিভারি রাইডার: ' . $payload['agent_name'] . (!empty($payload['agent_phone']) ? ' (' . $payload['agent_phone'] . ')' : '');
         }
 
-        $oldStatus = $order->order_status;
-        $statusChanged = false;
+        if (!empty($notes)) {
+            $this->webhookOrders->appendCourierNote($order, implode(' | ', $notes), 'Carrybee');
+            $order->refresh();
+        }
 
         switch ($event) {
             case 'order.delivered':
-                $order->order_status = 6; // Delivered / Completed
-                $statusChanged = true;
-                if (!empty($payload['collected_amount'])) {
-                    $order->payment_status = 'paid';
-                }
-                break;
-
             case 'order.partial-delivery':
-                $order->order_status = 6; // Delivered
-                $statusChanged = true;
+                $this->webhookOrders->applyStatusChange($order, 6, 'Carrybee');
                 break;
 
             case 'order.returned':
@@ -149,13 +148,9 @@ class CarrybeeWebhookController extends Controller
             case 'order.returned-to-merchant':
             case 'order.returned-at-sorting':
             case 'order.returned-in-transit':
-                $order->order_status = 7; // Returned
-                $statusChanged = true;
-                break;
-
             case 'order.pickup-cancelled':
             case 'order.delivery-failed':
-                // Do not mark as delivered, status 5 or 7 depending on policy
+                $this->webhookOrders->applyStatusChange($order, 11, 'Carrybee');
                 break;
 
             case 'order.picked':
@@ -167,32 +162,17 @@ class CarrybeeWebhookController extends Controller
             case 'order.received-at-last-mile-hub':
             case 'order.pickup-requested':
             case 'order.assigned-for-pickup':
-                if ($order->order_status != 6 && $order->order_status != 7) {
-                    $order->order_status = 5; // In Courier
-                    $statusChanged = true;
+                if ($order->order_status != 6 && $order->order_status != 11 && $order->order_status != 7) {
+                    $this->webhookOrders->applyStatusChange($order, 5, 'Carrybee');
                 }
                 break;
-
-            case 'order.paid':
-                $order->payment_status = 'paid';
-                break;
         }
-
-        if (!empty($notes)) {
-            $existingNote = $order->admin_note ?? '';
-            $appendNote = implode(' | ', $notes) . ' [' . now()->format('d M h:i A') . ']';
-            $order->admin_note = $existingNote ? $existingNote . "\n" . $appendNote : $appendNote;
-        }
-
-        $order->save();
 
         Log::info('Carrybee Webhook Processed for Order', [
             'order_id'       => $order->id,
             'invoice_id'     => $order->invoice_id,
             'event'          => $event,
-            'old_status'     => $oldStatus,
-            'new_status'     => $order->order_status,
-            'status_changed' => $statusChanged,
+            'current_status' => $order->order_status,
         ]);
     }
 }
