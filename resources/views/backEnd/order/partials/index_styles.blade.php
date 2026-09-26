@@ -52,15 +52,15 @@
         display: inline-flex;
         align-items: center;
         gap: 5.5px;
-        padding: 4px 9.5px;
+        padding: 4px 10px;
         font-size: 11.5px;
-        font-weight: 600;
+        font-weight: 700;
         border-radius: 7px;
         text-decoration: none;
         line-height: 1.25;
         transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
         white-space: nowrap;
-        border: 1.5px solid transparent;
+        border: 1px solid transparent;
     }
     .oi-status-pill .pill-dot {
         width: 7px;
@@ -72,102 +72,104 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 9.5px;
+        font-size: 10px;
         font-weight: 800;
         min-width: 17px;
         height: 17px;
         padding: 0 4.5px;
         border-radius: 99px;
         line-height: 1;
+        background: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06);
     }
 
-    /* ─── 1. All Orders (Slate / Charcoal) ─── */
-    .pill-all { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
-    .pill-all .pill-dot { background: #475569; }
-    .pill-all .pill-count { background: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8; }
-    .pill-all:hover { background: #e2e8f0; color: #0f172a; border-color: #64748b; }
-    .pill-all.active { background: #0f172a; color: #ffffff; border-color: #020617; box-shadow: 0 4px 10px rgba(15,23,42,0.35), 0 0 0 2px #fff, 0 0 0 4px #0f172a; transform: translateY(-1.5px); font-weight: 800; }
+    /* ─── 1. All Orders (Slate Gray) ─── */
+    .pill-all { background: #cbd5e1; color: #0f172a; border-color: #94a3b8; }
+    .pill-all .pill-dot { background: #334155; }
+    .pill-all .pill-count { color: #0f172a; border: 1px solid #94a3b8; }
+    .pill-all:hover { background: #94a3b8; color: #ffffff; border-color: #64748b; }
+    .pill-all.active { background: #0f172a; color: #ffffff; border-color: #020617; box-shadow: 0 4px 10px rgba(15,23,42,0.35), 0 0 0 2px #fff, 0 0 0 4px #0f172a; transform: translateY(-1.5px); }
     .pill-all.active .pill-dot { background: #38bdf8; }
     .pill-all.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 2. Reseller (Purple / Violet) ─── */
-    .pill-reseller { background: #f3e8ff; color: #6b21a8; border-color: #d8b4fe; }
-    .pill-reseller .pill-dot { background: #9333ea; }
-    .pill-reseller .pill-count { background: #e9d5ff; color: #581c87; border: 1px solid #c084fc; }
-    .pill-reseller:hover { background: #e9d5ff; color: #581c87; border-color: #a855f7; }
-    .pill-reseller.active { background: #7e22ce; color: #ffffff; border-color: #581c87; box-shadow: 0 4px 10px rgba(126,34,206,0.35), 0 0 0 2px #fff, 0 0 0 4px #7e22ce; transform: translateY(-1.5px); font-weight: 800; }
+    /* ─── 2. Reseller (Purple / Lavender) ─── */
+    .pill-reseller { background: #e9d5ff; color: #581c87; border-color: #c084fc; }
+    .pill-reseller .pill-dot { background: #7e22ce; }
+    .pill-reseller .pill-count { color: #581c87; border: 1px solid #c084fc; }
+    .pill-reseller:hover { background: #d8b4fe; color: #3b0764; border-color: #a855f7; }
+    .pill-reseller.active { background: #7e22ce; color: #ffffff; border-color: #581c87; box-shadow: 0 4px 10px rgba(126,34,206,0.35), 0 0 0 2px #fff, 0 0 0 4px #7e22ce; transform: translateY(-1.5px); }
     .pill-reseller.active .pill-dot { background: #f0abfc; }
     .pill-reseller.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 3. Incomplete (Amber / Yellow-Orange) ─── */
-    .pill-incomplete { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
-    .pill-incomplete .pill-dot { background: #d97706; }
-    .pill-incomplete .pill-count { background: #fde68a; color: #78350f; border: 1px solid #f59e0b; }
-    .pill-incomplete:hover { background: #fde68a; color: #78350f; border-color: #d97706; }
-    .pill-incomplete.active { background: #d97706; color: #ffffff; border-color: #92400e; box-shadow: 0 4px 10px rgba(217,119,6,0.35), 0 0 0 2px #fff, 0 0 0 4px #d97706; transform: translateY(-1.5px); font-weight: 800; }
+    /* ─── 3. Incomplete (Amber / Yellow-Gold) ─── */
+    .pill-incomplete { background: #fde68a; color: #78350f; border-color: #f59e0b; }
+    .pill-incomplete .pill-dot { background: #b45309; }
+    .pill-incomplete .pill-count { color: #78350f; border: 1px solid #f59e0b; }
+    .pill-incomplete:hover { background: #fcd34d; color: #451a03; border-color: #d97706; }
+    .pill-incomplete.active { background: #d97706; color: #ffffff; border-color: #92400e; box-shadow: 0 4px 10px rgba(217,119,6,0.35), 0 0 0 2px #fff, 0 0 0 4px #d97706; transform: translateY(-1.5px); }
     .pill-incomplete.active .pill-dot { background: #fef08a; }
     .pill-incomplete.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 4. Pipeline: New Order, Hold, Confirmed, Packaging, Handover (Soft Blue / Sky) ─── */
-    .pill-pipeline { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
+    /* ─── 4. Pipeline: New Order, Hold, Confirmed, Packaging, Handover (Sky Blue) ─── */
+    .pill-pipeline { background: #bae6fd; color: #075985; border-color: #38bdf8; }
     .pill-pipeline .pill-dot { background: #0284c7; }
-    .pill-pipeline .pill-count { background: #bae6fd; color: #075985; border: 1px solid #38bdf8; }
-    .pill-pipeline:hover { background: #bae6fd; color: #075985; border-color: #0284c7; }
-    .pill-pipeline.active { background: #0284c7; color: #ffffff; border-color: #0369a1; box-shadow: 0 4px 10px rgba(2,132,199,0.35), 0 0 0 2px #fff, 0 0 0 4px #0284c7; transform: translateY(-1.5px); font-weight: 800; }
+    .pill-pipeline .pill-count { color: #075985; border: 1px solid #38bdf8; }
+    .pill-pipeline:hover { background: #7dd3fc; color: #0c4a6e; border-color: #0284c7; }
+    .pill-pipeline.active { background: #0284c7; color: #ffffff; border-color: #0369a1; box-shadow: 0 4px 10px rgba(2,132,199,0.35), 0 0 0 2px #fff, 0 0 0 4px #0284c7; transform: translateY(-1.5px); }
     .pill-pipeline.active .pill-dot { background: #bae6fd; }
     .pill-pipeline.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
     /* ─── 5. In Courier (Teal / Cyan) ─── */
-    .pill-incourier { background: #ccfbf1; color: #115e59; border-color: #5eead4; }
+    .pill-incourier { background: #99f6e4; color: #134e4a; border-color: #2dd4bf; }
     .pill-incourier .pill-dot { background: #0d9488; }
-    .pill-incourier .pill-count { background: #99f6e4; color: #134e4a; border: 1px solid #2dd4bf; }
-    .pill-incourier:hover { background: #99f6e4; color: #134e4a; border-color: #0d9488; }
-    .pill-incourier.active { background: #0d9488; color: #ffffff; border-color: #115e59; box-shadow: 0 4px 10px rgba(13,148,136,0.35), 0 0 0 2px #fff, 0 0 0 4px #0d9488; transform: translateY(-1.5px); font-weight: 800; }
+    .pill-incourier .pill-count { color: #134e4a; border: 1px solid #2dd4bf; }
+    .pill-incourier:hover { background: #5eead4; color: #042f2e; border-color: #0f766e; }
+    .pill-incourier.active { background: #0d9488; color: #ffffff; border-color: #115e59; box-shadow: 0 4px 10px rgba(13,148,136,0.35), 0 0 0 2px #fff, 0 0 0 4px #0d9488; transform: translateY(-1.5px); }
     .pill-incourier.active .pill-dot { background: #a7f3d0; }
     .pill-incourier.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 6. Delivered (Emerald / Forest Green) ─── */
-    .pill-delivered { background: #dcfce7; color: #15803d; border-color: #86efac; }
-    .pill-delivered .pill-dot { background: #16a34a; }
-    .pill-delivered .pill-count { background: #bbf7d0; color: #14532d; border: 1px solid #4ade80; }
-    .pill-delivered:hover { background: #bbf7d0; color: #14532d; border-color: #16a34a; }
-    .pill-delivered.active { background: #16a34a; color: #ffffff; border-color: #14532d; box-shadow: 0 4px 10px rgba(22,163,74,0.35), 0 0 0 2px #fff, 0 0 0 4px #16a34a; transform: translateY(-1.5px); font-weight: 800; }
+    /* ─── 6. Delivered (Emerald / Light Green) ─── */
+    .pill-delivered { background: #bbf7d0; color: #14532d; border-color: #4ade80; }
+    .pill-delivered .pill-dot { background: #15803d; }
+    .pill-delivered .pill-count { color: #14532d; border: 1px solid #4ade80; }
+    .pill-delivered:hover { background: #86efac; color: #052e16; border-color: #16a34a; }
+    .pill-delivered.active { background: #16a34a; color: #ffffff; border-color: #14532d; box-shadow: 0 4px 10px rgba(22,163,74,0.35), 0 0 0 2px #fff, 0 0 0 4px #16a34a; transform: translateY(-1.5px); }
     .pill-delivered.active .pill-dot { background: #bbf7d0; }
     .pill-delivered.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 7. Partial Group (Tangerine / Orange) ─── */
-    .pill-partial { background: #ffedd5; color: #c2410c; border-color: #fdba74; }
+    /* ─── 7. Partial Group (Apricot / Light Orange) ─── */
+    .pill-partial { background: #fed7aa; color: #7c2d12; border-color: #fb923c; }
     .pill-partial .pill-dot { background: #ea580c; }
-    .pill-partial .pill-count { background: #fed7aa; color: #7c2d12; border: 1px solid #fb923c; }
-    .pill-partial:hover { background: #fed7aa; color: #7c2d12; border-color: #ea580c; }
-    .pill-partial.active { background: #ea580c; color: #ffffff; border-color: #7c2d12; box-shadow: 0 4px 10px rgba(234,88,12,0.35), 0 0 0 2px #fff, 0 0 0 4px #ea580c; transform: translateY(-1.5px); font-weight: 800; }
+    .pill-partial .pill-count { color: #7c2d12; border: 1px solid #fb923c; }
+    .pill-partial:hover { background: #fdba74; color: #431407; border-color: #ea580c; }
+    .pill-partial.active { background: #ea580c; color: #ffffff; border-color: #7c2d12; box-shadow: 0 4px 10px rgba(234,88,12,0.35), 0 0 0 2px #fff, 0 0 0 4px #ea580c; transform: translateY(-1.5px); }
     .pill-partial.active .pill-dot { background: #fde047; }
     .pill-partial.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 8. Return Group (Rose / Pink-Red) ─── */
-    .pill-return { background: #ffe4e6; color: #be123c; border-color: #fda4af; }
+    /* ─── 8. Return Group (Rose / Pink) ─── */
+    .pill-return { background: #fecdd3; color: #881337; border-color: #fb7185; }
     .pill-return .pill-dot { background: #e11d48; }
-    .pill-return .pill-count { background: #fecdd3; color: #881337; border: 1px solid #fb7185; }
-    .pill-return:hover { background: #fecdd3; color: #881337; border-color: #e11d48; }
-    .pill-return.active { background: #e11d48; color: #ffffff; border-color: #881337; box-shadow: 0 4px 10px rgba(225,29,72,0.35), 0 0 0 2px #fff, 0 0 0 4px #e11d48; transform: translateY(-1.5px); font-weight: 800; }
+    .pill-return .pill-count { color: #881337; border: 1px solid #fb7185; }
+    .pill-return:hover { background: #fda4af; color: #4c0519; border-color: #e11d48; }
+    .pill-return.active { background: #e11d48; color: #ffffff; border-color: #881337; box-shadow: 0 4px 10px rgba(225,29,72,0.35), 0 0 0 2px #fff, 0 0 0 4px #e11d48; transform: translateY(-1.5px); }
     .pill-return.active .pill-dot { background: #fecdd3; }
     .pill-return.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 9. Pre Order (Fuchsia / Magenta) ─── */
-    .pill-preorder { background: #fae8ff; color: #a21caf; border-color: #f0abfc; }
+    /* ─── 9. Pre Order (Magenta / Light Purple-Pink) ─── */
+    .pill-preorder { background: #f5d0fe; color: #701a75; border-color: #e879f9; }
     .pill-preorder .pill-dot { background: #c026d3; }
-    .pill-preorder .pill-count { background: #f5d0fe; color: #701a75; border: 1px solid #e879f9; }
-    .pill-preorder:hover { background: #f5d0fe; color: #701a75; border-color: #c026d3; }
-    .pill-preorder.active { background: #c026d3; color: #ffffff; border-color: #701a75; box-shadow: 0 4px 10px rgba(192,38,211,0.35), 0 0 0 2px #fff, 0 0 0 4px #c026d3; transform: translateY(-1.5px); font-weight: 800; }
+    .pill-preorder .pill-count { color: #701a75; border: 1px solid #e879f9; }
+    .pill-preorder:hover { background: #f0abfc; color: #4a044e; border-color: #c026d3; }
+    .pill-preorder.active { background: #c026d3; color: #ffffff; border-color: #701a75; box-shadow: 0 4px 10px rgba(192,38,211,0.35), 0 0 0 2px #fff, 0 0 0 4px #c026d3; transform: translateY(-1.5px); }
     .pill-preorder.active .pill-dot { background: #f5d0fe; }
     .pill-preorder.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
 
-    /* ─── 10. Cancelled (Crimson / Deep Red) ─── */
-    .pill-cancelled { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    /* ─── 10. Cancelled (Light Crimson Red) ─── */
+    .pill-cancelled { background: #fecaca; color: #7f1d1d; border-color: #f87171; }
     .pill-cancelled .pill-dot { background: #dc2626; }
-    .pill-cancelled .pill-count { background: #fecaca; color: #7f1d1d; border: 1px solid #f87171; }
-    .pill-cancelled:hover { background: #fecaca; color: #7f1d1d; border-color: #dc2626; }
-    .pill-cancelled.active { background: #dc2626; color: #ffffff; border-color: #7f1d1d; box-shadow: 0 4px 10px rgba(220,38,38,0.35), 0 0 0 2px #fff, 0 0 0 4px #dc2626; transform: translateY(-1.5px); font-weight: 800; }
+    .pill-cancelled .pill-count { color: #7f1d1d; border: 1px solid #f87171; }
+    .pill-cancelled:hover { background: #fca5a5; color: #450a0a; border-color: #dc2626; }
+    .pill-cancelled.active { background: #dc2626; color: #ffffff; border-color: #7f1d1d; box-shadow: 0 4px 10px rgba(220,38,38,0.35), 0 0 0 2px #fff, 0 0 0 4px #dc2626; transform: translateY(-1.5px); }
     .pill-cancelled.active .pill-dot { background: #fecaca; }
     .pill-cancelled.active .pill-count { background: rgba(255,255,255,0.25); color: #ffffff; border-color: rgba(255,255,255,0.5); }
     .oi-card-body { padding: 16px 18px; }
