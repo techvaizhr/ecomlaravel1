@@ -449,24 +449,21 @@
 </div>
 
 <div class="modal fade oi-modal" id="quickSingleStatusModal" tabindex="-1" aria-hidden="true" style="z-index: 1060 !important;">
-  <div class="modal-dialog modal-dialog-centered" style="max-width: 520px; z-index: 1061 !important;">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
-      <div class="modal-header py-2.5 px-3.5 bg-primary text-white d-flex align-items-center justify-content-between">
-        <h6 class="modal-title m-0 fw-bold text-white" id="quickStatusModalTitle"><i class="fas fa-flag me-1.5"></i> স্ট্যাটাস পরিবর্তন</h6>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 480px; z-index: 1061 !important;">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+      <div class="modal-header py-2 px-3 bg-dark text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #1e293b, #0f172a) !important;">
+        <h6 class="modal-title m-0 fw-bold text-white" id="quickStatusModalTitle" style="font-size: 13.5px;"><i class="fas fa-flag text-warning me-1.5"></i> স্ট্যাটাস পরিবর্তন</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="font-size: 10px;"></button>
       </div>
-      <div class="modal-body p-3 bg-light">
+      <div class="modal-body p-2.5 bg-light">
         <input type="hidden" id="quick_status_order_id" value="">
-        <div class="text-muted small mb-2 fw-semibold d-flex align-items-center justify-content-between">
-            <span><i class="fas fa-hand-pointer text-primary me-1"></i> নতুন স্ট্যাটাস সিলেক্ট করুন:</span>
-        </div>
-        <div class="row g-2" id="quick_status_list">
+        <div class="row g-1.5" id="quick_status_list">
             @if(isset($orderstatus) && $orderstatus->count() > 0)
                 @foreach($orderstatus as $s)
                     <div class="col-6">
-                        <button type="button" class="btn btn-sm btn-outline-primary text-start d-flex align-items-center justify-content-between py-2 px-2.5 w-100 quick-status-opt-btn shadow-sm" data-status-id="{{ $s->id }}" data-status-name="{{ $s->name }}" style="border-radius: 8px; font-size: 12px; background: #fff; transition: all 0.15s;">
+                        <button type="button" class="btn btn-sm btn-outline-primary text-start d-flex align-items-center justify-content-between py-1.5 px-2 w-100 quick-status-opt-btn shadow-sm" data-status-id="{{ $s->id }}" data-status-name="{{ $s->name }}" style="border-radius: 6px; font-size: 11.5px; background: #fff; transition: all 0.1s; border-color: #cbd5e1; color: #334155;">
                             <span class="text-truncate me-1"><i class="far fa-circle me-1 opacity-50"></i> {{ $s->name }}</span>
-                            <span class="badge bg-light text-dark border current-tag d-none" style="font-size: 9px; padding: 2px 4px;">বর্তমান</span>
+                            <span class="badge bg-warning text-dark fw-bold current-tag d-none" style="font-size: 9px; padding: 2px 4px; border-radius: 4px;">বর্তমান</span>
                         </button>
                     </div>
                 @endforeach
@@ -1350,14 +1347,17 @@ $(document).ready(function(){
         $('#quick_status_list .quick-status-opt-btn').each(function () {
             var sId = $(this).data('status-id');
             var sName = $(this).data('status-name');
-            $(this).prop('disabled', false).html('<span><i class="far fa-circle me-1.5 opacity-50"></i> ' + sName + '</span><span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>');
+            var isCurrent = String(sId) === String(currentStatus);
 
-            if (String(sId) === String(currentStatus)) {
-                $(this).addClass('btn-primary text-white').removeClass('btn-outline-primary');
-                $(this).find('.current-tag').removeClass('d-none');
+            $(this).prop('disabled', false).html(
+                '<span class="text-truncate me-1"><i class="' + (isCurrent ? 'fas fa-check-circle text-white' : 'far fa-circle opacity-50') + ' me-1"></i> ' + sName + '</span>' +
+                '<span class="badge bg-warning text-dark fw-bold current-tag ' + (isCurrent ? '' : 'd-none') + '" style="font-size: 9px; padding: 2px 4px; border-radius: 4px;">বর্তমান</span>'
+            );
+
+            if (isCurrent) {
+                $(this).addClass('btn-primary text-white shadow-sm').removeClass('btn-outline-primary').css({ 'background-color': '#2563eb', 'border-color': '#1d4ed8', 'color': '#ffffff', 'font-weight': '600' });
             } else {
-                $(this).removeClass('btn-primary text-white').addClass('btn-outline-primary');
-                $(this).find('.current-tag').addClass('d-none');
+                $(this).removeClass('btn-primary text-white shadow-sm').addClass('btn-outline-primary').css({ 'background-color': '#ffffff', 'border-color': '#cbd5e1', 'color': '#334155', 'font-weight': 'normal' });
             }
         });
 
