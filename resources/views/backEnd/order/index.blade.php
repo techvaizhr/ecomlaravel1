@@ -806,15 +806,17 @@ $(document).ready(function(){
     // ── Bulk Actions Bar Dynamic Visibility ──
     function updateBulkActionVisibility() {
         var count = $('input.checkbox:checked').length;
-        var $badge = $('#selectedOrdersBadgeWrapper');
+        var $wrapper = $('#bulkActionsWrapper');
         var $countSpan = $('#selectedOrdersCount');
+
         if ($countSpan.length) {
             $countSpan.text(count);
         }
+
         if (count > 0) {
-            $badge.stop(true, true).fadeIn(150);
+            $wrapper.stop(true, true).slideDown(180);
         } else {
-            $badge.stop(true, true).fadeOut(150);
+            $wrapper.stop(true, true).slideUp(180);
         }
     }
 
