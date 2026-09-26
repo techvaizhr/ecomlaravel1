@@ -187,7 +187,7 @@
                         <div class="oi-bulk-actions-scroll flex-grow-1">
                             <ul class="oi-action-grid action2-btn d-flex flex-nowrap align-items-center gap-1.5 list-unstyled m-0">
                                 <li><a data-bs-toggle="modal" data-bs-target="#asignUser" class="oi-btn-tool oi-btn-assign"><i class="fas fa-user-plus"></i> অ্যাসাইন</a></li>
-                                <li><a data-bs-toggle="modal" data-bs-target="#changeStatus" class="oi-btn-tool oi-btn-status"><i class="fas fa-flag"></i> স্ট্যাটাস</a></li>
+                                <li><a href="javascript:void(0);" class="oi-btn-tool oi-btn-status bulk-change-status-btn"><i class="fas fa-flag"></i> স্ট্যাটাস</a></li>
                                 <li><a href="{{ route('admin.order.bulk_destroy') }}" class="oi-btn-tool oi-btn-delete order_delete"><i class="fas fa-trash-alt"></i> ডিলিট</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="oi-btn-tool oi-btn-print multi_order_print"><i class="fas fa-print"></i> প্রিন্ট</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="oi-btn-tool oi-btn-label multi_label_print"><i class="fas fa-tag"></i> লেবেল</a></li>

@@ -415,39 +415,6 @@
   </div>
 </div>
 
-<div class="modal fade oi-modal" id="changeStatus" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-flag me-1"></i> স্ট্যাটাস পরিবর্তন</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form action="{{ route('admin.order.status') }}" id="order_status_form" novalidate>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Select Status <span class="text-danger">*</span></label>
-                <select name="order_status" id="order_status" class="form-control">
-                    <option value="">Select Status..</option>
-                    @if(isset($orderstatus) && $orderstatus->count() > 0)
-                        @foreach($orderstatus as $s)
-                            <option value="{{ $s->id }}">{{ $s->name }}</option>
-                        @endforeach
-                    @else
-                        <option value="">No status available</option>
-                    @endif
-                </select>
-                <small class="text-muted">Select orders first, then choose status</small>
-                <div class="invalid-feedback" id="status_error" style="display: none;">Please select a status</div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success">Update Status</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <div class="modal fade oi-modal" id="quickSingleStatusModal" tabindex="-1" aria-hidden="true" style="z-index: 1060 !important;">
   <div class="modal-dialog modal-dialog-centered" style="max-width: 480px; z-index: 1061 !important;">
@@ -1231,102 +1198,6 @@ $(document).ready(function(){
         $statusSelect.removeClass('is-invalid is-valid');
         $statusError.hide();
 
-        var order = $('input.checkbox:checked').map(function(){
-          return $(this).val();
-        });
-        var order_ids = order.get();
-
-        // Validate orders selected FIRST
-        if(order_ids.length == 0){
-            toastr.error('Please Select An Order First !');
-            return false;
-        }
-        
-        // Validate status selected - check multiple conditions
-        var statusValue = String(order_status || '').trim();
-        if(!statusValue || statusValue === '' || statusValue === 'null' || statusValue === 'undefined' || statusValue === '0'){
-            $statusSelect.addClass('is-invalid');
-            $statusError.text('Please select a status').show();
-            toastr.error('Please Select A Status First !');
-            // Focus on select field and scroll to it
-            $statusSelect.focus();
-            $('html, body').animate({
-                scrollTop: $statusSelect.offset().top - 100
-            }, 300);
-            return false;
-        }
-        
-        // Additional check - make sure it's a valid number
-        if(isNaN(parseInt(statusValue)) || parseInt(statusValue) <= 0){
-            $statusSelect.addClass('is-invalid');
-            $statusError.text('Please select a valid status').show();
-            toastr.error('Please Select A Valid Status !');
-            $statusSelect.focus();
-            return false;
-        }
-
-        // If partial settlement status is selected (9, 10, 11):
-        if (statusValue == '9' || statusValue == '10' || statusValue == '11') {
-            if (order_ids.length === 1) {
-                $('#changeStatus').modal('hide');
-                window.openPartialSettlementModal(order_ids[0]);
-                return false;
-            } else {
-                toastr.warning('আংশিক ডেলিভারি সেটেলমেন্টের জন্য প্রতিটি অর্ডার আলাদাভাবে সেটেল করতে হবে।');
-                return false;
-            }
-        }
-
-        // Show loading
-        var $form = $(this);
-        var $submitBtn = $form.find('button[type="submit"]');
-        var originalHtml = $submitBtn.html();
-        $submitBtn.prop('disabled', true).html('<i class="fe-loader"></i> Updating...');
-
-        $.ajax({
-           type: 'GET',
-           url: url,
-           data: { order_status: order_status, order_ids: order_ids },
-           success: function(res){
-               if(res.status == 'success'){
-                   toastr.success(res.message);
-                   $('#changeStatus').modal('hide');
-                   setTimeout(function(){
-                       window.location.reload();
-                   }, 1000);
-               } else {
-                   toastr.error(res.message || 'Failed something wrong');
-                   $submitBtn.prop('disabled', false).html(originalHtml);
-               }
-           },
-           error: function(xhr){
-               console.error('Status update error:', xhr);
-               var errorMsg = 'Something went wrong';
-               
-               // Handle Laravel validation errors
-               if(xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors){
-                   var errors = xhr.responseJSON.errors;
-                   if(errors.order_status){
-                       $statusSelect.addClass('is-invalid');
-                       $statusError.text(errors.order_status[0]).show();
-                       errorMsg = errors.order_status[0];
-                   } else if(errors.order_ids){
-                       errorMsg = errors.order_ids[0];
-                   }
-               } else if(xhr.responseJSON && xhr.responseJSON.message){
-                   errorMsg = xhr.responseJSON.message;
-               } else if(xhr.status === 400){
-                   errorMsg = 'Bad request. Please check your selection.';
-               }
-               
-               toastr.error(errorMsg);
-               $submitBtn.prop('disabled', false).html(originalHtml);
-           }
-        });
-        
-        return false;
-    });
-
     function showQuickStatusModal() {
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
             try {
@@ -1354,7 +1225,7 @@ $(document).ready(function(){
         var invoice = $(this).data('invoice');
 
         $('#quick_status_order_id').val(orderId);
-        $('#quickStatusModalTitle').html('<i class="fas fa-flag me-1"></i> স্ট্যাটাস #' + invoice);
+        $('#quickStatusModalTitle').html('<i class="fas fa-flag text-warning me-1.5"></i> স্ট্যাটাস #' + invoice);
 
         // Highlight current status button
         $('#quick_status_list .quick-status-opt-btn').each(function () {
@@ -1377,18 +1248,59 @@ $(document).ready(function(){
         showQuickStatusModal();
     });
 
+    // ── Bulk Orders Quick Status Modal Popup ──
+    $(document).on('click', '.bulk-change-status-btn', function (e) {
+        e.preventDefault();
+        var order_ids = [];
+        $(".checkbox:checked").each(function () {
+            order_ids.push($(this).val());
+        });
+
+        if (order_ids.length === 0) {
+            toastr.error('অনুগ্রহ করে আগে এক বা একাধিক অর্ডার সিলেক্ট করুন!');
+            return false;
+        }
+
+        $('#quick_status_order_id').val(order_ids.join(','));
+        $('#quickStatusModalTitle').html('<i class="fas fa-flag text-warning me-1.5"></i> বাল্ক স্ট্যাটাস পরিবর্তন (' + order_ids.length + 'টি অর্ডার)');
+
+        // Reset all buttons
+        $('#quick_status_list .quick-status-opt-btn').each(function () {
+            var sName = $(this).data('status-name');
+            $(this).prop('disabled', false).html(
+                '<span class="text-truncate me-1"><i class="far fa-circle opacity-50 me-1"></i> ' + sName + '</span>' +
+                '<span class="badge bg-warning text-dark fw-bold current-tag d-none" style="font-size: 9px; padding: 2px 4px; border-radius: 4px;">বর্তমান</span>'
+            );
+            $(this).removeClass('btn-primary text-white shadow-sm').addClass('btn-outline-primary').css({ 'background-color': '#ffffff', 'border-color': '#cbd5e1', 'color': '#334155', 'font-weight': 'normal' });
+        });
+
+        showQuickStatusModal();
+    });
+
+    // ── Execute Status Change (Both Single & Bulk) ──
     $(document).on('click', '.quick-status-opt-btn', function (e) {
         e.preventDefault();
-        var orderId = $('#quick_status_order_id').val();
+        var rawIds = $('#quick_status_order_id').val();
+        var orderIds = String(rawIds || '').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
         var statusId = $(this).data('status-id');
         var statusName = $(this).data('status-name');
         var $btn = $(this);
 
+        if (orderIds.length === 0) {
+            toastr.error('কোনো অর্ডার পাওয়া যায়নি');
+            return;
+        }
+
         // If target status is 9 (Full Received), 10 (Item Received), or 11 (Charge Only):
         if (statusId == 9 || statusId == 10 || statusId == 11) {
-            hideQuickStatusModal();
-            window.openPartialSettlementModal(orderId);
-            return;
+            if (orderIds.length === 1) {
+                hideQuickStatusModal();
+                window.openPartialSettlementModal(orderIds[0]);
+                return;
+            } else {
+                toastr.warning('আংশিক ডেলিভারি সেটেলমেন্টের জন্য প্রতিটি অর্ডার আলাদাভাবে সেটেল করতে হবে।');
+                return;
+            }
         }
 
         $('#quick_status_list .quick-status-opt-btn').prop('disabled', true);
@@ -1399,7 +1311,7 @@ $(document).ready(function(){
             url: "{{ route('admin.order.status') }}",
             data: {
                 order_status: statusId,
-                order_ids: [orderId]
+                order_ids: orderIds
             },
             success: function (res) {
                 if (res && res.status === 'success') {
