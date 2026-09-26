@@ -3,23 +3,44 @@ $(document).ready(function () {
     let currentPartialOrder = null;
 
     function showPsModal() {
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            try {
-                var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('partialSettlementModal'));
-                if (modal) { modal.show(); return; }
-            } catch(e) {}
+        var el = document.getElementById('partialSettlementModal');
+        if (!el) return;
+
+        // Move to body to prevent stacking context & backdrop trapping
+        if (el.parentNode !== document.body) {
+            document.body.appendChild(el);
         }
-        $('#partialSettlementModal').modal('show');
+
+        // Close other open modals
+        $('.modal').not('#partialSettlementModal').modal('hide');
+        $('.modal-backdrop').not('.ps-keep').remove();
+
+        setTimeout(function () {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                try {
+                    var modal = bootstrap.Modal.getOrCreateInstance(el, { backdrop: true, keyboard: true });
+                    if (modal) { modal.show(); return; }
+                } catch(e) {}
+            }
+            $(el).modal('show');
+        }, 100);
     }
 
     function hidePsModal() {
+        var el = document.getElementById('partialSettlementModal');
+        if (!el) return;
+
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
             try {
-                var modal = bootstrap.Modal.getInstance(document.getElementById('partialSettlementModal'));
+                var modal = bootstrap.Modal.getInstance(el);
                 if (modal) { modal.hide(); }
             } catch(e) {}
         }
-        $('#partialSettlementModal').modal('hide');
+        $(el).modal('hide');
+        setTimeout(function () {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open').css({ overflow: '', paddingRight: '' });
+        }, 300);
     }
 
     // Open Partial Settlement Modal for a given order ID
@@ -255,6 +276,12 @@ $(document).ready(function () {
                 $btn.prop('disabled', false).html(origHtml);
             }
         });
+    });
+
+    // Clean up backdrop when partial settlement modal is closed
+    $(document).on('hidden.bs.modal', '#partialSettlementModal', function () {
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css({ overflow: '', paddingRight: '' });
     });
 
     // Intercept status change triggers if targeting/coming from Partial statuses

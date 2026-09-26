@@ -1,8 +1,7 @@
 <!-- ========================================================= -->
 <!-- Universal Partial Settlement Modal (8 -> 9 / 10 / 11)     -->
-<!-- ========================================================= -->
-<div class="modal fade" id="partialSettlementModal" tabindex="-1" aria-labelledby="partialSettlementModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+<div class="modal fade oi-modal" id="partialSettlementModal" tabindex="-1" aria-labelledby="partialSettlementModalLabel" aria-hidden="true" data-bs-backdrop="static" style="z-index: 1065 !important;">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style="z-index: 1066 !important;">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
             <div class="modal-header bg-gradient py-2.5 px-3 text-white" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                 <h5 class="modal-title m-0 fw-bold d-flex align-items-center text-white" id="partialSettlementModalLabel" style="font-size: 15px;">
@@ -204,6 +203,12 @@
 </div>
 
 <style>
+#partialSettlementModal {
+    z-index: 1065 !important;
+}
+#partialSettlementModal .modal-dialog {
+    z-index: 1066 !important;
+}
 .ps-option-card:hover {
     border-color: #f59e0b !important;
     box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
