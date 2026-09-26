@@ -68,10 +68,11 @@ class OrderController extends Controller
     */
     protected function handleStockChange(Order $order, int $oldStatus, int $newStatus)
     {
-        $activeStatuses = [1, 2, 3, 5, 6, 8];
+        $activeStatuses  = \App\Support\CourierStatusMapping::STOCK_ACTIVE_STATUSES;
+        $restoreStatuses = \App\Support\CourierStatusMapping::STOCK_RESTORE_STATUSES; // [13 Returned, 15 Cancelled]
 
         // 1) প্রথমবার active status এ ঢুকলে স্টক কমবে
-        if (in_array($newStatus, $activeStatuses) && !in_array($oldStatus, $activeStatuses)) {
+        if (in_array($newStatus, $activeStatuses, true) && !in_array($oldStatus, $activeStatuses, true)) {
             $details = OrderDetails::where('order_id', $order->id)
                 ->with('product:id,stock') // ✅ Eager load products to avoid N+1
                 ->get();
@@ -84,8 +85,8 @@ class OrderController extends Controller
             }
         }
 
-        // 2) cancel (11) হলে, যদি আগেরটা active group এ থাকে -> স্টক রিস্টোর
-        if ($newStatus == 11 && in_array($oldStatus, $activeStatuses)) {
+        // 2) cancel (15) বা returned (13) হলে, যদি আগেরটা active group এ থাকে -> স্টক রিস্টোর
+        if (in_array($newStatus, $restoreStatuses, true) && in_array($oldStatus, $activeStatuses, true)) {
             $details = OrderDetails::where('order_id', $order->id)
                 ->with('product:id,stock') // ✅ Eager load products to avoid N+1
                 ->get();

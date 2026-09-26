@@ -63,58 +63,25 @@ class RedXWebhookController extends Controller
                 ], 404);
             }
 
-            // Map RedX status to order status
-            $redxService = new RedXService();
-            $newOrderStatus = $redxService->mapStatusToOrderStatus($status);
+            // Map RedX status to order status using CourierStatusMapping
+            // 7 = Delivered, 8 = Pending Partial, 12 = Pending Return, 6 = In Courier
+            $newOrderStatus = \App\Support\CourierStatusMapping::map('redx', $status);
 
             if ($newOrderStatus !== null) {
-                $oldStatus = (int) $order->order_status;
-                $newOrderStatus = (int) $newOrderStatus;
-                
-                // Update order status
-                $order->order_status = $newOrderStatus;
-                $order->save();
-
-                // Handle stock change (same logic as OrderController)
-                $this->handleStockChange($order, $oldStatus, $newOrderStatus);
-
-                if ($newOrderStatus == 11) {
-                    \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-                }
-
-                // If order is delivered/completed (status = 6)
-                if ($newOrderStatus == 6 && $oldStatus != 6) {
-                    // Add money to fund
-                    FundTransaction::create([
-                        'direction'  => 'in',
-                        'source'     => 'sale',
-                        'source_id'  => $order->id,
-                        'amount'     => $order->amount,
-                        'note'       => 'Order complete via RedX webhook (#' . $order->invoice_id . ')',
-                        'created_by' => 1, // System user
-                    ]);
-
-                    // Credit vendors for their items
-                    $this->distributeVendorEarnings($order);
-                    
-                    // Credit reseller wallet if this is a reseller order
-                    $this->creditResellerWallet($order);
-                }
-
-                // Send SMS notification if configured
-                $this->sendStatusUpdateSMS($order, $newOrderStatus);
+                $webhookService = app(\App\Services\CourierWebhookOrderService::class);
+                $changed = $webhookService->applyStatusChange($order, $newOrderStatus, 'RedX');
 
                 Log::info('RedX Webhook: Order status updated successfully', [
-                    'order_id' => $order->id,
-                    'invoice_id' => $order->invoice_id,
-                    'tracking_id' => $trackingNumber,
-                    'old_status' => $oldStatus,
-                    'new_status' => $newOrderStatus,
-                    'redx_status' => $status
+                    'order_id'       => $order->id,
+                    'invoice_id'     => $order->invoice_id,
+                    'tracking_id'    => $trackingNumber,
+                    'mapped_status'  => $newOrderStatus,
+                    'status_changed' => $changed,
+                    'redx_status'    => $status
                 ]);
             } else {
                 Log::warning('RedX Webhook: Status mapping not found', [
-                    'order_id' => $order->id,
+                    'order_id'    => $order->id,
                     'redx_status' => $status
                 ]);
             }

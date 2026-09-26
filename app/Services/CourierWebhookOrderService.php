@@ -29,11 +29,38 @@ class CourierWebhookOrderService
             return false;
         }
 
+        // 1. PROTECTED STATUS CHECK:
+        // If order is already in a locked/protected status (Hold, Cancelled, Returned, Pre-Order, or Manual Partial),
+        // webhooks/API updates can NEVER override it!
+        if (\App\Support\CourierStatusMapping::isProtected($oldStatus)) {
+            Log::info("{$sourceLabel} Webhook: Status change ignored because order #{$order->invoice_id} is in protected status ({$oldStatus})", [
+                'order_id'          => $order->id,
+                'current_status'    => $oldStatus,
+                'attempted_status'  => $newOrderStatus,
+            ]);
+            return false;
+        }
+
+        // 2. VALID TRANSITION CHECK:
+        // - To In Courier (6): allowed from [1 (New Order), 3 (Confirmed), 4 (Packaging), 5 (Courier Handover)]
+        // - To Delivered (7) / Partial (8) / Pending Return (12): allowed from [1, 3, 4, 5, 6]
+        if ($newOrderStatus === \App\Support\CourierStatusMapping::STATUS_IN_COURIER) {
+            $allowedFrom = [
+                \App\Support\CourierStatusMapping::STATUS_NEW_ORDER,
+                \App\Support\CourierStatusMapping::STATUS_CONFIRMED,
+                \App\Support\CourierStatusMapping::STATUS_PACKAGING,
+                \App\Support\CourierStatusMapping::STATUS_COURIER_HANDOVER,
+            ];
+            if (!in_array($oldStatus, $allowedFrom, true)) {
+                return false;
+            }
+        }
+
         $order->order_status = $newOrderStatus;
 
-        if (SteadfastWebhookStatus::isCompleted($newOrderStatus)) {
+        if (\App\Support\CourierStatusMapping::isDelivered($newOrderStatus)) {
             $order->payment_status = 'paid';
-        } elseif (SteadfastWebhookStatus::isCancelled($newOrderStatus)) {
+        } elseif (\App\Support\CourierStatusMapping::isFinalCancelledOrReturned($newOrderStatus)) {
             $order->payment_status = 'cancelled';
         }
 
@@ -43,11 +70,11 @@ class CourierWebhookOrderService
 
         $this->handleStockChange($order, $oldStatus, $newOrderStatus);
 
-        if (SteadfastWebhookStatus::isCancelled($newOrderStatus)) {
+        if (\App\Support\CourierStatusMapping::isFinalCancelledOrReturned($newOrderStatus)) {
             \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
         }
 
-        if (SteadfastWebhookStatus::isCompleted($newOrderStatus) && $oldStatus !== $newOrderStatus) {
+        if (\App\Support\CourierStatusMapping::isDelivered($newOrderStatus) && $oldStatus !== $newOrderStatus) {
             FundTransaction::create([
                 'direction'  => 'in',
                 'source'     => 'sale',
@@ -73,12 +100,12 @@ class CourierWebhookOrderService
             return;
         }
 
-        if (SteadfastWebhookStatus::isCompleted($orderStatusId)) {
+        if (\App\Support\CourierStatusMapping::isDelivered($orderStatusId)) {
             $payment->payment_status = 'paid';
             if ((float) $payment->amount <= 0) {
                 $payment->amount = (float) $order->amount;
             }
-        } elseif (SteadfastWebhookStatus::isCancelled($orderStatusId)) {
+        } elseif (\App\Support\CourierStatusMapping::isFinalCancelledOrReturned($orderStatusId)) {
             $payment->payment_status = 'cancelled';
         } else {
             return;
@@ -97,8 +124,10 @@ class CourierWebhookOrderService
 
     private function handleStockChange(Order $order, int $oldStatus, int $newStatus): void
     {
-        $activeStatuses = [1, 2, 3, 5, 6, 8];
+        $activeStatuses  = \App\Support\CourierStatusMapping::STOCK_ACTIVE_STATUSES;
+        $restoreStatuses = \App\Support\CourierStatusMapping::STOCK_RESTORE_STATUSES; // [13 Returned, 15 Cancelled]
 
+        // 1) First time moving into an active status group -> reduce stock
         if (in_array($newStatus, $activeStatuses, true) && ! in_array($oldStatus, $activeStatuses, true)) {
             $details = OrderDetails::where('order_id', $order->id)->with('product:id,stock')->get();
             foreach ($details as $row) {
@@ -109,7 +138,8 @@ class CourierWebhookOrderService
             }
         }
 
-        if ($newStatus === 11 && in_array($oldStatus, $activeStatuses, true)) {
+        // 2) Moving to 13 Returned or 15 Cancelled from an active status -> restore stock
+        if (in_array($newStatus, $restoreStatuses, true) && in_array($oldStatus, $activeStatuses, true)) {
             $details = OrderDetails::where('order_id', $order->id)->with('product:id,stock')->get();
             foreach ($details as $row) {
                 if ($row->product) {

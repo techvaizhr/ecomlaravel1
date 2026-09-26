@@ -137,41 +137,19 @@ class CarrybeeWebhookController extends Controller
             $order->refresh();
         }
 
-        switch ($event) {
-            case 'order.delivered':
-            case 'order.partial-delivery':
-                $this->webhookOrders->applyStatusChange($order, 6, 'Carrybee');
-                break;
+        // Status mapping using CourierStatusMapping:
+        // 7 = Delivered, 8 = Pending Partial, 12 = Pending Return, 6 = In Courier
+        $newStatusId = \App\Support\CourierStatusMapping::map('carrybee', $event);
 
-            case 'order.returned':
-            case 'order.paid-return':
-            case 'order.returned-to-merchant':
-            case 'order.returned-at-sorting':
-            case 'order.returned-in-transit':
-            case 'order.pickup-cancelled':
-            case 'order.delivery-failed':
-                $this->webhookOrders->applyStatusChange($order, 11, 'Carrybee');
-                break;
-
-            case 'order.picked':
-            case 'order.in-transit':
-            case 'order.assigned-for-delivery':
-            case 'order.at-the-sorting-hub':
-            case 'order.on-the-way-to-central-warehouse':
-            case 'order.at-central-warehouse':
-            case 'order.received-at-last-mile-hub':
-            case 'order.pickup-requested':
-            case 'order.assigned-for-pickup':
-                if ($order->order_status != 6 && $order->order_status != 11 && $order->order_status != 7) {
-                    $this->webhookOrders->applyStatusChange($order, 5, 'Carrybee');
-                }
-                break;
+        if ($newStatusId !== null) {
+            $this->webhookOrders->applyStatusChange($order, $newStatusId, 'Carrybee');
         }
 
         Log::info('Carrybee Webhook Processed for Order', [
             'order_id'       => $order->id,
             'invoice_id'     => $order->invoice_id,
             'event'          => $event,
+            'mapped_status'  => $newStatusId,
             'current_status' => $order->order_status,
         ]);
     }

@@ -153,8 +153,8 @@ class SteadfastWebhookController extends Controller
             $order->refresh();
         }
 
-        $newStatusId = SteadfastWebhookStatus::toOrderStatusId((string) $status)
-            ?? SteadfastWebhookStatus::fromTrackingMessage($trackingMessage);
+        $newStatusId = \App\Support\CourierStatusMapping::map('steadfast', (string) $status)
+            ?? \App\Support\CourierStatusMapping::map('steadfast', $trackingMessage);
 
         $this->applyOrderStatusFromSteadfast($order, $newStatusId, (string) $status, [
             'cod_amount'      => $request->input('cod_amount') ?? $request->input('amount'),

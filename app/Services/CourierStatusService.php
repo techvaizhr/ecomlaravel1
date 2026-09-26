@@ -199,18 +199,13 @@ class CourierStatusService
         }
 
         $rawStatus = (string) $data['delivery_status'];
-        $newStatusId = SteadfastWebhookStatus::toOrderStatusId($rawStatus);
+        $newStatusId = \App\Support\CourierStatusMapping::map('steadfast', $rawStatus);
 
         $updated = false;
         $oldStatusId = $order->order_status;
         if ($newStatusId !== null && (int) $newStatusId !== (int) $oldStatusId) {
-            $order->order_status = $newStatusId;
-            $order->save();
-            $updated = true;
-
-            if ($newStatusId == 11) {
-                \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-            }
+            $webhookService = app(\App\Services\CourierWebhookOrderService::class);
+            $updated = $webhookService->applyStatusChange($order, $newStatusId, 'Steadfast');
         }
 
         $order->load('status');
@@ -264,25 +259,14 @@ class CourierStatusService
         $orderData = $json['data'] ?? $json;
         $rawStatus = (string) ($orderData['order_status'] ?? $orderData['order_status_slug'] ?? 'Unknown');
 
-        // Pathao status mapping
-        $newStatusId = null;
-        $lowerStatus = strtolower($rawStatus);
-        if (in_array($lowerStatus, ['delivered', 'partial_delivered', 'payment_invoice_issued', 'paid'])) {
-            $newStatusId = 6; // Completed
-        } elseif (in_array($lowerStatus, ['cancelled', 'returned', 'return'])) {
-            $newStatusId = 11; // Cancelled
-        }
+        // Pathao status mapping using CourierStatusMapping
+        $newStatusId = \App\Support\CourierStatusMapping::map('pathao', $rawStatus);
 
         $updated = false;
         $oldStatusId = $order->order_status;
         if ($newStatusId !== null && (int) $newStatusId !== (int) $oldStatusId) {
-            $order->order_status = $newStatusId;
-            $order->save();
-            $updated = true;
-
-            if ($newStatusId == 11) {
-                \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-            }
+            $webhookService = app(\App\Services\CourierWebhookOrderService::class);
+            $updated = $webhookService->applyStatusChange($order, $newStatusId, 'Pathao');
         }
 
         $order->load('status');
@@ -328,18 +312,13 @@ class CourierStatusService
         }
 
         $rawStatus = (string) $parcelDetails['parcel']['status'];
-        $newStatusId = $redxService->mapStatusToOrderStatus(strtolower($rawStatus));
+        $newStatusId = \App\Support\CourierStatusMapping::map('redx', $rawStatus);
 
         $updated = false;
         $oldStatusId = $order->order_status;
         if ($newStatusId !== null && (int) $newStatusId !== (int) $oldStatusId) {
-            $order->order_status = $newStatusId;
-            $order->save();
-            $updated = true;
-
-            if ($newStatusId == 11) {
-                \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-            }
+            $webhookService = app(\App\Services\CourierWebhookOrderService::class);
+            $updated = $webhookService->applyStatusChange($order, $newStatusId, 'RedX');
         }
 
         $order->load('status');
@@ -380,30 +359,17 @@ class CourierStatusService
         $transferStatus = strtolower((string) ($data['transfer_status'] ?? ''));
         $paymentStatus = strtolower((string) ($data['payment_status'] ?? ''));
 
-        $newStatusId = null;
-        if (str_contains($transferStatus, 'delivered')) {
-            $newStatusId = 6;
-        } elseif (str_contains($transferStatus, 'returned') || str_contains($transferStatus, 'return')) {
-            $newStatusId = 7;
-        } elseif (str_contains($transferStatus, 'cancel')) {
-            $newStatusId = 8;
-        } elseif (!empty($transferStatus)) {
-            $newStatusId = 5; // In Courier
-        }
+        $newStatusId = \App\Support\CourierStatusMapping::map('carrybee', $transferStatus);
 
         $updated = false;
         $oldStatusId = $order->order_status;
         if ($newStatusId !== null && (int) $newStatusId !== (int) $oldStatusId) {
-            $order->order_status = $newStatusId;
-            $updated = true;
+            $webhookService = app(\App\Services\CourierWebhookOrderService::class);
+            $updated = $webhookService->applyStatusChange($order, $newStatusId, 'Carrybee');
         }
 
-        if ($paymentStatus === 'paid') {
+        if ($paymentStatus === 'paid' && $order->payment_status !== 'paid') {
             $order->payment_status = 'paid';
-            $updated = true;
-        }
-
-        if ($updated) {
             $order->save();
         }
 

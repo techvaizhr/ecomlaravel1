@@ -125,53 +125,24 @@ class PathaoWebhookController extends Controller
         $this->webhookOrders->appendCourierNote($order, $note);
         $order->refresh();
 
-        // Status mapping: 6 = Delivered/Completed, 11 = Cancelled, 7 = Returned, 5 = In Courier
-        switch ($event) {
-            case 'order.delivered':
-                $this->webhookOrders->applyStatusChange($order, 6, 'Pathao');
-                if (!empty($payload['delivery_fee'])) {
-                    $order->delivery_charge = $payload['delivery_fee'];
-                }
-                break;
+        // Status mapping using CourierStatusMapping:
+        // 7 = Delivered, 8 = Pending Partial, 12 = Pending Return, 6 = In Courier
+        $newStatusId = \App\Support\CourierStatusMapping::map('pathao', $event);
 
-            case 'order.partial_delivery':
-            case 'order.partial-delivery':
-                $this->webhookOrders->applyStatusChange($order, 6, 'Pathao');
-                break;
-
-            case 'order.return':
-            case 'order.returned':
-            case 'order.paid_return':
-            case 'order.returned_to_merchant':
-            case 'returned_to_merchant':
-            case 'return.in_transit':
-            case 'order.delivery_failed':
-            case 'order.pickup_cancelled':
-                $this->webhookOrders->applyStatusChange($order, 11, 'Pathao');
-                break;
-
-            case 'order.pickup':
-            case 'order.in_transit':
-            case 'order.assigned_for_delivery':
-            case 'order.at_the_sorting_hub':
-            case 'order.received_at_last_mile_hub':
-            case 'order.assigned_for_pickup':
-            case 'order.pickup_requested':
-            case 'order.created':
-            case 'order.updated':
-                // Courier in transit status if not already completed/cancelled
-                if ($order->order_status != 6 && $order->order_status != 11 && $order->order_status != 7) {
-                    $this->webhookOrders->applyStatusChange($order, 5, 'Pathao');
-                }
-                break;
+        if (!empty($payload['delivery_fee'])) {
+            $order->delivery_charge = $payload['delivery_fee'];
+            $order->save();
         }
 
-        $order->save();
+        if ($newStatusId !== null) {
+            $this->webhookOrders->applyStatusChange($order, $newStatusId, 'Pathao');
+        }
 
         Log::info('Pathao Webhook Processed for Order', [
             'order_id'       => $order->id,
             'invoice_id'     => $order->invoice_id,
             'event'          => $event,
+            'mapped_status'  => $newStatusId,
             'current_status' => $order->order_status,
         ]);
     }
