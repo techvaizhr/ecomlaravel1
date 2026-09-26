@@ -510,7 +510,7 @@
                         <tr>
                             <td class="text-muted">{{ $orders->firstItem() + $key }}</td>
                             <td>
-                                <a href="{{ route('admin.order.invoice', ['id' => $order->id]) }}" target="_blank" class="fw-bold text-primary text-decoration-none" style="font-size: 13px;">
+                                <a href="{{ route('admin.order.invoice', ['invoice_id' => $order->invoice_id ?: $order->id]) }}" target="_blank" class="fw-bold text-primary text-decoration-none" style="font-size: 13px;">
                                     #{{ $order->invoice_id ?: $order->id }}
                                 </a>
                                 <div class="text-muted" style="font-size: 11px;">
@@ -579,10 +579,10 @@
                             </td>
                             <td class="text-center no-print">
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('admin.order.invoice', ['id' => $order->id]) }}" target="_blank" class="btn btn-light border btn-xs text-primary" title="ইনভয়েস">
+                                    <a href="{{ route('admin.order.invoice', ['invoice_id' => $order->invoice_id ?: $order->id]) }}" target="_blank" class="btn btn-light border btn-xs text-primary" title="ইনভয়েস">
                                         <i class="fas fa-receipt"></i>
                                     </a>
-                                    <a href="{{ route('admin.order.process', ['id' => $order->id]) }}" class="btn btn-light border btn-xs text-dark" title="প্রসেস">
+                                    <a href="{{ route('admin.order.process', ['invoice_id' => $order->invoice_id ?: $order->id]) }}" class="btn btn-light border btn-xs text-dark" title="প্রসেস">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </div>

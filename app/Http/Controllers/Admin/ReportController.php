@@ -417,7 +417,7 @@ class ReportController extends Controller
         if ($type !== 'all' && $from && $to) {
             $chargeOnlyOrdersQuery->whereBetween('created_at', [$from, $to]);
         }
-        $chargeOnlyRevenue = $chargeOnlyOrdersQuery->sum(fn ($o) => ($o->partial_collected_amount > 0 ? $o->partial_collected_amount : ($o->shipping_charge ?? 0)));
+        $chargeOnlyRevenue = (float) $chargeOnlyOrdersQuery->get()->sum(fn ($o) => ($o->partial_collected_amount > 0 ? (float) $o->partial_collected_amount : (float) ($o->shipping_charge ?? 0)));
         $salesRevenue += $chargeOnlyRevenue;
 
         // 2. COGS (Cost of Goods Sold - পণ্যের ক্রয়মূল্য)
