@@ -210,18 +210,8 @@
                                                 </div>
 
                                                 @if($totalItems > 1)
-                                                    <div class="mt-1">
-                                                        <a class="btn btn-xs btn-light border py-0 px-1 text-primary fw-semibold d-inline-flex align-items-center gap-1" 
-                                                           data-bs-toggle="collapse" 
-                                                           href="#order-products-{{ $value->id }}" 
-                                                           role="button" 
-                                                           aria-expanded="false" 
-                                                           style="font-size: 10px; border-radius: 4px;">
-                                                            <i class="fas fa-layer-group" style="font-size: 9px;"></i> +{{ $totalItems - 1 }} আরও
-                                                        </a>
-                                                    </div>
-                                                    <div class="collapse mt-2" id="order-products-{{ $value->id }}">
-                                                        <div class="d-flex flex-column gap-2 pt-1 border-top">
+                                                    <div class="collapse mt-1.5" id="order-products-{{ $value->id }}">
+                                                        <div class="d-flex flex-column gap-1.5 pt-1.5 border-top">
                                                             @foreach($details->slice(1) as $extraItem)
                                                                 @php
                                                                     $extraImg = ($extraItem->image && $extraItem->image->image) 
@@ -238,9 +228,9 @@
                                                                          data-full-img="{{ $extraImg }}"
                                                                          data-title="{{ $extraName }}"
                                                                          onerror="this.src='{{ $fallbackImg }}'"
-                                                                         style="width: 30px; height: 30px; object-fit: cover; cursor: zoom-in;" 
+                                                                         style="width: 32px; height: 32px; object-fit: cover; cursor: zoom-in;" 
                                                                          title="বড় করে দেখতে ক্লিক করুন">
-                                                                    <div class="text-truncate" style="max-width: 135px;" title="{{ $extraName }}">
+                                                                    <div class="text-truncate" style="max-width: 140px;" title="{{ $extraName }}">
                                                                         <div class="fw-semibold text-dark" style="font-size: 11.5px; line-height: 1.25;">
                                                                             {{ Str::limit($extraName, 20) }}
                                                                         </div>
@@ -249,6 +239,17 @@
                                                                 </div>
                                                             @endforeach
                                                         </div>
+                                                    </div>
+                                                    <div class="mt-1">
+                                                        <a class="btn btn-xs btn-light border py-0 px-1 text-primary fw-semibold d-inline-flex align-items-center gap-1 oi-expand-toggle-btn" 
+                                                           data-bs-toggle="collapse" 
+                                                           href="#order-products-{{ $value->id }}" 
+                                                           role="button" 
+                                                           aria-expanded="false" 
+                                                           style="font-size: 10px; border-radius: 4px;">
+                                                            <span class="show-more-text"><i class="fas fa-layer-group" style="font-size: 9px;"></i> +{{ $totalItems - 1 }} আরও</span>
+                                                            <span class="show-less-text d-none"><i class="fas fa-chevron-up" style="font-size: 9px;"></i> সংক্ষেপ করুন</span>
+                                                        </a>
                                                     </div>
                                                 @endif
                                             @else
@@ -840,7 +841,17 @@ $(document).ready(function(){
         updateBulkActionVisibility();
     });
 
-    updateBulkActionVisibility();
+    // Product expand/collapse toggle text (+N আরও / সংক্ষেপ করুন)
+    $(document).on('show.bs.collapse', '[id^="order-products-"]', function () {
+        var $btn = $('a[href="#' + $(this).attr('id') + '"]');
+        $btn.find('.show-more-text').addClass('d-none');
+        $btn.find('.show-less-text').removeClass('d-none');
+    });
+    $(document).on('hide.bs.collapse', '[id^="order-products-"]', function () {
+        var $btn = $('a[href="#' + $(this).attr('id') + '"]');
+        $btn.find('.show-more-text').removeClass('d-none');
+        $btn.find('.show-less-text').addClass('d-none');
+    });
 
     // ── অর্ডার কুইক ভিউ মডাল ──
     function oqvShowModal() {
