@@ -94,30 +94,34 @@ $(document).ready(function () {
                 var lineTotal = delQty * item.sale_price;
 
                 tbody += `
-                <tr data-item-id="${item.id}" data-price="${item.sale_price}" data-ordered-qty="${item.qty}">
-                    <td>
-                        <div class="fw-bold text-dark text-truncate" style="max-width: 220px;" title="${item.product_name}">${item.product_name}</div>
-                        <small class="text-muted" style="font-size: 10.5px;">স্টক: ${item.product_stock} টি</small>
+                <tr data-item-id="${item.id}" data-price="${item.sale_price}" data-ordered-qty="${item.qty}" style="border-bottom: 1px solid #f1f5f9;">
+                    <td class="ps-2 py-2.5">
+                        <div class="fw-bold text-dark text-truncate" style="max-width: 250px;" title="${item.product_name}">${item.product_name}</div>
+                        <small class="text-muted" style="font-size: 11px;"><i class="fas fa-layer-group opacity-75"></i> মজুদ: ${item.product_stock} টি</small>
                     </td>
-                    <td class="text-center fw-semibold">৳${item.sale_price}</td>
-                    <td class="text-center"><span class="badge bg-secondary">${item.qty}</span></td>
-                    <td class="text-center">
-                        <div class="input-group input-group-sm mx-auto" style="max-width: 90px;">
+                    <td class="text-center py-2.5 fw-semibold text-secondary">৳${item.sale_price}</td>
+                    <td class="text-center py-2.5"><span class="badge bg-secondary-subtle text-secondary border px-2 py-1">${item.qty} টি</span></td>
+                    <td class="text-center py-2.5">
+                        <div class="input-group input-group-sm mx-auto d-flex align-items-center justify-content-center" style="max-width: 110px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm ps-qty-btn ps-qty-minus" style="width: 28px; height: 28px; padding: 0;"><i class="fas fa-minus" style="font-size: 9px;"></i></button>
                             <input type="number" min="0" max="${item.qty}" step="1" 
                                    name="items[${item.id}][delivered_qty]" 
-                                   class="form-control form-control-sm text-center fw-bold ps-item-del-input" 
-                                   value="${delQty}">
+                                   class="form-control form-control-sm text-center fw-bold ps-item-del-input px-1" 
+                                   value="${delQty}" style="height: 28px; max-width: 44px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm ps-qty-btn ps-qty-plus" style="width: 28px; height: 28px; padding: 0;"><i class="fas fa-plus" style="font-size: 9px;"></i></button>
                         </div>
                     </td>
-                    <td class="text-center">
-                        <span class="badge bg-danger-subtle text-danger fw-bold ps-item-ret-badge" style="font-size: 11px;">${retQty} টি ফেরত</span>
+                    <td class="text-center py-2.5">
+                        <span class="badge ${retQty > 0 ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-success-subtle text-success border border-success-subtle'} fw-semibold ps-item-ret-badge" style="font-size: 11px;">
+                            ${retQty > 0 ? retQty + ' টি ফেরত' : 'সম্পূর্ণ ডেলিভারি'}
+                        </span>
                         <input type="hidden" name="items[${item.id}][returned_qty]" class="ps-item-ret-input" value="${retQty}">
                     </td>
-                    <td class="text-end fw-bold text-success ps-item-line-total">৳${lineTotal}</td>
+                    <td class="text-end pe-2 py-2.5 fw-bold text-success ps-item-line-total">৳${lineTotal.toFixed(2)}</td>
                 </tr>`;
             });
         } else {
-            tbody = '<tr><td colspan="6" class="text-center py-2 text-muted">কোনো আইটেম নেই</td></tr>';
+            tbody = '<tr><td colspan="6" class="text-center py-3 text-muted">কোনো পণ্য পাওয়া যায়নি</td></tr>';
         }
         $('#ps_items_tbody').html(tbody);
 
@@ -142,11 +146,11 @@ $(document).ready(function () {
     // Option Cards Change Event
     $('input[name="target_status"]').on('change', function () {
         var val = $(this).val();
-        $('.ps-option-card').removeClass('active');
-        $(this).closest('.ps-option-card').addClass('active');
+        $('.ps-clean-card').removeClass('active');
+        $(this).closest('.ps-clean-card').addClass('active');
 
         $('.ps-dynamic-section').hide();
-        $('#ps_section_' + val).slideDown(200);
+        $('#ps_section_' + val).stop(true, true).slideDown(200);
 
         if (val === '9') {
             calcShortage9();
@@ -174,6 +178,27 @@ $(document).ready(function () {
         }
     }
 
+    // Option 10 stepper buttons
+    $(document).on('click', '.ps-qty-minus', function (e) {
+        e.preventDefault();
+        var $input = $(this).siblings('.ps-item-del-input');
+        var val = Number($input.val()) || 0;
+        if (val > 0) {
+            $input.val(val - 1).trigger('input');
+        }
+    });
+
+    $(document).on('click', '.ps-qty-plus', function (e) {
+        e.preventDefault();
+        var $input = $(this).siblings('.ps-item-del-input');
+        var $row = $(this).closest('tr');
+        var maxQty = Number($row.data('ordered-qty')) || 1;
+        var val = Number($input.val()) || 0;
+        if (val < maxQty) {
+            $input.val(val + 1).trigger('input');
+        }
+    });
+
     // Option 10 calculations
     $(document).on('input change', '.ps-item-del-input', function () {
         var $row = $(this).closest('tr');
@@ -186,7 +211,12 @@ $(document).ready(function () {
         $(this).val(val);
 
         var retQty = maxQty - val;
-        $row.find('.ps-item-ret-badge').text(retQty + ' টি ফেরত');
+        var $badge = $row.find('.ps-item-ret-badge');
+        if (retQty > 0) {
+            $badge.text(retQty + ' টি ফেরত').removeClass('bg-success-subtle text-success border-success-subtle').addClass('bg-danger-subtle text-danger border-danger-subtle');
+        } else {
+            $badge.text('সম্পূর্ণ ডেলিভারি').removeClass('bg-danger-subtle text-danger border-danger-subtle').addClass('bg-success-subtle text-success border-success-subtle');
+        }
         $row.find('.ps-item-ret-input').val(retQty);
         $row.find('.ps-item-line-total').text('৳' + (val * price).toFixed(2));
 
