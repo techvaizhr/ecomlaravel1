@@ -25,15 +25,14 @@
 
                                                 {{-- 3-Dot Action Menu (Horizontal '...' format) --}}
                                                 <div class="dropdown d-inline-block">
-                                                    <button class="btn btn-xs btn-light border-0 p-0 text-muted d-inline-flex align-items-center justify-content-center" 
+                                                    <button class="btn btn-xs order-action-btn-trigger p-0 d-inline-flex align-items-center justify-content-center" 
                                                             type="button" 
                                                             data-bs-toggle="dropdown" 
                                                             aria-expanded="false" 
-                                                            style="width: 20px; height: 16px; line-height: 1; border-radius: 4px;" 
                                                             title="অন্যান্য অ্যাকশন">
                                                         <i class="fas fa-ellipsis-h" style="font-size: 11px;"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu dropdown-menu-start shadow-sm border-0 order-action-dropdown" style="min-width: 175px; z-index: 1050; font-size: 12.5px;">
+                                                    <ul class="dropdown-menu dropdown-menu-start order-action-dropdown">
                                                         <li>
                                                             <a class="dropdown-item order-quick-view-btn d-flex align-items-center" href="javascript:void(0);" data-order-id="{{ $value->id }}">
                                                                 <i class="fas fa-eye text-primary me-2"></i> বিস্তারিত ভিউ
