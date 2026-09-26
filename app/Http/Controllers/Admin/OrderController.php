@@ -3846,5 +3846,6 @@ PROMPT;
         Cache::forget('new_order_count');
         Cache::forget('pending_orders_list');
         Cache::forget('incomplete_orders_count');
+        Cache::forget('reseller_orders_count');
     }
 }

@@ -1252,6 +1252,16 @@ $(document).ready(function(){
             toastr.error('Please Select A Valid Status !');
             $statusSelect.focus();
             return false;
+        // If partial settlement status is selected:
+        if (statusValue == '8' || statusValue == '9' || statusValue == '10' || statusValue == '11') {
+            if (order_ids.length === 1) {
+                $('#changeStatus').modal('hide');
+                window.openPartialSettlementModal(order_ids[0]);
+                return false;
+            } else {
+                toastr.warning('আংশিক ডেলিভারি সেটেলমেন্টের জন্য প্রতিটি অর্ডার আলাদাভাবে সেটেল করতে হবে।');
+                return false;
+            }
         }
 
         // Show loading

@@ -728,11 +728,14 @@ $(document).on('click', '.sync-courier-status-btn', function (e) {
         error: function (xhr) {
             $icon.removeClass('fa-spin');
             $btn.prop('disabled', false);
-            var msg = 'কুরিয়ার স্ট্যাটাস যাচাই করতে সমস্যা হয়েছে';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                msg = xhr.responseJSON.message;
-            }
             toastr.error(msg);
+        }
+    });
+
+    $(document).on('change', '#order_status_select', function () {
+        var val = parseInt($(this).val());
+        if (val === 8 || val === 9 || val === 10 || val === 11) {
+            window.openPartialSettlementModal({{ $data->id }});
         }
     });
 });
