@@ -2,6 +2,26 @@
 $(document).ready(function () {
     let currentPartialOrder = null;
 
+    function showPsModal() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            try {
+                var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('partialSettlementModal'));
+                if (modal) { modal.show(); return; }
+            } catch(e) {}
+        }
+        $('#partialSettlementModal').modal('show');
+    }
+
+    function hidePsModal() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            try {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('partialSettlementModal'));
+                if (modal) { modal.hide(); }
+            } catch(e) {}
+        }
+        $('#partialSettlementModal').modal('hide');
+    }
+
     // Open Partial Settlement Modal for a given order ID
     window.openPartialSettlementModal = function (orderId) {
         if (!orderId) return;
@@ -10,9 +30,7 @@ $(document).ready(function () {
         $('#ps_order_id').val(orderId);
         $('#ps_items_tbody').html('<tr><td colspan="6" class="text-center py-3 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> তথ্য লোড হচ্ছে...</td></tr>');
         
-        var modalEl = document.getElementById('partialSettlementModal');
-        var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
+        showPsModal();
 
         $.ajax({
             url: "{{ url('admin/order/partial-details') }}/" + orderId,
@@ -24,12 +42,12 @@ $(document).ready(function () {
                     renderPartialModalData(res.order);
                 } else {
                     toastr.error('অর্ডারের তথ্য পাওয়া যায়নি');
-                    modal.hide();
+                    hidePsModal();
                 }
             },
             error: function () {
                 toastr.error('সার্ভার থেকে তথ্য লোড করতে সমস্যা হয়েছে');
-                modal.hide();
+                hidePsModal();
             }
         });
     };
@@ -219,8 +237,7 @@ $(document).ready(function () {
             success: function (res) {
                 if (res.status === 'success') {
                     toastr.success(res.message || 'সেটেলমেন্ট সফল হয়েছে!');
-                    var modalEl = document.getElementById('partialSettlementModal');
-                    bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                    hidePsModal();
                     setTimeout(function () {
                         window.location.reload();
                     }, 600);

@@ -176,10 +176,10 @@
                     </form>
                 </div>
 
-                {{-- 2. Bulk Actions Bar (Hidden by default, appears right under search when orders are selected) --}}
-                <div class="oi-bulk-actions-wrapper" id="bulkActionsWrapper" style="display: none;">
+                {{-- 2. Bulk Actions Bar (Always visible with quick action tools) --}}
+                <div class="oi-bulk-actions-wrapper" id="bulkActionsWrapper">
                     <div class="p-2 px-3 rounded-3 bg-light border d-flex flex-wrap align-items-center justify-content-between gap-2 shadow-sm">
-                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0" id="selectedOrdersBadgeWrapper" style="display: none;">
                             <span class="badge bg-primary rounded-pill px-2.5 py-1.5" id="selectedOrdersBadge" style="font-size: 11.5px;">
                                 <i class="fas fa-check-square me-1"></i> <span id="selectedOrdersCount">0</span> টি সিলেক্টেড
                             </span>

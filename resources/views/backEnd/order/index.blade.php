@@ -573,6 +573,35 @@
             </div>
         </div>
     </div>
+{{-- Quick Single Order Status Change Modal --}}
+<div class="modal fade" id="quickSingleStatusModal" tabindex="-1" aria-labelledby="quickStatusModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+            <div class="modal-header py-2 px-3 bg-primary text-white d-flex align-items-center justify-content-between">
+                <h6 class="modal-title m-0 text-white fw-bold fs-6" id="quickStatusModalTitle">
+                    <i class="fas fa-flag me-1"></i> স্ট্যাটাস পরিবর্তন
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-2.5" style="max-height: 70vh; overflow-y: auto;">
+                <input type="hidden" id="quick_status_order_id" value="">
+                <div class="d-grid gap-1.5" id="quick_status_list">
+                    @if(isset($orderstatus))
+                        @foreach($orderstatus as $st)
+                            <button type="button" 
+                                    class="btn btn-outline-primary btn-sm text-start d-flex align-items-center justify-content-between py-1.5 px-2.5 quick-status-opt-btn mb-1" 
+                                    data-status-id="{{ $st->id }}" 
+                                    data-status-name="{{ $st->name }}"
+                                    style="border-radius: 6px; font-size: 12.5px; font-weight: 600;">
+                                <span><i class="far fa-circle me-1.5 opacity-50"></i> {{ $st->name }}</span>
+                                <span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>
+                            </button>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @include('backEnd.order.partials.partial_settlement_modal')
@@ -1314,6 +1343,25 @@ $(document).ready(function(){
         return false;
     });
 
+    function showQuickStatusModal() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            try {
+                var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('quickSingleStatusModal'));
+                if (modal) { modal.show(); return; }
+            } catch(e) {}
+        }
+        $('#quickSingleStatusModal').modal('show');
+    }
+    function hideQuickStatusModal() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            try {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('quickSingleStatusModal'));
+                if (modal) { modal.hide(); }
+            } catch(e) {}
+        }
+        $('#quickSingleStatusModal').modal('hide');
+    }
+
     // ── Single Order Quick Status Modal Popup ──
     $(document).on('click', '.quick-change-status-btn', function (e) {
         e.preventDefault();
@@ -1328,7 +1376,7 @@ $(document).ready(function(){
         $('#quick_status_list .quick-status-opt-btn').each(function () {
             var sId = $(this).data('status-id');
             var sName = $(this).data('status-name');
-            $(this).prop('disabled', false).html('<span><i class="far fa-check-circle me-1.5 opacity-50"></i> ' + sName + '</span><span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>');
+            $(this).prop('disabled', false).html('<span><i class="far fa-circle me-1.5 opacity-50"></i> ' + sName + '</span><span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>');
 
             if (String(sId) === String(currentStatus)) {
                 $(this).addClass('btn-primary text-white').removeClass('btn-outline-primary');
@@ -1339,7 +1387,7 @@ $(document).ready(function(){
             }
         });
 
-        $('#quickSingleStatusModal').modal('show');
+        showQuickStatusModal();
     });
 
     $(document).on('click', '.quick-status-opt-btn', function (e) {
@@ -1351,7 +1399,7 @@ $(document).ready(function(){
 
         // If target status is 9 (Full Received), 10 (Item Received), or 11 (Charge Only):
         if (statusId == 9 || statusId == 10 || statusId == 11) {
-            $('#quickSingleStatusModal').modal('hide');
+            hideQuickStatusModal();
             window.openPartialSettlementModal(orderId);
             return;
         }
@@ -1369,14 +1417,14 @@ $(document).ready(function(){
             success: function (res) {
                 if (res && res.status === 'success') {
                     toastr.success(res.message || 'স্ট্যাটাস আপডেট সফল হয়েছে');
-                    $('#quickSingleStatusModal').modal('hide');
+                    hideQuickStatusModal();
                     setTimeout(function () {
                         window.location.reload();
                     }, 500);
                 } else {
                     toastr.error((res && res.message) ? res.message : 'স্ট্যাটাস পরিবর্তন ব্যর্থ');
                     $('#quick_status_list .quick-status-opt-btn').prop('disabled', false);
-                    $btn.html('<span><i class="far fa-check-circle me-1.5 opacity-50"></i> ' + statusName + '</span>');
+                    $btn.html('<span><i class="far fa-circle me-1.5 opacity-50"></i> ' + statusName + '</span>');
                 }
             },
             error: function (xhr) {
