@@ -41,28 +41,52 @@ class CourierStatusMapping
 
     /**
      * Active stock holding statuses (stock is deducted):
+     * 1 - New Order, 2 - Hold, 3 - Confirmed, 4 - Packaging, 5 - Courier Handover,
+     * 6 - In Courier, 7 - Delivered, 8 - Pending Partial, 9 - Partial (Full Received),
+     * 12 - Pending Return (parcel physically returning, verified upon Return).
      */
     public const STOCK_ACTIVE_STATUSES = [
-        self::STATUS_NEW_ORDER,
-        self::STATUS_HOLD,
-        self::STATUS_CONFIRMED,
-        self::STATUS_PACKAGING,
-        self::STATUS_COURIER_HANDOVER,
-        self::STATUS_IN_COURIER,
-        self::STATUS_DELIVERED,
-        self::STATUS_PENDING_PARTIAL,
-        self::STATUS_PARTIAL_FULL_RECEIVED,
-        self::STATUS_PARTIAL_ITEM_RECEIVED,
-        self::STATUS_PARTIAL_CHARGE_ONLY,
-        self::STATUS_PENDING_RETURN,
+        self::STATUS_NEW_ORDER,            // 1
+        self::STATUS_HOLD,                 // 2
+        self::STATUS_CONFIRMED,            // 3
+        self::STATUS_PACKAGING,            // 4
+        self::STATUS_COURIER_HANDOVER,     // 5
+        self::STATUS_IN_COURIER,           // 6
+        self::STATUS_DELIVERED,            // 7
+        self::STATUS_PENDING_PARTIAL,      // 8
+        self::STATUS_PARTIAL_FULL_RECEIVED,// 9
+        self::STATUS_PENDING_RETURN,       // 12
     ];
 
     /**
-     * Stock restoration statuses (product returns to stock):
+     * Stock restoration statuses (all product stock returns to inventory):
+     * 11 - Partial (Delivery Charge Only), 13 - Returned, 14 - Pre Order, 15 - Cancelled
      */
     public const STOCK_RESTORE_STATUSES = [
-        self::STATUS_RETURNED,  // 13
-        self::STATUS_CANCELLED, // 15
+        self::STATUS_PARTIAL_CHARGE_ONLY,  // 11
+        self::STATUS_RETURNED,             // 13
+        self::STATUS_PRE_ORDER,            // 14
+        self::STATUS_CANCELLED,            // 15
+    ];
+
+    /**
+     * Delivered / Successful Sales statuses for counts, revenues & dashboards:
+     * 7 - Delivered + 9 - Partial (Full Received) + 10 - Partial (Item Received)
+     */
+    public const DELIVERED_GROUP_STATUSES = [
+        self::STATUS_DELIVERED,            // 7
+        self::STATUS_PARTIAL_FULL_RECEIVED,// 9
+        self::STATUS_PARTIAL_ITEM_RECEIVED,// 10
+    ];
+
+    /**
+     * Returned statuses for reports and dashboards:
+     * 13 - Returned + 10 - Partial (Item Received) + 11 - Partial (Delivery Charge Only)
+     */
+    public const RETURNED_GROUP_STATUSES = [
+        self::STATUS_PARTIAL_ITEM_RECEIVED,// 10
+        self::STATUS_PARTIAL_CHARGE_ONLY,  // 11
+        self::STATUS_RETURNED,             // 13
     ];
 
     /**
@@ -74,11 +98,11 @@ class CourierStatusMapping
     }
 
     /**
-     * Check if status is a delivered / completed state.
+     * Check if status is a delivered / completed sales state.
      */
     public static function isDelivered(int|string|null $statusId): bool
     {
-        return (int) $statusId === self::STATUS_DELIVERED || (int) $statusId === self::STATUS_PARTIAL_FULL_RECEIVED;
+        return in_array((int) $statusId, self::DELIVERED_GROUP_STATUSES, true);
     }
 
     /**
@@ -86,7 +110,7 @@ class CourierStatusMapping
      */
     public static function isFinalCancelledOrReturned(int|string|null $statusId): bool
     {
-        return (int) $statusId === self::STATUS_CANCELLED || (int) $statusId === self::STATUS_RETURNED;
+        return in_array((int) $statusId, [self::STATUS_CANCELLED, self::STATUS_RETURNED, self::STATUS_PARTIAL_CHARGE_ONLY], true);
     }
 
     /**

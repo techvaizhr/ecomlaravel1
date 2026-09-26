@@ -272,6 +272,20 @@
 
                                         {{-- 6. Status & Courier Info --}}
                                         <td class="align-middle text-center text-nowrap" style="width: 1%; padding-left: 4px; padding-right: 4px;">
+                                            @php
+                                                $stId = (int) $value->order_status;
+                                                $stPillClass = match ($stId) {
+                                                    7 => 'bg-success text-white',
+                                                    8 => 'bg-warning text-dark border-warning fw-bold',
+                                                    9 => 'bg-success text-white',
+                                                    10 => 'bg-info text-dark',
+                                                    11 => 'bg-secondary text-white',
+                                                    12 => 'bg-danger text-white',
+                                                    13 => 'bg-danger text-white',
+                                                    15 => 'bg-dark text-white',
+                                                    default => 'bg-light text-dark border',
+                                                };
+                                            @endphp
                                             <a href="javascript:void(0);" 
                                                class="quick-change-status-btn text-decoration-none d-inline-block" 
                                                data-order-id="{{ $value->id }}" 
@@ -279,10 +293,22 @@
                                                data-invoice="{{ $value->invoice_id }}" 
                                                data-status-name="{{ $value->status ? $value->status->name : '—' }}" 
                                                title="স্ট্যাটাস পরিবর্তন করতে ক্লিক করুন">
-                                                <span class="oi-status-pill badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600; cursor: pointer;">
-                                                    {{ $value->status ? $value->status->name : '—' }} <i class="fas fa-caret-down text-muted" style="font-size: 8.5px; margin-left: 2px;"></i>
+                                                <span class="oi-status-pill badge {{ $stPillClass }} px-2 py-1" style="font-size: 11px; font-weight: 600; cursor: pointer;">
+                                                    {{ $value->status ? $value->status->name : '—' }} <i class="fas fa-caret-down opacity-75" style="font-size: 8.5px; margin-left: 2px;"></i>
                                                 </span>
                                             </a>
+
+                                            @if($stId === 8 || $stId === 9 || $stId === 10 || $stId === 11)
+                                                <div class="mt-1">
+                                                    <button type="button" 
+                                                            class="btn btn-xs {{ $stId === 8 ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary' }} open-partial-settle-btn py-0 px-1.5 shadow-sm d-inline-flex align-items-center" 
+                                                            data-order-id="{{ $value->id }}" 
+                                                            style="font-size: 10px; border-radius: 4px;" 
+                                                            title="আংশিক ডেলিভারি সেটেলমেন্ট বা হিসাব এডিট করুন">
+                                                        <i class="fas fa-boxes me-1 {{ $stId === 8 ? 'text-danger' : 'text-primary' }}"></i> {{ $stId === 8 ? 'সেটেল করুন' : 'সেটেলমেন্ট' }}
+                                                    </button>
+                                                </div>
+                                            @endif
 
                                             @php
                                                 $cTrackingId = $value->courier_tracking_id_clean;
@@ -549,9 +575,12 @@
     </div>
 </div>
 
+@include('backEnd.order.partials.partial_settlement_modal')
+
 @endsection
 
 @section('script')
+@include('backEnd.order.partials.partial_settlement_js')
 <script>
     // Safe number helper
     function toNum(v) {
@@ -1311,6 +1340,13 @@ $(document).ready(function(){
         var $btn = $(this);
 
         if (!orderId || !statusId) return;
+
+        // If target status is 8 (Pending Partial), 9 (Full Received), 10 (Item Received), or 11 (Charge Only):
+        if (statusId == 8 || statusId == 9 || statusId == 10 || statusId == 11) {
+            $('#quickSingleStatusModal').modal('hide');
+            window.openPartialSettlementModal(orderId);
+            return;
+        }
 
         $('#quick_status_list .quick-status-opt-btn').prop('disabled', true);
         $btn.html('<i class="fas fa-spinner fa-spin me-1"></i> আপডেট হচ্ছে...');

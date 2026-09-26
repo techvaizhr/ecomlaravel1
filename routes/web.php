@@ -1193,6 +1193,8 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('order/invoice/{invoice_id}', [OrderController::class,'invoice'])->name('admin.order.invoice');
     Route::get('order/process/{invoice_id}', [OrderController::class,'process'])->name('admin.order.process');
     Route::post('order/sync-courier-status', [OrderController::class, 'syncCourierStatus'])->name('admin.order.sync_courier_status');
+    Route::get('order/partial-details/{id}', [OrderController::class, 'getPartialDetails'])->name('admin.order.get_partial_details');
+    Route::post('order/settle-partial', [OrderController::class, 'settlePartial'])->name('admin.order.settle_partial');
     Route::post('order/change', [OrderController::class,'order_process'])->name('admin.order_change');
     Route::post('order/destroy', [OrderController::class,'destroy'])->name('admin.order.destroy');
     Route::get('order-assign', [OrderController::class,'order_assign'])->name('admin.order.assign');

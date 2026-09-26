@@ -537,6 +537,19 @@
                             <h6><i class="fas fa-tasks"></i> অর্ডার স্ট্যাটাস</h6>
                         </div>
                         <div class="op-card-body">
+                            @if((int) $data->order_status === 8 || (int) $data->order_status === 9 || (int) $data->order_status === 10 || (int) $data->order_status === 11)
+                            <div class="mb-3 p-2.5 rounded border border-warning bg-warning-subtle text-dark">
+                                <div class="fw-bold small d-flex align-items-center justify-content-between">
+                                    <span><i class="fas fa-exclamation-triangle text-warning me-1"></i> আংশিক ডেলিভারি অর্ডার</span>
+                                    <span class="badge bg-warning text-dark">{{ $currentStatusName }}</span>
+                                </div>
+                                <div class="text-muted small mt-1" style="font-size: 11.5px;">এই অর্ডারের জন্য কোন পণ্য কতটি ডেলিভারি হয়েছে বা কত টাকা জমা হয়েছে তা সেটেল করুন।</div>
+                                <button type="button" class="btn btn-warning btn-sm fw-bold w-100 mt-2 open-partial-settle-btn shadow-sm" data-order-id="{{ $data->id }}">
+                                    <i class="fas fa-boxes me-1"></i> আংশিক সেটেলমেন্ট করুন
+                                </button>
+                            </div>
+                            @endif
+
                             <div class="op-input-group mb-3">
                                 <label class="op-form-label" for="order_status_select"><i class="fas fa-flag"></i> স্ট্যাটাস</label>
                                 <select id="order_status_select" class="form-select select2-multiple" name="status" data-toggle="select2" required>
@@ -726,5 +739,7 @@ $(document).on('click', '.sync-courier-status-btn', function (e) {
 </script>
 
 @include('backEnd.order.partials.courier_booking_modal')
+@include('backEnd.order.partials.partial_settlement_modal')
+@include('backEnd.order.partials.partial_settlement_js')
 @endsection
 

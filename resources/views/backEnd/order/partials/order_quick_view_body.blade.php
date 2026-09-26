@@ -374,6 +374,11 @@
         <a href="{{ route('admin.order.edit', $order->invoice_id) }}" class="btn btn-sm oqv-act-edit">
             <i class="fas fa-edit"></i> এডিট
         </a>
+        @if((int) $order->order_status === 8 || (int) $order->order_status === 9 || (int) $order->order_status === 10 || (int) $order->order_status === 11)
+        <button type="button" class="btn btn-sm btn-warning text-dark fw-bold open-partial-settle-btn" data-order-id="{{ $order->id }}" style="font-weight: 700;">
+            <i class="fas fa-boxes me-1 text-danger"></i> আংশিক সেটেলমেন্ট
+        </button>
+        @endif
         @php
             $activeCouriers = \App\Models\Courierapi::where('status', 1)->pluck('type')->toArray();
             $courierMap = ['carrybee' => 'Carrybee', 'steadfast' => 'Steadfast', 'pathao' => 'Pathao', 'redx' => 'RedX'];

@@ -69,7 +69,7 @@ class OrderController extends Controller
     protected function handleStockChange(Order $order, int $oldStatus, int $newStatus)
     {
         $activeStatuses  = \App\Support\CourierStatusMapping::STOCK_ACTIVE_STATUSES;
-        $restoreStatuses = \App\Support\CourierStatusMapping::STOCK_RESTORE_STATUSES; // [13 Returned, 15 Cancelled]
+        $restoreStatuses = \App\Support\CourierStatusMapping::STOCK_RESTORE_STATUSES; // [11 Partial Charge Only, 13 Returned, 14 Pre Order, 15 Cancelled]
 
         // 1) প্রথমবার active status এ ঢুকলে স্টক কমবে
         if (in_array($newStatus, $activeStatuses, true) && !in_array($oldStatus, $activeStatuses, true)) {
@@ -85,7 +85,7 @@ class OrderController extends Controller
             }
         }
 
-        // 2) cancel (15) বা returned (13) হলে, যদি আগেরটা active group এ থাকে -> স্টক রিস্টোর
+        // 2) cancel (15), returned (13), বা partial charge only (11) হলে, যদি আগেরটা active group এ থাকে -> স্টক রিস্টোর
         if (in_array($newStatus, $restoreStatuses, true) && in_array($oldStatus, $activeStatuses, true)) {
             $details = OrderDetails::where('order_id', $order->id)
                 ->with('product:id,stock') // ✅ Eager load products to avoid N+1
@@ -98,6 +98,228 @@ class OrderController extends Controller
                 }
             }
         }
+    }
+
+    /**
+     * Get order details for partial settlement modal (AJAX)
+     */
+    public function getPartialDetails($id)
+    {
+        $order = Order::with(['orderdetails.product:id,name,stock,new_price,purchase_price', 'orderdetails.image', 'orderdetails.size', 'orderdetails.color', 'shipping', 'customer'])->findOrFail($id);
+
+        return response()->json([
+            'status' => 'success',
+            'order'  => [
+                'id'                      => $order->id,
+                'invoice_id'              => $order->invoice_id,
+                'amount'                  => (float) $order->amount,
+                'shipping_charge'         => (float) $order->shipping_charge,
+                'discount'                => (float) $order->discount,
+                'customer_name'           => $order->shipping ? $order->shipping->name : ($order->customer->name ?? 'Customer'),
+                'customer_phone'          => $order->shipping ? $order->shipping->phone : ($order->customer->phone ?? ''),
+                'customer_address'        => $order->shipping ? ($order->shipping->full_address ?: $order->shipping->address) : '',
+                'current_status'          => (int) $order->order_status,
+                'partial_type'            => $order->partial_type,
+                'partial_collected_amount'=> $order->partial_collected_amount,
+                'partial_note'            => $order->partial_note,
+                'items'                   => $order->orderdetails->map(function ($d) {
+                    return [
+                        'id'             => $d->id,
+                        'product_id'     => $d->product_id,
+                        'product_name'   => $d->product_name,
+                        'sale_price'     => (float) $d->sale_price,
+                        'purchase_price' => (float) $d->purchase_price,
+                        'qty'            => (int) $d->qty,
+                        'delivered_qty'  => $d->delivered_qty !== null ? (int) $d->delivered_qty : (int) $d->qty,
+                        'returned_qty'   => (int) ($d->returned_qty ?? 0),
+                        'product_stock'  => $d->product ? (int) $d->product->stock : 0,
+                    ];
+                }),
+            ],
+        ]);
+    }
+
+    /**
+     * Settle a partial order into 9 (Full Received), 10 (Item Received), or 11 (Delivery Charge Only)
+     */
+    public function settlePartial(Request $request)
+    {
+        $request->validate([
+            'order_id'      => 'required|exists:orders,id',
+            'target_status' => 'required|in:9,10,11',
+            'note'          => 'nullable|string',
+        ]);
+
+        $order = Order::with(['orderdetails.product', 'shipping', 'payment'])->findOrFail($request->order_id);
+        $oldStatus = (int) $order->order_status;
+        $targetStatus = (int) $request->target_status;
+        $note = $request->input('note');
+
+        // 1. Target Status 9: Partial (Full Received)
+        // Customer accepted ALL items, but paid partial amount
+        if ($targetStatus === \App\Support\CourierStatusMapping::STATUS_PARTIAL_FULL_RECEIVED) {
+            $collectedAmount = $request->filled('collected_amount') ? max(0, (float) $request->collected_amount) : (float) $order->amount;
+            
+            // For all items: delivered_qty = qty, returned_qty = 0
+            foreach ($order->orderdetails as $detail) {
+                $detail->delivered_qty = $detail->qty;
+                $detail->returned_qty  = 0;
+                $detail->save();
+            }
+
+            $order->order_status             = \App\Support\CourierStatusMapping::STATUS_PARTIAL_FULL_RECEIVED;
+            $order->amount                   = $collectedAmount;
+            $order->partial_type             = 'full_received';
+            $order->partial_collected_amount = $collectedAmount;
+            $order->partial_returned_amount  = max(0, ((float) $order->getOriginal('amount')) - $collectedAmount);
+            $order->partial_settled_at       = now();
+            $order->partial_note             = $note;
+            $order->payment_status           = 'paid';
+            $order->save();
+
+            // Payment record update
+            $payment = Payment::where('order_id', $order->id)->first();
+            if ($payment) {
+                $payment->amount         = $collectedAmount;
+                $payment->payment_status = 'paid';
+                $payment->save();
+            }
+
+            // Fund Transaction
+            FundTransaction::create([
+                'direction'  => 'in',
+                'source'     => 'sale',
+                'source_id'  => $order->id,
+                'amount'     => $collectedAmount,
+                'note'       => 'Partial (Full Received) Order #' . $order->invoice_id,
+                'created_by' => auth()->id() ?: 1,
+            ]);
+
+            $this->distributeVendorEarnings($order);
+            $this->creditResellerWallet($order);
+        }
+        // 2. Target Status 10: Partial (Item Received)
+        // Customer accepted SOME items and returned other items
+        elseif ($targetStatus === \App\Support\CourierStatusMapping::STATUS_PARTIAL_ITEM_RECEIVED) {
+            $itemsData = $request->input('items', []);
+            $includeShipping = $request->boolean('include_shipping', true);
+            $shippingCharge = $includeShipping ? (float) $order->shipping_charge : 0;
+            $calculatedItemsTotal = 0;
+
+            foreach ($order->orderdetails as $detail) {
+                $itemInfo = $itemsData[$detail->id] ?? null;
+                $delQty   = isset($itemInfo['delivered_qty']) ? max(0, (int) $itemInfo['delivered_qty']) : (int) $detail->qty;
+                $delQty   = min($delQty, (int) $detail->qty);
+                $retQty   = max(0, (int) $detail->qty - $delQty);
+
+                // If returned_qty > 0 and stock was deducted, restore the returned portion to product stock
+                if ($retQty > 0 && in_array($oldStatus, \App\Support\CourierStatusMapping::STOCK_ACTIVE_STATUSES, true)) {
+                    if ($detail->product) {
+                        $detail->product->stock = $detail->product->stock + $retQty;
+                        $detail->product->save();
+                    }
+                }
+
+                $detail->delivered_qty = $delQty;
+                $detail->returned_qty  = $retQty;
+                $detail->save();
+
+                $calculatedItemsTotal += ($delQty * (float) $detail->sale_price);
+            }
+
+            $finalCollectedAmount = $request->filled('collected_amount') ? max(0, (float) $request->collected_amount) : ($calculatedItemsTotal + $shippingCharge - (float) $order->discount);
+            $finalCollectedAmount = max(0, $finalCollectedAmount);
+
+            $order->order_status             = \App\Support\CourierStatusMapping::STATUS_PARTIAL_ITEM_RECEIVED;
+            $order->amount                   = $finalCollectedAmount;
+            $order->shipping_charge          = $shippingCharge;
+            $order->partial_type             = 'item_received';
+            $order->partial_collected_amount = $finalCollectedAmount;
+            $order->partial_returned_amount  = max(0, ((float) $order->getOriginal('amount')) - $finalCollectedAmount);
+            $order->partial_settled_at       = now();
+            $order->partial_note             = $note;
+            $order->payment_status           = 'paid';
+            $order->save();
+
+            // Payment record update
+            $payment = Payment::where('order_id', $order->id)->first();
+            if ($payment) {
+                $payment->amount         = $finalCollectedAmount;
+                $payment->payment_status = 'paid';
+                $payment->save();
+            }
+
+            // Fund Transaction
+            FundTransaction::create([
+                'direction'  => 'in',
+                'source'     => 'sale',
+                'source_id'  => $order->id,
+                'amount'     => $finalCollectedAmount,
+                'note'       => 'Partial (Item Received) Order #' . $order->invoice_id,
+                'created_by' => auth()->id() ?: 1,
+            ]);
+
+            $this->distributeVendorEarnings($order);
+            $this->creditResellerWallet($order);
+        }
+        // 3. Target Status 11: Partial (Delivery Charge Only)
+        // Customer rejected all items, but gave delivery charge
+        elseif ($targetStatus === \App\Support\CourierStatusMapping::STATUS_PARTIAL_CHARGE_ONLY) {
+            $deliveryChargePaid = $request->filled('delivery_charge_paid') ? max(0, (float) $request->delivery_charge_paid) : (float) $order->shipping_charge;
+
+            // Restore ALL products stock back to inventory
+            if (in_array($oldStatus, \App\Support\CourierStatusMapping::STOCK_ACTIVE_STATUSES, true)) {
+                foreach ($order->orderdetails as $detail) {
+                    if ($detail->product) {
+                        $detail->product->stock = $detail->product->stock + $detail->qty;
+                        $detail->product->save();
+                    }
+                    $detail->delivered_qty = 0;
+                    $detail->returned_qty  = $detail->qty;
+                    $detail->save();
+                }
+            }
+
+            $order->order_status             = \App\Support\CourierStatusMapping::STATUS_PARTIAL_CHARGE_ONLY;
+            $order->amount                   = $deliveryChargePaid;
+            $order->partial_type             = 'delivery_charge_only';
+            $order->partial_collected_amount = $deliveryChargePaid;
+            $order->partial_returned_amount  = max(0, ((float) $order->getOriginal('amount')) - $deliveryChargePaid);
+            $order->partial_settled_at       = now();
+            $order->partial_note             = $note;
+            $order->payment_status           = $deliveryChargePaid > 0 ? 'paid' : 'cancelled';
+            $order->save();
+
+            // Payment record update
+            $payment = Payment::where('order_id', $order->id)->first();
+            if ($payment) {
+                $payment->amount         = $deliveryChargePaid;
+                $payment->payment_status = $deliveryChargePaid > 0 ? 'paid' : 'cancelled';
+                $payment->save();
+            }
+
+            if ($deliveryChargePaid > 0) {
+                FundTransaction::create([
+                    'direction'  => 'in',
+                    'source'     => 'delivery_charge',
+                    'source_id'  => $order->id,
+                    'amount'     => $deliveryChargePaid,
+                    'note'       => 'Partial (Delivery Charge Only) Order #' . $order->invoice_id,
+                    'created_by' => auth()->id() ?: 1,
+                ]);
+            }
+
+            \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
+        }
+
+        $this->clearOrderStatusCache();
+
+        return response()->json([
+            'status'            => 'success',
+            'message'           => 'অর্ডারটি সফলভাবে সেটেল করা হয়েছে!',
+            'order_status'      => $order->order_status,
+            'order_status_name' => $order->status ? $order->status->name : 'N/A',
+        ]);
     }
 
     /*
@@ -2514,10 +2736,11 @@ PROMPT;
     public function order_report(Request $request)
     {
         $users = User::where('status', 1)->get();
+        $deliveredStatuses = \App\Support\CourierStatusMapping::DELIVERED_GROUP_STATUSES; // [7 Delivered, 9 Partial Full Received, 10 Partial Item Received]
 
         $orders = OrderDetails::with('shipping', 'order')
-            ->whereHas('order', function ($query) {
-                $query->where('order_status', 6);
+            ->whereHas('order', function ($query) use ($deliveredStatuses) {
+                $query->whereIn('order_status', $deliveredStatuses);
             });
 
         if ($request->keyword) {
@@ -2532,9 +2755,9 @@ PROMPT;
             $orders = $orders->whereBetween('updated_at', [$request->start_date, $request->end_date]);
         }
 
-        $total_purchase = $orders->sum(\DB::raw('purchase_price * qty'));
-        $total_item     = $orders->sum('qty');
-        $total_sales    = $orders->sum(\DB::raw('sale_price * qty'));
+        $total_purchase = $orders->sum(\DB::raw('purchase_price * COALESCE(delivered_qty, qty)'));
+        $total_item     = $orders->sum(\DB::raw('COALESCE(delivered_qty, qty)'));
+        $total_sales    = $orders->sum(\DB::raw('sale_price * COALESCE(delivered_qty, qty)'));
         $orders         = $orders->paginate(10);
 
         return view('backEnd.reports.order', compact(

@@ -19,34 +19,44 @@ use Session;
 use Toastr;
 use Auth;
 use DB;
+use App\Support\CourierStatusMapping;
 
 class DashboardController extends Controller
 {
     public function dashboard()
     {
+        $deliveredStatuses = CourierStatusMapping::DELIVERED_GROUP_STATUSES; // [7 Delivered, 9 Partial Full Received, 10 Partial Item Received]
+        $returnedStatuses  = CourierStatusMapping::RETURNED_GROUP_STATUSES;  // [10 Partial Item Received, 11 Partial Delivery Charge Only, 13 Returned]
+
         // ── Basic counts ──
         $total_order    = Order::count();
         $total_product  = Product::count();
         $total_customer = Customer::count();
-        $total_delivery = Order::where('order_status', '6')->count();
+        $total_delivery = Order::whereIn('order_status', $deliveredStatuses)->count();
+        $total_returned = Order::whereIn('order_status', $returnedStatuses)->count();
+
+        // ── Pending Action Badges ──
+        $pending_partial_count = Order::where('order_status', CourierStatusMapping::STATUS_PENDING_PARTIAL)->count(); // 8
+        $pending_return_count  = Order::where('order_status', CourierStatusMapping::STATUS_PENDING_RETURN)->count();  // 12
 
         // ── Revenue & pending ──
-        $total_revenue     = Order::where('order_status', '6')->sum('amount');
-        $pending_orders    = Order::whereNotIn('order_status', ['6','7'])->count();
+        $total_revenue     = Order::whereIn('order_status', $deliveredStatuses)->sum('amount');
+        $pending_orders    = Order::whereNotIn('order_status', array_merge($deliveredStatuses, [CourierStatusMapping::STATUS_RETURNED, CourierStatusMapping::STATUS_CANCELLED]))->count();
         $low_stock         = Product::where('stock', '<', 10)->count();
 
         // ── Today stats ──
         $today_order              = Order::whereDate('created_at', Carbon::today())->count();
         $today_revenue            = Order::whereDate('created_at', Carbon::today())->sum('amount');
-        $today_delivered_revenue  = Order::where('order_status', '6')->whereDate('updated_at', Carbon::today())->sum('amount');
-        $today_delivery           = Order::where('order_status', '6')->whereDate('updated_at', Carbon::today())->count();
+        $today_delivered_revenue  = Order::whereIn('order_status', $deliveredStatuses)->whereDate('updated_at', Carbon::today())->sum('amount');
+        $today_delivery           = Order::whereIn('order_status', $deliveredStatuses)->whereDate('updated_at', Carbon::today())->count();
 
         // ── Today profit ──
-        $todayDeliveredOrders = Order::where('order_status', '6')->whereDate('updated_at', Carbon::today())->get();
+        $todayDeliveredOrders = Order::whereIn('order_status', $deliveredStatuses)->whereDate('updated_at', Carbon::today())->get();
         $todayOrderIds        = $todayDeliveredOrders->pluck('id');
         $todayDetails         = OrderDetails::whereIn('order_id', $todayOrderIds)->with('product:id,purchase_price')->get();
         $today_cogs           = $todayDetails->sum(function ($r) {
-            return ($r->purchase_price ?? ($r->product->purchase_price ?? 0)) * $r->qty;
+            $qty = $r->delivered_qty !== null ? $r->delivered_qty : $r->qty;
+            return ($r->purchase_price ?? ($r->product->purchase_price ?? 0)) * $qty;
         });
         $today_profit = $todayDeliveredOrders->sum('amount') - $today_cogs;
 
@@ -63,13 +73,14 @@ class DashboardController extends Controller
         $trend_data   = $last7->pluck('count');
 
         // ── Order status breakdown ──
+        $orderStatusesAll = \App\Models\OrderStatus::where('status', 1)->orderBy('id', 'ASC')->get()->keyBy('id');
         $statusGroups = Order::select('order_status', DB::raw('count(*) as total'))
             ->groupBy('order_status')->get();
-        $statusMap    = ['1'=>'Pending','2'=>'Confirmed','3'=>'Processing','4'=>'Picked','5'=>'Shipped','6'=>'Delivered','7'=>'Cancelled'];
         $statusLabels = [];
         $statusData   = [];
         foreach ($statusGroups as $sg) {
-            $statusLabels[] = $statusMap[$sg->order_status] ?? 'Status '.$sg->order_status;
+            $statusModel    = $orderStatusesAll->get((int) $sg->order_status);
+            $statusLabels[] = $statusModel ? $statusModel->name : ('Status ' . $sg->order_status);
             $statusData[]   = (int) $sg->total;
         }
         if (empty($statusLabels)) { $statusLabels = ['No Orders']; $statusData = [0]; }
@@ -87,11 +98,11 @@ class DashboardController extends Controller
         $monthly_expenses = Expense::whereYear('created_at', Carbon::now()->year)->whereMonth('created_at', Carbon::now()->month)->sum('amount');
 
         // ── Category sales (donut chart) ──
-        $deliveredOrderIds = Order::where('order_status', '6')->pluck('id');
+        $deliveredOrderIds = Order::whereIn('order_status', $deliveredStatuses)->pluck('id');
         $categorySales = OrderDetails::whereIn('order_id', $deliveredOrderIds)
             ->join('products',   'order_details.product_id',   '=', 'products.id')
             ->join('categories', 'products.category_id',       '=', 'categories.id')
-            ->select('categories.name as category_name', DB::raw('SUM(order_details.sale_price * order_details.qty) as total_sales'))
+            ->select('categories.name as category_name', DB::raw('SUM(order_details.sale_price * COALESCE(order_details.delivered_qty, order_details.qty)) as total_sales'))
             ->groupBy('categories.name')->orderBy('total_sales', 'DESC')->get();
         $categoryLabels = $categorySales->pluck('category_name')->toArray();
         $categorySeries = $categorySales->pluck('total_sales')->map(fn($v) => (float) number_format($v, 2, '.', ''))->toArray();
@@ -99,9 +110,9 @@ class DashboardController extends Controller
 
         // ── Monthly sale (legacy chart) ──
         $monthly_sale = Order::select(DB::raw('DATE(updated_at) as date'))->selectRaw('SUM(amount) as amount')
-            ->where('order_status', '6')->groupBy('date')->orderBy('date', 'desc')->limit(30)->get();
-        $last_week    = Order::where('order_status', '6')->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count();
-        $last_month   = Order::where('order_status', '6')->whereYear('updated_at', Carbon::now()->subMonth()->year)->whereMonth('updated_at', Carbon::now()->subMonth()->month)->count();
+            ->whereIn('order_status', $deliveredStatuses)->groupBy('date')->orderBy('date', 'desc')->limit(30)->get();
+        $last_week    = Order::whereIn('order_status', $deliveredStatuses)->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count();
+        $last_month   = Order::whereIn('order_status', $deliveredStatuses)->whereYear('updated_at', Carbon::now()->subMonth()->year)->whereMonth('updated_at', Carbon::now()->subMonth()->month)->count();
 
         // ── Traffic Source stats ──
         $sourceIconMap = [
@@ -139,7 +150,8 @@ class DashboardController extends Controller
         $trafficTotal     = $trafficSources->sum('count') ?: 1; // avoid division by zero
 
         return view('backEnd.admin.dashboard', compact(
-            'total_order', 'total_product', 'total_customer', 'total_delivery',
+            'total_order', 'total_product', 'total_customer', 'total_delivery', 'total_returned',
+            'pending_partial_count', 'pending_return_count',
             'total_revenue', 'pending_orders', 'low_stock',
             'today_order', 'today_revenue', 'today_delivered_revenue', 'today_delivery',
             'today_profit', 'trend_labels', 'trend_data',
