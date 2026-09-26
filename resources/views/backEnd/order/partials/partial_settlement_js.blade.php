@@ -227,7 +227,13 @@ $(document).ready(function () {
         calcTotal10();
     });
 
-    function calcTotal10() {
+    $(document).on('click', '#ps_sync_calc_10', function (e) {
+        e.preventDefault();
+        calcTotal10(true);
+        toastr.info('হিসাব অনুযায়ী টাকার পরিমাণ রিক্যালকুলেট করা হয়েছে');
+    });
+
+    function calcTotal10(forceSetInput) {
         if (!currentPartialOrder) return;
         var itemsSum = 0;
 
@@ -241,8 +247,9 @@ $(document).ready(function () {
         var discount = Number(currentPartialOrder.discount) || 0;
         var finalTotal = Math.max(0, itemsSum + ship - discount);
 
-        $('#ps_calculated_total_10').text(finalTotal.toFixed(2));
-        $('#ps_collected_amount_10').val(finalTotal);
+        if (forceSetInput || $('#ps_collected_amount_10').val() === '' || $('#ps_collected_amount_10').val() === '0' || forceSetInput === undefined) {
+            $('#ps_collected_amount_10').val(finalTotal);
+        }
     }
 
     // Form Submit
