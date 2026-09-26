@@ -571,6 +571,9 @@
         </div>
     </form>
 </div>
+
+@include('backEnd.order.partials.courier_booking_modal')
+@include('backEnd.order.partials.partial_settlement_modal')
 @endsection
 
 @section('script')
@@ -742,8 +745,6 @@ $(document).on('click', '.sync-courier-status-btn', function (e) {
 });
 </script>
 
-@include('backEnd.order.partials.courier_booking_modal')
-@include('backEnd.order.partials.partial_settlement_modal')
 @include('backEnd.order.partials.partial_settlement_js')
 @endsection
 

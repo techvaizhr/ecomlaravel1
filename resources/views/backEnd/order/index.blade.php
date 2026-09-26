@@ -573,39 +573,6 @@
             </div>
         </div>
     </div>
-</div>
-
-{{-- Quick Single Order Status Change Modal --}}
-<div class="modal fade" id="quickSingleStatusModal" tabindex="-1" aria-labelledby="quickStatusModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
-            <div class="modal-header py-2 px-3 bg-primary text-white d-flex align-items-center justify-content-between">
-                <h6 class="modal-title m-0 text-white fw-bold fs-6" id="quickStatusModalTitle">
-                    <i class="fas fa-flag me-1"></i> স্ট্যাটাস পরিবর্তন
-                </h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-2.5" style="max-height: 70vh; overflow-y: auto;">
-                <input type="hidden" id="quick_status_order_id" value="">
-                <div class="d-grid gap-1.5" id="quick_status_list">
-                    @if(isset($orderstatus))
-                        @foreach($orderstatus as $st)
-                            <button type="button" 
-                                    class="btn btn-outline-primary btn-sm text-start d-flex align-items-center justify-content-between py-1.5 px-2.5 quick-status-opt-btn mb-1" 
-                                    data-status-id="{{ $st->id }}" 
-                                    data-status-name="{{ $st->name }}"
-                                    style="border-radius: 6px; font-size: 12.5px; font-weight: 600;">
-                                <span><i class="far fa-circle me-1.5 opacity-50"></i> {{ $st->name }}</span>
-                                <span class="badge bg-light text-dark border current-tag d-none" style="font-size: 10px;">বর্তমান</span>
-                            </button>
-                        @endforeach
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @include('backEnd.order.partials.partial_settlement_modal')
 
 @endsection
@@ -613,7 +580,10 @@
 @section('script')
 @include('backEnd.order.partials.partial_settlement_js')
 <script>
-    // Safe number helper
+(function ($) {
+"use strict";
+
+$(document).ready(function () {
     function toNum(v) {
         if (v === null || v === undefined || v === '') return 0;
         var n = Number(v);
@@ -1279,8 +1249,10 @@ $(document).ready(function(){
             toastr.error('Please Select A Valid Status !');
             $statusSelect.focus();
             return false;
-        // If partial settlement status is selected:
-        if (statusValue == '8' || statusValue == '9' || statusValue == '10' || statusValue == '11') {
+        }
+
+        // If partial settlement status is selected (9, 10, 11):
+        if (statusValue == '9' || statusValue == '10' || statusValue == '11') {
             if (order_ids.length === 1) {
                 $('#changeStatus').modal('hide');
                 window.openPartialSettlementModal(order_ids[0]);
