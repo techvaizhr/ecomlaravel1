@@ -1293,6 +1293,8 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('vendors/{id}/toggle-status', [VendorController::class,'toggleStatus'])->name('admin.vendors.toggle-status');
     Route::post('vendors/{id}/approve-verification', [VendorController::class,'approveVerification'])->name('admin.vendors.approve-verification');
     Route::post('vendors/{id}/reject-verification', [VendorController::class,'rejectVerification'])->name('admin.vendors.reject-verification');
+    Route::get('vendors/{id}/login-as', [VendorController::class,'loginAsVendor'])->name('admin.vendors.login-as');
+    Route::get('vendors/impersonate/switch-back', [VendorController::class,'switchBackToAdmin'])->name('admin.vendors.switch-back');
     Route::delete('vendors/{id}', [VendorController::class,'destroy'])->name('admin.vendors.destroy');
     
     // Vendor Verification Management

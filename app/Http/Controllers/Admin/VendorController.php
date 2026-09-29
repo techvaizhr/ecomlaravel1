@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Arr;
 
 class VendorController extends Controller
@@ -236,5 +238,77 @@ class VendorController extends Controller
 
         Toastr::success('Vendor verification rejected', 'Success');
         return redirect()->back();
+    }
+
+    /**
+     * Impersonate / Login as vendor directly from admin panel.
+     */
+    public function loginAsVendor($id)
+    {
+        $vendor = Vendor::findOrFail($id);
+
+        // Find associated user account
+        $user = User::where('vendor_id', $vendor->id)->first();
+        if (!$user && $vendor->email) {
+            $user = User::where('email', $vendor->email)->first();
+            if ($user) {
+                $user->vendor_id = $vendor->id;
+                $user->shop_name = $vendor->shop_name;
+                $user->save();
+            }
+        }
+
+        // If user record doesn't exist, automatically generate one for this vendor
+        if (!$user) {
+            $user = User::create([
+                'name'      => $vendor->owner_name ?: $vendor->shop_name,
+                'email'     => $vendor->email ?: ('vendor_' . $vendor->id . '@shop.local'),
+                'password'  => Hash::make('Vendor@' . $vendor->id . '#' . rand(1000, 9999)),
+                'status'    => 1,
+                'vendor_id' => $vendor->id,
+                'shop_name' => $vendor->shop_name,
+            ]);
+        }
+
+        // Ensure user has vendor role
+        if (class_exists(\Spatie\Permission\Models\Role::class)) {
+            $role = Role::firstOrCreate(
+                ['name' => 'vendor', 'guard_name' => 'admin'],
+                ['name' => 'vendor', 'guard_name' => 'admin']
+            );
+            if (!$user->hasRole('vendor')) {
+                $user->assignRole($role);
+            }
+        }
+
+        // Track who impersonated
+        $currentAdmin = Auth::guard('admin')->user();
+        if ($currentAdmin && !$currentAdmin->vendor_id) {
+            session(['admin_impersonator_id' => $currentAdmin->id]);
+        }
+
+        // Log in as vendor user
+        Auth::guard('admin')->login($user);
+
+        Toastr::success("স্বাগতম! আপনি {$vendor->shop_name} ({$vendor->owner_name})-এর ভেন্ডর ড্যাশবোর্ডে লগইন করেছেন।", "Login as Vendor");
+        return redirect()->route('vendor.dashboard');
+    }
+
+    /**
+     * Switch back to Admin Panel from Vendor Impersonation.
+     */
+    public function switchBackToAdmin()
+    {
+        $adminId = session('admin_impersonator_id');
+        if ($adminId) {
+            $adminUser = User::find($adminId);
+            if ($adminUser) {
+                Auth::guard('admin')->login($adminUser);
+                session()->forget('admin_impersonator_id');
+                Toastr::success('অ্যাডমিন প্যানেলে ফিরে এসেছেন।', 'Welcome Back');
+                return redirect()->route('admin.vendors.index');
+            }
+        }
+        return redirect()->route('admin.dashboard');
     }
 }

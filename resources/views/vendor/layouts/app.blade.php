@@ -185,6 +185,21 @@
             </div>
         </header>
 
+        @if(session('admin_impersonator_id'))
+            <div class="alert alert-warning d-flex align-items-center justify-content-between py-2 px-3 mb-3 rounded-3 shadow-sm border-warning" style="background: #fffbeb; color: #92400e;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-user-secret fs-5 text-warning"></i>
+                    <div>
+                        <strong class="d-block" style="font-size: 13px;">এডমিন ইম্পার্সনেশন মোড চালু আছে</strong>
+                        <small style="font-size: 11.5px;">আপনি বর্তমানে <strong>{{ $vendor->shop_name ?? 'ভেন্ডর' }}</strong> হিসেবে লগইন আছেন।</small>
+                    </div>
+                </div>
+                <a href="{{ route('admin.vendors.switch-back') }}" class="btn btn-sm btn-dark rounded-pill px-3 shadow-sm fw-bold" style="font-size: 12px;">
+                    <i class="fas fa-arrow-left me-1"></i> Return to Admin Panel
+                </a>
+            </div>
+        @endif
+
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
