@@ -78,7 +78,7 @@ class ProductController extends Controller
             $keyword = trim($request->keyword);
             $query->where(function($q) use ($keyword) {
                 $q->where('name', 'LIKE', '%' . $keyword . '%')
-                  ->orWhere('pro_barcode', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('product_code', 'LIKE', '%' . $keyword . '%')
                   ->orWhere('id', $keyword);
             });
         }
@@ -131,7 +131,7 @@ class ProductController extends Controller
             $keyword = trim($request->keyword);
             $query->where(function($q) use ($keyword) {
                 $q->where('name', 'LIKE', '%' . $keyword . '%')
-                  ->orWhere('pro_barcode', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('product_code', 'LIKE', '%' . $keyword . '%')
                   ->orWhere('id', $keyword);
             });
         }
@@ -194,7 +194,7 @@ class ProductController extends Controller
             $keyword = trim($request->keyword);
             $query->where(function($q) use ($keyword) {
                 $q->where('name', 'LIKE', '%' . $keyword . '%')
-                  ->orWhere('pro_barcode', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('product_code', 'LIKE', '%' . $keyword . '%')
                   ->orWhere('id', $keyword);
             });
         }

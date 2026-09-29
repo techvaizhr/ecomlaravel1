@@ -372,8 +372,8 @@
                                 <span class="badge {{ $value->product_type === 'digital' ? 'bg-soft-purple text-purple' : 'bg-soft-info text-info' }}" style="font-size:10px;">
                                     {{ $value->product_type === 'digital' ? '💾 Digital' : '📦 Physical' }}
                                 </span>
-                                @if($value->pro_barcode)
-                                    <small class="text-muted" style="font-family:monospace;font-size:11px;">#{{ $value->pro_barcode }}</small>
+                                @if($value->product_code)
+                                    <small class="text-muted" style="font-family:monospace;font-size:11px;">#{{ $value->product_code }}</small>
                                 @endif
                             </div>
                         </td>
