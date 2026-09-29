@@ -783,6 +783,14 @@
             }
         }
 
+        // Brand & Vendor
+        if (data.brand_id && $('select[name="brand_id"] option[value="' + data.brand_id + '"]').length > 0) {
+            $('select[name="brand_id"]').val(data.brand_id).trigger('change');
+        }
+        if (data.vendor_id && $('#pro_vendor_id option[value="' + data.vendor_id + '"]').length > 0) {
+            $('#pro_vendor_id').val(data.vendor_id).trigger('change');
+        }
+
         // Remote Images
         const images = data.images || [];
         if (images.length > 0) {

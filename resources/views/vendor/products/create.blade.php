@@ -131,15 +131,19 @@
 @endpush
 
 @section('content')
-<div class="container-fluid px-0">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h4 class="mb-1 fw-bold text-dark">Create Product</h4>
             <p class="text-muted mb-0 small">Add a new product to your inventory</p>
         </div>
-        <a href="{{ route('vendor.products.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
-            <i class="fas fa-arrow-left me-2"></i>Back to List
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-primary rounded-pill px-3 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#vendorImportProductModal">
+                <i class="fa fa-bolt me-1"></i> Import from URL
+            </button>
+            <a href="{{ route('vendor.products.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
     </div>
 
     <form action="{{ route('vendor.products.store') }}" method="POST" data-parsley-validate="" enctype="multipart/form-data">
@@ -485,6 +489,8 @@
         </div>
     </form>
 </div>
+
+@include('vendor.products.partials.import_modal')
 @endsection
 
 @push('scripts')
@@ -713,6 +719,58 @@
                 $("#childcategory_id").empty();
             }
         });
+
+        // Check for imported product prefill
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasPrefill = urlParams.get('prefill') === '1';
+            const rawData = sessionStorage.getItem('vendor_imported_product_prefill');
+
+            if (hasPrefill && rawData) {
+                const data = JSON.parse(rawData);
+                sessionStorage.removeItem('vendor_imported_product_prefill');
+
+                if (data.name) $('#name').val(data.name);
+                if (data.new_price) $('input[name="new_price"]').val(data.new_price);
+                if (data.old_price) $('input[name="old_price"]').val(data.old_price);
+                if (data.purchase_price) $('input[name="purchase_price"]').val(data.purchase_price);
+                if (data.stock) $('input[name="stock"]').val(data.stock);
+                if (data.pro_unit) $('input[name="pro_unit"]').val(data.pro_unit);
+                if (data.meta_title) $('input[name="meta_title"]').val(data.meta_title);
+                if (data.meta_description) $('textarea[name="meta_description"]').val(data.meta_description);
+
+                if (data.description) {
+                    try {
+                        $('.summernote').summernote('code', data.description);
+                    } catch (e) {
+                        $('.summernote').val(data.description);
+                    }
+                }
+
+                if (data.category_id && $('#category_id option[value="' + data.category_id + '"]').length > 0) {
+                    $('#category_id').val(data.category_id).trigger('change');
+                    if (data.subcategory_id) {
+                        setTimeout(() => {
+                            $('#subcategory_id').val(data.subcategory_id).trigger('change');
+                        }, 500);
+                    }
+                }
+
+                if (data.brand_id && $('select[name="brand_id"] option[value="' + data.brand_id + '"]').length > 0) {
+                    $('select[name="brand_id"]').val(data.brand_id).trigger('change');
+                }
+
+                if (data.images && data.images.length > 0) {
+                    data.images.forEach(function(imgUrl) {
+                        $('<input>').attr({type: 'hidden', name: 'imported_remote_images[]', value: imgUrl}).appendTo('form');
+                    });
+                }
+
+                toastr.success('ইমপোর্ট করা ডাটা সফলভাবে ফর্মে বসানো হয়েছে!');
+            }
+        } catch (e) {
+            console.error(e);
+        }
     });
 </script>
 @endpush

@@ -211,6 +211,20 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold text-dark"><i class="fe-user text-primary me-1"></i>Vendor / Inventory</label>
+                    <select class="form-control select2" name="vendor_id" id="pro_vendor_id">
+                        <option value="">🏢 Inhouse / Own Inventory (Default)</option>
+                        @if(isset($vendors))
+                            @foreach($vendors as $v)
+                                <option value="{{ $v->id }}" {{ old('vendor_id') == $v->id ? 'selected' : '' }}>
+                                    🏬 {{ $v->shop_name ? $v->shop_name . ' (' . $v->name . ')' : $v->name }} [ID: #{{ $v->id }}]
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                    <small class="text-muted" style="font-size:10.5px;">পণ্যটি নিজস্ব হলে ইনহাউজ রাখুন, অথবা ভেন্ডর নির্বাচন করুন।</small>
+                </div>
             </div>
 
             {{-- Digital File Section --}}

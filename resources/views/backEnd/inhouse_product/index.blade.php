@@ -311,6 +311,9 @@
                 <button type="button" data-url="{{ route('products.update_deals') }}" data-status="0" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 hotdeal_update">
                     <i class="fe-x-circle me-1"></i> Remove Deal
                 </button>
+                <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-2.5" id="btn_bulk_assign_vendor">
+                    <i class="fe-user-plus me-1"></i> Assign to Vendor
+                </button>
             </div>
             
             <div class="small text-muted fw-semibold">
@@ -422,6 +425,11 @@
                                         </a>
                                     </li>
                                     <li>
+                                        <a class="dropdown-item btn-open-assign-vendor" href="javascript:void(0)" data-id="{{ $value->id }}" data-name="{{ $value->name }}">
+                                            <i class="fe-user-check text-success"></i> Assign to Vendor
+                                        </a>
+                                    </li>
+                                    <li>
                                         @if($value->status == 1)
                                             <form method="post" action="{{ route('products.inactive') }}" class="d-inline">
                                                 @csrf
@@ -476,6 +484,56 @@
         </div>
     </div>
 </div>
+
+<!-- Modal: Assign to Vendor -->
+<div class="modal fade" id="assignVendorModal" tabindex="-1" aria-labelledby="assignVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header text-white border-0 py-3" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);">
+                <h5 class="modal-title fw-bold text-white mb-0" id="assignVendorModalLabel">
+                    <i class="fe-user-check me-1"></i> Assign Product to Vendor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="assignVendorForm">
+                @csrf
+                <input type="hidden" name="product_id" id="modal_assign_product_id" value="">
+                <input type="hidden" name="is_bulk" id="modal_assign_is_bulk" value="0">
+                <div class="modal-body p-4 bg-light">
+                    <div class="p-3 bg-white rounded-3 border mb-3">
+                        <small class="text-muted d-block fw-semibold" style="font-size:11px;">পণ্য / প্রোডাক্ট:</small>
+                        <h6 class="fw-bold text-dark mb-0 mt-1" id="modal_assign_product_title">Product Title</h6>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark" style="font-size:13px;">
+                            <i class="fe-shopping-bag text-primary me-1"></i> Select Vendor <span class="text-danger">*</span>
+                        </label>
+                        <select name="vendor_id" id="modal_assign_vendor_select" class="form-select select2" required style="width: 100%;">
+                            <option value="">-- Select Vendor --</option>
+                            @if(isset($vendors))
+                                @foreach($vendors as $v)
+                                    <option value="{{ $v->id }}">
+                                        🏬 {{ $v->shop_name ? $v->shop_name . ' (' . $v->name . ')' : $v->name }} [ID: #{{ $v->id }}]
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small class="text-muted mt-1 d-block" style="font-size:11px;">
+                            অ্যাসাইন করার সাথে সাথে এই পণ্যটি নির্বাচিত ভেন্ডরের অ্যাকাউন্টে যুক্ত হবে।
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-white py-2.5 px-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">বাতিল</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="btn_confirm_assign">
+                        <span class="spinner-border spinner-border-sm me-1 d-none" id="assign_spinner"></span>
+                        <i class="fe-check-circle me-1"></i> Confirm Assign
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -483,6 +541,10 @@
 <script>
     $(document).ready(function() {
         $('.select2').select2({ width: '100%' });
+        $('#modal_assign_vendor_select').select2({
+            dropdownParent: $('#assignVendorModal'),
+            width: '100%'
+        });
 
         // Select All Checkbox
         $(".checkall").on('change', function() {
@@ -516,6 +578,120 @@
                     setTimeout(function() { location.reload(); }, 600);
                 }
             });
+        });
+
+        // Single product open assign vendor modal
+        $(document).on('click', '.btn-open-assign-vendor', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('id');
+            var productName = $(this).data('name');
+
+            $('#modal_assign_is_bulk').val('0');
+            $('#modal_assign_product_id').val(productId);
+            $('#modal_assign_product_title').text(productName);
+            $('#modal_assign_vendor_select').val('').trigger('change');
+
+            var modal = new bootstrap.Modal(document.getElementById('assignVendorModal'));
+            modal.show();
+        });
+
+        // Bulk Assign Vendor Button Click
+        $('#btn_bulk_assign_vendor').on('click', function(e) {
+            e.preventDefault();
+            var selectedIds = [];
+            $(".checkbox:checked").each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                toastr.warning("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন!");
+                return;
+            }
+
+            $('#modal_assign_is_bulk').val('1');
+            $('#modal_assign_product_id').val(selectedIds.join(','));
+            $('#modal_assign_product_title').html('নির্বাচিত <strong>' + selectedIds.length + 'টি পণ্য</strong> একযোগে ভেন্ডরে অ্যাসাইন করা হবে।');
+            $('#modal_assign_vendor_select').val('').trigger('change');
+
+            var modal = new bootstrap.Modal(document.getElementById('assignVendorModal'));
+            modal.show();
+        });
+
+        // Submit Assign Vendor Form
+        $('#assignVendorForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var vendorId = $('#modal_assign_vendor_select').val();
+            if (!vendorId) {
+                toastr.error("অনুগ্রহ করে একজন ভেন্ডর নির্বাচন করুন!");
+                return;
+            }
+
+            var isBulk = $('#modal_assign_is_bulk').val();
+            var submitBtn = $('#btn_confirm_assign');
+            var spinner = $('#assign_spinner');
+
+            submitBtn.prop('disabled', true);
+            spinner.removeClass('d-none');
+
+            if (isBulk === '1') {
+                var rawIds = $('#modal_assign_product_id').val();
+                var productIds = rawIds.split(',');
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('products.bulk_assign_vendor') }}",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        product_ids: productIds,
+                        vendor_id: vendorId
+                    },
+                    success: function(res) {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        if (res.status === 'success') {
+                            toastr.success(res.message);
+                            bootstrap.Modal.getInstance(document.getElementById('assignVendorModal')).hide();
+                            setTimeout(function() { location.reload(); }, 700);
+                        } else {
+                            toastr.error(res.message || "সমস্যা হয়েছে!");
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        toastr.error("ভেন্ডর অ্যাসাইন করতে সমস্যা হয়েছে!");
+                    }
+                });
+            } else {
+                var productId = $('#modal_assign_product_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('products.assign_vendor') }}",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        product_id: productId,
+                        vendor_id: vendorId
+                    },
+                    success: function(res) {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        if (res.status === 'success') {
+                            toastr.success(res.message);
+                            bootstrap.Modal.getInstance(document.getElementById('assignVendorModal')).hide();
+                            setTimeout(function() { location.reload(); }, 700);
+                        } else {
+                            toastr.error(res.message || "সমস্যা হয়েছে!");
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        toastr.error("ভেন্ডর অ্যাসাইন করতে সমস্যা হয়েছে!");
+                    }
+                });
+            }
         });
     });
 </script>

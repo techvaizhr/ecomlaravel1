@@ -17,6 +17,7 @@ use App\Models\Childcategory;
 use App\Models\Brand;
 use App\Models\Color;
 use App\Models\Size;
+use App\Models\Vendor;
 use Toastr;
 use File;
 use Illuminate\Support\Str;
@@ -33,7 +34,7 @@ class ProductController extends Controller
     {
         $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
         $this->middleware('permission:product-create', ['only' => ['create','store','fetchFromUrl','quickStoreFromUrl','parseHtml']]);
-        $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:product-edit', ['only' => ['edit','update','assignVendor','bulkAssignVendor']]);
         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
         $this->middleware('permission:product-create|product-edit', ['only' => ['generateAIDescription']]);
     }
@@ -112,8 +113,9 @@ class ProductController extends Controller
         $per_page = $request->get('per_page', 25);
         $data = $query->paginate($per_page)->withQueryString();
         $categories = Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->get();
+        $vendors = Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
 
-        return view('backEnd.product.index', compact('data', 'categories'));
+        return view('backEnd.product.index', compact('data', 'categories', 'vendors'));
     }
 
     // ================================
@@ -145,8 +147,9 @@ class ProductController extends Controller
         $per_page = $request->get('per_page', 25);
         $data = $query->paginate($per_page)->withQueryString();
         $categories = Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->get();
+        $vendors = Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
 
-        return view('backEnd.product.pending', compact('data', 'categories'));
+        return view('backEnd.product.pending', compact('data', 'categories', 'vendors'));
     }
 
     // ================================
@@ -211,8 +214,9 @@ class ProductController extends Controller
         $per_page = $request->get('per_page', 25);
         $data = $query->paginate($per_page)->withQueryString();
         $categories = Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->get();
+        $vendors = Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
         
-        return view('backEnd.product.wholesale', compact('data', 'categories'));
+        return view('backEnd.product.wholesale', compact('data', 'categories', 'vendors'));
     }
 
     // ================================
@@ -225,6 +229,7 @@ class ProductController extends Controller
             'brands'     => Brand::where('status', 1)->select('id', 'name')->get(),
             'colors'     => Color::where('status', 1)->get(),
             'sizes'      => Size::where('status', 1)->get(),
+            'vendors'    => Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get(),
         ]);
     }
 
@@ -317,6 +322,7 @@ class ProductController extends Controller
         $input['status']          = $request->status ? 1 : 0;
         $input['free_delivery']   = $request->free_delivery ? 1 : 0;
         $input['approval_status'] = 'approved'; // Admin created products are auto-approved
+        $input['vendor_id']       = ($request->filled('vendor_id') && (int)$request->vendor_id > 0) ? (int)$request->vendor_id : null;
         $input['topsale']         = $request->topsale ? 1 : 0;
         $input['feature_product'] = $request->feature_product ? 1 : 0;
         $input['product_code']    = 'P' . str_pad($last_id, 4, '0', STR_PAD_LEFT);
@@ -510,6 +516,7 @@ class ProductController extends Controller
             'selectcolors'    => Productcolor::where('product_id', $id)->get(),
             'selectsizes'     => Productsize::where('product_id', $id)->get(),
             'wholesalePrices' => \App\Models\ProductWholesalePrice::where('product_id', $id)->get(),
+            'vendors'         => Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get(),
         ]);
     }
 
@@ -593,6 +600,7 @@ class ProductController extends Controller
         // Slug & flags
         $input['slug']            = strtolower(preg_replace('/[\/\s]+/', '-', $request->name.'-'.$product->id));
         $input['status']          = $request->status ? 1 : 0;
+        $input['vendor_id']       = ($request->filled('vendor_id') && (int)$request->vendor_id > 0) ? (int)$request->vendor_id : null;
         $input['topsale']         = $request->topsale ? 1 : 0;
         $input['free_delivery']   = $request->free_delivery ? 1 : 0;
         $input['feature_product'] = $request->feature_product ? 1 : 0;
@@ -1130,6 +1138,7 @@ PROMPT;
             'subcategory_id'   => $request->subcategory_id ?: null,
             'childcategory_id' => $request->childcategory_id ?: null,
             'brand_id'         => $request->brand_id ?: null,
+            'vendor_id'        => ($request->filled('vendor_id') && (int)$request->vendor_id > 0) ? (int)$request->vendor_id : null,
             'new_price'        => $request->new_price,
             'old_price'        => $request->old_price ?: null,
             'purchase_price'   => $request->purchase_price ?: 0,
@@ -1156,8 +1165,94 @@ PROMPT;
         return response()->json([
             'status'       => 'success',
             'message'      => 'প্রোডাক্ট সফলভাবে ইমপোর্ট ও পাবলিশ করা হয়েছে!',
-            'redirect_url' => route('products.index'),
+            'redirect_url' => $product->vendor_id ? route('products.index') : route('inhouse.products.index'),
             'product_id'   => $product->id,
+        ]);
+    }
+
+    // ================================
+    // ASSIGN VENDOR / MAKE INHOUSE (SINGLE)
+    // ================================
+    public function assignVendor(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'vendor_id'  => 'nullable',
+        ]);
+
+        $product = Product::findOrFail($request->product_id);
+        $vendorId = $request->vendor_id;
+
+        if (empty($vendorId) || $vendorId === '0' || $vendorId === 'inhouse') {
+            $product->vendor_id = null;
+            $product->approval_status = 'approved';
+            $product->save();
+
+            Cache::forget('product_details_' . $product->slug);
+            Cache::forget('frontend_homepage_v4');
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'প্রোডাক্টটি সফলভাবে ইনহাউজ (Own Inventory) পণ্যে রূপান্তর করা হয়েছে!',
+                'type'    => 'inhouse',
+            ]);
+        }
+
+        $vendor = Vendor::findOrFail($vendorId);
+        $product->vendor_id = $vendor->id;
+        $product->approval_status = 'approved';
+        $product->save();
+
+        Cache::forget('product_details_' . $product->slug);
+        Cache::forget('frontend_homepage_v4');
+
+        return response()->json([
+            'status'      => 'success',
+            'message'     => 'প্রোডাক্টটি সফলভাবে ভেন্ডর "' . ($vendor->shop_name ?? $vendor->name) . '" এর কাছে অ্যাসাইন করা হয়েছে!',
+            'type'        => 'vendor',
+            'vendor_name' => $vendor->shop_name ?? $vendor->name,
+            'vendor_id'   => $vendor->id,
+        ]);
+    }
+
+    // ================================
+    // BULK ASSIGN VENDOR / MAKE INHOUSE
+    // ================================
+    public function bulkAssignVendor(Request $request)
+    {
+        $request->validate([
+            'product_ids' => 'required|array|min:1',
+            'product_ids.*' => 'exists:products,id',
+            'vendor_id'   => 'nullable',
+        ]);
+
+        $vendorId = $request->vendor_id;
+
+        if (empty($vendorId) || $vendorId === '0' || $vendorId === 'inhouse') {
+            Product::whereIn('id', $request->product_ids)->update([
+                'vendor_id' => null,
+                'approval_status' => 'approved',
+            ]);
+
+            Cache::forget('frontend_homepage_v4');
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => count($request->product_ids) . 'টি প্রোডাক্ট সফলভাবে ইনহাউজে (Inhouse) রূপান্তর করা হয়েছে!',
+            ]);
+        }
+
+        $vendor = Vendor::findOrFail($vendorId);
+        Product::whereIn('id', $request->product_ids)->update([
+            'vendor_id' => $vendor->id,
+            'approval_status' => 'approved',
+        ]);
+
+        Cache::forget('frontend_homepage_v4');
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => count($request->product_ids) . 'টি প্রোডাক্ট সফলভাবে "' . ($vendor->shop_name ?? $vendor->name) . '" ভেন্ডরে অ্যাসাইন করা হয়েছে!',
         ]);
     }
 }

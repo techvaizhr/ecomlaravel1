@@ -48,6 +48,20 @@
                     </select>
                     @error('brand_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                 </div>
+                <div class="col-12">
+                    <label for="vendor_id" class="form-label fw-semibold text-dark"><i class="fe-user text-primary me-1"></i>Vendor / Inventory</label>
+                    <select class="form-control form-control-sm select2 @error('vendor_id') is-invalid @enderror" name="vendor_id" id="pro_vendor_id">
+                        <option value="" {{ empty($edit_data->vendor_id) ? 'selected' : '' }}>🏢 Inhouse / Own Inventory</option>
+                        @if(isset($vendors))
+                            @foreach($vendors as $v)
+                                <option value="{{ $v->id }}" {{ (old('vendor_id', $edit_data->vendor_id) == $v->id) ? 'selected' : '' }}>
+                                    🏬 {{ $v->shop_name ? $v->shop_name . ' (' . $v->name . ')' : $v->name }} [ID: #{{ $v->id }}]
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                    <small class="text-muted" style="font-size:10.5px;">পণ্যটি নিজস্ব (Inhouse) করতে চাইলে ইনহাউজ নির্বাচন করুন অথবা ভেন্ডর অ্যাসাইন করুন।</small>
+                </div>
             </div>
         </div>
 

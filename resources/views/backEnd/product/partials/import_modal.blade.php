@@ -129,6 +129,32 @@
                                                     <option value="">-- Choose Subcategory --</option>
                                                 </select>
                                             </div>
+                                            <div class="col-md-6 mt-2">
+                                                <label class="form-label fw-bold text-dark" style="font-size: 12.5px;">Brand</label>
+                                                <select name="brand_id" id="imp_brand_id" class="form-select form-select-sm">
+                                                    <option value="">-- No Brand (Generic) --</option>
+                                                    @if(isset($brands))
+                                                        @foreach($brands as $b)
+                                                            <option value="{{ $b->id }}">{{ $b->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mt-2">
+                                                <label class="form-label fw-bold text-dark" style="font-size: 12.5px;">
+                                                    <i class="fe-user text-primary me-1"></i>Vendor / Inventory
+                                                </label>
+                                                <select name="vendor_id" id="imp_vendor_id" class="form-select form-select-sm">
+                                                    <option value="">🏢 Inhouse / Own Inventory</option>
+                                                    @if(isset($vendors))
+                                                        @foreach($vendors as $v)
+                                                            <option value="{{ $v->id }}">
+                                                                🏬 {{ $v->shop_name ? $v->shop_name . ' (' . $v->name . ')' : $v->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -599,6 +625,8 @@ document.addEventListener("DOMContentLoaded", function () {
             name: document.getElementById('imp_name').value,
             category_id: document.getElementById('imp_category_id').value,
             subcategory_id: document.getElementById('imp_subcategory_id').value,
+            brand_id: document.getElementById('imp_brand_id') ? document.getElementById('imp_brand_id').value : '',
+            vendor_id: document.getElementById('imp_vendor_id') ? document.getElementById('imp_vendor_id').value : '',
             new_price: document.getElementById('imp_new_price').value,
             old_price: document.getElementById('imp_old_price').value,
             purchase_price: document.getElementById('imp_purchase_price').value,

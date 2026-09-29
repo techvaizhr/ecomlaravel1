@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Vendor;
 use Toastr;
 
 class InhouseProductController extends Controller
@@ -60,8 +61,9 @@ class InhouseProductController extends Controller
         $per_page = $request->get('per_page', 25);
         $data = $query->paginate($per_page)->withQueryString();
         $categories = Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->get();
+        $vendors = Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
         
-        return view('backEnd.inhouse_product.index', compact('data', 'categories'));
+        return view('backEnd.inhouse_product.index', compact('data', 'categories', 'vendors'));
     }
 
     /**

@@ -242,6 +242,9 @@ Route::prefix('vendor')
         Route::get('/products', [VendorProductController::class, 'index'])->name('products.index');
         Route::get('/products/create', [VendorProductController::class, 'create'])->name('products.create');
         Route::post('/products/store', [VendorProductController::class, 'store'])->name('products.store');
+        Route::post('/products/import-url/fetch', [VendorProductController::class, 'fetchFromUrl'])->name('products.import_url_fetch');
+        Route::post('/products/import-url/parse-html', [VendorProductController::class, 'parseHtml'])->name('products.import_url_parse_html');
+        Route::post('/products/import-url/quick-store', [VendorProductController::class, 'quickStoreFromUrl'])->name('products.import_url_quick_store');
         Route::get('/products/{id}/edit', [VendorProductController::class, 'edit'])->name('products.edit');
         Route::post('/products/update', [VendorProductController::class, 'update'])->name('products.update');
         Route::post('/products/destroy', [VendorProductController::class, 'destroy'])->name('products.destroy');
@@ -1060,6 +1063,8 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('products/update-deals', [ProductController::class,'update_deals'])->name('products.update_deals');
     Route::get('products/update-feature', [ProductController::class,'update_feature'])->name('products.update_feature');
     Route::post('products/update-status', [ProductController::class,'update_status'])->name('products.update_status');
+    Route::post('products/assign-vendor', [ProductController::class, 'assignVendor'])->name('products.assign_vendor');
+    Route::post('products/bulk-assign-vendor', [ProductController::class, 'bulkAssignVendor'])->name('products.bulk_assign_vendor');
     Route::get('products/price-edit', [ProductController::class,'price_edit'])->name('products.price_edit');
     Route::post('products/price-update', [ProductController::class,'price_update'])->name('products.price_update');
     

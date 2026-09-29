@@ -129,8 +129,11 @@
         <h4 class="fw-bold text-dark mb-1">Product Management</h4>
         <p class="text-secondary small mb-0">Manage your product inventory and stock</p>
     </div>
-    <div class="mt-3 mt-md-0">
+    <div class="mt-3 mt-md-0 d-flex align-items-center gap-2 flex-wrap">
         @if($vendor->verification_status == 'approved')
+            <button type="button" class="btn btn-outline-primary rounded-pill px-3 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#vendorImportProductModal">
+                <i class="fa fa-bolt me-1"></i> Import from URL
+            </button>
             <a href="{{ route('vendor.products.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
                 <i class="fas fa-plus me-2"></i>Add New Product
             </a>
@@ -404,6 +407,7 @@
 </style>
 @endif
 </div>
+@include('vendor.products.partials.import_modal')
 @endsection
 
 @push('scripts')

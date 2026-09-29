@@ -316,6 +316,12 @@
                 <button type="button" data-url="{{ route('products.update_deals') }}" data-status="0" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 hotdeal_update">
                     <i class="fe-x-circle me-1"></i> Remove Deal
                 </button>
+                <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-2.5" id="btn_bulk_change_vendor">
+                    <i class="fe-user-check me-1"></i> Change Vendor
+                </button>
+                <button type="button" class="btn btn-xs btn-outline-dark rounded-pill px-2.5" id="btn_bulk_make_inhouse">
+                    <i class="fe-home me-1"></i> Convert to Inhouse
+                </button>
             </div>
             
             <div class="small text-muted fw-semibold">
@@ -423,6 +429,16 @@
                                         </a>
                                     </li>
                                     <li>
+                                        <a class="dropdown-item btn-open-assign-vendor" href="javascript:void(0)" data-id="{{ $value->id }}" data-name="{{ $value->name }}" data-vendor-id="{{ $value->vendor_id }}">
+                                            <i class="fe-user-check text-info"></i> Change Vendor
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item btn-single-make-inhouse text-dark" href="javascript:void(0)" data-id="{{ $value->id }}" data-name="{{ $value->name }}">
+                                            <i class="fe-home text-success"></i> Convert to Inhouse
+                                        </a>
+                                    </li>
+                                    <li>
                                         @if($value->status == 1)
                                             <form method="post" action="{{ route('products.inactive') }}" class="d-inline">
                                                 @csrf
@@ -479,6 +495,56 @@
 </div>
 
 @include('backEnd.product.partials.import_modal')
+
+<!-- Modal: Assign / Change Vendor -->
+<div class="modal fade" id="assignVendorModal" tabindex="-1" aria-labelledby="assignVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header text-white border-0 py-3" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);">
+                <h5 class="modal-title fw-bold text-white mb-0" id="assignVendorModalLabel">
+                    <i class="fe-user-check me-1"></i> Assign / Change Vendor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="assignVendorForm">
+                @csrf
+                <input type="hidden" name="product_id" id="modal_assign_product_id" value="">
+                <input type="hidden" name="is_bulk" id="modal_assign_is_bulk" value="0">
+                <div class="modal-body p-4 bg-light">
+                    <div class="p-3 bg-white rounded-3 border mb-3">
+                        <small class="text-muted d-block fw-semibold" style="font-size:11px;">পণ্য / প্রোডাক্ট:</small>
+                        <h6 class="fw-bold text-dark mb-0 mt-1" id="modal_assign_product_title">Product Title</h6>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark" style="font-size:13px;">
+                            <i class="fe-shopping-bag text-primary me-1"></i> Select Vendor / Ownership <span class="text-danger">*</span>
+                        </label>
+                        <select name="vendor_id" id="modal_assign_vendor_select" class="form-select select2" required style="width: 100%;">
+                            <option value="">🏢 Inhouse / Own Inventory (Make Inhouse)</option>
+                            @if(isset($vendors))
+                                @foreach($vendors as $v)
+                                    <option value="{{ $v->id }}">
+                                        🏬 {{ $v->shop_name ? $v->shop_name . ' (' . $v->name . ')' : $v->name }} [ID: #{{ $v->id }}]
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small class="text-muted mt-1 d-block" style="font-size:11px;">
+                            পণ্যটি নিজস্ব (Inhouse) করতে চাইলে ইনহাউজ নির্বাচন করুন অথবা অন্য ভেন্ডরে স্থানান্তর করুন।
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-white py-2.5 px-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">বাতিল</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="btn_confirm_assign">
+                        <span class="spinner-border spinner-border-sm me-1 d-none" id="assign_spinner"></span>
+                        <i class="fe-check-circle me-1"></i> Confirm Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -486,6 +552,10 @@
 <script>
     $(document).ready(function() {
         $('.select2').select2({ width: '100%' });
+        $('#modal_assign_vendor_select').select2({
+            dropdownParent: $('#assignVendorModal'),
+            width: '100%'
+        });
 
         $(".checkall").on('change', function() {
             $(".checkbox").prop('checked', $(this).is(":checked"));
@@ -517,6 +587,187 @@
                     setTimeout(function() { location.reload(); }, 600);
                 }
             });
+        });
+
+        // Single product open assign vendor modal
+        $(document).on('click', '.btn-open-assign-vendor', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('id');
+            var productName = $(this).data('name');
+            var vendorId = $(this).data('vendor-id');
+
+            $('#modal_assign_is_bulk').val('0');
+            $('#modal_assign_product_id').val(productId);
+            $('#modal_assign_product_title').text(productName);
+            $('#modal_assign_vendor_select').val(vendorId || '').trigger('change');
+
+            var modal = new bootstrap.Modal(document.getElementById('assignVendorModal'));
+            modal.show();
+        });
+
+        // Single product quick convert to Inhouse
+        $(document).on('click', '.btn-single-make-inhouse', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('id');
+            var productName = $(this).data('name');
+
+            if (!confirm('আপনি কি "' + productName + '" পণ্যটি ইনহাউজ (Inhouse / Own Inventory) করতে চান?')) {
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('products.assign_vendor') }}",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    product_id: productId,
+                    vendor_id: '' // empty = inhouse
+                },
+                success: function(res) {
+                    if (res.status === 'success') {
+                        toastr.success(res.message);
+                        setTimeout(function() { location.reload(); }, 600);
+                    } else {
+                        toastr.error(res.message || "সমস্যা হয়েছে!");
+                    }
+                },
+                error: function() {
+                    toastr.error("ইনহাউজ রূপান্তর করতে সমস্যা হয়েছে!");
+                }
+            });
+        });
+
+        // Bulk Change Vendor Button Click
+        $('#btn_bulk_change_vendor').on('click', function(e) {
+            e.preventDefault();
+            var selectedIds = [];
+            $(".checkbox:checked").each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                toastr.warning("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন!");
+                return;
+            }
+
+            $('#modal_assign_is_bulk').val('1');
+            $('#modal_assign_product_id').val(selectedIds.join(','));
+            $('#modal_assign_product_title').html('নির্বাচিত <strong>' + selectedIds.length + 'টি পণ্য</strong> একযোগে নতুন ভেন্ডরে অ্যাসাইন বা ইনহাউজ করা হবে।');
+            $('#modal_assign_vendor_select').val('').trigger('change');
+
+            var modal = new bootstrap.Modal(document.getElementById('assignVendorModal'));
+            modal.show();
+        });
+
+        // Bulk Make Inhouse Button Click
+        $('#btn_bulk_make_inhouse').on('click', function(e) {
+            e.preventDefault();
+            var selectedIds = [];
+            $(".checkbox:checked").each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                toastr.warning("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন!");
+                return;
+            }
+
+            if (!confirm('নির্বাচিত ' + selectedIds.length + 'টি পণ্যকে আপনি ইনহাউজে (Own Inventory) স্থানান্তর করতে চান?')) {
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('products.bulk_assign_vendor') }}",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    product_ids: selectedIds,
+                    vendor_id: '' // empty = inhouse
+                },
+                success: function(res) {
+                    if (res.status === 'success') {
+                        toastr.success(res.message);
+                        setTimeout(function() { location.reload(); }, 700);
+                    } else {
+                        toastr.error(res.message || "সমস্যা হয়েছে!");
+                    }
+                },
+                error: function() {
+                    toastr.error("ইনহাউজ রূপান্তর করতে সমস্যা হয়েছে!");
+                }
+            });
+        });
+
+        // Submit Assign Vendor Form
+        $('#assignVendorForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var vendorId = $('#modal_assign_vendor_select').val();
+            var isBulk = $('#modal_assign_is_bulk').val();
+            var submitBtn = $('#btn_confirm_assign');
+            var spinner = $('#assign_spinner');
+
+            submitBtn.prop('disabled', true);
+            spinner.removeClass('d-none');
+
+            if (isBulk === '1') {
+                var rawIds = $('#modal_assign_product_id').val();
+                var productIds = rawIds.split(',');
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('products.bulk_assign_vendor') }}",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        product_ids: productIds,
+                        vendor_id: vendorId
+                    },
+                    success: function(res) {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        if (res.status === 'success') {
+                            toastr.success(res.message);
+                            bootstrap.Modal.getInstance(document.getElementById('assignVendorModal')).hide();
+                            setTimeout(function() { location.reload(); }, 700);
+                        } else {
+                            toastr.error(res.message || "সমস্যা হয়েছে!");
+                        }
+                    },
+                    error: function() {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        toastr.error("ভেন্ডর অ্যাসাইন করতে সমস্যা হয়েছে!");
+                    }
+                });
+            } else {
+                var productId = $('#modal_assign_product_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('products.assign_vendor') }}",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        product_id: productId,
+                        vendor_id: vendorId
+                    },
+                    success: function(res) {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        if (res.status === 'success') {
+                            toastr.success(res.message);
+                            bootstrap.Modal.getInstance(document.getElementById('assignVendorModal')).hide();
+                            setTimeout(function() { location.reload(); }, 700);
+                        } else {
+                            toastr.error(res.message || "সমস্যা হয়েছে!");
+                        }
+                    },
+                    error: function() {
+                        submitBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        toastr.error("ভেন্ডর অ্যাসাইন করতে সমস্যা হয়েছে!");
+                    }
+                });
+            }
         });
     });
 </script>
