@@ -59,13 +59,14 @@ class CampaignController extends Controller
             'short_description' => 'nullable',
             'description' => 'nullable',
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'banner_title' => 'nullable|string|max:255',
             'image_one' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'image_two' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'image_three' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'product_id' => 'required|array|min:1|exists:products,id',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'review' => 'required',
-            'deadline' => 'nullable|date|after:now', // Ensure deadline is a future date
+            'review' => 'nullable|string',
+            'deadline' => 'nullable|date',
             'top_title_1' => 'nullable|string|max:255',
             'top_title_2' => 'nullable|string|max:255',
             'heading_1' => 'nullable|string|max:255',
@@ -74,9 +75,9 @@ class CampaignController extends Controller
             'heading_2' => 'nullable|string|max:255',
             'heading_3' => 'nullable|string|max:255',
             'heading_4' => 'nullable|string|max:255',
-            'note' => 'nullable|string|max:255',
-            'billing_details' => 'nullable|string|max:255',
-        
+            'note' => 'nullable|string|max:500',
+            'billing_details' => 'nullable|string|max:500',
+            'video' => 'nullable|string|max:255',
         ]);
     
         // Prepare the input data
@@ -165,12 +166,13 @@ class CampaignController extends Controller
             'short_description' => 'nullable',
             'description' => 'nullable',
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'banner_title' => 'nullable|string|max:255',
             'image_one' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'image_two' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'image_three' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'product_id' => 'required|array|min:1|exists:products,id',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'review' => 'required',
+            'review' => 'nullable|string',
             'deadline' => 'nullable|date',
             'top_title_1' => 'nullable|string|max:255',
             'top_title_2' => 'nullable|string|max:255',
@@ -180,8 +182,9 @@ class CampaignController extends Controller
             'heading_2' => 'nullable|string|max:255',
             'heading_3' => 'nullable|string|max:255',
             'heading_4' => 'nullable|string|max:255',
-            'note' => 'nullable|string|max:255',
-            'billing_details' => 'nullable|string|max:255',
+            'note' => 'nullable|string|max:500',
+            'billing_details' => 'nullable|string|max:500',
+            'video' => 'nullable|string|max:255',
         ]);
         // image one
         $update_data = Campaign::find($request->hidden_id);
@@ -282,6 +285,10 @@ class CampaignController extends Controller
     } 
     public function getYouTubeVideoId($input)
     {
+        if (empty($input)) {
+            return null;
+        }
+        $input = trim($input);
         // Check if the input is a valid YouTube video ID (11 characters long)
         if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $input)) {
             return $input; // Return the ID directly if it's valid

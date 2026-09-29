@@ -42,11 +42,11 @@
                 
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
-                            <label for="banner" class="form-label">Banner Image *</label>
-                            <input type="file" class="form-control @error('banner') is-invalid @enderror" name="banner" id="banner" required>
+                            <label for="banner" class="form-label">Banner Image</label>
+                            <input type="file" class="form-control @error('banner') is-invalid @enderror" name="banner" id="banner">
                             @error('banner')
                                 <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
+                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
                         </div>
@@ -55,8 +55,8 @@
                 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="banner_title" class="form-label">Banner Title *</label>
-                            <input type="text" class="form-control @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ old('banner_title') }}" id="banner_title" required="">
+                            <label for="banner_title" class="form-label">Banner Title</label>
+                            <input type="text" class="form-control @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ old('banner_title') }}" id="banner_title">
                             @error('banner_title')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -232,8 +232,8 @@
                 
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="image_one" class="form-label">Image One *</label>
-                            <input type="file" class="form-control @error('image_one') is-invalid @enderror" name="image_one" id="image_one" required="">
+                            <label for="image_one" class="form-label">Image One</label>
+                            <input type="file" class="form-control @error('image_one') is-invalid @enderror" name="image_one" id="image_one">
                             @error('image_one')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -268,9 +268,9 @@
                     <!-- col end -->
                 
                     <div class="col-sm-6 mb-3">
-                        <label for="image">Review Image *</label>
+                        <label for="image">Review Image</label>
                         <div class="input-group control-group increment">
-                            <input type="file" name="image[]" class="form-control @error('image') is-invalid @enderror" required />
+                            <input type="file" name="image[]" class="form-control @error('image') is-invalid @enderror" />
                             <div class="input-group-btn">
                                 <button class="btn btn-success btn-increment" type="button"><i class="fa fa-plus"></i></button>
                             </div>
@@ -293,8 +293,8 @@
                 
                     <div class="col-sm-6 mb-3">
                         <div class="form-group mb-3">
-                            <label for="review" class="form-label">Review *</label>
-                            <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ old('review') }}" id="review" required="">
+                            <label for="review" class="form-label">Review Title / Text</label>
+                            <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ old('review') }}" id="review">
                             @error('review')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -306,8 +306,8 @@
                 
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
-                            <label for="short_description" class="form-label">Short Description *</label>
-                            <textarea name="short_description" rows="6" class="summernote form-control @error('short_description') is-invalid @enderror" required="">{{ old('short_description') }}</textarea>
+                            <label for="short_description" class="form-label">Short Description</label>
+                            <textarea name="short_description" rows="6" class="summernote form-control @error('short_description') is-invalid @enderror">{{ old('short_description') }}</textarea>
                             @error('short_description')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -319,8 +319,8 @@
                 
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
-                            <label for="description" class="form-label">Description *</label>
-                            <textarea name="description" rows="6" class="summernote form-control @error('description') is-invalid @enderror" required="">{{ old('description') }}</textarea>
+                            <label for="description" class="form-label">Description</label>
+                            <textarea name="description" rows="6" class="summernote form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
                             @error('description')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>

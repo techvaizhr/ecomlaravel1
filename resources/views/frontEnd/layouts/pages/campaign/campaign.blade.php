@@ -474,129 +474,219 @@
             $subtotal=str_replace(',','',$subtotal);
             $subtotal=str_replace('.00', '',$subtotal);
             $shipping = Session::get('shipping')?Session::get('shipping'):0;
+
+            $hasTopTitles = !empty(trim(strip_tags($campaign_data->top_title_1 ?? ''))) || !empty(trim(strip_tags($campaign_data->top_title_2 ?? '')));
+            $hasDeadline  = !empty($campaign_data->deadline);
         @endphp
+
+        {{-- Top Bar Section --}}
+        @if($hasTopTitles || $hasDeadline)
         <section style="background-image: radial-gradient(at center center, #139525 28%, #0E320F 79%)">
             <div class="container py-2 py-md-4">
-                <div class="row gy-2">
-                    <div class="col-md-7">
-                        <h4 class="text-light text-center py-2 py-md-4 fw-bolder">{!! $campaign_data->top_title_1  !!} <span class="text-warning"> {!! $campaign_data->top_title_2  !!}</span> </h4>
-                    </div>
-                     <div class="col-md-5">
-                        <div class="countdown-container">
-                            <div class="countdown" id="countdown">
-                                <div class="row g-1">
-                                    <div class="col-3">
-                                       <div class="counter-card">
-                                            <div id="days"></div>
-                                            <span>Days</span>
-                                        </div> 
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="counter-card">
-                                            <div id="hours"></div>
-                                            <span>Hours</span>
-                                        </div>                                        
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="counter-card">
-                                            <div id="minutes"></div>
-                                            <span>Minutes</span>
-                                        </div>                                    
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="counter-card">
-                                            <div id="seconds"></div>
-                                            <span>Seconds</span>
+                <div class="row gy-2 align-items-center">
+                    @if($hasTopTitles && $hasDeadline)
+                        <div class="col-md-7">
+                            <h4 class="text-light text-center py-2 py-md-4 fw-bolder mb-0">{!! $campaign_data->top_title_1 !!} <span class="text-warning">{!! $campaign_data->top_title_2 !!}</span></h4>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="countdown-container">
+                                <div class="countdown" id="countdown">
+                                    <div class="row g-1">
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="days">0</div>
+                                                <span>Days</span>
+                                            </div> 
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="hours">0</div>
+                                                <span>Hours</span>
+                                            </div>                                        
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="minutes">0</div>
+                                                <span>Minutes</span>
+                                            </div>                                    
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="seconds">0</div>
+                                                <span>Seconds</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2 py-md-4">
-                <div class="py-2 py-md-4  rounded" style="border:2px dashed green">
-                    <h2 class="animated-heading text-center">{!! $campaign_data->heading_1 !!}</h2>
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2 py-md-4">
-                <div class="row gy-2">
-                    @if($campaign_data->image_one)
-                    <div class="col-sm-6">
-                        <img class="img-fluid shadow" src="{{asset($campaign_data->image_one)}}" >
-                    </div>
-                    @endif
-                    @if($campaign_data->image_two)
-                    <div class="col-sm-6">
-                        <img class="img-fluid shadow" src="{{asset($campaign_data->image_two)}}" >
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2 py-md-4">
-                <div class="row gy-2">
-                    @if($campaign_data->feature_1)
-                    <div class="col-sm-6">
-                       <div class="py-2 py-md-4  rounded" style="border:1px dashed green">
-                            <h2 class="text-center">{!! $campaign_data->feature_1 !!}</h2>
+                    @elseif($hasTopTitles)
+                        <div class="col-12">
+                            <h4 class="text-light text-center py-2 py-md-4 fw-bolder mb-0">{!! $campaign_data->top_title_1 !!} <span class="text-warning">{!! $campaign_data->top_title_2 !!}</span></h4>
                         </div>
-                    </div>
-                    @endif
-                    @if($campaign_data->feature_2)
-                    <div class="col-sm-6">
-                       <div class="py-2 py-md-4  rounded" style="border:1px dashed green">
-                            <h2 class="text-center">{!! $campaign_data->feature_2 !!}</h2>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2">
-                <div class="py-2 py-md-4  rounded" style="border:2px dashed green">
-                    <h2 class="animated-heading text-center">{!! $campaign_data->heading_2 !!}</h2>
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2 ">
-                <div class="py-2 py-md-4  rounded" style="border:2px dashed green">
-                    <h2 class="animated-heading text-center">{!! $campaign_data->heading_3 !!}</h2>
-                </div>
-            </div>
-        </section>
-        {{--
-        <section style="background: url('{{asset($campaign_data->banner)}}'); background-repeat: no-repeat; background-size:cover; background-position: center;" >
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="campaign_image">
-                            <div class="campaign_item">
-                                <div class="banner_t">
-                                    <h2>{{$campaign_data->banner_title}}</h2>
-                                    
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"><i class="fa-solid fa-cart-shopping"></i> অর্ডার করুন </a>
-                                    <p class="megaoffer_btn">মেগা অফার {{$subtotal}} Tk টাকা</p>
+                    @elseif($hasDeadline)
+                        <div class="col-md-6 mx-auto">
+                            <div class="countdown-container">
+                                <div class="countdown" id="countdown">
+                                    <div class="row g-1">
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="days">0</div>
+                                                <span>Days</span>
+                                            </div> 
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="hours">0</div>
+                                                <span>Hours</span>
+                                            </div>                                        
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="minutes">0</div>
+                                                <span>Minutes</span>
+                                            </div>                                    
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="counter-card">
+                                                <div id="seconds">0</div>
+                                                <span>Seconds</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    @endif
+                </div>
+            </div>
+        </section>
+        @endif
+
+        {{-- Heading 1 Section --}}
+        @if(!empty(trim(strip_tags($campaign_data->heading_1 ?? ''))))
+        <section>
+            <div class="container py-2 py-md-4">
+                <div class="py-2 py-md-4 rounded" style="border:2px dashed green">
+                    <h2 class="animated-heading text-center mb-0">{!! $campaign_data->heading_1 !!}</h2>
+                </div>
+            </div>
+        </section>
+        @endif
+
+        {{-- Image One & Two Section --}}
+        @php
+            $hasImg1 = !empty($campaign_data->image_one);
+            $hasImg2 = !empty($campaign_data->image_two);
+        @endphp
+        @if($hasImg1 || $hasImg2)
+        <section>
+            <div class="container py-2 py-md-4">
+                <div class="row gy-2 justify-content-center">
+                    @if($hasImg1 && $hasImg2)
+                        <div class="col-sm-6 text-center">
+                            <img class="img-fluid shadow rounded" src="{{asset($campaign_data->image_one)}}" alt="Campaign Image 1">
+                        </div>
+                        <div class="col-sm-6 text-center">
+                            <img class="img-fluid shadow rounded" src="{{asset($campaign_data->image_two)}}" alt="Campaign Image 2">
+                        </div>
+                    @elseif($hasImg1)
+                        <div class="col-md-8 text-center">
+                            <img class="img-fluid shadow rounded" src="{{asset($campaign_data->image_one)}}" alt="Campaign Image 1">
+                        </div>
+                    @elseif($hasImg2)
+                        <div class="col-md-8 text-center">
+                            <img class="img-fluid shadow rounded" src="{{asset($campaign_data->image_two)}}" alt="Campaign Image 2">
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </section>
+        @endif
+
+        {{-- Features Section --}}
+        @php
+            $hasFeat1 = !empty(trim(strip_tags($campaign_data->feature_1 ?? '')));
+            $hasFeat2 = !empty(trim(strip_tags($campaign_data->feature_2 ?? '')));
+        @endphp
+        @if($hasFeat1 || $hasFeat2)
+        <section>
+            <div class="container py-2 py-md-4">
+                <div class="row gy-2 justify-content-center">
+                    @if($hasFeat1 && $hasFeat2)
+                        <div class="col-sm-6">
+                            <div class="py-2 py-md-4 rounded" style="border:1px dashed green">
+                                <h2 class="text-center mb-0">{!! $campaign_data->feature_1 !!}</h2>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="py-2 py-md-4 rounded" style="border:1px dashed green">
+                                <h2 class="text-center mb-0">{!! $campaign_data->feature_2 !!}</h2>
+                            </div>
+                        </div>
+                    @elseif($hasFeat1)
+                        <div class="col-md-8">
+                            <div class="py-2 py-md-4 rounded" style="border:1px dashed green">
+                                <h2 class="text-center mb-0">{!! $campaign_data->feature_1 !!}</h2>
+                            </div>
+                        </div>
+                    @elseif($hasFeat2)
+                        <div class="col-md-8">
+                            <div class="py-2 py-md-4 rounded" style="border:1px dashed green">
+                                <h2 class="text-center mb-0">{!! $campaign_data->feature_2 !!}</h2>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </section>
+        @endif
+
+        {{-- Heading 2 Section --}}
+        @if(!empty(trim(strip_tags($campaign_data->heading_2 ?? ''))))
+        <section>
+            <div class="container py-2">
+                <div class="py-2 py-md-4 rounded" style="border:2px dashed green">
+                    <h2 class="animated-heading text-center mb-0">{!! $campaign_data->heading_2 !!}</h2>
+                </div>
+            </div>
+        </section>
+        @endif
+
+        {{-- Heading 3 Section --}}
+        @if(!empty(trim(strip_tags($campaign_data->heading_3 ?? ''))))
+        <section>
+            <div class="container py-2">
+                <div class="py-2 py-md-4 rounded" style="border:2px dashed green">
+                    <h2 class="animated-heading text-center mb-0">{!! $campaign_data->heading_3 !!}</h2>
+                </div>
+            </div>
+        </section>
+        @endif
+
+        {{-- Banner Section --}}
+        @if(!empty($campaign_data->banner))
+        <section style="background: url('{{asset($campaign_data->banner)}}'); background-repeat: no-repeat; background-size:cover; background-position: center; min-height: 250px;">
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        @if(!empty($campaign_data->banner_title))
+                        <div class="campaign_image my-3">
+                            <div class="banner_t">
+                                <h2 class="bg-dark bg-opacity-75 text-white p-3 rounded d-inline-block">{{$campaign_data->banner_title}}</h2>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </section>
-        --}}
-        @if($campaign_data->video!=null)
+        @endif
+
+        {{-- Video Section --}}
+        @if(!empty($campaign_data->video))
         <section class="camp_video_sec">
             <div class="container">
-            
                 <div class="row justify-content-center gy-2 gy-md-4">
                     <div class="col-md-8">
                         <h2 class="p-2 py-md-3 rounded text-center" style="background-color:black;border:green 2px solid;color:white;font-weight:bolder">প্রডাক্টের "ভিডিও দেখুন"</h2>
@@ -605,7 +695,7 @@
                         <div class="camp_vid rounded" style="border:5px solid red">
                             <iframe width="100%" height="480" 
                             src="https://www.youtube.com/embed/{{$campaign_data->video}}" 
-                            title="{{$campaign_data->banner_title}}" frameborder="0" 
+                            title="{{$campaign_data->banner_title ?? $campaign_data->name}}" frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen=""></iframe>
                         </div>
                     </div>
@@ -619,40 +709,60 @@
         </section>
         @endif
         
+        {{-- Contact & Heading 4 Section --}}
+        @php
+            $hasPhone = !empty(optional($contact)->phone);
+            $hasWhatsapp = !empty(optional($contact)->whatsapp);
+            $hasHeading4 = !empty(trim(strip_tags($campaign_data->heading_4 ?? '')));
+        @endphp
+        @if($hasPhone || $hasWhatsapp || $hasHeading4)
         <section class="py-2 py-md-4" style="background: linear-gradient(to bottom, #FAF4B3, #ECC7CF);">
             <div class="container my-2 my-md-4">
                 <div class="row justify-content-center">
                     <div class="col-md-8">
+                        @if($hasPhone)
                         <h2 class="text-center p-2 p-md-4 rounded" style="background-color:#FBEFF7;border:2px dashed #F1ACE7">আমাদের থেকে বিস্তারিত জানতে এই নাম্বারে কল করুন {{$contact->phone}}</h2>
+                        @endif
+
+                        @if($hasPhone || $hasWhatsapp)
                         <div class="row justify-content-center my-2 my-md-4 gy-2">
-                            <div class="col-md-6 custom_btn">
+                            @if($hasPhone)
+                            <div class="{{ $hasWhatsapp ? 'col-md-6' : 'col-md-8' }} custom_btn">
                                 <div class="shadow-lg">
                                     <a href="tel:{{$contact->phone}}" 
                                     class="btn btn-danger btn-lg d-block py-md-3 fs-2 fw-bolder button-3d button-animated-border" >
                                         <i class="fa-solid fa-phone"></i> আমাদের কল করুন </a>
                                 </div>
-                                
                             </div>
-                            <div class="col-md-6">
-                            <div class="shadow-lg">
-                                <a href="https://wa.me/{{$contact->whatsapp}}" 
-                                class="btn btn-success btn-lg d-block py-md-3 fs-2 text-light fw-bolder button-3d button-animated-border">
-                                    <i class="fa-brands fa-whatsapp"></i> হোয়াটসঅ্যাপ  
+                            @endif
+                            @if($hasWhatsapp)
+                            <div class="{{ $hasPhone ? 'col-md-6' : 'col-md-8' }}">
+                                <div class="shadow-lg">
+                                    <a href="https://wa.me/{{$contact->whatsapp}}" 
+                                    class="btn btn-success btn-lg d-block py-md-3 fs-2 text-light fw-bolder button-3d button-animated-border">
+                                        <i class="fa-brands fa-whatsapp"></i> হোয়াটসঅ্যাপ  
                                     </a>
-                             </div>
-                                
+                                </div>
                             </div>
+                            @endif
                         </div>
+                        @endif
                         
+                        @if($hasHeading4)
                         <h2 class="text-center p-2 p-md-4 rounded" style="background-color:#FBEFF7;border:2px dashed #F1ACE7">{!! $campaign_data->heading_4 !!}</h2>
-                    
+                        @endif
                     </div>
                 </div>
             </div>
         </section>
+        @endif
 
-        @if(optional($campaign_data)->short_description && strlen($campaign_data->short_description) > 15 || 
-    optional($campaign_data)->description && strlen($campaign_data->description) > 15)
+        {{-- Description Section --}}
+        @php
+            $hasShortDesc = !empty(trim(strip_tags($campaign_data->short_description ?? '')));
+            $hasFullDesc  = !empty(trim(strip_tags($campaign_data->description ?? '')));
+        @endphp
+        @if($hasShortDesc || $hasFullDesc)
         <section class="rules_sec">
             <div class="container">
                 <div class="row">
@@ -660,10 +770,15 @@
                         <div class="card">
                             <div class="card-body">
                                 <h2>বিস্তারিত</h2>
-                                {!! $campaign_data->short_description !!}
-                                <br>
-                                <br>
-                                {!!$campaign_data->description !!} 
+                                @if($hasShortDesc)
+                                    <div>{!! $campaign_data->short_description !!}</div>
+                                @endif
+                                @if($hasShortDesc && $hasFullDesc)
+                                    <br>
+                                @endif
+                                @if($hasFullDesc)
+                                    <div>{!! $campaign_data->description !!}</div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -671,31 +786,33 @@
             </div>
         </section>
         @endif
+
+        {{-- Campaign Images Slider Section --}}
+        @php
+            $sliderImages = array_filter([
+                $campaign_data->image_one ?? null,
+                $campaign_data->image_two ?? null,
+                $campaign_data->image_three ?? null
+            ]);
+        @endphp
+        @if(!empty($sliderImages))
         <section>
             <div class="container">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="campro_inn">
+                            @if(!empty($campaign_data->name))
                             <div class="campro_head">
                                 <h2>{{$campaign_data->name}}</h2>
                             </div>
+                            @endif
 
                             <div class="campro_img_slider owl-carousel">
-                                @if($campaign_data->image_one)
-                               <div class="campro_img_item">
-                                   <img src="{{asset($campaign_data->image_one)}}" alt="">
-                               </div> 
-                               @endif
-                                @if($campaign_data->image_two)
-                               <div class="campro_img_item">
-                                   <img src="{{asset($campaign_data->image_two)}}" alt="">
-                               </div> 
-                               @endif
-                                @if($campaign_data->image_three)
-                               <div class="campro_img_item">
-                                   <img src="{{asset($campaign_data->image_three)}}" alt="">
-                               </div>
-                               @endif
+                                @foreach($sliderImages as $img)
+                                <div class="campro_img_item">
+                                    <img src="{{asset($img)}}" alt="{{$campaign_data->name}}">
+                                </div>
+                                @endforeach
                             </div>
                             <div class="col-sm-12">
                                 <div class="ord_btn">
@@ -703,31 +820,49 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
         </section>
+        @endif
 
-
+        {{-- Customer Reviews Section --}}
+        @php
+            $hasReviewText = !empty(trim(strip_tags($campaign_data->review ?? '')));
+            $hasReviewImgs = isset($campaign_data->images) && $campaign_data->images->count() > 0;
+        @endphp
+        @if($hasReviewText || $hasReviewImgs)
         <section>
             <div class="container">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="rev_inn">
-                            
+                            @if($hasReviewText)
                             <h2 class="campaign_offer">{{$campaign_data->review}}</h2>
+                            @endif
                             
+                            @if($hasReviewImgs)
                             <div class="review_slider owl-carousel">
-                            @foreach($campaign_data->images as $key=>$value)
-                            <div class="review_item">
-                                <img src="{{asset($value->image)}}" alt="">
+                                @foreach($campaign_data->images as $key=>$value)
+                                @if(!empty($value->image))
+                                <div class="review_item">
+                                    <img src="{{asset($value->image)}}" alt="Review Image">
+                                </div>
+                                @endif
+                                @endforeach
                             </div>
-                            @endforeach
-                           </div>
+                            @endif
                             <div class="col-sm-12">
                                 <div class="ord_btn">
                                     <a href="#order_form" class="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        @endiflass="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
                                 </div>
                             </div>
                         </div>
@@ -1215,30 +1350,47 @@
         </script>
 
         <script>
-            $('.campro_img_slider').owlCarousel({   
-                dots: false,
-                arrow: false,
-                autoplay: true,
-                loop: true,
-                margin: 10,
-                smartSpeed: 1000,
-                mouseDrag: true,
-                touchDrag: true,
-                items: 3,
-                responsiveClass: true,
-                responsive: {
-                    300: {
-                        items: 1,
-                    },
-                    480: {
-                        items: 2,
-                    },
-                    768: {
+            $(document).ready(function() {
+                if ($('.campro_img_slider').length && $('.campro_img_slider .campro_img_item').length) {
+                    $('.campro_img_slider').owlCarousel({   
+                        dots: false,
+                        arrow: false,
+                        autoplay: true,
+                        loop: true,
+                        margin: 10,
+                        smartSpeed: 1000,
+                        mouseDrag: true,
+                        touchDrag: true,
                         items: 3,
-                    },
-                    1170: {
+                        responsiveClass: true,
+                        responsive: {
+                            300: { items: 1 },
+                            480: { items: 2 },
+                            768: { items: 3 },
+                            1170: { items: 3 }
+                        }
+                    });
+                }
+
+                if ($('.review_slider').length && $('.review_slider .review_item').length) {
+                    $('.review_slider').owlCarousel({
+                        dots: false,
+                        arrow: false,
+                        autoplay: true,
+                        loop: true,
+                        margin: 10,
+                        smartSpeed: 1000,
+                        mouseDrag: true,
+                        touchDrag: true,
                         items: 3,
-                    },
+                        responsiveClass: true,
+                        responsive: {
+                            300: { items: 1 },
+                            480: { items: 2 },
+                            768: { items: 3 },
+                            1170: { items: 3 }
+                        }
+                    });
                 }
             });
         </script>
@@ -1420,38 +1572,36 @@
             });
         </script>
         <script>
-            @if($campaign_data->deadline)
-            // Set the deadline from the campaign data
-            const deadline = new Date("{{ $campaign_data->deadline }}").getTime();
-        
-            // Update the countdown every 1 second
-            const x = setInterval(function() {
-                // Get current date and time
-                const now = new Date().getTime();
-        
-                // Calculate the distance between now and the deadline
-                const distance = deadline - now;
-        
-                // Time calculations for days, hours, minutes and seconds
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-                // Display the result in the respective elements
-                document.getElementById("days").innerHTML = days;
-                document.getElementById("hours").innerHTML = hours;
-                document.getElementById("minutes").innerHTML = minutes;
-                document.getElementById("seconds").innerHTML = seconds;
-        
-                // If the countdown is over, write some text
-                if (distance < 0) {
-                    clearInterval(x);
-                    document.getElementById("countdown").innerHTML = "EXPIRED";
+            @if(!empty($campaign_data->deadline))
+            $(document).ready(function() {
+                var cdContainer = document.getElementById("countdown");
+                if (cdContainer) {
+                    var deadlineTime = new Date("{{ $campaign_data->deadline }}").getTime();
+                    var xInterval = setInterval(function() {
+                        var nowTime = new Date().getTime();
+                        var distance = deadlineTime - nowTime;
+
+                        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        var elD = document.getElementById("days");
+                        var elH = document.getElementById("hours");
+                        var elM = document.getElementById("minutes");
+                        var elS = document.getElementById("seconds");
+                        if (elD) elD.innerHTML = (days < 0 ? 0 : days);
+                        if (elH) elH.innerHTML = (hours < 0 ? 0 : hours);
+                        if (elM) elM.innerHTML = (minutes < 0 ? 0 : minutes);
+                        if (elS) elS.innerHTML = (seconds < 0 ? 0 : seconds);
+
+                        if (distance < 0) {
+                            clearInterval(xInterval);
+                            cdContainer.innerHTML = "<div class='text-white fw-bold py-2'>EXPIRED</div>";
+                        }
+                    }, 1000);
                 }
-            }, 1000);
-            @else
-            document.getElementById("countdown").style.display = "none";
+            });
             @endif
         </script>
         <script>

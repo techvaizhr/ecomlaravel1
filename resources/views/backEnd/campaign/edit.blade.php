@@ -288,7 +288,7 @@
                     </div>
                     <!-- col end -->
                     <div class="col-sm-6 mb-3">
-                        <label for="image">Review Image *</label>
+                        <label for="image">Review Image</label>
                         <div class="input-group control-group increment">
                             <input type="file" name="image[]" class="form-control @error('image') is-invalid @enderror" />
                             <div class="input-group-btn">
@@ -319,8 +319,8 @@
 
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="review" class="form-label">Review *</label>
-                            <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ $edit_data->review}}"  id="review" required="">
+                            <label for="review" class="form-label">Review Title / Text</label>
+                            <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ $edit_data->review}}" id="review">
                             @error('review')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
