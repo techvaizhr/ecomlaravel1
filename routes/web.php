@@ -86,9 +86,12 @@ use App\Http\Controllers\DeliveryBoy\WalletController as DeliveryBoyWalletContro
 
 
 Route::get('admin/clear-cache', function () {
-    Artisan::call('optimize:clear');
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    \Illuminate\Support\Facades\Cache::flush();
+    \Brian2694\Toastr\Facades\Toastr::success('System and Catalog Cache cleared successfully!', 'Cache Cleared');
     return redirect()->back()->with('success', '✅ Cache cleared successfully!');
-})->middleware(['auth:admin', 'admin', 'demo_mode'])->name('admin.clear.cache');
+})->middleware(['auth:admin', 'admin'])->name('admin.clear.cache');
+
 
 // Admin root route - redirect to login if not authenticated, otherwise to dashboard
 Route::get('admin', function () {

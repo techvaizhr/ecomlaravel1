@@ -63,22 +63,38 @@ class CustomerController extends Controller
 
     public function review(Request $request)
     {
-        $this->validate($request,[
-            'ratting'=>'required',
-            'review'=>'required',
+        $this->validate($request, [
+            'product_id' => 'required',
+            'ratting'    => 'required',
+            'review'     => 'required',
+            'image'      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         $review = new Review();
-        $review->name = Auth::guard('customer')->user()->name ?? 'N / A';
-        $review->email = Auth::guard('customer')->user()->email ?? 'N / A';
+        $review->name = Auth::guard('customer')->user()->name ?? 'Customer';
+        $review->email = Auth::guard('customer')->user()->email ?? 'customer@review.local';
         $review->product_id = $request->product_id;
         $review->review = $request->review;
         $review->ratting = $request->ratting;
-        $review->customer_id = Auth::guard('customer')->user()->id;
+        $review->customer_id = Auth::guard('customer')->user()->id ?? null;
         $review->status = 'pending';
+        $review->created_at = now();
+        $review->review_date = now();
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $name = 'review_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = 'public/uploads/reviews';
+            if (!is_dir(base_path($path))) {
+                mkdir(base_path($path), 0755, true);
+            }
+            $file->move(base_path($path), $name);
+            $review->image = 'public/uploads/reviews/' . $name;
+        }
+
         $review->save();
 
-        Toastr::success('Thanks, Your review send successfully', 'Success!');
+        Toastr::success('Thanks, Your review sent successfully! It will appear once approved.', 'Success!');
         return redirect()->back();
     }
 

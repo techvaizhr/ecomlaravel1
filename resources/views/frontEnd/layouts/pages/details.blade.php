@@ -878,14 +878,15 @@
                                 <div class="details-ratting-wrapper">
                                     @php
                                         $averageRating = (float) ($productReviewsAverage ?? 0);
-                                        $filledStars = floor($averageRating);
-                                        $emptyStars = 5 - $filledStars;
+                                        $filledStars   = (int) floor($averageRating);
+                                        $hasHalfStar   = ($averageRating - $filledStars) >= 0.5;
+                                        $emptyStars    = 5 - $filledStars - ($hasHalfStar ? 1 : 0);
                                     @endphp
                                     @if ($averageRating >= 0 && $averageRating <= 5)
-                                        @for ($i = 1; $i <= $filledStars; $i++)<i class="fas fa-star"></i>@endfor
-                                        @if ($averageRating != $filledStars)<i class="far fa-star-half-alt"></i>@endif
-                                        @for ($i = 1; $i <= $emptyStars; $i++)<i class="far fa-star"></i>@endfor
-                                        <span>{{ number_format($averageRating, 2) }}/5</span>
+                                        @for ($i = 1; $i <= $filledStars; $i++)<i class="fas fa-star text-warning"></i>@endfor
+                                        @if ($hasHalfStar)<i class="fas fa-star-half-alt text-warning"></i>@endif
+                                        @for ($i = 1; $i <= $emptyStars; $i++)<i class="far fa-star text-muted"></i>@endfor
+                                        <span>{{ number_format($averageRating, 1) }}/5</span>
                                     @endif
                                     <a class="all-reviews-button" href="#writeReview">See Reviews ({{ $productReviewsTotal }})</a>
                                     @if ($details->brand)
@@ -1160,7 +1161,7 @@
                                                 <div class="insert-review">
                                                     @if (Auth::guard('customer')->user())
                                                         <form action="{{ route('customer.review') }}" id="review-form"
-                                                            method="POST">
+                                                            method="POST" enctype="multipart/form-data">
                                                             @csrf
                                                             <input type="hidden" name="product_id" value="{{ $details->id }}">
                                                             <div class="fz-12 mb-2">
@@ -1192,17 +1193,23 @@
                                                                     </label>
                                                                 </div>
                                                             </div>
-                
-                                                            <div class="form-group">
+                                
+                                                            <div class="form-group mb-2">
                                                                 <label for="message-text" class="col-form-label">Message:</label>
-                                                                <textarea required class="form-control radius-lg" name="review" id="message-text"></textarea>
+                                                                <textarea required class="form-control radius-lg" name="review" id="message-text" placeholder="Share your experience..."></textarea>
                                                                 <span id="validation-message" style="color: red;"></span>
                                                             </div>
+
+                                                            <div class="form-group mb-3">
+                                                                <label class="col-form-label">Photo (Optional):</label>
+                                                                <input type="file" name="image" class="form-control" accept="image/*">
+                                                            </div>
+
                                                             <div class="form-group">
-                                                                <button class="details-review-button" type="submit">Submit
+                                                                <button class="details-review-button w-100" type="submit">Submit
                                                                     Review</button>
                                                             </div>
-                
+                                
                                                         </form>
                                                     @else
                                                         <a class="customer-login-redirect" href="{{ route('customer.login') }}">Login

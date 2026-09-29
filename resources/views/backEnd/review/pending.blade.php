@@ -191,11 +191,12 @@
             <table class="table table-modern mb-0">
                 <thead>
                     <tr>
-                        <th width="50">#</th>
+                        <th width="40">#</th>
                         <th>Customer</th>
                         <th>Product</th>
+                        <th width="70">Photo</th>
                         <th>Rating</th>
-                        <th width="35%">Review Comment</th>
+                        <th width="30%">Review Comment</th>
                         <th>Date</th>
                         <th width="140" class="text-end">Actions</th>
                     </tr>
@@ -227,12 +228,25 @@
                             {{-- Product --}}
                             <td>
                                 @if($value->product)
-                                    <a href="{{ route('product', $value->product->slug ?? '#') }}" target="_blank" class="fw-semibold text-primary text-truncate d-inline-block" style="max-width: 200px;" title="{{ $value->product->name }}">
+                                    <a href="{{ route('product', $value->product->slug ?? '#') }}" target="_blank" class="fw-semibold text-primary text-truncate d-inline-block" style="max-width: 180px;" title="{{ $value->product->name }}">
                                         {{ $value->product->name }} <i data-feather="external-link" style="width: 12px; height: 12px;"></i>
                                     </a>
                                 @else
                                     <span class="badge bg-light text-muted border py-1 px-2" title="Product was deleted or is no longer available">
                                         <i class="fas fa-box-open text-secondary me-1"></i> Product Deleted
+                                    </span>
+                                @endif
+                            </td>
+
+                            {{-- Real Review Image --}}
+                            <td>
+                                @if(!empty($value->image))
+                                    <a href="{{ asset($value->image) }}" target="_blank" title="Click to view real image">
+                                        <img src="{{ asset($value->image) }}" alt="review photo" class="rounded border shadow-sm" style="width: 44px; height: 44px; object-fit: cover;">
+                                    </a>
+                                @else
+                                    <span class="badge bg-light text-muted border py-1 px-2" style="font-size: 11px;">
+                                        No image
                                     </span>
                                 @endif
                             </td>
@@ -256,7 +270,8 @@
 
                             {{-- Created Date --}}
                             <td class="text-muted small">
-                                {{ $value->created_at ? $value->created_at->format('d M, Y') : 'N/A' }}
+                                <div class="fw-semibold text-dark">{{ $value->created_at ? $value->created_at->format('d M, Y') : 'N/A' }}</div>
+                                <small class="text-muted" style="font-size: 11px;">{{ $value->created_at ? $value->created_at->diffForHumans() : '' }}</small>
                             </td>
 
                             {{-- Actions --}}
@@ -287,7 +302,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <div class="text-muted">
                                     <i data-feather="check-circle" style="width: 48px; height: 48px; opacity: 0.35;" class="mb-2 text-success"></i>
                                     <p class="fw-bold mb-1">No Pending Reviews</p>

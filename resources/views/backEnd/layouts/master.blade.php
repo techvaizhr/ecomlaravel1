@@ -1024,6 +1024,16 @@
               </div>
             </li>
 
+            {{-- ⚡ CLEAR CACHE ICON BUTTON (DESKTOP) --}}
+            <li class="dropdown d-none d-lg-inline-block">
+              <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" href="{{ route('admin.clear.cache') }}" role="button" title="Clear All Cache (ক্যাশ ক্লিয়ার করুন)">
+                <i class="fe-trash-2 noti-icon text-warning" style="font-size: 19px;"></i>
+                <span class="badge bg-danger rounded-pill d-none d-xl-inline-block ms-1" style="font-size: 10px; font-weight: 600; padding: 3px 8px; vertical-align: middle;">
+                  <i class="fe-zap me-1"></i>Clear Cache
+                </span>
+              </a>
+            </li>
+
             <li class="dropdown d-none d-lg-inline-block">
               <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen" href="#" title="Fullscreen">
                 <i class="fe-maximize noti-icon"></i>
