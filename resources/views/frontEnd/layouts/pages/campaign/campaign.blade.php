@@ -862,14 +862,7 @@
                 </div>
             </div>
         </section>
-        @endiflass="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        @endif
 
     <section class="form_sec">
         <div class="container">
