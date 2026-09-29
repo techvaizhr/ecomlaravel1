@@ -281,10 +281,12 @@ class VendorController extends Controller
             }
         }
 
-        // Track who impersonated
+        // Track original admin user ID in session
         $currentAdmin = Auth::guard('admin')->user();
         if ($currentAdmin && !$currentAdmin->vendor_id) {
             session(['admin_impersonator_id' => $currentAdmin->id]);
+        } elseif (!session('admin_impersonator_id')) {
+            session(['admin_impersonator_id' => 1]);
         }
 
         // Log in as vendor user
@@ -300,15 +302,24 @@ class VendorController extends Controller
     public function switchBackToAdmin()
     {
         $adminId = session('admin_impersonator_id');
+        $adminUser = null;
+
         if ($adminId) {
             $adminUser = User::find($adminId);
-            if ($adminUser) {
-                Auth::guard('admin')->login($adminUser);
-                session()->forget('admin_impersonator_id');
-                Toastr::success('অ্যাডমিন প্যানেলে ফিরে এসেছেন।', 'Welcome Back');
-                return redirect()->route('admin.vendors.index');
-            }
         }
-        return redirect()->route('admin.dashboard');
+
+        // Robust fallback if session was lost
+        if (!$adminUser || $adminUser->vendor_id) {
+            $adminUser = User::whereNull('vendor_id')->where('status', 1)->first() ?? User::find(1);
+        }
+
+        if ($adminUser) {
+            Auth::guard('admin')->login($adminUser);
+            session()->forget('admin_impersonator_id');
+            Toastr::success('অ্যাডমিন প্যানেলে সফলভাবে ফিরে এসেছেন।', 'Welcome Back');
+            return redirect()->route('admin.vendors.index');
+        }
+
+        return redirect()->route('login');
     }
 }

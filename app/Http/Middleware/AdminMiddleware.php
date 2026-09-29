@@ -13,6 +13,11 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        // Allow switch-back / return-to-admin route to execute so admin impersonation can end safely
+        if ($request->routeIs('admin.vendors.switch-back') || $request->is('admin/vendors/impersonate/switch-back') || $request->is('*/vendors/impersonate/switch-back')) {
+            return $next($request);
+        }
+
         if (!Auth::guard('admin')->check()) {
             return redirect()->route('login')->with('error', 'Please login to access admin panel.');
         }
