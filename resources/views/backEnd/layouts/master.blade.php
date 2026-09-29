@@ -62,6 +62,65 @@
         stroke: {{ $brandPrimary }} !important;
       }
 
+      /* 🛡️ Universal Global Admin Confirmation Modal Styling */
+      .swal2-container {
+        z-index: 999999 !important;
+      }
+      .swal2-popup.admin-swal-modal {
+        border-radius: 18px !important;
+        padding: 24px 22px !important;
+        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+        font-family: inherit !important;
+      }
+      .swal2-popup.admin-swal-modal .swal2-icon {
+        margin: 10px auto 14px !important;
+      }
+      .swal2-popup.admin-swal-modal .swal2-title {
+        font-size: 1.25rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        padding: 0 !important;
+        margin-bottom: 6px !important;
+      }
+      .swal2-popup.admin-swal-modal .swal2-html-container {
+        font-size: 0.92rem !important;
+        color: #64748b !important;
+        margin: 8px 0 22px 0 !important;
+        line-height: 1.5 !important;
+      }
+      .swal2-popup.admin-swal-modal .swal2-actions {
+        gap: 10px !important;
+        width: 100% !important;
+        justify-content: center !important;
+        margin-top: 0 !important;
+      }
+      .admin-swal-confirm-btn {
+        padding: 9px 24px !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        border-radius: 50px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25) !important;
+        transition: all 0.2s ease !important;
+      }
+      .admin-swal-cancel-btn {
+        padding: 9px 22px !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        border-radius: 50px !important;
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #e2e8f0 !important;
+        transition: all 0.2s ease !important;
+      }
+      .admin-swal-confirm-btn:hover {
+        transform: translateY(-1px) !important;
+      }
+      .admin-swal-cancel-btn:hover {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+      }
+
       /* 🔔 Modern Notification & Topbar Dropdown Styles (Header-attached & Fully Responsive) */
       .topbar-dropdown {
         position: relative;
@@ -2617,47 +2676,179 @@
     });
     </script>
     <script type="text/javascript">
-      $(document).on('click', '.delete-confirm', function (event) {
-        event.preventDefault();
-        var form = $(this).closest("form");
-        @if(isset($demoMode) && $demoMode)
-        showDemoModeAlert();
-        return;
-        @endif
+      // =========================================================================
+      // 🛡️ UNIVERSAL GLOBAL CONFIRMATION MODAL SYSTEM (SweetAlert2)
+      // =========================================================================
+      window.adminConfirm = function(options, callback) {
+        if (typeof options === 'string') {
+          options = { text: options };
+        }
+        options = options || {};
+
+        var text = (options.text || options.title || '').trim();
+        var isDelete = options.isDelete;
+        if (isDelete === undefined && text) {
+          var t = text.toLowerCase();
+          isDelete = t.includes('delete') || t.includes('মুছ') || t.includes('মুছে') || t.includes('remove') || t.includes('destroy') || t.includes('স্থায়ীভাবে');
+        }
+
+        var defaultTitle = isDelete ? 'আপনি কি নিশ্চিত?' : 'কনফার্মেশন';
+        var defaultBtnText = isDelete ? '<i class="fe-trash-2 me-1"></i> হ্যাঁ, ডিলিট করুন' : '<i class="fe-check me-1"></i> হ্যাঁ, নিশ্চিত';
+        var defaultBtnClass = isDelete ? 'btn btn-danger admin-swal-confirm-btn' : 'btn btn-primary admin-swal-confirm-btn';
+
+        var config = {
+          title: options.title || defaultTitle,
+          text: options.text || 'আপনি কি এই কাজটি সম্পন্ন করতে চান?',
+          icon: options.icon || (isDelete ? 'warning' : 'question'),
+          showCancelButton: true,
+          confirmButtonText: options.confirmButtonText || defaultBtnText,
+          cancelButtonText: options.cancelButtonText || '<i class="fe-x me-1"></i> বাতিল',
+          buttonsStyling: false,
+          customClass: {
+            popup: 'admin-swal-modal',
+            confirmButton: options.confirmButtonClass || defaultBtnClass,
+            cancelButton: 'admin-swal-cancel-btn me-2'
+          },
+          reverseButtons: true,
+          focusCancel: isDelete ? true : false
+        };
+
         if (typeof Swal !== 'undefined') {
-          Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-          }).then(function(result) {
-            if (result.isConfirmed) { form.submit(); }
+          return Swal.fire(config).then(function(result) {
+            if (typeof callback === 'function') {
+              callback(result.isConfirmed);
+            }
+            return result;
           });
         } else {
-          if (confirm('Are you sure you want to delete this record?')) { form.submit(); }
+          var res = window.confirm(config.text);
+          if (typeof callback === 'function') callback(res);
+          return Promise.resolve({ isConfirmed: res });
         }
-      });
-      $(document).on('click', '.change-confirm', function (event) {
-        event.preventDefault();
-        var form = $(this).closest("form");
-        @if(isset($demoMode) && $demoMode)
-        showDemoModeAlert();
-        return;
-        @endif
-        swal({
-          title: `Are you sure you want to change this record?`,
-          icon: "warning",
-          buttons: true,
-          dangerMode: true,
-        }).then((willDelete) => {
-          if (willDelete) {
-            form.submit();
-          }
-        });
-      });
+      };
+
+      // Helper to extract confirm message from inline attributes
+      function extractConfirmMsg(el, attrName) {
+        if (!el) return null;
+        if (el.dataset && el.dataset.confirm) return el.dataset.confirm;
+        if (el.dataset && el.dataset.confirmMsg) return el.dataset.confirmMsg;
+        var attr = el.getAttribute(attrName) || '';
+        var match = attr.match(/confirm\s*\(\s*(['"`])(.*?)\1\s*\)/);
+        if (match && match[2]) return match[2];
+        return null;
+      }
+
+      // 1. Intercept any Click on Links / Buttons with inline confirm / classes
+      document.addEventListener('click', function(e) {
+        var target = e.target;
+        var interactiveEl = target.closest('a, button, input[type="submit"], input[type="button"]');
+        if (!interactiveEl) return;
+
+        if (interactiveEl.dataset.confirmed === 'true') {
+          delete interactiveEl.dataset.confirmed;
+          return;
+        }
+
+        var form = interactiveEl.closest('form');
+        var isFormSubmit = form && (interactiveEl.type === 'submit' || interactiveEl.matches('button:not([type]), button[type="submit"]'));
+        
+        var confirmMsg = extractConfirmMsg(interactiveEl, 'onclick');
+        var formConfirmMsg = isFormSubmit ? extractConfirmMsg(form, 'onsubmit') : null;
+
+        var hasDeleteClass = interactiveEl.classList.contains('delete-confirm') || 
+                             interactiveEl.classList.contains('btn-action-del') || 
+                             interactiveEl.classList.contains('order_delete') || 
+                             (form && form.classList.contains('delete-confirm'));
+
+        var isDestroyHref = interactiveEl.tagName === 'A' && interactiveEl.href && 
+                            (interactiveEl.href.includes('destroy') || interactiveEl.href.includes('/delete') || interactiveEl.href.includes('clear.cache'));
+
+        var finalMsg = confirmMsg || formConfirmMsg;
+
+        if (!finalMsg && hasDeleteClass) {
+          finalMsg = 'আপনি কি এই তথ্যটি মুছে ফেলতে চান? এই কাজটি অপরিবর্তনযোগ্য হতে পারে।';
+        }
+
+        if (finalMsg) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          @if(isset($demoMode) && $demoMode)
+          showDemoModeAlert();
+          return false;
+          @endif
+
+          var isDeleteAction = hasDeleteClass || 
+                               (form && !!form.querySelector('input[name="_method"][value="DELETE"]')) || 
+                               (interactiveEl.tagName === 'A' && isDestroyHref);
+
+          window.adminConfirm({
+            text: finalMsg,
+            isDelete: isDeleteAction
+          }, function(isConfirmed) {
+            if (isConfirmed) {
+              if (isFormSubmit && form) {
+                form.dataset.confirmed = 'true';
+                if (interactiveEl.name) {
+                  var hidden = document.createElement('input');
+                  hidden.type = 'hidden';
+                  hidden.name = interactiveEl.name;
+                  hidden.value = interactiveEl.value || '1';
+                  form.appendChild(hidden);
+                }
+                HTMLFormElement.prototype.submit.call(form);
+              } else if (interactiveEl.tagName === 'A' && interactiveEl.href && !interactiveEl.href.startsWith('javascript:')) {
+                if (interactiveEl.target === '_blank') {
+                  window.open(interactiveEl.href, '_blank');
+                } else {
+                  window.location.href = interactiveEl.href;
+                }
+              } else {
+                interactiveEl.dataset.confirmed = 'true';
+                interactiveEl.click();
+              }
+            }
+          });
+          return false;
+        }
+      }, true);
+
+      // 2. Intercept Form Submit directly if triggered programmatically or via Enter key
+      document.addEventListener('submit', function(e) {
+        var form = e.target;
+        if (!form || form.dataset.confirmed === 'true') {
+          delete form.dataset.confirmed;
+          return;
+        }
+
+        var formConfirmMsg = extractConfirmMsg(form, 'onsubmit') || (form.classList.contains('delete-confirm') ? 'আপনি কি নিশ্চিত?' : null);
+
+        if (formConfirmMsg) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          @if(isset($demoMode) && $demoMode)
+          showDemoModeAlert();
+          return false;
+          @endif
+
+          var isDeleteForm = form.classList.contains('delete-confirm') || !!form.querySelector('input[name="_method"][value="DELETE"]');
+
+          window.adminConfirm({
+            text: formConfirmMsg,
+            isDelete: isDeleteForm
+          }, function(isConfirmed) {
+            if (isConfirmed) {
+              form.dataset.confirmed = 'true';
+              HTMLFormElement.prototype.submit.call(form);
+            }
+          });
+          return false;
+        }
+      }, true);
+
       @if(isset($demoMode) && $demoMode)
       $(document).on('submit', 'form', function(e) {
         var action = (this.action || '').toLowerCase();

@@ -662,15 +662,24 @@
     });
 
     $('#btn-clear-chat').on('click', function () {
-        if (!confirm('চ্যাট ইতিহাস মুছে ফেলবেন?')) return;
-        $.post('{{ route('admin.gemini_chat.clear') }}', { _token: '{{ csrf_token() }}' }, function () {
-            $messages.html(
-                '<div class="gemini-empty-wrapper" id="chat-empty">' +
-                '<div class="gemini-empty-icon"><i class="fas fa-sparkles"></i></div>' +
-                '<h5>চ্যাট ক্লিয়ার সম্পন্ন হয়েছে</h5>' +
-                '<p>আপনার নতুন প্রশ্ন জিজ্ঞাসা করুন।</p></div>'
-            );
-            if (typeof toastr !== 'undefined') toastr.success('চ্যাট ক্লিয়ার হয়েছে');
+        window.adminConfirm({
+            title: 'চ্যাট ইতিহাস পরিষ্কার',
+            text: 'আপনি কি নিশ্চিত যে AI চ্যাট ইতিহাস মুছে ফেলতে চান?',
+            icon: 'warning',
+            confirmButtonText: '<i class="fe-trash-2 me-1"></i> হ্যাঁ, চ্যাট মুছুন',
+            confirmButtonClass: 'btn btn-danger admin-swal-confirm-btn',
+            isDelete: true
+        }, function(confirmed) {
+            if (!confirmed) return;
+            $.post('{{ route('admin.gemini_chat.clear') }}', { _token: '{{ csrf_token() }}' }, function () {
+                $messages.html(
+                    '<div class="gemini-empty-wrapper" id="chat-empty">' +
+                    '<div class="gemini-empty-icon"><i class="fas fa-sparkles"></i></div>' +
+                    '<h5>চ্যাট ক্লিয়ার সম্পন্ন হয়েছে</h5>' +
+                    '<p>আপনার নতুন প্রশ্ন জিজ্ঞাসা করুন।</p></div>'
+                );
+                if (typeof toastr !== 'undefined') toastr.success('চ্যাট ক্লিয়ার হয়েছে');
+            });
         });
     });
 

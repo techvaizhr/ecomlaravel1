@@ -943,19 +943,30 @@ $(document).ready(function () {
         var orderId = $(this).data('order-id');
         var $btn = $(this);
         if (!orderId || !slug) return;
-        if (!confirm('এই অর্ডার ' + slug.toUpperCase() + ' কুরিয়ারে পাঠাতে চান?')) return;
-        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
-        $.get('{{ url("admin/bulk-courier") }}/' + slug + '?status=5', { order_ids: [orderId] }, function (res) {
-            if (res.status === 'success') {
-                toastr.success(res.message || 'কুরিয়ারে পাঠানো হয়েছে');
-                setTimeout(function () { location.reload(); }, 1200);
-            } else {
-                toastr.error(res.message || 'ব্যর্থ');
-                $btn.prop('disabled', false).html('<i class="fas fa-truck"></i> ' + slug.charAt(0).toUpperCase() + slug.slice(1));
-            }
-        }).fail(function () {
-            toastr.error('কুরিয়ার রিকোয়েস্ট ব্যর্থ');
-            $btn.prop('disabled', false);
+
+        window.adminConfirm({
+            title: 'কুরিয়ারে বুকিং',
+            text: 'এই অর্ডারটি কি ' + slug.toUpperCase() + ' কুরিয়ারে পাঠাতে চান?',
+            icon: 'question',
+            confirmButtonText: '<i class="fas fa-truck me-1"></i> হ্যাঁ, পাঠান',
+            confirmButtonClass: 'btn btn-primary admin-swal-confirm-btn',
+            isDelete: false
+        }, function(confirmed) {
+            if (!confirmed) return;
+
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+            $.get('{{ url("admin/bulk-courier") }}/' + slug + '?status=5', { order_ids: [orderId] }, function (res) {
+                if (res.status === 'success') {
+                    toastr.success(res.message || 'কুরিয়ারে পাঠানো হয়েছে');
+                    setTimeout(function () { location.reload(); }, 1200);
+                } else {
+                    toastr.error(res.message || 'ব্যর্থ');
+                    $btn.prop('disabled', false).html('<i class="fas fa-truck"></i> ' + slug.charAt(0).toUpperCase() + slug.slice(1));
+                }
+            }).fail(function () {
+                toastr.error('কুরিয়ার রিকোয়েস্ট ব্যর্থ');
+                $btn.prop('disabled', false);
+            });
         });
     });
 

@@ -630,14 +630,23 @@
     });
 
     document.getElementById('gaw-clear').addEventListener('click', function () {
-        if (!confirm('চ্যাট মুছবেন?')) return;
-        fetch(routes.clear, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': routes.csrf, 'Accept': 'application/json' }
-        }).then(function () {
-            history = [];
-            renderHistory();
-            if (typeof toastr !== 'undefined') toastr.success('চ্যাট ক্লিয়ার');
+        window.adminConfirm({
+            title: 'চ্যাট ইতিহাস পরিষ্কার',
+            text: 'আপনি কি নিশ্চিত যে AI চ্যাট ইতিহাস মুছে ফেলতে চান?',
+            icon: 'warning',
+            confirmButtonText: '<i class="fe-trash-2 me-1"></i> হ্যাঁ, চ্যাট মুছুন',
+            confirmButtonClass: 'btn btn-danger admin-swal-confirm-btn',
+            isDelete: true
+        }, function(confirmed) {
+            if (!confirmed) return;
+            fetch(routes.clear, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': routes.csrf, 'Accept': 'application/json' }
+            }).then(function () {
+                history = [];
+                renderHistory();
+                if (typeof toastr !== 'undefined') toastr.success('চ্যাট ক্লিয়ার');
+            });
         });
     });
 

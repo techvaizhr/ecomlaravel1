@@ -375,18 +375,19 @@
 
 <script>
 function submitDeleteAllCustomers() {
-    var text = prompt('Type DELETE to delete all customers permanently:');
-    if (text !== 'DELETE') {
-        if (text !== null) {
-            alert('Wrong text entered. Action cancelled.');
+    window.adminConfirm({
+        title: 'সতর্কতা! সকল কাস্টমার ডিলিট',
+        text: 'আপনি কি নিশ্চিত যে সকল কাস্টমার অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা সম্ভব নয়।',
+        icon: 'warning',
+        confirmButtonText: '<i class="fe-trash-2 me-1"></i> হ্যাঁ, সব মুছে ফেলুন',
+        confirmButtonClass: 'btn btn-danger admin-swal-confirm-btn',
+        isDelete: true
+    }, function(confirmed) {
+        if (confirmed) {
+            document.getElementById('customer-delete-all-confirm').value = 'DELETE';
+            document.getElementById('form-delete-all-customers').submit();
         }
-        return;
-    }
-    if (!confirm('WARNING! All customer accounts will be deleted permanently. Continue?')) {
-        return;
-    }
-    document.getElementById('customer-delete-all-confirm').value = 'DELETE';
-    document.getElementById('form-delete-all-customers').submit();
+    });
 }
 </script>
 @endsection

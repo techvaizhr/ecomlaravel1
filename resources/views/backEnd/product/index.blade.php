@@ -611,29 +611,36 @@
             var productId = $(this).data('id');
             var productName = $(this).data('name');
 
-            if (!confirm('আপনি কি "' + productName + '" পণ্যটি ইনহাউজ (Inhouse / Own Inventory) করতে চান?')) {
-                return;
-            }
+            window.adminConfirm({
+                title: 'ইনহাউজ রূপান্তর',
+                text: 'আপনি কি "' + productName + '" পণ্যটি নিজস্ব ইনহাউজে (Inhouse / Own Inventory) রূপান্তর করতে চান?',
+                icon: 'question',
+                confirmButtonText: '<i class="fe-check me-1"></i> হ্যাঁ, রূপান্তর করুন',
+                confirmButtonClass: 'btn btn-primary admin-swal-confirm-btn',
+                isDelete: false
+            }, function(confirmed) {
+                if (!confirmed) return;
 
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('products.assign_vendor') }}",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    product_id: productId,
-                    vendor_id: '' // empty = inhouse
-                },
-                success: function(res) {
-                    if (res.status === 'success') {
-                        toastr.success(res.message);
-                        setTimeout(function() { location.reload(); }, 600);
-                    } else {
-                        toastr.error(res.message || "সমস্যা হয়েছে!");
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('products.assign_vendor') }}",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        product_id: productId,
+                        vendor_id: '' // empty = inhouse
+                    },
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            toastr.success(res.message);
+                            setTimeout(function() { location.reload(); }, 600);
+                        } else {
+                            toastr.error(res.message || "সমস্যা হয়েছে!");
+                        }
+                    },
+                    error: function() {
+                        toastr.error("ইনহাউজ রূপান্তর করতে সমস্যা হয়েছে!");
                     }
-                },
-                error: function() {
-                    toastr.error("ইনহাউজ রূপান্তর করতে সমস্যা হয়েছে!");
-                }
+                });
             });
         });
 
@@ -672,29 +679,36 @@
                 return;
             }
 
-            if (!confirm('নির্বাচিত ' + selectedIds.length + 'টি পণ্যকে আপনি ইনহাউজে (Own Inventory) স্থানান্তর করতে চান?')) {
-                return;
-            }
+            window.adminConfirm({
+                title: 'বাল্ক ইনহাউজ রূপান্তর',
+                text: 'নির্বাচিত ' + selectedIds.length + 'টি পণ্যকে আপনি নিজস্ব ইনহাউজে (Own Inventory) স্থানান্তর করতে চান?',
+                icon: 'question',
+                confirmButtonText: '<i class="fe-check me-1"></i> হ্যাঁ, ইনহাউজ করুন',
+                confirmButtonClass: 'btn btn-primary admin-swal-confirm-btn',
+                isDelete: false
+            }, function(confirmed) {
+                if (!confirmed) return;
 
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('products.bulk_assign_vendor') }}",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    product_ids: selectedIds,
-                    vendor_id: '' // empty = inhouse
-                },
-                success: function(res) {
-                    if (res.status === 'success') {
-                        toastr.success(res.message);
-                        setTimeout(function() { location.reload(); }, 700);
-                    } else {
-                        toastr.error(res.message || "সমস্যা হয়েছে!");
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('products.bulk_assign_vendor') }}",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        product_ids: selectedIds,
+                        vendor_id: '' // empty = inhouse
+                    },
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            toastr.success(res.message);
+                            setTimeout(function() { location.reload(); }, 700);
+                        } else {
+                            toastr.error(res.message || "সমস্যা হয়েছে!");
+                        }
+                    },
+                    error: function() {
+                        toastr.error("ইনহাউজ রূপান্তর করতে সমস্যা হয়েছে!");
                     }
-                },
-                error: function() {
-                    toastr.error("ইনহাউজ রূপান্তর করতে সমস্যা হয়েছে!");
-                }
+                });
             });
         });
 
