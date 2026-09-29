@@ -217,7 +217,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Customer Email (Optional)</label>
-                                <input type="email" class="form-control" name="email" id="reviewer_email" placeholder="e.g. tanvir@gmail.com" value="{{ old('email') }}">
+                                <input type="text" class="form-control" name="email" id="reviewer_email" placeholder="Optional (e.g. tanvir@gmail.com)" value="{{ old('email') }}">
                                 @error('email')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
@@ -353,8 +353,10 @@
             if (name) {
                 $('#reviewer_name').val(name);
             }
-            if (email) {
+            if (email && email !== 'N / A' && email !== 'N/A' && email !== 'customer@review.local') {
                 $('#reviewer_email').val(email);
+            } else {
+                $('#reviewer_email').val('');
             }
         });
 

@@ -209,8 +209,12 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Customer Email</label>
-                                <input type="email" class="form-control" name="email" value="{{ old('email', $edit_data->email) }}">
+                                <label class="form-label">Customer Email (Optional)</label>
+                                @php
+                                    $currentEmail = trim($edit_data->email ?? '');
+                                    $displayEmail = in_array(strtolower($currentEmail), ['n / a', 'n/a', 'na', 'customer@review.local', 'null']) ? '' : $currentEmail;
+                                @endphp
+                                <input type="text" class="form-control" name="email" value="{{ old('email', $displayEmail) }}" placeholder="Optional (e.g. customer@gmail.com)">
                                 @error('email')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror

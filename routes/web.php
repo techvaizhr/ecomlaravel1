@@ -89,8 +89,9 @@ Route::get('admin/clear-cache', function () {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
     \Illuminate\Support\Facades\Cache::flush();
     \Brian2694\Toastr\Facades\Toastr::success('System and Catalog Cache cleared successfully!', 'Cache Cleared');
-    return redirect()->back()->with('success', '✅ Cache cleared successfully!');
+    return redirect()->back();
 })->middleware(['auth:admin', 'admin'])->name('admin.clear.cache');
+
 
 
 // Admin root route - redirect to login if not authenticated, otherwise to dashboard

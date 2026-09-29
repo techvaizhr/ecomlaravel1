@@ -85,7 +85,7 @@ class ReviewController extends Controller
                 if (empty($name)) {
                     $name = $customer->name ?? 'Customer';
                 }
-                if (empty($email)) {
+                if (empty($email) || in_array(strtolower($email), ['n / a', 'n/a', 'na', 'null'])) {
                     $email = $customer->email ?? ($customer->phone ? $customer->phone . '@customer.local' : 'customer@review.local');
                 }
             }
@@ -94,7 +94,7 @@ class ReviewController extends Controller
         if (empty($name)) {
             $name = 'Verified Customer';
         }
-        if (empty($email)) {
+        if (empty($email) || in_array(strtolower($email), ['n / a', 'n/a', 'na', 'null'])) {
             $email = 'customer@review.local';
         }
 
@@ -157,10 +157,17 @@ class ReviewController extends Controller
 
         $update_data = Review::findOrFail($request->hidden_id);
 
+        $email = trim($request->email ?? '');
+        if (empty($email) || in_array(strtolower($email), ['n / a', 'n/a', 'na', 'null'])) {
+            $email = !empty($update_data->email) && !in_array(strtolower($update_data->email), ['n / a', 'n/a', 'na', 'null'])
+                ? $update_data->email
+                : 'customer@review.local';
+        }
+
         $update_data->product_id  = $request->product_id;
         $update_data->customer_id = $request->customer_id ? (int) $request->customer_id : $update_data->customer_id;
         $update_data->name        = $request->name;
-        $update_data->email       = $request->email ?: ($update_data->email ?: 'customer@review.local');
+        $update_data->email       = $email;
         $update_data->ratting     = $request->ratting;
         $update_data->review      = $request->review;
         $update_data->status      = ($request->status === 'active' || $request->status == 1) ? 'active' : 'pending';
