@@ -113,7 +113,7 @@ class ProductController extends Controller
         $per_page = $request->get('per_page', 25);
         $data = $query->paginate($per_page)->withQueryString();
         $categories = Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->get();
-        $vendors = Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
+        $vendors = Vendor::where('status', 1)->select('id', 'owner_name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
 
         return view('backEnd.product.index', compact('data', 'categories', 'vendors'));
     }
@@ -147,7 +147,7 @@ class ProductController extends Controller
         $per_page = $request->get('per_page', 25);
         $data = $query->paginate($per_page)->withQueryString();
         $categories = Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->get();
-        $vendors = Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
+        $vendors = Vendor::where('status', 1)->select('id', 'owner_name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
 
         return view('backEnd.product.pending', compact('data', 'categories', 'vendors'));
     }
@@ -214,7 +214,7 @@ class ProductController extends Controller
         $per_page = $request->get('per_page', 25);
         $data = $query->paginate($per_page)->withQueryString();
         $categories = Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->get();
-        $vendors = Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
+        $vendors = Vendor::where('status', 1)->select('id', 'owner_name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get();
         
         return view('backEnd.product.wholesale', compact('data', 'categories', 'vendors'));
     }
@@ -229,7 +229,7 @@ class ProductController extends Controller
             'brands'     => Brand::where('status', 1)->select('id', 'name')->get(),
             'colors'     => Color::where('status', 1)->get(),
             'sizes'      => Size::where('status', 1)->get(),
-            'vendors'    => Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get(),
+            'vendors'    => Vendor::where('status', 1)->select('id', 'owner_name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get(),
         ]);
     }
 
@@ -516,7 +516,7 @@ class ProductController extends Controller
             'selectcolors'    => Productcolor::where('product_id', $id)->get(),
             'selectsizes'     => Productsize::where('product_id', $id)->get(),
             'wholesalePrices' => \App\Models\ProductWholesalePrice::where('product_id', $id)->get(),
-            'vendors'         => Vendor::where('status', 'active')->select('id', 'name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get(),
+            'vendors'         => Vendor::where('status', 1)->select('id', 'owner_name', 'shop_name', 'phone')->orderBy('shop_name', 'ASC')->get(),
         ]);
     }
 

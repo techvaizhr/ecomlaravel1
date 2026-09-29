@@ -218,7 +218,7 @@
                         @if(isset($vendors))
                             @foreach($vendors as $v)
                                 <option value="{{ $v->id }}" {{ old('vendor_id') == $v->id ? 'selected' : '' }}>
-                                    🏬 {{ $v->shop_name ? $v->shop_name . ' (' . $v->name . ')' : $v->name }} [ID: #{{ $v->id }}]
+                                    🏬 {{ $v->shop_name ? $v->shop_name . ($v->owner_name ? ' (' . $v->owner_name . ')' : '') : ($v->owner_name ?? 'Vendor #'.$v->id) }} [ID: #{{ $v->id }}]
                                 </option>
                             @endforeach
                         @endif

@@ -149,7 +149,7 @@
                                                     @if(isset($vendors))
                                                         @foreach($vendors as $v)
                                                             <option value="{{ $v->id }}">
-                                                                🏬 {{ $v->shop_name ? $v->shop_name . ' (' . $v->name . ')' : $v->name }}
+                                                                🏬 {{ $v->shop_name ? $v->shop_name . ($v->owner_name ? ' (' . $v->owner_name . ')' : '') : ($v->owner_name ?? 'Vendor #'.$v->id) }}
                                                             </option>
                                                         @endforeach
                                                     @endif
